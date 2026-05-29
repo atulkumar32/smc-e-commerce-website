@@ -122,10 +122,11 @@ function Footer() {
 
       {/* Bottom Bar */}
       <div className="site-footer__bottom">
-        <div className="site-footer__bottom-inner">
+        <div className="site-footer__bottom-inner d-flex">
           <p className="site-footer__copyright">
-            &copy; 2024 Shree Mahaveer Collections. All Rights Reserved.
+            &copy; 2026 Shree Mahaveer Collections. All Rights Reserved.
           </p>
+          <p>v1.0.0</p>
         </div>
       </div>
     </footer>
