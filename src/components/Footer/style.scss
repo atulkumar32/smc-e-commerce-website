@@ -1,6 +1,5 @@
 @import '../../Styles/Mixins';
 
-// ── Footer ────────────────────────────────────────────────────────────────────
 .site-footer {
   background-color: $color-primary;
   border-top: 1px solid $color-border;
@@ -14,7 +13,6 @@
     gap: 2.5rem;
   }
 
-  // ── Brand Column ──────────────────────────────────────────────────────────
   &__brand {
     @include flex-col;
     gap: 1rem;
@@ -30,10 +28,7 @@
     display: inline-block;
     @include transition(opacity);
     @include focus-ring($color-secondary);
-
-    &:hover {
-      opacity: 0.85;
-    }
+    &:hover { opacity: 0.85; }
   }
 
   &__brand-tagline {
@@ -57,13 +52,9 @@
     align-items: center;
     @include transition(color);
     @include focus-ring($color-secondary);
-
-    &:hover {
-      color: $color-secondary;
-    }
+    &:hover { color: $color-secondary; }
   }
 
-  // ── Link Columns ──────────────────────────────────────────────────────────
   &__col {
     @include flex-col;
     gap: 1rem;
@@ -94,13 +85,9 @@
     font-weight: $fw-regular;
     @include transition(color);
     @include focus-ring($color-secondary);
-
-    &:hover {
-      color: $color-text-primary;
-    }
+    &:hover { color: $color-text-primary; }
   }
 
-  // ── Bottom Bar ────────────────────────────────────────────────────────────
   &__bottom {
     border-top: 1px solid $color-border;
   }
@@ -110,7 +97,6 @@
     padding-top: 1.25rem;
     padding-bottom: 1.25rem;
     @include flex-center;
-    // display: flex;
   }
 
   &__copyright {
@@ -120,51 +106,78 @@
     margin: 0;
     text-align: center;
   }
-}
 
-// ── Responsive ────────────────────────────────────────────────────────────────
+  // ── 4K ≥1536px ───────────────────────────────────────────────
+  @include min-2xl {
+    &__container {
+      padding-top: 6rem;
+      padding-bottom: 4rem;
+      gap: 3.5rem;
+    }
+    &__brand-name    { font-size: $fs-2xl; }
+    &__brand-tagline { font-size: $fs-base; max-width: 340px; }
+    &__col-link      { font-size: $fs-base; }
+  }
 
-// Tablet: 2-column grid
-@include lg {
-  .site-footer {
+  // ── Small desktop ≤1280px ─────────────────────────────────────
+  @include xl {
+    &__container { gap: 2rem; }
+  }
+
+  // ── Tablet landscape ≤1024px ──────────────────────────────────
+  @include lg {
     &__container {
       grid-template-columns: 1fr 1fr;
       gap: 2rem;
       padding-top: 3rem;
       padding-bottom: 2.5rem;
     }
-
-    &__brand {
-      grid-column: 1 / -1;
-    }
+    &__brand { grid-column: 1 / -1; }
   }
-}
 
-// Mobile: single column
-@include sm {
-  .site-footer {
+  // ── Tablet portrait ≤768px ────────────────────────────────────
+  @include md {
     &__container {
-      grid-template-columns: 1fr;
-      gap: 2rem;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.75rem;
       padding-top: 2.5rem;
       padding-bottom: 2rem;
     }
+    &__brand { grid-column: 1 / -1; }
+    &__brand-tagline { max-width: 100%; }
+  }
 
-    &__brand {
-      grid-column: auto;
+  // ── Large phone ≤640px ────────────────────────────────────────
+  @include sm {
+    &__container {
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      padding-top: 2rem;
+      padding-bottom: 1.75rem;
     }
+    &__brand-name { font-size: $fs-lg; }
+  }
 
-    &__brand-tagline {
-      max-width: 100%;
+  // ── Standard phone ≤480px ─────────────────────────────────────
+  @include xs {
+    &__container {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+      padding-top: 2rem;
+      padding-bottom: 1.5rem;
     }
+    &__brand { grid-column: auto; }
+    &__col-list { gap: 0.6rem; }
+    &__bottom-inner { padding-top: 1rem; padding-bottom: 1rem; }
+    &__copyright { font-size: 11px; }
+  }
 
-    &__bottom-inner {
-      padding-top: 1rem;
-      padding-bottom: 1rem;
-    }
-
-    &__copyright {
-      font-size: 0.7rem;
-    }
+  // ── Very small phone ≤360px ───────────────────────────────────
+  @include xxs {
+    &__container { padding-top: 1.75rem; padding-bottom: 1.25rem; gap: 1.25rem; }
+    &__brand-name { font-size: $fs-base; }
+    &__col-title  { font-size: 10px; }
+    &__col-link   { font-size: 11px; }
+    &__copyright  { font-size: 10px; }
   }
 }

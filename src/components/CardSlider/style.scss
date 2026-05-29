@@ -5,7 +5,6 @@
   gap: 0;
   outline: none;
 
-  // ── Header ────────────────────────────────────────────────────
   &__header {
     @include flex-between;
     margin-bottom: 2.5rem;
@@ -29,12 +28,8 @@
     @include headline($fs-3xl, $fw-semibold);
     color: $color-primary;
     margin: 0;
-
-    @include md { font-size: $fs-2xl; }
-    @include sm { font-size: $fs-xl; }
   }
 
-  // ── Nav buttons ───────────────────────────────────────────────
   &__nav {
     display: flex;
     gap: 0.75rem;
@@ -53,55 +48,30 @@
     @include transition(all);
     @include focus-ring($color-secondary);
 
-    &:hover {
-      background-color: $color-primary;
-      color: #ffffff;
-      border-color: $color-primary;
-    }
-
+    &:hover { background-color: $color-primary; color: #ffffff; border-color: $color-primary; }
     &:active { transform: scale(0.93); }
   }
 
-  // ── Viewport — clips the overflowing track ────────────────────
   &__viewport {
     overflow: hidden;
     width: 100%;
-    // Fade edges for a polished infinite feel
-    mask-image: linear-gradient(
-      to right,
-      transparent 0%,
-      black 6%,
-      black 94%,
-      transparent 100%
-    );
-    -webkit-mask-image: linear-gradient(
-      to right,
-      transparent 0%,
-      black 6%,
-      black 94%,
-      transparent 100%
-    );
+    mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
   }
 
-  // ── Track — RAF sets transform directly, NO CSS transition ────
   &__track {
     display: flex;
-    // transform is set inline by RAF — no transition here
     will-change: transform;
     user-select: none;
     cursor: grab;
-
     &:active { cursor: grabbing; }
   }
 
-  // ── Individual slide ──────────────────────────────────────────
   &__slide {
     flex-shrink: 0;
-    // All slides fully visible — no opacity dimming
     opacity: 1;
   }
 
-  // ── Dot indicators ────────────────────────────────────────────
   &__dots {
     display: flex;
     justify-content: center;
@@ -120,25 +90,56 @@
     @include transition(all, 0.3s);
     @include focus-ring($color-secondary);
 
-    &.is-active {
-      background-color: $color-secondary;
-      width: 24px;
-      border-radius: 4px;
-    }
-
-    &:hover:not(.is-active) {
-      background-color: $color-tertiary-300;
-    }
+    &.is-active { background-color: $color-secondary; width: 24px; border-radius: 4px; }
+    &:hover:not(.is-active) { background-color: $color-tertiary-300; }
   }
 
-  // ── Responsive ────────────────────────────────────────────────
+  // ── 4K ≥1536px ───────────────────────────────────────────────
+  @include min-2xl {
+    &__heading  { font-size: $fs-4xl; }
+    &__nav-btn  { width: 56px; height: 56px; }
+    &__header   { margin-bottom: 3rem; }
+  }
+
+  // ── Tablet landscape ≤1024px ──────────────────────────────────
+  @include lg {
+    &__heading  { font-size: $fs-2xl; }
+    &__nav-btn  { width: 44px; height: 44px; }
+  }
+
+  // ── Tablet portrait ≤768px ────────────────────────────────────
+  @include md {
+    &__heading  { font-size: $fs-2xl; }
+    &__header   { margin-bottom: 2rem; }
+    &__nav-btn  { width: 40px; height: 40px; }
+  }
+
+  // ── Large phone ≤640px ────────────────────────────────────────
   @include sm {
-    &__nav { display: none; }
-    &__header { margin-bottom: 1.75rem; }
-    &__viewport {
-      // remove fade on mobile — full bleed
-      mask-image: none;
-      -webkit-mask-image: none;
-    }
+    &__nav      { display: none; }
+    &__heading  { font-size: $fs-xl; }
+    &__header   { margin-bottom: 1.75rem; }
+    &__viewport { mask-image: none; -webkit-mask-image: none; }
+    &__dots     { margin-top: 1.25rem; }
+  }
+
+  // ── Standard phone ≤480px ─────────────────────────────────────
+  @include xs {
+    &__heading  { font-size: $fs-lg; }
+    &__header   { margin-bottom: 1.5rem; }
+    &__dot      { width: 6px; height: 6px; &.is-active { width: 18px; } }
+    &__dots     { gap: 0.35rem; margin-top: 1rem; }
+  }
+
+  // ── Very small phone ≤360px ───────────────────────────────────
+  @include xxs {
+    &__heading  { font-size: $fs-base; }
+    &__eyebrow  { font-size: 9px; }
+    &__dots     { margin-top: 0.875rem; }
+  }
+
+  // ── Reduced motion ────────────────────────────────────────────
+  @include reduced-motion {
+    &__track { transition: none; }
   }
 }

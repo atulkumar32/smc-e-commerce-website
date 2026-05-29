@@ -2,14 +2,9 @@
 
 $ease: cubic-bezier(0.05, 0.61, 0.41, 0.95);
 
-// ── Section ───────────────────────────────────────────────────────────────────
 .exslider {
   padding: 5rem 0;
   background-color: $color-primary;
-
-  @include lg { padding: 4rem 0; }
-  @include md { padding: 3rem 0; }
-  @include sm { padding: 2.5rem 0; }
 
   &__header {
     @include container;
@@ -31,12 +26,8 @@ $ease: cubic-bezier(0.05, 0.61, 0.41, 0.95);
     @include headline($fs-3xl, $fw-semibold);
     color: #ffffff;
     margin: 0;
-
-    @include md { font-size: $fs-2xl; }
-    @include sm { font-size: $fs-xl; }
   }
 
-  // ── Options row ───────────────────────────────────────────────
   &__options {
     @include container;
     display: flex;
@@ -44,16 +35,8 @@ $ease: cubic-bezier(0.05, 0.61, 0.41, 0.95);
     align-items: stretch;
     overflow: hidden;
     height: 440px;
-
-    @include md { height: 380px; }
-
-    @include sm {
-      flex-direction: column;
-      height: auto;
-    }
   }
 
-  // ── Single panel ──────────────────────────────────────────────
   &__option {
     position: relative;
     overflow: hidden;
@@ -65,18 +48,15 @@ $ease: cubic-bezier(0.05, 0.61, 0.41, 0.95);
     background-position: center;
     cursor: pointer;
     flex-grow: 1;
-
     transition:
       flex-grow      0.55s $ease,
       border-radius  0.55s $ease,
       background-size 0.55s $ease,
       margin         0.55s $ease;
-
     outline: none;
 
     &:focus-visible { box-shadow: 0 0 0 3px $color-secondary; }
 
-    // ── Active ──────────────────────────────────────────────────
     &.is-active {
       flex-grow: 10000;
       border-radius: 40px;
@@ -88,89 +68,19 @@ $ease: cubic-bezier(0.05, 0.61, 0.41, 0.95);
           inset 0 -160px 120px -80px rgba(0,0,0,0.85),
           inset 0 -80px  80px  -60px rgba(0,0,0,0.5);
       }
-
-      // hide collapsed label
-      .exslider__collapsed-label {
-        opacity: 0;
-        pointer-events: none;
-        transform: translateX(-8px);
-      }
-
-      // show expanded content
-      .exslider__expanded-content {
-        opacity: 1;
-        transform: translateY(0);
-        pointer-events: auto;
-      }
-
-      // move toggle to top-right
-      .exslider__toggle {
-        top: 1rem;
-        right: 1rem;
-        bottom: auto;
-      }
+      .exslider__collapsed-label { opacity: 0; pointer-events: none; transform: translateX(-8px); }
+      .exslider__expanded-content { opacity: 1; transform: translateY(0); pointer-events: auto; }
+      .exslider__toggle { top: 1rem; right: 1rem; bottom: auto; }
     }
 
-    // ── Inactive ─────────────────────────────────────────────────
     &:not(.is-active) {
-      .exslider__shadow {
-        box-shadow: inset 0 -80px 60px -60px rgba(0,0,0,0.6);
-      }
-
-      .exslider__collapsed-label {
-        opacity: 1;
-        transform: translateX(0);
-        pointer-events: auto;
-      }
-
-      .exslider__expanded-content {
-        opacity: 0;
-        transform: translateY(12px);
-        pointer-events: none;
-      }
-
-      .exslider__toggle {
-        bottom: 1rem;
-        right: 50%;
-        transform: translateX(50%);
-        top: auto;
-      }
-    }
-
-    // ── Mobile ───────────────────────────────────────────────────
-    @include sm {
-      min-width: unset;
-      min-height: 64px;
-      border-radius: 20px;
-      background-size: cover;
-      margin: 4px 0;
-      flex-grow: unset;
-
-      &.is-active {
-        min-height: 260px;
-        flex-grow: unset;
-        border-radius: 24px;
-        margin: 4px 0;
-
-        .exslider__toggle {
-          top: 1rem;
-          right: 1rem;
-          transform: none;
-        }
-      }
-
-      &:not(.is-active) {
-        .exslider__toggle {
-          bottom: auto;
-          top: 50%;
-          right: 1rem;
-          transform: translateY(-50%);
-        }
-      }
+      .exslider__shadow { box-shadow: inset 0 -80px 60px -60px rgba(0,0,0,0.6); }
+      .exslider__collapsed-label { opacity: 1; transform: translateX(0); pointer-events: auto; }
+      .exslider__expanded-content { opacity: 0; transform: translateY(12px); pointer-events: none; }
+      .exslider__toggle { bottom: 1rem; right: 50%; transform: translateX(50%); top: auto; }
     }
   }
 
-  // ── Gradient shadow ───────────────────────────────────────────
   &__shadow {
     position: absolute;
     inset: 0;
@@ -179,7 +89,6 @@ $ease: cubic-bezier(0.05, 0.61, 0.41, 0.95);
     border-radius: inherit;
   }
 
-  // ── Collapsed: vertical rotated title ────────────────────────
   &__collapsed-label {
     position: absolute;
     bottom: 3.5rem;
@@ -200,13 +109,11 @@ $ease: cubic-bezier(0.05, 0.61, 0.41, 0.95);
     letter-spacing: $ls-wider;
     text-transform: uppercase;
     color: #ffffff;
-    // rotate text to read bottom-to-top
     writing-mode: vertical-rl;
     text-orientation: mixed;
     transform: rotate(180deg);
   }
 
-  // ── Expanded: horizontal content at bottom ────────────────────
   &__expanded-content {
     position: absolute;
     bottom: 0;
@@ -232,7 +139,6 @@ $ease: cubic-bezier(0.05, 0.61, 0.41, 0.95);
     color: $color-primary;
     @include flex-center;
     flex-shrink: 0;
-
     svg { width: 18px; height: 18px; }
   }
 
@@ -252,7 +158,6 @@ $ease: cubic-bezier(0.05, 0.61, 0.41, 0.95);
     margin: 0;
   }
 
-  // ── Buy Now button ────────────────────────────────────────────
   &__buy-btn {
     display: inline-flex;
     align-items: center;
@@ -268,20 +173,18 @@ $ease: cubic-bezier(0.05, 0.61, 0.41, 0.95);
     border-radius: 4px;
     @include transition(filter);
     @include focus-ring($color-secondary);
-
     &:hover { filter: brightness(1.1); }
     &:active { transform: scale(0.97); }
   }
 
-  // ── Toggle +/− button ─────────────────────────────────────────
   &__toggle {
     position: absolute;
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    background-color: rgba(255, 255, 255, 0.15);
+    background-color: rgba(255,255,255,0.15);
     backdrop-filter: blur(6px);
-    border: 1.5px solid rgba(255, 255, 255, 0.3);
+    border: 1.5px solid rgba(255,255,255,0.3);
     cursor: pointer;
     @include flex-center;
     @include transition(all, 0.35s);
@@ -291,15 +194,10 @@ $ease: cubic-bezier(0.05, 0.61, 0.41, 0.95);
     &:hover {
       background-color: $color-secondary;
       border-color: $color-secondary;
-
-      .exslider__toggle-h,
-      .exslider__toggle-v {
-        background-color: $color-primary;
-      }
+      .exslider__toggle-h, .exslider__toggle-v { background-color: $color-primary; }
     }
   }
 
-  // The + / − icon built from two spans
   &__toggle-icon {
     position: relative;
     width: 14px;
@@ -309,31 +207,99 @@ $ease: cubic-bezier(0.05, 0.61, 0.41, 0.95);
     justify-content: center;
   }
 
-  &__toggle-h,
-  &__toggle-v {
+  &__toggle-h, &__toggle-v {
     position: absolute;
     background-color: #ffffff;
     border-radius: 2px;
     @include transition(transform, 0.35s);
   }
 
-  // horizontal bar
-  &__toggle-h {
-    width: 14px;
-    height: 2px;
+  &__toggle-h { width: 14px; height: 2px; }
+  &__toggle-v { width: 2px; height: 14px; transform: rotate(0deg); }
+
+  &__toggle-icon.is-open .exslider__toggle-v { transform: rotate(90deg); }
+
+  // ── 4K ≥1536px ───────────────────────────────────────────────
+  @include min-2xl {
+    padding: 7rem 0;
+    &__options { height: 560px; }
+    &__heading { font-size: $fs-4xl; }
+    &__main    { font-size: $fs-2xl; }
   }
 
-  // vertical bar — rotates to 0deg (disappears into horizontal) when open
-  &__toggle-v {
-    width: 2px;
-    height: 14px;
-    transform: rotate(0deg);
+  // ── Tablet landscape ≤1024px ──────────────────────────────────
+  @include lg {
+    padding: 4rem 0;
+    &__options { height: 380px; }
+    &__heading { font-size: $fs-2xl; }
+    &__option  { min-width: 52px; }
   }
 
-  // When open: vertical bar rotates 90° → becomes horizontal → looks like −
-  &__toggle-icon.is-open {
-    .exslider__toggle-v {
-      transform: rotate(90deg);
+  // ── Tablet portrait ≤768px ────────────────────────────────────
+  @include md {
+    padding: 3rem 0;
+    &__options { height: 320px; }
+    &__main    { font-size: $fs-lg; }
+    &__sub     { font-size: $fs-xs; }
+    &__buy-btn { padding: 0.5rem 1.25rem; font-size: 10px; }
+  }
+
+  // ── Large phone ≤640px — switch to vertical stack ─────────────
+  @include sm {
+    padding: 2.5rem 0;
+    &__options {
+      flex-direction: column;
+      height: auto;
     }
+    &__option {
+      min-width: unset;
+      min-height: 64px;
+      border-radius: 20px;
+      background-size: cover;
+      margin: 4px 0;
+      flex-grow: unset;
+
+      &.is-active {
+        min-height: 260px;
+        flex-grow: unset;
+        border-radius: 24px;
+        margin: 4px 0;
+        .exslider__toggle { top: 1rem; right: 1rem; transform: none; }
+      }
+
+      &:not(.is-active) {
+        .exslider__toggle { bottom: auto; top: 50%; right: 1rem; transform: translateY(-50%); }
+      }
+    }
+    &__heading { font-size: $fs-xl; }
+    &__collapsed-title { writing-mode: horizontal-tb; transform: none; font-size: $fs-xs; }
+    &__collapsed-label { bottom: auto; top: 50%; left: 1rem; transform: translateY(-50%); }
+  }
+
+  // ── Standard phone ≤480px ─────────────────────────────────────
+  @include xs {
+    padding: 2rem 0;
+    &__option.is-active { min-height: 220px; }
+    &__expanded-content { padding: 1rem 1rem 1.25rem; gap: 0.75rem; }
+    &__main    { font-size: $fs-base; }
+    &__sub     { display: none; }
+    &__buy-btn { padding: 0.45rem 1rem; font-size: 9px; }
+    &__toggle  { width: 30px; height: 30px; }
+    &__toggle-h { width: 12px; }
+    &__toggle-v { height: 12px; }
+  }
+
+  // ── Very small phone ≤360px ───────────────────────────────────
+  @include xxs {
+    padding: 1.75rem 0;
+    &__option.is-active { min-height: 190px; }
+    &__heading { font-size: $fs-lg; }
+    &__icon    { width: 32px; height: 32px; svg { width: 14px; height: 14px; } }
+  }
+
+  // ── Reduced motion ────────────────────────────────────────────
+  @include reduced-motion {
+    &__option { transition: flex-grow 0.1s, border-radius 0.1s; }
+    &__expanded-content { transition: opacity 0.1s; }
   }
 }

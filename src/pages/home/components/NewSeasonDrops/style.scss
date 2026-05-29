@@ -4,11 +4,23 @@
   padding: 5rem 0;
   background-color: $color-neutral-50;
 
-  &__container {
-    @include container;
-  }
+  &__container { @include container; }
 
+  // ── 4K ≥1536px ───────────────────────────────────────────────
+  @include min-2xl { padding: 7rem 0; }
+
+  // ── Tablet landscape ≤1024px ──────────────────────────────────
   @include lg  { padding: 4rem 0; }
+
+  // ── Tablet portrait ≤768px ────────────────────────────────────
   @include md  { padding: 3rem 0; }
+
+  // ── Large phone ≤640px ────────────────────────────────────────
   @include sm  { padding: 2.5rem 0; }
+
+  // ── Standard phone ≤480px ─────────────────────────────────────
+  @include xs  { padding: 2rem 0; }
+
+  // ── Very small phone ≤360px ───────────────────────────────────
+  @include xxs { padding: 1.75rem 0; }
 }

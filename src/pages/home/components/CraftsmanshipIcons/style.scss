@@ -6,7 +6,6 @@
   padding: 5rem 0;
   overflow: hidden;
 
-  // Dot pattern overlay
   &__dots-bg {
     position: absolute;
     inset: 0;
@@ -22,10 +21,7 @@
     z-index: 1;
   }
 
-  // visually hidden heading for a11y
-  &__sr-heading {
-    @include visually-hidden;
-  }
+  &__sr-heading { @include visually-hidden; }
 
   &__grid {
     display: grid;
@@ -69,29 +65,58 @@
     max-width: 300px;
   }
 
-  // ── Responsive ───────────────────────────────────────────────
-  @include lg {
-    padding: 4rem 0;
+  // ── 4K ≥1536px ───────────────────────────────────────────────
+  @include min-2xl {
+    padding: 7rem 0;
+    &__grid      { gap: 4rem; }
+    &__icon-wrap { width: 96px; height: 96px; }
+    &__title     { font-size: $fs-lg; }
+    &__desc      { font-size: $fs-lg; max-width: 360px; }
   }
 
+  // ── Tablet landscape ≤1024px ──────────────────────────────────
+  @include lg {
+    padding: 4rem 0;
+    &__grid { gap: 2rem; }
+  }
+
+  // ── Tablet portrait ≤768px ────────────────────────────────────
   @include md {
     padding: 3rem 0;
-
     &__grid {
       grid-template-columns: 1fr;
       gap: 2.5rem;
     }
-
-    &__desc {
-      max-width: 480px;
-    }
+    &__desc { max-width: 480px; }
   }
 
+  // ── Large phone ≤640px ────────────────────────────────────────
   @include sm {
     padding: 2.5rem 0;
+    &__title     { font-size: $fs-base; }
+    &__icon-wrap { width: 68px; height: 68px; }
+    &__grid      { gap: 2rem; }
+  }
 
-    &__title {
-      font-size: $fs-base;
-    }
+  // ── Standard phone ≤480px ─────────────────────────────────────
+  @include xs {
+    padding: 2rem 0;
+    &__grid      { gap: 1.75rem; }
+    &__icon-wrap { width: 60px; height: 60px; }
+    &__title     { font-size: $fs-sm; letter-spacing: $ls-wider; }
+    &__desc      { font-size: $fs-sm; }
+    &__dots-bg   { background-size: 28px 28px; }
+  }
+
+  // ── Very small phone ≤360px ───────────────────────────────────
+  @include xxs {
+    padding: 1.75rem 0;
+    &__icon-wrap { width: 52px; height: 52px; }
+    &__item      { gap: 0.875rem; }
+  }
+
+  // ── Reduced motion ────────────────────────────────────────────
+  @include reduced-motion {
+    &__dots-bg { display: none; }
   }
 }
