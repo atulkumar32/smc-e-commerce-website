@@ -1,0 +1,122 @@
+.admin-login {
+  display: flex;
+  min-height: 100vh;
+
+  // ── Left decorative panel ──────────────────────────────────────────────────
+  &__panel {
+    display: none;
+    width: 420px;
+    flex-shrink: 0;
+    background: linear-gradient(145deg, #003c8f 0%, #1565c0 50%, #1976d2 100%);
+    position: relative;
+    overflow: hidden;
+
+    @media (min-width: 900px) {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    // Decorative circles
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.06);
+    }
+    &::before {
+      width: 380px;
+      height: 380px;
+      top: -100px;
+      right: -120px;
+    }
+    &::after {
+      width: 280px;
+      height: 280px;
+      bottom: -80px;
+      left: -80px;
+    }
+  }
+
+  &__panel-content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 2rem;
+  }
+
+  &__logo-wrap {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    backdrop-filter: blur(4px);
+    border: 2px solid rgba(255, 255, 255, 0.25);
+  }
+
+  &__panel-title {
+    color: #fff !important;
+    font-weight: 800 !important;
+    font-size: 2rem !important;
+    letter-spacing: -0.5px;
+    margin-bottom: 0.5rem !important;
+  }
+
+  &__panel-sub {
+    color: rgba(255, 255, 255, 0.75) !important;
+    font-size: 0.95rem !important;
+  }
+
+  &__panel-dots {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 2.5rem;
+
+    span {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.4);
+
+      &:first-child {
+        background: rgba(255, 255, 255, 0.9);
+        width: 24px;
+        border-radius: 4px;
+      }
+    }
+  }
+
+  // ── Right form side ────────────────────────────────────────────────────────
+  &__form-side {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f4f6f8;
+    padding: 2rem 1rem;
+  }
+
+  &__card {
+    width: 100%;
+    max-width: 440px;
+    border-radius: 16px !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08) !important;
+  }
+
+  &__card-content {
+    padding: 2.5rem !important;
+  }
+
+  &__title {
+    font-weight: 700 !important;
+    color: #1a1a2e !important;
+    margin-bottom: 0.25rem !important;
+  }
+}

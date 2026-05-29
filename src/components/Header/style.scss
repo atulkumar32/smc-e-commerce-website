@@ -1,0 +1,353 @@
+@import '../../Styles/Mixins';
+
+// ── Header ────────────────────────────────────────────────────────────────────
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background-color: $color-primary;
+  border-bottom: 1px solid $color-border;
+
+  &__container {
+    @include container;
+    height: 68px;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  // ── Logo ──────────────────────────────────────────────────────────────────
+  &__logo {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    text-decoration: none;
+    flex-shrink: 0;
+    @include focus-ring;
+  }
+
+  &__logo-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: $color-secondary;
+    color: $color-primary;
+    font-family: $font-headline;
+    font-weight: $fw-extrabold;
+    font-size: $fs-base;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  &__logo-text {
+    color: $color-text-primary;
+    font-family: $font-headline;
+    font-size: $fs-md;
+    font-weight: $fw-bold;
+    letter-spacing: $ls-tight;
+    white-space: nowrap;
+  }
+
+  // ── Desktop Nav ───────────────────────────────────────────────────────────
+  &__nav {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-left: auto;
+  }
+
+  &__nav-item {
+    position: relative;
+
+    &--dropdown {
+      display: flex;
+      align-items: center;
+    }
+  }
+
+  &__nav-link {
+    @include nav-link;
+    color: $color-text-muted;
+    text-decoration: none;
+    padding: 0.5rem 0.85rem;
+    border-radius: 4px;
+    @include transition(color);
+    white-space: nowrap;
+    @include focus-ring;
+
+    &:hover {
+      color: $color-text-primary;
+    }
+
+    &.is-active {
+      color: $color-secondary;
+      border-bottom: 2px solid $color-secondary;
+    }
+
+    // button variant (Products trigger)
+    &--btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-family: inherit;
+    }
+  }
+
+  &__chevron {
+    @include transition(transform);
+
+    &.is-rotated {
+      transform: rotate(180deg);
+    }
+  }
+
+  // ── Dropdown ──────────────────────────────────────────────────────────────
+  &__dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 0;
+    min-width: 170px;
+    background-color: $color-bg-surface;
+    border: 1px solid $color-border;
+    border-radius: 6px;
+    list-style: none;
+    margin: 0;
+    padding: 0.5rem 0;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    z-index: 100;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: -6px;
+      left: 18px;
+      width: 10px;
+      height: 10px;
+      background-color: $color-bg-surface;
+      border-left: 1px solid $color-border;
+      border-top: 1px solid $color-border;
+      transform: rotate(45deg);
+    }
+  }
+
+  &__dropdown-link {
+    display: block;
+    padding: 0.6rem 1.2rem;
+    color: $color-text-muted;
+    text-decoration: none;
+    font-family: $font-body;
+    font-size: $fs-sm;
+    font-weight: $fw-medium;
+    letter-spacing: $ls-wide;
+    @include transition(color, 0.2s);
+
+    &:hover {
+      color: $color-text-primary;
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    @include focus-ring;
+  }
+
+  // ── Right Actions ─────────────────────────────────────────────────────────
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-shrink: 0;
+  }
+
+  &__action-link {
+    @include nav-link;
+    color: $color-text-muted;
+    text-decoration: none;
+    @include transition(color);
+    @include focus-ring;
+
+    &:hover,
+    &.is-active {
+      color: $color-secondary;
+    }
+  }
+
+  &__cart {
+    position: relative;
+    color: $color-text-muted;
+    display: flex;
+    align-items: center;
+    @include transition(color);
+    @include focus-ring;
+
+    &:hover {
+      color: $color-secondary;
+    }
+  }
+
+  &__cart-badge {
+    position: absolute;
+    top: -7px;
+    right: -8px;
+    background-color: $color-secondary;
+    color: $color-primary;
+    font-family: $font-label;
+    font-size: 0.6rem;
+    font-weight: $fw-bold;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+
+  // ── Hamburger ─────────────────────────────────────────────────────────────
+  &__hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 36px;
+    height: 36px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    margin-left: auto;
+    flex-shrink: 0;
+    @include focus-ring;
+
+    span {
+      display: block;
+      height: 2px;
+      background-color: $color-text-primary;
+      border-radius: 2px;
+      @include transition(transform);
+      width: 100%;
+    }
+
+    &.is-open {
+      span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+      span:nth-child(2) { opacity: 0; width: 0; }
+      span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+    }
+  }
+
+  // ── Mobile Nav ────────────────────────────────────────────────────────────
+  &__mobile-nav {
+    display: none;
+    flex-direction: column;
+    background-color: $color-primary;
+    border-top: 1px solid $color-border;
+    padding: 0.75rem 1.5rem 1.25rem;
+    gap: 0.15rem;
+    max-height: 0;
+    overflow: hidden;
+    @include transition(max-height, 0.3s);
+
+    &.is-open {
+      max-height: 600px;
+      padding: 0.75rem 1.5rem 1.25rem;
+    }
+  }
+
+  &__mobile-item {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__mobile-link {
+    @include nav-link;
+    color: $color-text-muted;
+    text-decoration: none;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid $color-border;
+    @include transition(color);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+
+    &:hover,
+    &.is-active {
+      color: $color-secondary;
+    }
+
+    &--btn {
+      background: none;
+      border: none;
+      border-bottom: 1px solid $color-border;
+      cursor: pointer;
+      font-family: inherit;
+      width: 100%;
+      text-align: left;
+    }
+  }
+
+  &__mobile-dropdown {
+    list-style: none;
+    margin: 0;
+    padding: 0.25rem 0 0.25rem 1rem;
+    border-bottom: 1px solid $color-border;
+  }
+
+  &__mobile-dropdown-link {
+    display: block;
+    color: $color-text-muted;
+    text-decoration: none;
+    font-family: $font-body;
+    font-size: $fs-sm;
+    font-weight: $fw-medium;
+    padding: 0.55rem 0;
+    @include transition(color);
+
+    &:hover {
+      color: $color-text-primary;
+    }
+  }
+
+  &__mobile-actions {
+    display: flex;
+    gap: 1.5rem;
+    padding-top: 0.5rem;
+  }
+}
+
+// ── Responsive ────────────────────────────────────────────────────────────────
+@include lg {
+  .site-header {
+    &__nav,
+    &__actions {
+      display: none;
+    }
+
+    &__hamburger {
+      display: flex;
+    }
+
+    &__mobile-nav {
+      display: flex;
+    }
+
+    &__container {
+      gap: 1rem;
+    }
+  }
+}
+
+@include xs {
+  .site-header {
+    &__container {
+      padding: 0 1rem;
+      height: 60px;
+    }
+
+    &__logo-text {
+      font-size: $fs-base;
+    }
+  }
+}

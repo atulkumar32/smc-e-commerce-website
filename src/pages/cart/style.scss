@@ -1,0 +1,419 @@
+@import '../../Styles/Mixins';
+
+// ── Page ──────────────────────────────────────────────────────────────────────
+.cart-page {
+  background-color: $color-neutral-50;
+  min-height: 60vh;
+
+  &__inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem 5rem;
+
+    @include sm { padding: 1.5rem 1rem 4rem; }
+  }
+
+  &__title {
+    @include headline($fs-4xl, $fw-bold);
+    color: $color-primary;
+    margin: 0 0 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid $color-neutral-300;
+
+    @include md { font-size: $fs-3xl; }
+    @include sm { font-size: $fs-2xl; }
+  }
+
+  // ── 2-col grid ────────────────────────────────────────────────
+  &__grid {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 2.5rem;
+    align-items: start;
+
+    @include lg { grid-template-columns: 1fr 340px; gap: 2rem; }
+    @include md { grid-template-columns: 1fr; }
+  }
+
+  &__items {
+    @include flex-col;
+    gap: 1rem;
+  }
+
+  &__clear {
+    align-self: flex-start;
+    background: none;
+    border: none;
+    @include label($fs-xs, $fw-medium);
+    color: $color-error;
+    cursor: pointer;
+    padding: 0.25rem 0;
+    @include transition(opacity);
+    @include focus-ring($color-error);
+
+    &:hover { opacity: 0.7; }
+  }
+
+  // ── Summary panel ─────────────────────────────────────────────
+  &__summary {
+    background-color: $color-primary;
+    color: #ffffff;
+    padding: 2rem;
+    border-radius: 8px;
+    position: sticky;
+    top: 80px;
+    @include flex-col;
+    gap: 0;
+  }
+
+  &__summary-title {
+    font-family: $font-headline;
+    font-size: $fs-xl;
+    font-weight: $fw-semibold;
+    color: $color-secondary;
+    margin: 0 0 1.5rem;
+  }
+
+  &__summary-rows {
+    @include flex-col;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  &__summary-row {
+    display: flex;
+    justify-content: space-between;
+    @include label($fs-sm, $fw-medium);
+    color: rgba(255, 255, 255, 0.8);
+
+    &--total {
+      padding-top: 1rem;
+      margin-top: 0.5rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
+      font-size: $fs-lg;
+      font-weight: $fw-bold;
+      color: #ffffff;
+
+      span:last-child { color: $color-secondary; }
+    }
+  }
+
+  &__checkout-btn {
+    width: 100%;
+    padding: 1rem;
+    background-color: $color-secondary;
+    color: $color-primary;
+    @include label($fs-xs, $fw-bold);
+    letter-spacing: $ls-widest;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    @include transition(opacity);
+    @include focus-ring($color-secondary);
+    margin-bottom: 1rem;
+
+    &:hover { opacity: 0.9; }
+  }
+
+  &__continue {
+    @include label($fs-xs, $fw-medium);
+    color: rgba(255, 255, 255, 0.6);
+    text-decoration: none;
+    text-align: center;
+    @include transition(color);
+
+    &:hover { color: $color-secondary; }
+  }
+
+  // ── Empty state ───────────────────────────────────────────────
+  &__empty {
+    @include flex-col;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 5rem 1rem;
+    text-align: center;
+    color: $color-tertiary-400;
+
+    p {
+      @include body-text($fs-lg);
+      color: $color-tertiary-500;
+      margin: 0;
+    }
+  }
+
+  &__empty-btn {
+    @include btn-primary;
+    padding: 0.85rem 2.5rem;
+    font-size: $fs-xs;
+    letter-spacing: $ls-widest;
+    text-transform: uppercase;
+    border-radius: 0;
+    text-decoration: none;
+  }
+}
+
+// ── Cart item ─────────────────────────────────────────────────────────────────
+.cart-item {
+  display: flex;
+  gap: 1.25rem;
+  background-color: #ffffff;
+  padding: 1.25rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba($color-primary, 0.05);
+  @include transition(box-shadow, 0.3s);
+
+  &:hover { box-shadow: 0 12px 32px rgba($color-primary, 0.1); }
+
+  @include sm {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  &__img-wrap {
+    flex-shrink: 0;
+    width: 120px;
+    height: 150px;
+    border-radius: 4px;
+    overflow: hidden;
+    background-color: $color-neutral-100;
+
+    @include sm { width: 100%; height: 200px; }
+  }
+
+  &__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  &__body {
+    flex: 1;
+    @include flex-col;
+    gap: 0.75rem;
+    justify-content: space-between;
+  }
+
+  &__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+
+    @include sm { flex-direction: column; align-items: center; }
+  }
+
+  &__name {
+    font-family: $font-headline;
+    font-size: $fs-lg;
+    font-weight: $fw-semibold;
+    color: $color-primary;
+    margin: 0 0 0.25rem;
+
+    a { color: inherit; text-decoration: none; &:hover { text-decoration: underline; } }
+  }
+
+  &__meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    @include label($fs-xs, $fw-medium);
+    letter-spacing: $ls-wider;
+    text-transform: uppercase;
+    color: $color-tertiary-500;
+    margin: 0;
+
+    @include sm { justify-content: center; }
+  }
+
+  &__swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 1px solid $color-neutral-300;
+    flex-shrink: 0;
+  }
+
+  &__price {
+    font-family: $font-headline;
+    font-size: $fs-xl;
+    font-weight: $fw-semibold;
+    color: $color-primary;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+
+    @include sm { justify-content: center; }
+  }
+
+  &__btns {
+    display: flex;
+    gap: 1rem;
+  }
+
+  &__wish-btn,
+  &__remove-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    @include label($fs-xs, $fw-medium);
+    @include transition(color);
+    @include focus-ring($color-secondary);
+    padding: 0;
+  }
+
+  &__wish-btn {
+    color: $color-tertiary-500;
+
+    &:hover, &.is-wished { color: $color-error; }
+  }
+
+  &__remove-btn {
+    color: $color-error;
+
+    &:hover { opacity: 0.7; }
+  }
+}
+
+// ── Stepper ───────────────────────────────────────────────────────────────────
+.cart-stepper {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid $color-neutral-300;
+  border-radius: 99px;
+  overflow: hidden;
+
+  &__btn {
+    width: 32px;
+    height: 32px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    @include flex-center;
+    color: $color-primary;
+    @include transition(background-color);
+    @include focus-ring($color-secondary);
+
+    &:hover { background-color: $color-neutral-100; }
+    &:active { transform: scale(0.9); }
+  }
+
+  &__val {
+    min-width: 2.5rem;
+    text-align: center;
+    font-family: $font-body;
+    font-size: $fs-base;
+    font-weight: $fw-bold;
+    color: $color-primary;
+  }
+}
+
+// ── Checkout modal ────────────────────────────────────────────────────────────
+.checkout-modal {
+  background-color: #ffffff;
+  padding: 2.5rem;
+  max-width: 420px;
+  width: 100%;
+  border-radius: 12px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.2);
+  position: relative;
+  @include flex-col;
+  align-items: center;
+  gap: 1rem;
+  text-align: center;
+
+  &__backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    @include flex-center;
+    padding: 1rem;
+  }
+
+  &__close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: $color-tertiary-500;
+    @include transition(color);
+    @include focus-ring($color-secondary);
+
+    &:hover { color: $color-primary; }
+  }
+
+  &__icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background-color: rgba($color-secondary, 0.15);
+    @include flex-center;
+    color: $color-secondary;
+  }
+
+  &__title {
+    font-family: $font-headline;
+    font-size: $fs-xl;
+    font-weight: $fw-semibold;
+    color: $color-primary;
+    margin: 0;
+  }
+
+  &__body {
+    @include body-text($fs-base);
+    color: $color-tertiary-600;
+    margin: 0;
+    line-height: $lh-relaxed;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 0.75rem;
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+
+  &__btn {
+    flex: 1;
+    padding: 0.85rem;
+    @include label($fs-xs, $fw-bold);
+    letter-spacing: $ls-widest;
+    text-transform: uppercase;
+    border-radius: 4px;
+    cursor: pointer;
+    @include transition(all);
+    @include focus-ring($color-secondary);
+
+    &--primary {
+      background-color: $color-primary;
+      color: #ffffff;
+      border: none;
+
+      &:hover { background-color: $color-primary-700; }
+    }
+
+    &--outline {
+      background: transparent;
+      color: $color-primary;
+      border: 1.5px solid $color-neutral-300;
+
+      &:hover { border-color: $color-primary; }
+    }
+  }
+}

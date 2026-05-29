@@ -1,0 +1,88 @@
+import { createContext, useContext, useState, useEffect, useMemo } from 'react';
+import { initialOrders } from '../data/mockData';
+import { fetchProductsAction } from '../Actions/ProductUploadAction';
+
+const AdminContext = createContext(null);
+
+export function AdminProvider({ children }) {
+  const [products, setProducts] = useState([]);
+  const [productsLoading, setProductsLoading] = useState(true);
+  const [orders] = useState(initialOrders);
+
+  useEffect(() => {
+    const load = async () => {
+      setProductsLoading(true);
+      try {
+        const data = await fetchProductsAction();
+        // API returns { products: [...], totalRecords, ... }
+        const list = Array.isArray(data)
+          ? data
+          : Array.isArray(data.products)
+          ? data.products
+          : [];
+        setProducts(list);
+      } catch (err) {
+        console.error('[AdminContext] Failed to load products:', err.message);
+        setProducts([]);
+      } finally {
+        setProductsLoading(false);
+      }
+    };
+    load();
+  }, []);
+
+  // ── Upsert (add or update) a product in local state ─────────────────────────
+  const upsertProduct = (product) => {
+    setProducts((prev) => {
+      const incomingId = product.id ?? product.product_id;
+      const exists = prev.some(
+        (p) => (p.id ?? p.product_id) === incomingId
+      );
+      if (exists) {
+        return prev.map((p) =>
+          (p.id ?? p.product_id) === incomingId ? { ...p, ...product } : p
+        );
+      }
+      return [product, ...prev];
+    });
+  };
+
+  const deleteProduct = (id) => {
+    setProducts((prev) =>
+      prev.filter((p) => (p.id ?? p.product_id) !== id)
+    );
+  };
+
+  const stats = useMemo(
+    () => ({
+      totalProducts: products.length,
+      totalOrders: orders.length,
+      revenue: orders.reduce((sum, o) => sum + o.totalAmount, 0),
+      publishedProducts: products.filter((p) => p.status === 'published').length,
+    }),
+    [products, orders]
+  );
+
+  return (
+    <AdminContext.Provider
+      value={{
+        products,
+        productsLoading,
+        orders,
+        stats,
+        upsertProduct,
+        deleteProduct,
+      }}
+    >
+      {children}
+    </AdminContext.Provider>
+  );
+}
+
+export function useAdmin() {
+  const context = useContext(AdminContext);
+  if (!context) {
+    throw new Error('useAdmin must be used within AdminProvider');
+  }
+  return context;
+}

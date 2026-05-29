@@ -1,0 +1,204 @@
+@import '../../Styles/Mixins';
+
+.contact-page {
+  &__hero {
+    background-color: $color-primary;
+    padding: 5rem 1.5rem 4rem;
+    text-align: center;
+    @include flex-col;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  &__eyebrow {
+    @include label($fs-xs, $fw-semibold);
+    letter-spacing: $ls-widest;
+    text-transform: uppercase;
+    color: $color-secondary;
+  }
+
+  &__title {
+    @include headline($fs-4xl, $fw-bold);
+    color: #ffffff;
+    margin: 0;
+
+    @include md { font-size: $fs-3xl; }
+    @include sm { font-size: $fs-2xl; }
+  }
+
+  &__subtitle {
+    @include body-text($fs-lg);
+    color: rgba(255, 255, 255, 0.7);
+    max-width: 520px;
+    margin: 0;
+
+    @include sm { font-size: $fs-base; }
+  }
+
+  &__body {
+    background-color: $color-neutral-50;
+    padding: 5rem 0;
+
+    @include md { padding: 3.5rem 0; }
+    @include sm { padding: 2.5rem 0; }
+  }
+
+  &__container {
+    @include container;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: 1fr 1.6fr;
+    gap: 4rem;
+    align-items: start;
+
+    @include lg { gap: 2.5rem; }
+
+    @include md {
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+    }
+  }
+
+  // ── Info column ──────────────────────────────────────────────
+  &__info {
+    @include flex-col;
+    gap: 0.5rem;
+  }
+
+  &__info-title {
+    @include headline($fs-xl, $fw-semibold);
+    color: $color-primary;
+    margin: 0 0 1.5rem;
+  }
+
+  &__info-item {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    padding: 1.25rem 0;
+    border-bottom: 1px solid $color-neutral-300;
+
+    &:last-child { border-bottom: none; }
+  }
+
+  &__info-icon {
+    color: $color-secondary;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  &__info-label {
+    @include label($fs-xs, $fw-semibold);
+    letter-spacing: $ls-wider;
+    text-transform: uppercase;
+    color: $color-tertiary-500;
+    margin: 0 0 0.2rem;
+  }
+
+  &__info-value {
+    @include body-text($fs-base);
+    color: $color-neutral-800;
+    margin: 0;
+    line-height: $lh-relaxed;
+  }
+
+  // ── Form ─────────────────────────────────────────────────────
+  &__form-wrap {
+    background-color: #ffffff;
+    padding: 2.5rem;
+    box-shadow: 0 4px 24px rgba(0, 31, 63, 0.06);
+
+    @include sm { padding: 1.5rem; }
+  }
+
+  &__form-title {
+    @include headline($fs-xl, $fw-semibold);
+    color: $color-primary;
+    margin: 0 0 2rem;
+  }
+
+  &__form {
+    @include flex-col;
+    gap: 1.25rem;
+  }
+
+  &__field {
+    @include flex-col;
+    gap: 0.4rem;
+  }
+
+  &__label {
+    @include label($fs-sm, $fw-medium);
+    color: $color-neutral-700;
+
+    span { color: $color-error; }
+  }
+
+  &__input {
+    font-family: $font-body;
+    font-size: $fs-base;
+    color: $color-neutral-900;
+    background-color: $color-neutral-50;
+    border: 1.5px solid $color-neutral-300;
+    border-radius: 4px;
+    padding: 0.75rem 1rem;
+    width: 100%;
+    @include transition(border-color);
+    outline: none;
+
+    &::placeholder { color: $color-tertiary-300; }
+
+    &:focus {
+      border-color: $color-primary;
+      background-color: #ffffff;
+    }
+
+    &--textarea {
+      resize: vertical;
+      min-height: 130px;
+    }
+  }
+
+  &__btn {
+    @include btn-primary;
+    width: 100%;
+    justify-content: center;
+    padding: 0.9rem 2rem;
+    font-size: $fs-sm;
+    letter-spacing: $ls-widest;
+    text-transform: uppercase;
+    border-radius: 0;
+    margin-top: 0.5rem;
+  }
+
+  // ── Success state ────────────────────────────────────────────
+  &__success {
+    @include flex-col;
+    align-items: center;
+    gap: 1rem;
+    padding: 3rem 1rem;
+    text-align: center;
+
+    h3 {
+      font-family: $font-headline;
+      font-size: $fs-xl;
+      font-weight: $fw-semibold;
+      color: $color-primary;
+      margin: 0;
+    }
+
+    p {
+      @include body-text($fs-base);
+      color: $color-neutral-600;
+      max-width: 360px;
+      margin: 0;
+    }
+
+    .contact-page__btn {
+      width: auto;
+      padding: 0.75rem 2rem;
+    }
+  }
+}

@@ -1,0 +1,580 @@
+@import '../../Styles/Mixins';
+
+// ── Shared auth page shell ────────────────────────────────────────────────────
+.auth-page {
+  min-height: 100dvh;
+  display: flex;
+  background-color: $color-primary;
+  color: #ffffff;
+  position: relative;
+  overflow: hidden;
+
+  // ── Right-side atmospheric image (desktop only) ───────────────
+  &__bg-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 32%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+
+    @include md { display: none; }
+  }
+
+  &__bg-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(20%) brightness(0.45) contrast(1.2);
+  }
+
+  &__bg-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, $color-primary 0%, transparent 100%);
+  }
+
+  // ── Scrollable content column ─────────────────────────────────
+  &__content {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 680px;
+    margin: 0 auto;
+    @include flex-col;
+    min-height: 100dvh;
+    padding: 0 1.5rem;
+
+    @include sm { padding: 0 1rem; }
+  }
+
+  // ── Brand header ──────────────────────────────────────────────
+  &__header {
+    height: 80px;
+    @include flex-center;
+  }
+
+  &__brand {
+    font-family: $font-headline;
+    font-size: $fs-lg;
+    font-weight: $fw-bold;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: $color-secondary;
+    text-decoration: none;
+    @include transition(opacity);
+
+    &:hover { opacity: 0.8; }
+  }
+
+  // ── Main centred area ─────────────────────────────────────────
+  &__main {
+    flex: 1;
+    @include flex-center;
+    padding: 2rem 0;
+  }
+
+  // ── Footer ────────────────────────────────────────────────────
+  &__footer {
+    padding: 1.5rem 0;
+    text-align: center;
+    @include flex-col;
+    align-items: center;
+    gap: 0.5rem;
+    border-top: 1px solid rgba(255,255,255,0.08);
+
+    p, a {
+      font-family: $font-label;
+      font-size: $fs-xs;
+      letter-spacing: $ls-widest;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      text-decoration: none;
+    }
+  }
+
+  &__footer-links {
+    display: flex;
+    gap: 1.5rem;
+
+    a:hover { color: $color-secondary; }
+  }
+}
+
+// ── Auth card ─────────────────────────────────────────────────────────────────
+.auth-card {
+  width: 100%;
+  max-width: 460px;
+  background-color: rgba($color-primary-700, 0.5);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba($color-secondary, 0.12);
+  border-radius: 16px;
+  padding: 2.5rem 2rem;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+
+  @include sm { padding: 2rem 1.25rem; border-radius: 12px; }
+
+  &__welcome {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  &__headline {
+    font-family: $font-headline;
+    font-size: $fs-4xl;
+    font-weight: $fw-bold;
+    letter-spacing: $ls-tight;
+    text-transform: uppercase;
+    color: $color-secondary;
+    margin: 0 0 0.5rem;
+
+    @include sm { font-size: $fs-3xl; }
+  }
+
+  &__sub {
+    font-family: $font-body;
+    font-size: $fs-base;
+    color: rgba(255,255,255,0.6);
+    line-height: $lh-relaxed;
+    max-width: 320px;
+    margin: 0 auto;
+  }
+
+  &__error {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: rgba($color-error, 0.15);
+    border: 1px solid rgba($color-error, 0.4);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-family: $font-body;
+    font-size: $fs-sm;
+    color: #ff8a80;
+    margin-bottom: 1.25rem;
+  }
+
+  &__footer-text {
+    text-align: center;
+    font-family: $font-body;
+    font-size: $fs-sm;
+    color: rgba(255,255,255,0.5);
+    margin: 1.5rem 0 0;
+  }
+
+  &__footer-link {
+    color: $color-secondary;
+    font-weight: $fw-semibold;
+    text-decoration: none;
+    @include transition(opacity);
+
+    &:hover { opacity: 0.8; text-decoration: underline; }
+  }
+}
+
+// ── Auth form ─────────────────────────────────────────────────────────────────
+.auth-form {
+  @include flex-col;
+  gap: 1.25rem;
+
+  &__field { @include flex-col; gap: 0.4rem; }
+
+  &__label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  &__label {
+    font-family: $font-label;
+    font-size: $fs-xs;
+    font-weight: $fw-semibold;
+    letter-spacing: $ls-widest;
+    text-transform: uppercase;
+    color: rgba($color-secondary, 0.8);
+  }
+
+  &__forgot {
+    font-family: $font-label;
+    font-size: $fs-xs;
+    color: rgba($color-secondary, 0.6);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    @include transition(color);
+
+    &:hover { color: $color-secondary; }
+  }
+
+  &__input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    @include transition(transform, 0.2s);
+
+    &:focus-within { transform: scale(1.015); }
+  }
+
+  &__icon {
+    position: absolute;
+    left: 1rem;
+    color: rgba(255,255,255,0.35);
+    display: flex;
+    pointer-events: none;
+    @include transition(color);
+
+    .auth-form__input-wrap:focus-within & { color: $color-secondary; }
+  }
+
+  &__input {
+    width: 100%;
+    background-color: rgba($color-primary, 0.5);
+    border: 1.5px solid rgba($color-secondary, 0.25);
+    border-radius: 10px;
+    padding: 1rem 1rem 1rem 3rem;
+    font-family: $font-body;
+    font-size: $fs-base;
+    color: #ffffff;
+    outline: none;
+    @include transition(border-color, 0.2s);
+
+    &::placeholder { color: rgba(255,255,255,0.25); }
+
+    &:focus {
+      border-color: $color-secondary;
+      box-shadow: 0 0 0 3px rgba($color-secondary, 0.15);
+    }
+
+    &--padded-r { padding-right: 3rem; }
+
+    // error state
+    &--error {
+      border-color: rgba($color-error, 0.6);
+
+      &:focus { box-shadow: 0 0 0 3px rgba($color-error, 0.15); }
+    }
+  }
+
+  &__eye {
+    position: absolute;
+    right: 1rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: rgba(255,255,255,0.35);
+    display: flex;
+    @include transition(color);
+    @include focus-ring($color-secondary);
+
+    &:hover { color: $color-secondary; }
+  }
+
+  &__error-msg {
+    font-family: $font-label;
+    font-size: $fs-xs;
+    color: #ff8a80;
+    margin-top: 0.15rem;
+  }
+
+  // Section divider label
+  &__section {
+    font-family: $font-label;
+    font-size: $fs-xs;
+    font-weight: $fw-semibold;
+    letter-spacing: $ls-widest;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    margin-bottom: 0.25rem;
+  }
+
+  // 2-col grid row
+  &__row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+
+    @include sm { grid-template-columns: 1fr; }
+  }
+
+  // 3-col grid row
+  &__row--3 {
+    grid-template-columns: 1fr 1fr 1fr;
+
+    @include sm { grid-template-columns: 1fr; }
+  }
+}
+
+// ── Buttons ───────────────────────────────────────────────────────────────────
+.auth-btn {
+  width: 100%;
+  padding: 1rem;
+  @include label($fs-sm, $fw-bold);
+  letter-spacing: $ls-widest;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  @include transition(all);
+  @include focus-ring($color-secondary);
+
+  &:active { transform: scale(0.98); }
+  &:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  &--gold {
+    background-color: $color-secondary;
+    color: $color-primary;
+    box-shadow: 0 4px 20px rgba($color-secondary, 0.25);
+
+    &:hover:not(:disabled) { background-color: $color-secondary-400; }
+  }
+
+  &--outline {
+    background: transparent;
+    color: rgba(255,255,255,0.7);
+    border: 1.5px solid rgba(255,255,255,0.2);
+
+    &:hover:not(:disabled) { border-color: $color-secondary; color: $color-secondary; }
+  }
+
+  &--navy {
+    background-color: $color-primary-700;
+    color: #ffffff;
+    border: 1.5px solid rgba(255,255,255,0.15);
+
+    &:hover:not(:disabled) { background-color: $color-primary-600; }
+  }
+}
+
+// ── Divider ───────────────────────────────────────────────────────────────────
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: rgba(255,255,255,0.3);
+  font-family: $font-label;
+  font-size: $fs-xs;
+  letter-spacing: $ls-widest;
+  text-transform: uppercase;
+
+  &::before, &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background-color: rgba(255,255,255,0.12);
+  }
+}
+
+// ── Social buttons ────────────────────────────────────────────────────────────
+.auth-social {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+
+  &__btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background-color: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    @include label($fs-xs, $fw-medium);
+    letter-spacing: $ls-wider;
+    text-transform: uppercase;
+    color: #ffffff;
+    cursor: pointer;
+    @include transition(background-color);
+    @include focus-ring($color-secondary);
+
+    &:hover { background-color: rgba(255,255,255,0.1); }
+    &:active { transform: scale(0.97); }
+
+    img { opacity: 0.85; }
+  }
+}
+
+// ── OTP input row ─────────────────────────────────────────────────────────────
+.auth-otp {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+
+  &__box {
+    width: 52px;
+    height: 60px;
+    background-color: rgba($color-primary, 0.5);
+    border: 1.5px solid rgba($color-secondary, 0.25);
+    border-radius: 10px;
+    font-family: $font-headline;
+    font-size: $fs-2xl;
+    font-weight: $fw-bold;
+    color: $color-secondary;
+    text-align: center;
+    outline: none;
+    @include transition(border-color, 0.2s);
+
+    &:focus {
+      border-color: $color-secondary;
+      box-shadow: 0 0 0 3px rgba($color-secondary, 0.2);
+    }
+
+    @include sm { width: 44px; height: 52px; font-size: $fs-xl; }
+  }
+}
+
+// ── Password strength ─────────────────────────────────────────────────────────
+.auth-strength {
+  @include flex-col;
+  gap: 0.5rem;
+
+  &__bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  &__bar {
+    flex: 1;
+    height: 5px;
+    background-color: rgba(255,255,255,0.1);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  &__bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    @include transition(width, 0.4s);
+  }
+
+  &__label {
+    font-family: $font-label;
+    font-size: $fs-xs;
+    font-weight: $fw-semibold;
+    min-width: 72px;
+    text-align: right;
+  }
+
+  &__rules {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+  }
+
+  &__rule {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-family: $font-label;
+    font-size: $fs-xs;
+    color: rgba(255,255,255,0.4);
+
+    &.is-met { color: #69f0ae; }
+
+    svg { flex-shrink: 0; }
+  }
+}
+
+// ── Checkbox ──────────────────────────────────────────────────────────────────
+.auth-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+
+  &__box {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    accent-color: $color-secondary;
+    cursor: pointer;
+  }
+
+  &__label {
+    font-family: $font-body;
+    font-size: $fs-sm;
+    color: rgba(255,255,255,0.55);
+    line-height: $lh-relaxed;
+
+    a {
+      color: $color-secondary;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+  }
+}
+
+// ── Step indicator ────────────────────────────────────────────────────────────
+.auth-steps {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 1.75rem;
+
+  &__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: rgba(255,255,255,0.2);
+    @include transition(all, 0.3s);
+
+    &.is-active {
+      background-color: $color-secondary;
+      width: 24px;
+      border-radius: 4px;
+    }
+
+    &.is-done { background-color: rgba($color-secondary, 0.5); }
+  }
+}
+
+// ── Success screen ────────────────────────────────────────────────────────────
+.auth-success {
+  @include flex-col;
+  align-items: center;
+  gap: 1.25rem;
+  text-align: center;
+  padding: 1rem 0;
+
+  &__icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background-color: rgba(#69f0ae, 0.12);
+    @include flex-center;
+    color: #69f0ae;
+  }
+
+  &__title {
+    font-family: $font-headline;
+    font-size: $fs-2xl;
+    font-weight: $fw-bold;
+    color: $color-secondary;
+    margin: 0;
+  }
+
+  &__body {
+    font-family: $font-body;
+    font-size: $fs-base;
+    color: rgba(255,255,255,0.6);
+    line-height: $lh-relaxed;
+    max-width: 320px;
+    margin: 0;
+  }
+}
+
+// ── Spinner animation ─────────────────────────────────────────────────────────
+.auth-spin {
+  animation: authSpin 0.8s linear infinite;
+}
+
+@keyframes authSpin {
+  to { transform: rotate(360deg); }
+}

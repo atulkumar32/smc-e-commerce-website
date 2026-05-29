@@ -1,0 +1,169 @@
+@import '../../Styles/Mixins';
+
+// ── Footer ────────────────────────────────────────────────────────────────────
+.site-footer {
+  background-color: $color-primary;
+  border-top: 1px solid $color-border;
+
+  &__container {
+    @include container;
+    padding-top: 4rem;
+    padding-bottom: 3rem;
+    display: grid;
+    grid-template-columns: 1.6fr 1fr 1fr 1fr;
+    gap: 2.5rem;
+  }
+
+  // ── Brand Column ──────────────────────────────────────────────────────────
+  &__brand {
+    @include flex-col;
+    gap: 1rem;
+  }
+
+  &__brand-name {
+    color: $color-secondary;
+    font-family: $font-headline;
+    font-size: $fs-xl;
+    font-weight: $fw-extrabold;
+    line-height: $lh-snug;
+    text-decoration: none;
+    display: inline-block;
+    @include transition(opacity);
+    @include focus-ring($color-secondary);
+
+    &:hover {
+      opacity: 0.85;
+    }
+  }
+
+  &__brand-tagline {
+    color: $color-text-muted;
+    font-family: $font-body;
+    font-size: $fs-sm;
+    line-height: $lh-relaxed;
+    max-width: 280px;
+    margin: 0;
+  }
+
+  &__brand-icons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.25rem;
+  }
+
+  &__icon-link {
+    color: $color-text-muted;
+    display: flex;
+    align-items: center;
+    @include transition(color);
+    @include focus-ring($color-secondary);
+
+    &:hover {
+      color: $color-secondary;
+    }
+  }
+
+  // ── Link Columns ──────────────────────────────────────────────────────────
+  &__col {
+    @include flex-col;
+    gap: 1rem;
+  }
+
+  &__col-title {
+    color: $color-text-primary;
+    font-family: $font-label;
+    font-size: $fs-xs;
+    font-weight: $fw-bold;
+    letter-spacing: $ls-widest;
+    margin: 0 0 0.25rem;
+  }
+
+  &__col-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    @include flex-col;
+    gap: 0.75rem;
+  }
+
+  &__col-link {
+    color: $color-text-muted;
+    text-decoration: none;
+    font-family: $font-body;
+    font-size: $fs-sm;
+    font-weight: $fw-regular;
+    @include transition(color);
+    @include focus-ring($color-secondary);
+
+    &:hover {
+      color: $color-text-primary;
+    }
+  }
+
+  // ── Bottom Bar ────────────────────────────────────────────────────────────
+  &__bottom {
+    border-top: 1px solid $color-border;
+  }
+
+  &__bottom-inner {
+    @include container;
+    padding-top: 1.25rem;
+    padding-bottom: 1.25rem;
+    @include flex-center;
+  }
+
+  &__copyright {
+    color: $color-text-muted;
+    font-family: $font-body;
+    font-size: $fs-xs;
+    margin: 0;
+    text-align: center;
+  }
+}
+
+// ── Responsive ────────────────────────────────────────────────────────────────
+
+// Tablet: 2-column grid
+@include lg {
+  .site-footer {
+    &__container {
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      padding-top: 3rem;
+      padding-bottom: 2.5rem;
+    }
+
+    &__brand {
+      grid-column: 1 / -1;
+    }
+  }
+}
+
+// Mobile: single column
+@include sm {
+  .site-footer {
+    &__container {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+      padding-top: 2.5rem;
+      padding-bottom: 2rem;
+    }
+
+    &__brand {
+      grid-column: auto;
+    }
+
+    &__brand-tagline {
+      max-width: 100%;
+    }
+
+    &__bottom-inner {
+      padding-top: 1rem;
+      padding-bottom: 1rem;
+    }
+
+    &__copyright {
+      font-size: 0.7rem;
+    }
+  }
+}

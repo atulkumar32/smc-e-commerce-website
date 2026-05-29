@@ -1,0 +1,180 @@
+@import '../../../../Styles/Mixins';
+
+.hero {
+  position: relative;
+  height: 85vh;
+  min-height: 520px;
+  width: 100%;
+  overflow: hidden;
+  background-color: $color-primary;
+
+  &__bg {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    transition: background-image 0.8s ease;
+  }
+
+  &__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to right,
+      rgba(0, 6, 19, 0.92) 0%,
+      rgba(0, 6, 19, 0.5) 55%,
+      rgba(0, 6, 19, 0.05) 100%
+    );
+  }
+
+  &__content {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    @include container;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1.25rem;
+    max-width: 640px;
+  }
+
+  &__badge {
+    font-family: $font-label;
+    font-size: $fs-xs;
+    font-weight: $fw-semibold;
+    letter-spacing: $ls-widest;
+    text-transform: uppercase;
+    color: $color-secondary;
+  }
+
+  &__heading {
+    font-family: $font-headline;
+    font-size: $fs-4xl;
+    font-weight: $fw-bold;
+    line-height: $lh-tight;
+    letter-spacing: $ls-tight;
+    color: #ffffff;
+  }
+
+  &__subtext {
+    font-family: $font-body;
+    font-size: $fs-lg;
+    line-height: $lh-relaxed;
+    color: rgba(255, 255, 255, 0.75);
+    max-width: 480px;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding-top: 0.5rem;
+  }
+
+  &__btn {
+    @include label($fs-xs, $fw-bold);
+    letter-spacing: $ls-widest;
+    text-transform: uppercase;
+    padding: 0.85rem 2rem;
+    border-radius: 0;
+    text-decoration: none;
+    @include transition(all);
+    @include focus-ring($color-secondary);
+
+    &--primary {
+      background-color: $color-secondary;
+      color: $color-primary;
+      border: 2px solid $color-secondary;
+
+      &:hover {
+        background-color: $color-secondary-400;
+        border-color: $color-secondary-400;
+      }
+    }
+
+    &--outline {
+      background-color: transparent;
+      color: #ffffff;
+      border: 2px solid #ffffff;
+
+      &:hover {
+        background-color: #ffffff;
+        color: $color-primary;
+      }
+    }
+  }
+
+  &__dots {
+    position: absolute;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 0.5rem;
+    z-index: 3;
+  }
+
+  &__dot {
+    width: 3rem;
+    height: 3px;
+    border: none;
+    cursor: pointer;
+    background-color: rgba(255, 255, 255, 0.3);
+    @include transition(background-color);
+    padding: 0;
+
+    &.is-active {
+      background-color: $color-secondary;
+    }
+  }
+
+  // ── Responsive ──────────────────────────────────────────────
+  @include md {
+    height: 75vh;
+
+    &__heading {
+      font-size: $fs-3xl;
+    }
+
+    &__subtext {
+      font-size: $fs-base;
+    }
+  }
+
+  @include sm {
+    height: 70vh;
+    min-height: 480px;
+
+    &__heading {
+      font-size: $fs-2xl;
+    }
+
+    &__content {
+      gap: 1rem;
+    }
+
+    &__btn {
+      padding: 0.75rem 1.5rem;
+    }
+  }
+
+  @include xs {
+    &__heading {
+      font-size: $fs-xl;
+    }
+
+    &__subtext {
+      font-size: $fs-sm;
+    }
+
+    &__actions {
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    &__btn {
+      text-align: center;
+    }
+  }
+}

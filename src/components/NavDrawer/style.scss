@@ -1,0 +1,123 @@
+@import '../../Styles/Mixins';
+
+.nav-drawer {
+  position: fixed;
+  inset-y: 0;
+  left: 0;
+  z-index: 60;
+  width: 320px;
+  max-width: 85vw;
+  background-color: #ffffff;
+  padding: 1.5rem;
+  border-radius: 0 12px 12px 0;
+  box-shadow: 4px 0 32px rgba($color-primary, 0.15);
+  transform: translateX(-100%);
+  @include transition(transform, 0.3s);
+  overflow-y: auto;
+  @include flex-col;
+  gap: 0;
+
+  &.is-open {
+    transform: translateX(0);
+  }
+
+  // ── Overlay ──────────────────────────────────────────────────
+  &__overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba($color-primary, 0.4);
+    backdrop-filter: blur(4px);
+    z-index: 55;
+    opacity: 0;
+    pointer-events: none;
+    @include transition(opacity, 0.3s);
+
+    &.is-open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+  }
+
+  // ── Header ───────────────────────────────────────────────────
+  &__header {
+    @include flex-between;
+    margin-bottom: 2rem;
+  }
+
+  &__title {
+    font-family: $font-headline;
+    font-size: $fs-xl;
+    font-weight: $fw-semibold;
+    color: $color-primary;
+    margin: 0;
+  }
+
+  &__close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: $color-tertiary-500;
+    padding: 4px;
+    @include transition(transform);
+    @include focus-ring($color-secondary);
+
+    &:hover { transform: rotate(90deg); }
+  }
+
+  // ── Nav items ────────────────────────────────────────────────
+  &__nav {
+    @include flex-col;
+    gap: 4px;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    border-radius: 8px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+    @include transition(all, 0.25s);
+    @include focus-ring($color-secondary);
+
+    &:hover {
+      background-color: $color-neutral-100;
+      padding-left: 1.5rem;
+    }
+
+    &.is-active {
+      background-color: $color-secondary-100;
+      color: $color-secondary-700;
+      font-weight: $fw-semibold;
+    }
+  }
+
+  &__item-label {
+    @include label($fs-sm, $fw-medium);
+    color: $color-tertiary-600;
+
+    .nav-drawer__item.is-active & {
+      color: $color-secondary-700;
+      font-weight: $fw-semibold;
+    }
+  }
+
+  &__divider {
+    height: 1px;
+    background-color: $color-neutral-200;
+    margin: 1rem 0;
+  }
+
+  &__section-label {
+    @include label($fs-xs, $fw-medium);
+    letter-spacing: $ls-widest;
+    text-transform: uppercase;
+    color: $color-tertiary-400;
+    padding: 0 1rem;
+    margin: 0 0 0.5rem;
+  }
+}

@@ -1,0 +1,114 @@
+@import '../../../../Styles/Mixins';
+
+.moments {
+  background-color: $color-neutral-50;
+  padding: 5rem 0;
+
+  &__container {
+    @include container;
+  }
+
+  &__header {
+    text-align: center;
+    margin-bottom: 3.5rem;
+    @include flex-col;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  &__eyebrow {
+    @include label($fs-xs, $fw-semibold);
+    letter-spacing: $ls-widest;
+    text-transform: uppercase;
+    color: $color-secondary;
+  }
+
+  &__heading {
+    @include headline($fs-3xl, $fw-semibold);
+    color: $color-primary;
+    margin: 0;
+  }
+
+  &__subtext {
+    @include body-text($fs-base);
+    color: $color-neutral-600;
+    max-width: 480px;
+    margin: 0;
+  }
+
+  // ── Grid ─────────────────────────────────────────────────────
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+  }
+
+  &__cell {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    cursor: pointer;
+
+    &:hover .moments__img {
+      transform: scale(1.1);
+    }
+  }
+
+  &__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    @include transition(transform, 0.5s);
+  }
+
+  &__overlay {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 6, 19, 0.4);
+    @include flex-center;
+    color: #ffffff;
+    opacity: 0;
+    @include transition(opacity);
+
+    &.is-visible {
+      opacity: 1;
+    }
+  }
+
+  // ── Responsive ───────────────────────────────────────────────
+  @include lg {
+    padding: 4rem 0;
+  }
+
+  @include md {
+    padding: 3rem 0;
+
+    &__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    &__heading {
+      font-size: $fs-2xl;
+    }
+
+    // Always show overlay on touch devices
+    &__overlay {
+      opacity: 0;
+    }
+  }
+
+  @include sm {
+    padding: 2.5rem 0;
+
+    &__grid {
+      gap: 0.35rem;
+    }
+  }
+
+  @include xs {
+    &__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+}

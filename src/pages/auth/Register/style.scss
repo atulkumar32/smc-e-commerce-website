@@ -1,0 +1,10 @@
+@import '../auth';
+
+// Register-specific: wider card on form step handled inline via style prop
+.auth-form__input-wrap--err .auth-form__input {
+  border-color: rgba(#ef5350, 0.6);
+
+  &:focus {
+    box-shadow: 0 0 0 3px rgba(#ef5350, 0.15);
+  }
+}

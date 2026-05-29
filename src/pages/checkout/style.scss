@@ -1,0 +1,435 @@
+@import '../../Styles/Mixins';
+
+// ── Page wrapper ──────────────────────────────────────────────────────────────
+.co-page {
+  background-color: $color-neutral-50;
+  min-height: 60vh;
+
+  &__inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem 5rem;
+
+    @include sm { padding: 1.5rem 1rem 4rem; }
+
+    &--empty {
+      @include flex-col;
+      align-items: center;
+      gap: 1.5rem;
+      padding-top: 6rem;
+      text-align: center;
+
+      p { @include body-text($fs-lg); color: $color-tertiary-500; }
+    }
+  }
+
+  // ── Step indicator ────────────────────────────────────────────
+  &__grid {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 3rem;
+    align-items: start;
+
+    @include lg { grid-template-columns: 1fr 320px; gap: 2rem; }
+    @include md { grid-template-columns: 1fr; }
+  }
+
+  &__form-col { @include flex-col; gap: 0; }
+
+  // ── Mini summary sidebar ──────────────────────────────────────
+  &__summary {
+    background-color: $color-primary;
+    color: #ffffff;
+    padding: 2rem;
+    border-radius: 8px;
+    position: sticky;
+    top: 80px;
+    @include flex-col;
+    gap: 0;
+
+    @include md { position: static; }
+  }
+
+  &__summary-title {
+    font-family: $font-headline;
+    font-size: $fs-xl;
+    font-weight: $fw-semibold;
+    color: $color-secondary;
+    margin: 0 0 1.5rem;
+  }
+
+  &__summary-items {
+    @include flex-col;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+  }
+
+  &__summary-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  &__summary-img {
+    width: 52px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 4px;
+    flex-shrink: 0;
+    background-color: $color-neutral-200;
+  }
+
+  &__summary-info { flex: 1; }
+
+  &__summary-name {
+    @include label($fs-sm, $fw-medium);
+    color: #ffffff;
+    margin: 0 0 0.2rem;
+    @include truncate(2);
+  }
+
+  &__summary-qty {
+    @include label($fs-xs, $fw-regular);
+    color: rgba(255,255,255,0.55);
+    margin: 0;
+  }
+
+  &__summary-price {
+    @include label($fs-sm, $fw-semibold);
+    color: $color-secondary;
+    white-space: nowrap;
+    margin: 0;
+  }
+
+  &__summary-totals {
+    @include flex-col;
+    gap: 0.6rem;
+  }
+
+  &__summary-row {
+    display: flex;
+    justify-content: space-between;
+    @include label($fs-sm, $fw-medium);
+    color: rgba(255,255,255,0.75);
+
+    &--total {
+      padding-top: 0.75rem;
+      margin-top: 0.25rem;
+      border-top: 1px solid rgba(255,255,255,0.15);
+      font-size: $fs-base;
+      font-weight: $fw-bold;
+      color: #ffffff;
+
+      span:last-child { color: $color-secondary; }
+    }
+  }
+}
+
+// ── Step indicator ────────────────────────────────────────────────────────────
+.co-steps {
+  display: flex;
+  justify-content: center;
+  gap: 3rem;
+  margin-bottom: 3rem;
+  border-bottom: 1px solid $color-neutral-300;
+  padding-bottom: 0;
+
+  @include sm { gap: 1.5rem; }
+
+  &__item {
+    @include label($fs-xs, $fw-medium);
+    letter-spacing: $ls-widest;
+    text-transform: uppercase;
+    color: $color-tertiary-400;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid transparent;
+    @include transition(all);
+
+    &.is-active {
+      color: $color-primary;
+      font-weight: $fw-bold;
+      border-bottom-color: $color-secondary;
+    }
+
+    &.is-done {
+      color: $color-tertiary-500;
+      border-bottom-color: $color-tertiary-300;
+    }
+  }
+}
+
+// ── Form shared styles ────────────────────────────────────────────────────────
+.co-form {
+  @include flex-col;
+  gap: 1.25rem;
+
+  &__title {
+    @include headline($fs-2xl, $fw-semibold);
+    color: $color-primary;
+    margin: 0 0 0.5rem;
+
+    @include sm { font-size: $fs-xl; }
+  }
+
+  &__row {
+    display: grid;
+    gap: 1rem;
+
+    &--2 { grid-template-columns: 1fr 1fr; @include sm { grid-template-columns: 1fr; } }
+    &--3 { grid-template-columns: 1fr 1fr 1fr; @include sm { grid-template-columns: 1fr; } }
+  }
+
+  &__field { @include flex-col; gap: 0.35rem; }
+
+  &__label {
+    @include label($fs-xs, $fw-semibold);
+    letter-spacing: $ls-wider;
+    text-transform: uppercase;
+    color: $color-neutral-700;
+  }
+
+  &__input {
+    font-family: $font-body;
+    font-size: $fs-base;
+    color: $color-neutral-900;
+    background-color: #ffffff;
+    border: 1.5px solid $color-neutral-300;
+    border-radius: 2px;
+    padding: 0.85rem 1rem;
+    width: 100%;
+    @include transition(border-color);
+    outline: none;
+
+    &::placeholder { color: $color-tertiary-300; }
+
+    &:focus {
+      border-color: $color-primary;
+      box-shadow: 0 0 0 3px rgba($color-primary, 0.08);
+    }
+  }
+
+  // Delivery info card
+  &__delivery-card {
+    display: flex;
+    gap: 1.25rem;
+    align-items: flex-start;
+    background-color: $color-neutral-100;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-top: 0.5rem;
+  }
+
+  &__delivery-icon {
+    color: $color-secondary;
+    flex-shrink: 0;
+  }
+
+  &__delivery-title {
+    font-family: $font-headline;
+    font-size: $fs-base;
+    font-weight: $fw-semibold;
+    color: $color-primary;
+    margin: 0 0 0.4rem;
+  }
+
+  &__delivery-desc {
+    @include body-text($fs-sm);
+    color: $color-tertiary-600;
+    line-height: $lh-relaxed;
+    margin: 0;
+  }
+
+  // Secure note
+  &__secure-note {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    @include label($fs-xs, $fw-medium);
+    color: $color-tertiary-500;
+    background-color: $color-neutral-100;
+    padding: 0.75rem 1rem;
+    border-radius: 4px;
+  }
+
+  // Button row
+  &__btn-row {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.5rem;
+  }
+
+  &__back-btn {
+    @include label($fs-xs, $fw-medium);
+    color: $color-tertiary-500;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    @include transition(color);
+    @include focus-ring($color-secondary);
+
+    &:hover { color: $color-primary; }
+  }
+
+  &__next-btn {
+    flex: 1;
+    padding: 1rem;
+    background-color: $color-primary;
+    color: #ffffff;
+    @include label($fs-xs, $fw-bold);
+    letter-spacing: $ls-widest;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    @include transition(background-color);
+    @include focus-ring($color-secondary);
+
+    &:hover { background-color: $color-primary-700; }
+
+    &--flex { flex: 1; }
+
+    &--gold {
+      background-color: $color-secondary;
+      color: $color-primary;
+
+      &:hover { filter: brightness(1.08); }
+    }
+  }
+}
+
+// ── Review step ───────────────────────────────────────────────────────────────
+.co-review {
+  &__section {
+    background-color: #ffffff;
+    border: 1px solid $color-neutral-200;
+    border-radius: 6px;
+    padding: 1.25rem;
+    @include flex-col;
+    gap: 0.75rem;
+  }
+
+  &__section-title {
+    @include label($fs-xs, $fw-bold);
+    letter-spacing: $ls-widest;
+    text-transform: uppercase;
+    color: $color-tertiary-500;
+    margin: 0;
+  }
+
+  &__text {
+    @include body-text($fs-base);
+    color: $color-neutral-700;
+    line-height: $lh-relaxed;
+    margin: 0;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid $color-neutral-100;
+
+    &:last-child { border-bottom: none; }
+  }
+
+  &__item-img {
+    width: 48px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 4px;
+    flex-shrink: 0;
+    background-color: $color-neutral-200;
+  }
+
+  &__item-info { flex: 1; }
+
+  &__item-name {
+    @include label($fs-sm, $fw-medium);
+    color: $color-primary;
+    margin: 0 0 0.2rem;
+  }
+
+  &__item-qty {
+    @include label($fs-xs, $fw-regular);
+    color: $color-tertiary-500;
+    margin: 0;
+  }
+
+  &__item-price {
+    @include label($fs-sm, $fw-semibold);
+    color: $color-primary;
+    white-space: nowrap;
+    margin: 0;
+  }
+
+  &__totals {
+    background-color: $color-neutral-100;
+    border-radius: 6px;
+    padding: 1.25rem;
+    @include flex-col;
+    gap: 0.6rem;
+  }
+
+  &__total-row {
+    display: flex;
+    justify-content: space-between;
+    @include label($fs-sm, $fw-medium);
+    color: $color-neutral-700;
+
+    &--grand {
+      padding-top: 0.75rem;
+      margin-top: 0.25rem;
+      border-top: 1px solid $color-neutral-300;
+      font-size: $fs-base;
+      font-weight: $fw-bold;
+      color: $color-primary;
+    }
+  }
+}
+
+// ── Success screen ────────────────────────────────────────────────────────────
+.co-success {
+  @include flex-col;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 5rem 1rem;
+  text-align: center;
+  max-width: 480px;
+  margin: 0 auto;
+
+  &__icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: rgba(#2e7d32, 0.1);
+    @include flex-center;
+    color: #2e7d32;
+  }
+
+  &__title {
+    @include headline($fs-2xl, $fw-semibold);
+    color: $color-primary;
+    margin: 0;
+  }
+
+  &__body {
+    @include body-text($fs-base);
+    color: $color-tertiary-600;
+    line-height: $lh-relaxed;
+    margin: 0;
+  }
+
+  &__btn {
+    @include btn-secondary;
+    padding: 0.9rem 2.5rem;
+    font-size: $fs-xs;
+    letter-spacing: $ls-widest;
+    text-transform: uppercase;
+    border-radius: 0;
+    text-decoration: none;
+  }
+}

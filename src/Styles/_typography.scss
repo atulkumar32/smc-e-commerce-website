@@ -1,0 +1,47 @@
+// ============================================================
+//  TYPOGRAPHY — Shree Mahaveer Collections
+//  Headline : Montserrat
+//  Body/Label: Hanken Grotesk
+// ============================================================
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,700&family=Hanken+Grotesk:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
+
+// ── Font family tokens ────────────────────────────────────────
+$font-headline: 'Montserrat', sans-serif;
+$font-body:     'Hanken Grotesk', sans-serif;
+$font-label:    'Hanken Grotesk', sans-serif;
+
+// ── Font weight tokens ────────────────────────────────────────
+$fw-light:      300;
+$fw-regular:    400;
+$fw-medium:     500;
+$fw-semibold:   600;
+$fw-bold:       700;
+$fw-extrabold:  800;
+$fw-black:      900;
+
+// ── Font size scale (rem) ─────────────────────────────────────
+$fs-xs:   0.75rem;   //  12px
+$fs-sm:   0.875rem;  //  14px
+$fs-base: 1rem;      //  16px
+$fs-md:   1.125rem;  //  18px
+$fs-lg:   1.25rem;   //  20px
+$fs-xl:   1.5rem;    //  24px
+$fs-2xl:  1.875rem;  //  30px
+$fs-3xl:  2.25rem;   //  36px
+$fs-4xl:  3rem;      //  48px
+$fs-5xl:  3.75rem;   //  60px
+
+// ── Line heights ──────────────────────────────────────────────
+$lh-tight:   1.2;
+$lh-snug:    1.35;
+$lh-normal:  1.5;
+$lh-relaxed: 1.65;
+$lh-loose:   1.8;
+
+// ── Letter spacing ────────────────────────────────────────────
+$ls-tight:  -0.02em;
+$ls-normal:  0;
+$ls-wide:    0.05em;
+$ls-wider:   0.1em;
+$ls-widest:  0.15em;
