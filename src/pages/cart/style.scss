@@ -10,7 +10,10 @@
     margin: 0 auto;
     padding: 2.5rem 1.5rem 5rem;
 
-    @include sm { padding: 1.5rem 1rem 4rem; }
+    @include md  { padding: 2rem 1.25rem 4rem; }
+    @include sm  { padding: 1.5rem 0.875rem 3.5rem; }
+    @include xs  { padding: 1.25rem 0.75rem 3rem; }
+    @media (max-width: 360px) { padding: 1rem 0.5rem 3rem; }
   }
 
   &__title {
@@ -20,8 +23,9 @@
     padding-bottom: 1rem;
     border-bottom: 1px solid $color-neutral-300;
 
-    @include md { font-size: $fs-3xl; }
-    @include sm { font-size: $fs-2xl; }
+    @include md  { font-size: $fs-3xl; }
+    @include sm  { font-size: $fs-2xl; margin-bottom: 1.5rem; }
+    @include xs  { font-size: $fs-xl;  margin-bottom: 1.25rem; }
   }
 
   // ── 2-col grid ────────────────────────────────────────────────
@@ -31,8 +35,10 @@
     gap: 2.5rem;
     align-items: start;
 
-    @include lg { grid-template-columns: 1fr 340px; gap: 2rem; }
-    @include md { grid-template-columns: 1fr; }
+    @include lg  { grid-template-columns: 1fr 320px; gap: 2rem; }
+    @include md  { grid-template-columns: 1fr; gap: 1.5rem; }
+    @include sm  { gap: 1.25rem; }
+    @include xs  { gap: 1rem; }
   }
 
   &__items {
@@ -165,10 +171,30 @@
 
   &:hover { box-shadow: 0 12px 32px rgba($color-primary, 0.1); }
 
+  // ≤768px: row but tighter
+  @include md {
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  // ≤640px: stack vertically
   @include sm {
     flex-direction: column;
     align-items: center;
     text-align: center;
+    padding: 1rem 0.875rem;
+    gap: 0.75rem;
+  }
+
+  // ≤480px
+  @include xs {
+    padding: 0.875rem 0.75rem;
+    gap: 0.6rem;
+  }
+
+  // ≤360px
+  @media (max-width: 360px) {
+    padding: 0.75rem 0.5rem;
   }
 
   &__img-wrap {
@@ -179,7 +205,10 @@
     overflow: hidden;
     background-color: $color-neutral-100;
 
-    @include sm { width: 100%; height: 200px; }
+    @include md  { width: 100px; height: 125px; }
+    @include sm  { width: 100%; height: 180px; }
+    @include xs  { height: 160px; }
+    @media (max-width: 360px) { height: 140px; }
   }
 
   &__img {
@@ -194,6 +223,8 @@
     @include flex-col;
     gap: 0.75rem;
     justify-content: space-between;
+
+    @include sm { width: 100%; gap: 0.6rem; }
   }
 
   &__top {
@@ -202,7 +233,7 @@
     align-items: flex-start;
     gap: 1rem;
 
-    @include sm { flex-direction: column; align-items: center; }
+    @include sm  { flex-direction: column; align-items: center; gap: 0.4rem; }
   }
 
   &__name {
@@ -211,6 +242,10 @@
     font-weight: $fw-semibold;
     color: $color-primary;
     margin: 0 0 0.25rem;
+
+    @include md { font-size: $fs-base; }
+    @include sm { font-size: $fs-base; }
+    @include xs { font-size: $fs-sm; }
 
     a { color: inherit; text-decoration: none; &:hover { text-decoration: underline; } }
   }
@@ -243,6 +278,10 @@
     color: $color-primary;
     white-space: nowrap;
     flex-shrink: 0;
+
+    @include md { font-size: $fs-lg; }
+    @include sm { font-size: $fs-lg; }
+    @include xs { font-size: $fs-base; }
   }
 
   &__actions {
@@ -252,12 +291,15 @@
     flex-wrap: wrap;
     gap: 0.75rem;
 
-    @include sm { justify-content: center; }
+    @include sm  { justify-content: center; gap: 0.6rem; }
+    @include xs  { gap: 0.5rem; }
   }
 
   &__btns {
     display: flex;
     gap: 1rem;
+
+    @include xs { gap: 0.75rem; }
   }
 
   &__wish-btn,
@@ -272,17 +314,17 @@
     @include transition(color);
     @include focus-ring($color-secondary);
     padding: 0;
+
+    @include xs { font-size: 10px; }
   }
 
   &__wish-btn {
     color: $color-tertiary-500;
-
     &:hover, &.is-wished { color: $color-error; }
   }
 
   &__remove-btn {
     color: $color-error;
-
     &:hover { opacity: 0.7; }
   }
 }

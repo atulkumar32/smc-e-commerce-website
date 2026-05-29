@@ -1,11 +1,17 @@
 @import '../../Styles/Mixins';
 
+// ── Extra-small breakpoint (≤360px — small Android phones) ───────────────────
+$bp-xxs: 360px;
+@mixin xxs { @media (max-width: #{$bp-xxs}) { @content; } }
+
 .pcard {
   position: relative;
   background-color: #ffffff;
   border: 1px solid rgba($color-tertiary-200, 0.4);
   @include flex-col;
   @include transition(box-shadow, 0.4s);
+  border-radius: 4px;
+  overflow: hidden;
 
   &:hover {
     box-shadow: 0 12px 32px rgba($color-primary, 0.1);
@@ -31,14 +37,8 @@
     background-color: $color-neutral-100;
     text-decoration: none;
 
-    &:hover .pcard__img {
-      transform: scale(1.05);
-    }
-
-    &:hover .pcard__quick-add {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    &:hover .pcard__img        { transform: scale(1.05); }
+    &:hover .pcard__quick-add  { opacity: 1; transform: translateY(0); }
   }
 
   &__img {
@@ -52,52 +52,50 @@
   // ── Size badges ──────────────────────────────────────────────
   &__sizes {
     position: absolute;
-    top: 0.75rem;
-    left: 0.75rem;
+    top: 0.5rem;
+    left: 0.5rem;
     display: flex;
     flex-wrap: wrap;
-    gap: 3px;
+    gap: 2px;
   }
 
   &__size {
     background-color: $color-primary;
     color: #ffffff;
     font-family: $font-label;
-    font-size: 10px;
+    font-size: 9px;
     font-weight: $fw-bold;
     letter-spacing: $ls-wider;
     text-transform: uppercase;
-    padding: 2px 6px;
+    padding: 2px 5px;
 
-    &--oos {
-      opacity: 0.4;
-    }
+    &--oos { opacity: 0.4; }
   }
 
   // ── Badge ────────────────────────────────────────────────────
   &__badge {
     position: absolute;
-    top: 0.75rem;
-    right: 2.5rem;
+    top: 0.5rem;
+    right: 2.25rem;
     font-family: $font-label;
-    font-size: 10px;
+    font-size: 9px;
     font-weight: $fw-bold;
     letter-spacing: $ls-wider;
     text-transform: uppercase;
-    padding: 2px 8px;
+    padding: 2px 7px;
     background-color: $color-secondary;
     color: $color-primary;
 
-    &--sale { background-color: $color-tertiary-500; color: #fff; }
+    &--sale    { background-color: $color-tertiary-500; color: #fff; }
     &--limited { background-color: $color-primary; color: $color-secondary; }
-    &--new { background-color: $color-secondary; color: $color-primary; }
+    &--new     { background-color: $color-secondary; color: $color-primary; }
   }
 
-  // ── Wishlist ─────────────────────────────────────────────────
+  // ── Wishlist heart ────────────────────────────────────────────
   &__wish {
     position: absolute;
-    top: 0.75rem;
-    right: 0.75rem;
+    top: 0.5rem;
+    right: 0.5rem;
     background: none;
     border: none;
     cursor: pointer;
@@ -108,14 +106,10 @@
     @include focus-ring($color-secondary);
 
     .pcard:hover & { opacity: 1; }
-
-    &.is-wished {
-      opacity: 1;
-      color: $color-error;
-    }
+    &.is-wished    { opacity: 1; color: $color-error; }
   }
 
-  // ── Quick add overlay ────────────────────────────────────────
+  // ── Quick add overlay ─────────────────────────────────────────
   &__quick-add {
     position: absolute;
     bottom: 0;
@@ -126,7 +120,7 @@
     @include label($fs-xs, $fw-medium);
     letter-spacing: $ls-widest;
     text-transform: uppercase;
-    padding: 0.85rem;
+    padding: 0.75rem;
     border: none;
     cursor: pointer;
     opacity: 0;
@@ -135,23 +129,24 @@
     @include focus-ring($color-secondary);
   }
 
-  // ── Card body ────────────────────────────────────────────────
+  // ── Card body ─────────────────────────────────────────────────
   &__body {
-    padding: 1rem;
+    padding: 0.875rem;
     @include flex-col;
     flex: 1;
-    gap: 0.5rem;
+    gap: 0.4rem;
   }
 
-  // ── Color swatches ───────────────────────────────────────────
+  // ── Color swatches ────────────────────────────────────────────
   &__colors {
     display: flex;
-    gap: 6px;
+    gap: 5px;
+    flex-wrap: wrap;
   }
 
   &__color {
-    width: 12px;
-    height: 12px;
+    width: 11px;
+    height: 11px;
     border-radius: 50%;
     border: 1px solid $color-neutral-300;
     cursor: pointer;
@@ -160,7 +155,7 @@
     &:hover { transform: scale(1.25); }
   }
 
-  // ── Name ─────────────────────────────────────────────────────
+  // ── Name ──────────────────────────────────────────────────────
   &__name {
     @include label($fs-sm, $fw-semibold);
     color: $color-primary;
@@ -172,17 +167,16 @@
     a {
       color: inherit;
       text-decoration: none;
-
       &:hover { text-decoration: underline; }
     }
   }
 
-  // ── Pricing ──────────────────────────────────────────────────
+  // ── Pricing ───────────────────────────────────────────────────
   &__pricing {
     display: flex;
     align-items: baseline;
-    gap: 0.5rem;
-    margin-bottom: 0.25rem;
+    gap: 0.4rem;
+    flex-wrap: wrap;
   }
 
   &__price {
@@ -190,27 +184,29 @@
     font-size: $fs-lg;
     font-weight: $fw-semibold;
     color: $color-primary;
+    line-height: 1;
   }
 
   &__original {
     font-family: $font-body;
-    font-size: $fs-sm;
+    font-size: $fs-xs;
     color: $color-tertiary-400;
     text-decoration: line-through;
   }
 
-  // ── Action buttons ───────────────────────────────────────────
+  // ── Action buttons ────────────────────────────────────────────
   &__actions {
     @include flex-col;
-    gap: 0.5rem;
+    gap: 0.4rem;
     margin-top: auto;
+    padding-top: 0.25rem;
   }
 
   &__btn {
     width: 100%;
-    padding: 0.55rem 1rem;
+    padding: 0.55rem 0.75rem;
     @include label($fs-xs, $fw-bold);
-    letter-spacing: $ls-widest;
+    letter-spacing: $ls-wider;
     text-transform: uppercase;
     text-align: center;
     text-decoration: none;
@@ -218,6 +214,7 @@
     cursor: pointer;
     @include transition(all);
     @include focus-ring($color-secondary);
+    white-space: nowrap;
 
     &:active { transform: scale(0.97); }
 
@@ -225,7 +222,6 @@
       background-color: $color-secondary;
       color: $color-primary;
       border: none;
-
       &:hover { filter: brightness(1.1); }
     }
 
@@ -236,15 +232,70 @@
       display: flex;
       align-items: center;
       justify-content: center;
-
       &:hover { background-color: $color-primary; color: #ffffff; }
     }
   }
 
-  // ── Responsive ───────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────
+  //  RESPONSIVE BREAKPOINTS
+  // ─────────────────────────────────────────────────────────────
+
+  // ── Large desktop ≥1280px — default above ────────────────────
+
+  // ── Tablet landscape 1024px ───────────────────────────────────
+  @include lg {
+    &__body    { padding: 0.875rem; }
+    &__price   { font-size: $fs-base; }
+  }
+
+  // ── Tablet portrait 768px ─────────────────────────────────────
+  @include md {
+    &__body    { padding: 0.75rem; }
+    &__price   { font-size: $fs-base; }
+    &__btn     { padding: 0.5rem 0.5rem; font-size: 11px; letter-spacing: 0.04em; }
+    &__name    { font-size: $fs-xs; }
+  }
+
+  // ── Large phone 640px ─────────────────────────────────────────
   @include sm {
-    &__body { padding: 0.75rem; }
-    &__price { font-size: $fs-base; }
-    &__btn { padding: 0.5rem; font-size: 10px; }
+    &__body    { padding: 0.65rem; }
+    &__price   { font-size: $fs-sm; }
+    &__btn     { padding: 0.45rem 0.4rem; font-size: 10px; letter-spacing: 0.03em; }
+    &__name    { font-size: $fs-xs; }
+    &__colors  { gap: 4px; }
+    &__color   { width: 10px; height: 10px; }
+    // Always show quick-add on touch (no hover)
+    &__quick-add { opacity: 1; transform: translateY(0); font-size: 9px; padding: 0.55rem; }
+    &__wish      { opacity: 1; }
+  }
+
+  // ── Standard phone 480px ──────────────────────────────────────
+  @include xs {
+    &__body    { padding: 0.55rem; gap: 0.3rem; }
+    &__price   { font-size: $fs-sm; }
+    &__original { display: none; } // save space on tiny screens
+    &__btn     {
+      padding: 0.4rem 0.25rem;
+      font-size: 9px;
+      letter-spacing: 0.02em;
+    }
+    &__name    { font-size: 11px; }
+    &__sizes   { display: none; } // too cramped
+    &__colors  { display: none; } // too cramped
+    &__actions { gap: 0.3rem; }
+  }
+
+  // ── Small phone ≤360px ────────────────────────────────────────
+  @include xxs {
+    &__body    { padding: 0.4rem; }
+    &__price   { font-size: 12px; }
+    &__btn     {
+      padding: 0.35rem 0.2rem;
+      font-size: 8px;
+      letter-spacing: 0;
+    }
+    &__name    { font-size: 10px; }
+    // Stack buttons vertically on very small screens
+    &__actions { gap: 0.25rem; }
   }
 }

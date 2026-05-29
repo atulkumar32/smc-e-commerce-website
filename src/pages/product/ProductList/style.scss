@@ -9,7 +9,10 @@
     margin: 0 auto;
     padding: 2rem 1.5rem;
 
-    @include sm { padding: 1.25rem 1rem; }
+    @include md  { padding: 1.5rem 1.25rem; }
+    @include sm  { padding: 1.25rem 0.875rem; }
+    @include xs  { padding: 1rem 0.75rem; }
+    @media (max-width: 360px) { padding: 0.875rem 0.5rem; }
   }
 
   // ── Category header ──────────────────────────────────────────
@@ -131,13 +134,45 @@
   // ── Product grid ─────────────────────────────────────────────
   &__grid {
     display: grid;
+    // ≥1280px: 4 columns
     grid-template-columns: repeat(4, 1fr);
     gap: 1.5rem;
     margin-bottom: 3rem;
 
-    @include lg { grid-template-columns: repeat(3, 1fr); }
-    @include md { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
-    @include xs { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+    // ≤1280px: still 4 but tighter gap
+    @media (max-width: 1280px) {
+      gap: 1.25rem;
+    }
+
+    // ≤1024px: 3 columns
+    @include lg {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+    }
+
+    // ≤768px: 2 columns
+    @include md {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    // ≤640px: 2 columns, tighter gap
+    @include sm {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+    }
+
+    // ≤480px: 2 columns, minimal gap
+    @include xs {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.5rem;
+    }
+
+    // ≤360px: 1 column — too narrow for 2
+    @media (max-width: 360px) {
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
 
     // stagger animation via parent delay
     & > div {
