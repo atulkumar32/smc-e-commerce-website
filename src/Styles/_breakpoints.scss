@@ -1,0 +1,75 @@
+// ============================================================
+//  BREAKPOINTS — Shree Mahaveer Collections
+//  Single source of truth for all media queries.
+//  Import this file (or Mixins which re-exports it) everywhere.
+// ============================================================
+
+// ── Token values ──────────────────────────────────────────────
+$bp-xxs:  320px;   // very small phones (Galaxy A01, old iPhones)
+$bp-xs:   480px;   // standard small phones
+$bp-sm:   640px;   // large phones / small phablets
+$bp-md:   768px;   // tablet portrait
+$bp-nav:  900px;   // hamburger trigger
+$bp-lg:   1024px;  // tablet landscape / small laptop
+$bp-xl:   1280px;  // standard desktop
+$bp-2xl:  1536px;  // large desktop / 4K
+
+// ── Max-width (mobile-first overrides) ───────────────────────
+@mixin xxs    { @media (max-width: #{$bp-xxs})  { @content; } }
+@mixin xs     { @media (max-width: #{$bp-xs})   { @content; } }
+@mixin sm     { @media (max-width: #{$bp-sm})   { @content; } }
+@mixin md     { @media (max-width: #{$bp-md})   { @content; } }
+@mixin nav-bp { @media (max-width: #{$bp-nav})  { @content; } }
+@mixin lg     { @media (max-width: #{$bp-lg})   { @content; } }
+@mixin xl     { @media (max-width: #{$bp-xl})   { @content; } }
+
+// ── Min-width (desktop-first overrides) ──────────────────────
+@mixin min-xxs  { @media (min-width: #{$bp-xxs + 1})  { @content; } }
+@mixin min-xs   { @media (min-width: #{$bp-xs + 1})   { @content; } }
+@mixin min-sm   { @media (min-width: #{$bp-sm + 1})   { @content; } }
+@mixin min-md   { @media (min-width: #{$bp-md + 1})   { @content; } }
+@mixin min-nav  { @media (min-width: #{$bp-nav + 1})  { @content; } }
+@mixin min-lg   { @media (min-width: #{$bp-lg + 1})   { @content; } }
+@mixin min-xl   { @media (min-width: #{$bp-xl + 1})   { @content; } }
+@mixin min-2xl  { @media (min-width: #{$bp-2xl})      { @content; } }
+
+// ── Range helpers ─────────────────────────────────────────────
+// Usage: @include between(sm, lg) { ... }
+@mixin between($lower, $upper) {
+  $lower-val: map-get((
+    xxs: $bp-xxs, xs: $bp-xs, sm: $bp-sm, md: $bp-md,
+    nav: $bp-nav, lg: $bp-lg, xl: $bp-xl, '2xl': $bp-2xl
+  ), $lower);
+  $upper-val: map-get((
+    xxs: $bp-xxs, xs: $bp-xs, sm: $bp-sm, md: $bp-md,
+    nav: $bp-nav, lg: $bp-lg, xl: $bp-xl, '2xl': $bp-2xl
+  ), $upper);
+  @media (min-width: #{$lower-val + 1}) and (max-width: #{$upper-val}) {
+    @content;
+  }
+}
+
+// ── Device orientation ────────────────────────────────────────
+@mixin landscape { @media (orientation: landscape) { @content; } }
+@mixin portrait  { @media (orientation: portrait)  { @content; } }
+
+// ── Touch / hover capability ──────────────────────────────────
+@mixin touch    { @media (hover: none) and (pointer: coarse) { @content; } }
+@mixin no-touch { @media (hover: hover) and (pointer: fine)  { @content; } }
+
+// ── High-DPI / Retina ─────────────────────────────────────────
+@mixin retina {
+  @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    @content;
+  }
+}
+
+// ── Reduced motion ────────────────────────────────────────────
+@mixin reduced-motion {
+  @media (prefers-reduced-motion: reduce) { @content; }
+}
+
+// ── Dark mode ─────────────────────────────────────────────────
+@mixin dark-mode {
+  @media (prefers-color-scheme: dark) { @content; }
+}

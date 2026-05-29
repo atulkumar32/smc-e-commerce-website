@@ -86,22 +86,14 @@
       background-color: $color-secondary;
       color: $color-primary;
       border: 2px solid $color-secondary;
-
-      &:hover {
-        background-color: $color-secondary-400;
-        border-color: $color-secondary-400;
-      }
+      &:hover { background-color: $color-secondary-400; border-color: $color-secondary-400; }
     }
 
     &--outline {
       background-color: transparent;
       color: #ffffff;
       border: 2px solid #ffffff;
-
-      &:hover {
-        background-color: #ffffff;
-        color: $color-primary;
-      }
+      &:hover { background-color: #ffffff; color: $color-primary; }
     }
   }
 
@@ -123,58 +115,82 @@
     background-color: rgba(255, 255, 255, 0.3);
     @include transition(background-color);
     padding: 0;
-
-    &.is-active {
-      background-color: $color-secondary;
-    }
+    &.is-active { background-color: $color-secondary; }
   }
 
-  // ── Responsive ──────────────────────────────────────────────
+  // ── 4K / large desktop ≥1536px ───────────────────────────────
+  @include min-2xl {
+    height: 80vh;
+    &__heading  { font-size: 4rem; }
+    &__subtext  { font-size: $fs-xl; max-width: 600px; }
+    &__btn      { padding: 1rem 2.5rem; }
+  }
+
+  // ── Tablet landscape ≤1024px ──────────────────────────────────
+  @include lg {
+    height: 78vh;
+    &__heading  { font-size: $fs-3xl; }
+    &__subtext  { font-size: $fs-base; }
+  }
+
+  // ── Tablet portrait ≤768px ────────────────────────────────────
   @include md {
-    height: 75vh;
-
-    &__heading {
-      font-size: $fs-3xl;
-    }
-
-    &__subtext {
-      font-size: $fs-base;
-    }
-  }
-
-  @include sm {
-    height: 70vh;
+    height: 72vh;
     min-height: 480px;
-
-    &__heading {
-      font-size: $fs-2xl;
-    }
-
-    &__content {
-      gap: 1rem;
-    }
-
-    &__btn {
-      padding: 0.75rem 1.5rem;
+    &__heading  { font-size: $fs-3xl; }
+    &__subtext  { font-size: $fs-base; }
+    &__overlay  {
+      background: linear-gradient(
+        to bottom,
+        rgba(0,6,19,0.6) 0%,
+        rgba(0,6,19,0.85) 100%
+      );
     }
   }
 
+  // ── Large phone ≤640px ────────────────────────────────────────
+  @include sm {
+    height: 68vh;
+    min-height: 460px;
+    &__heading  { font-size: $fs-2xl; }
+    &__content  { gap: 1rem; }
+    &__btn      { padding: 0.75rem 1.5rem; }
+    &__subtext  { font-size: $fs-sm; max-width: 100%; }
+  }
+
+  // ── Standard phone ≤480px ─────────────────────────────────────
   @include xs {
-    &__heading {
-      font-size: $fs-xl;
-    }
+    height: 65vh;
+    min-height: 420px;
+    &__heading  { font-size: $fs-xl; }
+    &__subtext  { font-size: $fs-sm; }
+    &__actions  { flex-direction: column; gap: 0.75rem; }
+    &__btn      { text-align: center; width: 100%; }
+    &__dots     { bottom: 1rem; }
+    &__dot      { width: 2rem; }
+  }
 
-    &__subtext {
-      font-size: $fs-sm;
-    }
+  // ── Very small phone ≤360px ───────────────────────────────────
+  @include xxs {
+    height: 60vh;
+    min-height: 380px;
+    &__heading  { font-size: $fs-lg; }
+    &__badge    { font-size: 9px; }
+    &__content  { gap: 0.75rem; }
+  }
 
-    &__actions {
-      flex-direction: column;
-      gap: 0.75rem;
+  // ── Landscape phone ───────────────────────────────────────────
+  @include landscape {
+    @include xs {
+      height: 100vw;
+      min-height: 320px;
+      &__heading { font-size: $fs-lg; }
+      &__subtext { display: none; }
     }
+  }
 
-    &__btn {
-      text-align: center;
-    }
+  // ── Reduced motion ────────────────────────────────────────────
+  @include reduced-motion {
+    &__bg { transition: none; }
   }
 }

@@ -5,24 +5,11 @@
 @use 'sass:math';
 @import './ColorCodes';
 @import './_typography';
+@import './_breakpoints';
 
-// ── Breakpoints ───────────────────────────────────────────────
-$bp-xs:  480px;
-$bp-sm:  640px;
-$bp-md:  768px;
-$bp-lg:  1024px;
-$bp-xl:  1280px;
-$bp-2xl: 1536px;
-
-@mixin xs    { @media (max-width: #{$bp-xs})  { @content; } }
-@mixin sm    { @media (max-width: #{$bp-sm})  { @content; } }
-@mixin md    { @media (max-width: #{$bp-md})  { @content; } }
-@mixin lg    { @media (max-width: #{$bp-lg})  { @content; } }
-@mixin xl    { @media (max-width: #{$bp-xl})  { @content; } }
-@mixin min-sm  { @media (min-width: #{$bp-sm})  { @content; } }
-@mixin min-md  { @media (min-width: #{$bp-md})  { @content; } }
-@mixin min-lg  { @media (min-width: #{$bp-lg})  { @content; } }
-@mixin min-xl  { @media (min-width: #{$bp-xl})  { @content; } }
+// ── Breakpoints (re-exported from _breakpoints for backward compat) ───────────
+// All breakpoint mixins (xs, sm, md, lg, xl, xxs, nav-bp, min-*, between, etc.)
+// are now defined in _breakpoints.scss and available here automatically.
 
 // ── Typography helpers ────────────────────────────────────────
 @mixin headline($size: $fs-3xl, $weight: $fw-bold) {

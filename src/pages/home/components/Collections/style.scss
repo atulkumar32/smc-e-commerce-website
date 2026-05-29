@@ -1,12 +1,10 @@
 @import '../../../../Styles/Mixins';
 
 .collections {
-  background-color: #f8f9fa;
+  background-color: $color-neutral-50;
   padding: 5rem 0;
 
-  &__container {
-    @include container;
-  }
+  &__container { @include container; }
 
   &__header {
     text-align: center;
@@ -29,14 +27,12 @@
     margin: 0;
   }
 
-  // ── Grid ─────────────────────────────────────────────────────
   &__grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 1.5rem;
   }
 
-  // ── Card ─────────────────────────────────────────────────────
   &__card {
     position: relative;
     aspect-ratio: 3 / 4;
@@ -44,14 +40,8 @@
     background-color: $color-primary;
     cursor: pointer;
 
-    &:hover .collections__card-img {
-      transform: scale(1.1);
-      opacity: 1;
-    }
-
-    &:hover .collections__card-btn {
-      opacity: 1;
-    }
+    &:hover .collections__card-img { transform: scale(1.1); opacity: 1; }
+    &:hover .collections__card-btn { opacity: 1; }
   }
 
   &__card-img {
@@ -66,11 +56,7 @@
   &__card-overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(
-      to top,
-      rgba(0, 6, 19, 0.9) 0%,
-      transparent 55%
-    );
+    background: linear-gradient(to top, rgba(0,6,19,0.9) 0%, transparent 55%);
   }
 
   &__card-body {
@@ -95,7 +81,7 @@
     @include label($fs-xs, $fw-medium);
     letter-spacing: $ls-widest;
     text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.65);
+    color: rgba(255,255,255,0.65);
     margin: 0 0 0.5rem;
   }
 
@@ -113,37 +99,57 @@
     @include focus-ring($color-secondary);
   }
 
-  // ── Responsive ───────────────────────────────────────────────
+  // ── 4K ≥1536px ───────────────────────────────────────────────
+  @include min-2xl {
+    padding: 7rem 0;
+    &__grid    { gap: 2rem; }
+    &__heading { font-size: $fs-4xl; }
+  }
+
+  // ── Tablet landscape ≤1024px ──────────────────────────────────
   @include lg {
     padding: 4rem 0;
+    &__grid    { gap: 1.25rem; }
+    &__heading { font-size: $fs-2xl; }
   }
 
+  // ── Tablet portrait ≤768px ────────────────────────────────────
   @include md {
     padding: 3rem 0;
-
-    &__grid {
-      grid-template-columns: 1fr;
-      gap: 1.25rem;
-    }
-
-    &__card {
-      aspect-ratio: 16 / 9;
-    }
-
-    &__card-btn {
-      opacity: 1;
-    }
-
-    &__heading {
-      font-size: $fs-2xl;
-    }
+    &__header  { margin-bottom: 2.5rem; }
+    &__grid    { grid-template-columns: 1fr; gap: 1.25rem; }
+    &__card    { aspect-ratio: 16 / 9; }
+    &__card-btn { opacity: 1; }
+    &__heading { font-size: $fs-2xl; }
   }
 
+  // ── Large phone ≤640px ────────────────────────────────────────
   @include sm {
     padding: 2.5rem 0;
+    &__header  { margin-bottom: 2rem; }
+    &__card    { aspect-ratio: 4 / 3; }
+    &__card-body { padding: 1.25rem; }
+    &__card-title { font-size: $fs-lg; }
+  }
 
-    &__card {
-      aspect-ratio: 4 / 3;
-    }
+  // ── Standard phone ≤480px ─────────────────────────────────────
+  @include xs {
+    padding: 2rem 0;
+    &__grid    { gap: 0.875rem; }
+    &__card    { aspect-ratio: 3 / 2; }
+    &__card-body { padding: 1rem; }
+    &__card-title { font-size: $fs-base; }
+    &__card-sub   { display: none; }
+  }
+
+  // ── Very small phone ≤360px ───────────────────────────────────
+  @include xxs {
+    padding: 1.75rem 0;
+    &__card    { aspect-ratio: 1 / 1; }
+  }
+
+  // ── Touch: always show button ─────────────────────────────────
+  @include touch {
+    &__card-btn { opacity: 1; }
   }
 }

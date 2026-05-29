@@ -12,20 +12,16 @@
     align-items: center;
   }
 
-  // ── Image ────────────────────────────────────────────────────
   &__image-wrap {
     position: relative;
     overflow: hidden;
-    height: 80vh;
 
-    &:hover .legacy__image {
-      transform: scale(1.05);
-    }
+    &:hover .legacy__image { transform: scale(1.05); }
   }
 
   &__image {
     width: 100%;
-    // aspect-ratio: 4 / 5;
+    aspect-ratio: 4 / 5;
     object-fit: cover;
     display: block;
     @include transition(transform, 0.7s);
@@ -38,7 +34,6 @@
     pointer-events: none;
   }
 
-  // ── Content ──────────────────────────────────────────────────
   &__content {
     @include flex-col;
     gap: 1.25rem;
@@ -63,9 +58,7 @@
     line-height: $lh-relaxed;
     margin: 0;
 
-    &--lg {
-      font-size: $fs-lg;
-    }
+    &--lg { font-size: $fs-lg; }
   }
 
   &__link {
@@ -80,38 +73,60 @@
     @include transition(border-color);
     @include focus-ring($color-secondary);
 
-    &:hover {
-      border-color: $color-primary;
-    }
+    &:hover { border-color: $color-primary; }
   }
 
-  // ── Responsive ───────────────────────────────────────────────
+  // ── 4K ≥1536px ───────────────────────────────────────────────
+  @include min-2xl {
+    padding: 7rem 0;
+    &__container { gap: 7rem; }
+    &__heading   { font-size: $fs-4xl; }
+    &__body--lg  { font-size: $fs-xl; }
+  }
+
+  // ── Small desktop ≤1280px ─────────────────────────────────────
+  @include xl {
+    &__container { gap: 4rem; }
+  }
+
+  // ── Tablet landscape ≤1024px ──────────────────────────────────
   @include lg {
     padding: 4rem 0;
-
-    &__container {
-      gap: 3rem;
-    }
+    &__container { gap: 3rem; }
+    &__heading   { font-size: $fs-2xl; }
   }
 
+  // ── Tablet portrait ≤768px ────────────────────────────────────
   @include md {
     padding: 3rem 0;
-
     &__container {
       grid-template-columns: 1fr;
-      gap: 2.5rem;
+      gap: 2rem;
     }
-
-    &__heading {
-      font-size: $fs-2xl;
-    }
+    &__heading   { font-size: $fs-2xl; }
+    &__image     { aspect-ratio: 16 / 9; }
+    &__image-border { display: none; }
   }
 
+  // ── Large phone ≤640px ────────────────────────────────────────
   @include sm {
     padding: 2.5rem 0;
+    &__body--lg  { font-size: $fs-base; }
+    &__heading   { font-size: $fs-xl; }
+    &__content   { gap: 1rem; }
+  }
 
-    &__body--lg {
-      font-size: $fs-base;
-    }
+  // ── Standard phone ≤480px ─────────────────────────────────────
+  @include xs {
+    padding: 2rem 0;
+    &__heading   { font-size: $fs-lg; }
+    &__body      { font-size: $fs-sm; }
+    &__image     { aspect-ratio: 4 / 3; }
+  }
+
+  // ── Very small phone ≤360px ───────────────────────────────────
+  @include xxs {
+    padding: 1.75rem 0;
+    &__heading   { font-size: $fs-base; }
   }
 }
