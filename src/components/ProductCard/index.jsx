@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import './style.scss';
 
@@ -12,12 +12,18 @@ import './style.scss';
  */
 function ProductCard({ product, animate = false }) {
   const { addItem, toggleWishlist, isWishlisted } = useCart();
+  const navigate = useNavigate();
 
   const wished = isWishlisted(product.id);
 
   const handleAddToCart = (e) => {
     e.preventDefault();
     addItem(product);
+  };
+
+  const handleBuyNow = (e) => {
+    e.preventDefault();
+    navigate(`/products/${product.id}`);
   };
 
   const handleWishlist = (e) => {
@@ -41,7 +47,7 @@ function ProductCard({ product, animate = false }) {
         />
 
         {/* Size badges */}
-        {product.sizes?.length > 0 && (
+        {/* {product.sizes?.length > 0 && (
           <div className="pcard__sizes" aria-label="Available sizes">
             {product.sizes.map((s) => (
               <span key={s} className="pcard__size">{s}</span>
@@ -51,7 +57,7 @@ function ProductCard({ product, animate = false }) {
                 aria-label={`${s} out of stock`}>{s}</span>
             ))}
           </div>
-        )}
+        )} */}
 
         {/* Badge */}
         {product.badge && (
@@ -76,13 +82,13 @@ function ProductCard({ product, animate = false }) {
         </button>
 
         {/* Quick Add overlay */}
-        <button
+        {/* <button
           className="pcard__quick-add"
           onClick={handleAddToCart}
           aria-label={`Add ${product.name} to cart`}
         >
           Add to Cart
-        </button>
+        </button> */}
       </Link>
 
       {/* Card body */}
@@ -112,12 +118,8 @@ function ProductCard({ product, animate = false }) {
           <button className="pcard__btn pcard__btn--cart" onClick={handleAddToCart}>
             Add to Cart
           </button>
-          <button
-            className={`pcard__btn pcard__btn--wish${wished ? ' is-wished' : ''}`}
-            onClick={handleWishlist}
-            aria-pressed={wished}
-          >
-            {wished ? '♥ Wishlisted' : '♡ Wishlist'}
+          <button className="pcard__btn pcard__btn--buy" onClick={handleBuyNow}>
+            Buy Now
           </button>
         </div>
       </div>

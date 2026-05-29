@@ -1,0 +1,144 @@
+@import '../../Styles/Mixins';
+
+.cslider {
+  @include flex-col;
+  gap: 0;
+  outline: none;
+
+  // ── Header ────────────────────────────────────────────────────
+  &__header {
+    @include flex-between;
+    margin-bottom: 2.5rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  &__header-text {
+    @include flex-col;
+    gap: 0.4rem;
+  }
+
+  &__eyebrow {
+    @include label($fs-xs, $fw-semibold);
+    letter-spacing: $ls-widest;
+    text-transform: uppercase;
+    color: $color-secondary;
+  }
+
+  &__heading {
+    @include headline($fs-3xl, $fw-semibold);
+    color: $color-primary;
+    margin: 0;
+
+    @include md { font-size: $fs-2xl; }
+    @include sm { font-size: $fs-xl; }
+  }
+
+  // ── Nav buttons ───────────────────────────────────────────────
+  &__nav {
+    display: flex;
+    gap: 0.75rem;
+    flex-shrink: 0;
+  }
+
+  &__nav-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 1.5px solid $color-tertiary-200;
+    background: transparent;
+    color: $color-primary;
+    @include flex-center;
+    cursor: pointer;
+    @include transition(all);
+    @include focus-ring($color-secondary);
+
+    &:hover {
+      background-color: $color-primary;
+      color: #ffffff;
+      border-color: $color-primary;
+    }
+
+    &:active { transform: scale(0.93); }
+  }
+
+  // ── Viewport — clips the overflowing track ────────────────────
+  &__viewport {
+    overflow: hidden;
+    width: 100%;
+    // Fade edges for a polished infinite feel
+    mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      black 6%,
+      black 94%,
+      transparent 100%
+    );
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      black 6%,
+      black 94%,
+      transparent 100%
+    );
+  }
+
+  // ── Track — RAF sets transform directly, NO CSS transition ────
+  &__track {
+    display: flex;
+    // transform is set inline by RAF — no transition here
+    will-change: transform;
+    user-select: none;
+    cursor: grab;
+
+    &:active { cursor: grabbing; }
+  }
+
+  // ── Individual slide ──────────────────────────────────────────
+  &__slide {
+    flex-shrink: 0;
+    // All slides fully visible — no opacity dimming
+    opacity: 1;
+  }
+
+  // ── Dot indicators ────────────────────────────────────────────
+  &__dots {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1.75rem;
+  }
+
+  &__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: none;
+    background-color: $color-neutral-300;
+    cursor: pointer;
+    padding: 0;
+    @include transition(all, 0.3s);
+    @include focus-ring($color-secondary);
+
+    &.is-active {
+      background-color: $color-secondary;
+      width: 24px;
+      border-radius: 4px;
+    }
+
+    &:hover:not(.is-active) {
+      background-color: $color-tertiary-300;
+    }
+  }
+
+  // ── Responsive ────────────────────────────────────────────────
+  @include sm {
+    &__nav { display: none; }
+    &__header { margin-bottom: 1.75rem; }
+    &__viewport {
+      // remove fade on mobile — full bleed
+      mask-image: none;
+      -webkit-mask-image: none;
+    }
+  }
+}

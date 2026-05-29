@@ -237,25 +237,7 @@
       align-items: center;
       justify-content: center;
 
-      &:hover { background-color: rgba($color-primary, 0.05); }
-    }
-
-    &--wish {
-      background-color: transparent;
-      color: $color-tertiary-500;
-      border: 1.5px solid $color-neutral-300;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.25rem;
-
-      &:hover { border-color: $color-error; color: $color-error; }
-
-      &.is-wished {
-        color: $color-error;
-        border-color: $color-error;
-        background-color: rgba($color-error, 0.05);
-      }
+      &:hover { background-color: $color-primary; color: #ffffff; }
     }
   }
 

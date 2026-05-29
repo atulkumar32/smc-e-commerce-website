@@ -7,8 +7,8 @@ const NAV_LINKS = [
   { label: 'HOME', to: '/' },
   { label: 'ABOUT', to: '/about' },
   {
-    label: 'PRODUCTS',
-    to: '/products',
+    label: 'OUR PRODUCTS',
+    to: '/our-products',
     dropdown: [
       { label: 'School Bags', to: '/products/school-bags' },
       { label: 'Purses', to: '/products/purses' },

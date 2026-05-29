@@ -45,7 +45,7 @@ export const newDrops = [
     image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDoUBpFLiRxEFthxY9R4cMH5QLz_P-XiCPO9dqS2cPSNfYNepT2hrAed3K4QX_m4dVlnC0569p_OZ8Pssb3swnTen13bnfe5p0x99mvWzViCh_9TzPLVRBAmqLnXGBWJ955JvWx6jPGFnHhoV2XR6bstwAn1taeDPlt4P7uCXv-JQnjnbbGmSRHtwvM4lxSx_5x-fcBKpsj8s3brcv4kV60uHCPvgTTd_HewU8jJZDbauQhVUSnmykjljRnD9GqbFWCaeF-W5y2qJ8',
     alt: 'Aurelia Gold Clutch',
     name: 'Aurelia Gold Clutch',
-    price: '$249.00',
+    price: 18900,
     badge: 'New',
   },
   {
@@ -53,7 +53,7 @@ export const newDrops = [
     image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA1E1iV2oSHHbpilXv7UZM3Yfst2_ydDkbuymMYq7F0f4unwMiiIDjogBjboZLd0tgth4memotV23KJeQwMkO4ZxwuP6mRN-hXMwCGoD3YYhEw58mFAzXDKYLNnRztCZZNOohjtz2l8fvOfs6eqfOzPhDhD34A4Jd_U5GrLq5KEkxvC4dIkSwHQyV7yh79gjFuHZd55TOMUS89JDTQzSErS-BRNIdLN5TDER3QglwGm_LAhjOHn0TTRi9mWK8LsschZ2XHIztoK9rU',
     alt: 'Oxford Elite Backpack',
     name: 'Oxford Elite Backpack',
-    price: '$189.00',
+    price: 14400,
     badge: null,
   },
   {
@@ -61,7 +61,7 @@ export const newDrops = [
     image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBp37IAQa0iox5Ok4xe91T6k7RgvCcjRW0a5wHd9WLzxHFUeueMzIyZAdGPH-e4BuZ7RS-JOHccd4JNFk2CVynhmaCWaZC45dMAlcy2JFSorqWNdX0q2Wj4R2qNetAnTc-HLm5sxmLpqc4j6vvvqfPL08FWw7gYH2vlZWZAj29UDghV_TeHc34IRhAlSeIfQ5D8X8YNDfy_Et9L8NYp_8_DO0GTmmnhZTddvY53u0Y_C0UPd5uQondGqtQnlWpc9wFqorOzpfn8gfA',
     alt: 'Midnight Serenade Tote',
     name: 'Midnight Serenade Tote',
-    price: '$320.00',
+    price: 24300,
     badge: 'Limited',
   },
   {
@@ -69,7 +69,7 @@ export const newDrops = [
     image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAF4GHECIiOuSOZR0MmdLVobzL_HFyHnDP3kMUjMVt_Q8V-Mk2BMJ-EUDhc3YxRkRlqjF3lKNEwzOb8WncXnRwGzAEDyK6UvEtuxzhccIRC2X4yrLvXcdQGYfJvdxQJ1_Fij3srBLdoOJ9ic76wijpSjGlrBuhU1w3G24ChgqUTneSxnuVcCgy78hIqOvaRR-mkiXBWYddACld8Wl7hfbDoHIIpdBZbq0TnDxLVJdnm0egPwhY64BX2aDe5KDuY8-ZT0wcqmn7klI',
     alt: 'Titanium Tech Pack',
     name: 'Titanium Tech Pack',
-    price: '$155.00',
+    price: 11800,
     badge: null,
   },
 ];
@@ -117,5 +117,44 @@ export const moments = [
     id: 4,
     image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDWuIOk_23zOHZKdAmE8H3DCkAJsRy3Tc8u7dN9cuAkZy_VnhxQquvL9KS1lewaNamE0NXMciR5lKtJozsa3b25aTNIKehI5DEz65fCwUHaJfbATgGdwwf1pj9GF9KKiJc3J1B9iPxgf7T4wQvvtCbJ8VZBFIOcR4uaCYXFLEVwjyHrfhP72LwNgYYhYbCdZGxvuOk2KbOvotxuwNlIQhC2gwekb8lGbsO79eD-CmPPMduYSWB7tIctCs3FGY-m2t5muAiLR9Ntx8g',
     alt: 'Purse in boutique hotel',
+  },
+];
+
+// ── Expand Slider — Collections Showcase ─────────────────────
+export const expandSlides = [
+  {
+    id: 1,
+    image: 'https://66.media.tumblr.com/6fb397d822f4f9f4596dff2085b18f2e/tumblr_nzsvb4p6xS1qho82wo1_1280.jpg',
+    label: 'School Bags',
+    sub: 'Ergonomic & Durable',
+    to: '/products/school-bags',
+  },
+  {
+    id: 2,
+    image: 'https://66.media.tumblr.com/8b69cdde47aa952e4176b4200052abf4/tumblr_o51p7mFFF21qho82wo1_1280.jpg',
+    label: 'Winter Collection',
+    sub: 'Crafted for the season',
+    to: '/products/school-bags',
+  },
+  {
+    id: 3,
+    image: 'https://66.media.tumblr.com/5af3f8303456e376ceda1517553ba786/tumblr_o4986gakjh1qho82wo1_1280.jpg',
+    label: 'Leather Accessories',
+    sub: 'Heritage craftsmanship',
+    to: '/products/wallets',
+  },
+  {
+    id: 4,
+    image: 'https://66.media.tumblr.com/5516a22e0cdacaa85311ec3f8fd1e9ef/tumblr_o45jwvdsL11qho82wo1_1280.jpg',
+    label: 'Luxury Purses',
+    sub: 'Timeless elegance',
+    to: '/products/purses',
+  },
+  {
+    id: 5,
+    image: 'https://66.media.tumblr.com/f19901f50b79604839ca761cd6d74748/tumblr_o65rohhkQL1qho82wo1_1280.jpg',
+    label: 'New Arrivals',
+    sub: 'Fresh season drops',
+    to: '/products/new-arrivals',
   },
 ];
