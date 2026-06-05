@@ -25,15 +25,11 @@ function ModalComponent({
       fullWidth={fullWidth}
       scroll="paper"
     >
-      <DialogTitle sx={{ display: 'flex', alignItems: 'center', pr: 6 }}>
+      <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pr: 3, pb: 0 }}>
         <Typography variant="h6" component="span" fontWeight={600}>
           {title}
         </Typography>
-        <IconButton
-          aria-label="close"
-          onClick={onClose}
-          sx={{ position: 'absolute', right: 12, top: 12 }}
-        >
+        <IconButton aria-label="close" onClick={onClose} sx={{ ml: 2 }}>
           <CloseIcon />
         </IconButton>
       </DialogTitle>

@@ -71,6 +71,16 @@ function useAddNewProduct({ editingProduct = null, onSuccess } = {}) {
     setSubmitError('');
   };
 
+  const setFieldValue = (field, value) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+    setErrors((prev) => {
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
+    setSubmitError('');
+  };
+
   const handleImagesChange = (images, imageError = '') => {
     setForm((prev) => ({ ...prev, images }));
     apiDebug('Images updated', {
@@ -212,6 +222,7 @@ function useAddNewProduct({ editingProduct = null, onSuccess } = {}) {
     handleCategoryChange,
     handleImagesChange,
     handleColorSelect,
+    setFieldValue,
     submitProduct,
   };
 }

@@ -56,7 +56,6 @@ function ProductViewDetails({ product: p }) {
 
   const name        = p.product_name  || p.productName  || p.name || '—';
   const mainImg     = p.images?.find((i) => i.is_main) || p.images?.[0];
-  const primaryImg  = resolveImg(mainImg?.image_url || mainImg?.url || p.image_url || p.imageUrl || '');
 
   return (
     <Box>
@@ -220,12 +219,42 @@ function ProductsPage() {
     {
       id: 'price',
       label: 'Price',
-      render: (row) =>
-        row.price != null && row.price !== ''
-          ? `₹${Number(row.price).toFixed(2)}`
-          : '—',
+      render: (row) => {
+        const mrp = row.mrp ?? row.price;
+        const selling = row.selling_price ?? row.price;
+        const discount = row.discount_percent ?? row.discountPercent;
+        return (
+          <Box>
+            {mrp && selling && mrp !== selling ? (
+              <Typography variant="body2" sx={{ textDecoration: 'line-through', color: 'text.secondary' }}>
+                ₹{Number(mrp).toFixed(2)}
+              </Typography>
+            ) : null}
+            <Typography variant="body2" fontWeight={600}>
+              ₹{Number(selling || mrp || 0).toFixed(2)}
+            </Typography>
+            {discount ? (
+              <Chip label={`${discount}% off`} size="small" color="secondary" sx={{ mt: 0.5 }} />
+            ) : null}
+          </Box>
+        );
+      },
     },
-    { id: 'stock', label: 'Stock' },
+    {
+      id: 'stock',
+      label: 'Stock',
+      render: (row) => {
+        const stock = Number(row.stock ?? 0);
+        return (
+          <Chip
+            label={stock > 0 ? `In stock (${stock})` : 'Out of stock'}
+            size="small"
+            color={stock > 0 ? 'success' : 'error'}
+            variant="outlined"
+          />
+        );
+      },
+    },
     {
       id: 'status',
       label: 'Status',
