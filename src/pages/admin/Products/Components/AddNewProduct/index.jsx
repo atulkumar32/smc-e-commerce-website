@@ -1,54 +1,91 @@
 import { useEffect } from 'react';
 import {
-  Box, Button, Chip, Stack, Typography, Divider, Grid, Alert,
-  TextField, FormControl, InputLabel, Select, MenuItem,
-  Paper, IconButton, Autocomplete, Switch,
+  Box,
+  Button,
+  Chip,
+  Stack,
+  Typography,
+  Divider,
+  Grid,
+  Alert,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Paper,
+  IconButton,
+  Autocomplete,
+  Switch,
 } from '@mui/material';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutlineOutlined';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutlineOutlined';
+
 import ProductImageUpload from './ProductImageUpload';
 import useAddNewProduct from './useAddNewProduct';
+
 import {
-  BRAND_OPTIONS, COLOR_OPTIONS, MATERIAL_OPTIONS, PATTERN_OPTIONS,
-  CHARACTER_OPTIONS, CLASS_OPTIONS, BACKPACK_STYLE_OPTIONS,
-  BAG_CAPACITY_OPTIONS, NET_QUANTITY_OPTIONS, RECOMMENDED_AGE_OPTIONS,
+  BRAND_OPTIONS,
+  COLOR_OPTIONS,
+  MATERIAL_OPTIONS,
+  PATTERN_OPTIONS,
+  CHARACTER_OPTIONS,
+  CLASS_OPTIONS,
+  BACKPACK_STYLE_OPTIONS,
+  BAG_CAPACITY_OPTIONS,
+  NET_QUANTITY_OPTIONS,
+  RECOMMENDED_AGE_OPTIONS,
   NET_WEIGHT_OPTIONS,
 } from './AddNewProductData';
+
 import './index.scss';
 
-// ── Section heading ───────────────────────────────────────────────────────────
+// Section Header
 function Section({ title, children }) {
   return (
     <Box mt={3}>
-      <Typography variant="subtitle2"
-        sx={{ fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase',
-          color: 'text.secondary', mb: 0.75 }}>
+      <Typography
+        variant="subtitle2"
+        sx={{
+          fontWeight: 700,
+          letterSpacing: '0.08em',
+          textTransform: 'uppercase',
+          color: 'text.secondary',
+          mb: 1,
+        }}
+      >
         {title}
       </Typography>
-      <Divider sx={{ mb: 2 }} />
+      <Divider sx={{ mb: 2.5 }} />
       {children}
     </Box>
   );
 }
 
-// ── Main component ────────────────────────────────────────────────────────────
 function AddNewProduct({ editingProduct = null, onSuccess, onCancel }) {
   const {
-    form, errors, submitError, loading, isEditing,
-    categories, categoriesLoading,
-    handleChange, handleImagesChange, submitProduct, setFieldValue,
+    form,
+    errors,
+    submitError,
+    loading,
+    isEditing,
+    categories,
+    categoriesLoading,
+    handleChange,
+    handleImagesChange,
+    submitProduct,
+    setFieldValue,
   } = useAddNewProduct({ editingProduct, onSuccess });
 
-  // ── Auto-calculate selling price ──────────────────────────────
+  // Auto-calculate Selling Price
   useEffect(() => {
     const mrp = Number(form.mrpPrice || 0);
     const pct = Number(form.discountPercent || 0);
     if (mrp > 0) {
       setFieldValue('sellingPrice', Number((mrp - mrp * (pct / 100)).toFixed(2)));
     }
-  }, [form.mrpPrice, form.discountPercent]);
+  }, [form.mrpPrice, form.discountPercent, setFieldValue]);
 
-  // ── Sanitize numeric fields on blur ───────────────────────────
   const clampNumber = (field, min = 0) => {
     const n = Number(form[field]);
     if (!Number.isNaN(n) && form[field] !== '') {
@@ -56,7 +93,7 @@ function AddNewProduct({ editingProduct = null, onSuccess, onCancel }) {
     }
   };
 
-  // ── Features helpers ──────────────────────────────────────────
+  // Features
   const features = form.features || [];
 
   const addFeature = () => {
@@ -71,11 +108,12 @@ function AddNewProduct({ editingProduct = null, onSuccess, onCancel }) {
   };
 
   const updateFeature = (i, key, val) => {
-    const next = features.map((f, idx) => idx === i ? { ...f, [key]: val } : f);
+    const next = features.map((f, idx) =>
+      idx === i ? { ...f, [key]: val } : f
+    );
     setFieldValue('features', next);
   };
 
-  // ── Helpers for selects ────────────────────────────────────────
   const sel = (field) => ({
     value: form[field] || '',
     onChange: handleChange(field),
@@ -83,15 +121,15 @@ function AddNewProduct({ editingProduct = null, onSuccess, onCancel }) {
 
   return (
     <Box className="add-new-product">
-      {/* Global error */}
       {submitError && (
-        <Alert severity="error" sx={{ mb: 2 }}>{submitError}</Alert>
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {submitError}
+        </Alert>
       )}
 
       <Grid container spacing={3}>
+        {/* 1. Product Images */}
         <Grid item xs={12}>
-
-          {/* ── 1. Images ── */}
           <Section title="Product Images">
             <ProductImageUpload
               images={form.images}
@@ -99,48 +137,58 @@ function AddNewProduct({ editingProduct = null, onSuccess, onCancel }) {
               error={errors.images}
             />
           </Section>
+        </Grid>
 
-          {/* ── 2. Basic Information ── */}
+        {/* 2. Basic Information */}
+        <Grid item xs={12}>
           <Section title="Basic Information">
             <Grid container spacing={2}>
-              <Grid item xs={6}>
-                <TextField label="Product Name *" fullWidth
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="Product Name *"
+                  fullWidth
                   value={form.productName}
                   onChange={handleChange('productName')}
                   error={Boolean(errors.productName)}
                   helperText={errors.productName}
                 />
               </Grid>
-              <Grid item xs={6}>
-                <TextField label="Generic Name" fullWidth
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="Generic Name"
+                  fullWidth
                   value={form.genericName || ''}
                   onChange={handleChange('genericName')}
                 />
               </Grid>
 
-              {/* Brand */}
-              <Grid item xs={6}>
-                <Autocomplete freeSolo
+              <Grid item xs={12} sm={6}>
+                <Autocomplete
+                  freeSolo
                   options={BRAND_OPTIONS}
                   value={form.brand || ''}
                   onChange={(_, v) => setFieldValue('brand', v || '')}
                   onInputChange={(_, v) => setFieldValue('brand', v)}
                   renderInput={(params) => (
-                    <TextField {...params} label="Brand *"
+                    <TextField
+                      {...params}
+                      label="Brand *"
                       error={Boolean(errors.brand)}
-                      helperText={errors.brand} fullWidth />
+                      helperText={errors.brand}
+                      fullWidth
+                    />
                   )}
                 />
               </Grid>
 
-              {/* Category */}
-              <Grid item xs={6}>
+              <Grid item xs={12} sm={6}>
                 <Autocomplete
                   options={categories}
                   loading={categoriesLoading}
                   getOptionLabel={(opt) => opt.label || ''}
                   isOptionEqualToValue={(opt, val) =>
-                    String(opt.value) === String(val?.value)}
+                    String(opt.value) === String(val?.value)
+                  }
                   value={
                     categories.find(
                       (c) => String(c.value) === String(form.categoryId)
@@ -151,27 +199,33 @@ function AddNewProduct({ editingProduct = null, onSuccess, onCancel }) {
                     setFieldValue('categoryName', v?.label ?? '');
                   }}
                   renderInput={(params) => (
-                    <TextField {...params} label="Category *"
+                    <TextField
+                      {...params}
+                      label="Category *"
                       error={Boolean(errors.categoryId)}
-                      helperText={errors.categoryId} fullWidth />
+                      helperText={errors.categoryId}
+                      fullWidth
+                    />
                   )}
                 />
               </Grid>
             </Grid>
           </Section>
+        </Grid>
 
-          {/* ── 3. Product Attributes ── */}
+        {/* 3. Product Attributes */}
+        <Grid item xs={12}>
           <Section title="Product Attributes">
             <Grid container spacing={2}>
-              {/* Colors */}
-              <Grid item xs={6}>
-                <Autocomplete multiple freeSolo
+              <Grid item xs={12} sm={6}>
+                <Autocomplete
+                  multiple
+                  freeSolo
                   options={COLOR_OPTIONS}
-                  getOptionLabel={(opt) =>
-                    typeof opt === 'string' ? opt : opt.label}
                   value={form.selectedColors || []}
                   onChange={(_, v) =>
-                    setFieldValue('selectedColors',
+                    setFieldValue(
+                      'selectedColors',
                       v.map((item) =>
                         typeof item === 'string'
                           ? { label: item, hex: '#000000' }
@@ -181,24 +235,34 @@ function AddNewProduct({ editingProduct = null, onSuccess, onCancel }) {
                   }
                   renderTags={(val, getTagProps) =>
                     val.map((opt, i) => (
-                      <Chip key={i} label={opt.label}
+                      <Chip
+                        key={i}
+                        label={opt.label}
                         {...getTagProps({ index: i })}
-                        sx={{ bgcolor: opt.hex || '#eee',
-                          color: '#111', fontWeight: 600 }} />
+                        sx={{
+                          bgcolor: opt.hex || '#eee',
+                          color: '#111',
+                          fontWeight: 600,
+                        }}
+                      />
                     ))
                   }
                   renderInput={(params) => (
-                    <TextField {...params} label="Colors *"
-                      placeholder="Pick or type a color"
+                    <TextField
+                      {...params}
+                      label="Colors *"
                       error={Boolean(errors.selectedColors)}
-                      helperText={errors.selectedColors} fullWidth />
+                      helperText={errors.selectedColors}
+                      fullWidth
+                    />
                   )}
                 />
               </Grid>
 
-              {/* Material */}
-              <Grid item xs={6}>
-                <Autocomplete freeSolo options={MATERIAL_OPTIONS}
+              <Grid item xs={12} sm={6}>
+                <Autocomplete
+                  freeSolo
+                  options={MATERIAL_OPTIONS}
                   value={form.material || ''}
                   onChange={(_, v) => setFieldValue('material', v || '')}
                   onInputChange={(_, v) => setFieldValue('material', v)}
@@ -208,9 +272,10 @@ function AddNewProduct({ editingProduct = null, onSuccess, onCancel }) {
                 />
               </Grid>
 
-              {/* Pattern */}
-              <Grid item xs={6}>
-                <Autocomplete freeSolo options={PATTERN_OPTIONS}
+              <Grid item xs={12} sm={6}>
+                <Autocomplete
+                  freeSolo
+                  options={PATTERN_OPTIONS}
                   value={form.pattern || ''}
                   onChange={(_, v) => setFieldValue('pattern', v || '')}
                   onInputChange={(_, v) => setFieldValue('pattern', v)}
@@ -220,9 +285,10 @@ function AddNewProduct({ editingProduct = null, onSuccess, onCancel }) {
                 />
               </Grid>
 
-              {/* Character */}
-              <Grid item xs={6}>
-                <Autocomplete freeSolo options={CHARACTER_OPTIONS}
+              <Grid item xs={12} sm={6}>
+                <Autocomplete
+                  freeSolo
+                  options={CHARACTER_OPTIONS}
                   value={form.character || ''}
                   onChange={(_, v) => setFieldValue('character', v || '')}
                   onInputChange={(_, v) => setFieldValue('character', v)}
@@ -233,23 +299,29 @@ function AddNewProduct({ editingProduct = null, onSuccess, onCancel }) {
               </Grid>
             </Grid>
           </Section>
+        </Grid>
 
-          {/* ── 4. Product Details ── */}
+        {/* 4. Product Details */}
+        <Grid item xs={12}>
           <Section title="Product Details">
             <Grid container spacing={2}>
-              <Grid item xs={6}>
+              <Grid item xs={12} sm={6}>
                 <FormControl fullWidth>
                   <InputLabel>Gender</InputLabel>
                   <Select label="Gender" {...sel('gender')}>
                     {['Boys', 'Girls', 'Unisex', 'Male', 'Female'].map((v) => (
-                      <MenuItem key={v} value={v}>{v}</MenuItem>
+                      <MenuItem key={v} value={v}>
+                        {v}
+                      </MenuItem>
                     ))}
                   </Select>
                 </FormControl>
               </Grid>
 
-              <Grid item xs={6}>
-                <Autocomplete freeSolo options={CLASS_OPTIONS}
+              <Grid item xs={12} sm={6}>
+                <Autocomplete
+                  freeSolo
+                  options={CLASS_OPTIONS}
                   value={form.productClass || ''}
                   onChange={(_, v) => setFieldValue('productClass', v || '')}
                   onInputChange={(_, v) => setFieldValue('productClass', v)}
@@ -259,8 +331,10 @@ function AddNewProduct({ editingProduct = null, onSuccess, onCancel }) {
                 />
               </Grid>
 
-              <Grid item xs={6}>
-                <Autocomplete freeSolo options={BACKPACK_STYLE_OPTIONS}
+              <Grid item xs={12} sm={6}>
+                <Autocomplete
+                  freeSolo
+                  options={BACKPACK_STYLE_OPTIONS}
                   value={form.backpackStyle || ''}
                   onChange={(_, v) => setFieldValue('backpackStyle', v || '')}
                   onInputChange={(_, v) => setFieldValue('backpackStyle', v)}
@@ -270,8 +344,10 @@ function AddNewProduct({ editingProduct = null, onSuccess, onCancel }) {
                 />
               </Grid>
 
-              <Grid item xs={6}>
-                <Autocomplete freeSolo options={BAG_CAPACITY_OPTIONS}
+              <Grid item xs={12} sm={6}>
+                <Autocomplete
+                  freeSolo
+                  options={BAG_CAPACITY_OPTIONS}
                   value={form.bagCapacity || ''}
                   onChange={(_, v) => setFieldValue('bagCapacity', v || '')}
                   onInputChange={(_, v) => setFieldValue('bagCapacity', v)}
@@ -281,21 +357,29 @@ function AddNewProduct({ editingProduct = null, onSuccess, onCancel }) {
                 />
               </Grid>
 
-              <Grid item xs={6}>
-                <Autocomplete freeSolo options={NET_QUANTITY_OPTIONS}
+              <Grid item xs={12} sm={6}>
+                <Autocomplete
+                  freeSolo
+                  options={NET_QUANTITY_OPTIONS}
                   value={form.netQuantity || ''}
                   onChange={(_, v) => setFieldValue('netQuantity', v || '')}
                   onInputChange={(_, v) => setFieldValue('netQuantity', v)}
                   renderInput={(params) => (
-                    <TextField {...params} label="Net Quantity"
+                    <TextField
+                      {...params}
+                      label="Net Quantity"
                       error={Boolean(errors.netQuantity)}
-                      helperText={errors.netQuantity} fullWidth />
+                      helperText={errors.netQuantity}
+                      fullWidth
+                    />
                   )}
                 />
               </Grid>
 
-              <Grid item xs={6}>
-                <Autocomplete freeSolo options={RECOMMENDED_AGE_OPTIONS}
+              <Grid item xs={12} sm={6}>
+                <Autocomplete
+                  freeSolo
+                  options={RECOMMENDED_AGE_OPTIONS}
                   value={form.recommendedAge || ''}
                   onChange={(_, v) => setFieldValue('recommendedAge', v || '')}
                   onInputChange={(_, v) => setFieldValue('recommendedAge', v)}
@@ -305,30 +389,36 @@ function AddNewProduct({ editingProduct = null, onSuccess, onCancel }) {
                 />
               </Grid>
 
-              <Grid item xs={6}>
+              <Grid item xs={12} sm={6}>
                 <FormControl fullWidth>
                   <InputLabel>Size</InputLabel>
                   <Select label="Size" {...sel('size')}>
                     {['Small', 'Medium', 'Large', 'Extra Large', 'Free Size'].map((v) => (
-                      <MenuItem key={v} value={v}>{v}</MenuItem>
+                      <MenuItem key={v} value={v}>
+                        {v}
+                      </MenuItem>
                     ))}
                   </Select>
                 </FormControl>
               </Grid>
 
-              <Grid item xs={6}>
+              <Grid item xs={12} sm={6}>
                 <FormControl fullWidth>
                   <InputLabel>Country of Origin</InputLabel>
                   <Select label="Country of Origin" {...sel('countryOfOrigin')}>
                     {['India', 'China', 'Bangladesh', 'Vietnam', 'Indonesia'].map((v) => (
-                      <MenuItem key={v} value={v}>{v}</MenuItem>
+                      <MenuItem key={v} value={v}>
+                        {v}
+                      </MenuItem>
                     ))}
                   </Select>
                 </FormControl>
               </Grid>
 
-              <Grid item xs={6}>
-                <Autocomplete freeSolo options={NET_WEIGHT_OPTIONS}
+              <Grid item xs={12} sm={6}>
+                <Autocomplete
+                  freeSolo
+                  options={NET_WEIGHT_OPTIONS}
                   value={form.netWeight || ''}
                   onChange={(_, v) => setFieldValue('netWeight', v || '')}
                   onInputChange={(_, v) => setFieldValue('netWeight', v)}
@@ -339,19 +429,27 @@ function AddNewProduct({ editingProduct = null, onSuccess, onCancel }) {
               </Grid>
             </Grid>
           </Section>
+        </Grid>
 
-          {/* ── 5. Pricing ── */}
+        {/* 5. Pricing */}
+        <Grid item xs={12}>
           <Section title="Pricing">
             <Grid container spacing={2}>
-              <Grid item xs={6}>
-                <TextField label="Cost Price (₹)" type="number" fullWidth
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="Cost Price (₹)"
+                  type="number"
+                  fullWidth
                   value={form.actualCostPrice || ''}
                   onChange={handleChange('actualCostPrice')}
                   inputProps={{ min: 0, step: 0.01 }}
                 />
               </Grid>
-              <Grid item xs={6}>
-                <TextField label="MRP (₹) *" type="number" fullWidth
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="MRP (₹) *"
+                  type="number"
+                  fullWidth
                   value={form.mrpPrice || ''}
                   onChange={handleChange('mrpPrice')}
                   onBlur={() => clampNumber('mrpPrice', 1)}
@@ -360,8 +458,11 @@ function AddNewProduct({ editingProduct = null, onSuccess, onCancel }) {
                   inputProps={{ min: 1, step: 0.01 }}
                 />
               </Grid>
-              <Grid item xs={6}>
-                <TextField label="Discount (%)" type="number" fullWidth
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="Discount (%)"
+                  type="number"
+                  fullWidth
                   value={form.discountPercent || ''}
                   onChange={handleChange('discountPercent')}
                   onBlur={() => clampNumber('discountPercent', 0)}
@@ -370,26 +471,29 @@ function AddNewProduct({ editingProduct = null, onSuccess, onCancel }) {
                   inputProps={{ min: 0, max: 100, step: 1 }}
                 />
               </Grid>
-              <Grid item xs={6}>
-                <TextField label="Selling Price (₹)" type="number" fullWidth
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="Selling Price (₹)"
+                  type="number"
+                  fullWidth
                   value={form.sellingPrice || ''}
                   InputProps={{ readOnly: true }}
-                  helperText="Auto-calculated from MRP × discount"
+                  helperText="Auto-calculated from MRP & Discount"
                 />
               </Grid>
             </Grid>
-            <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
-              Cost ₹{form.actualCostPrice || 0} · MRP ₹{form.mrpPrice || 0}
-              · Discount {form.discountPercent || 0}%
-              · <strong>Selling ₹{form.sellingPrice || 0}</strong>
-            </Typography>
           </Section>
+        </Grid>
 
-          {/* ── 6. Inventory ── */}
+        {/* 6. Inventory */}
+        <Grid item xs={12}>
           <Section title="Inventory">
             <Grid container spacing={2}>
-              <Grid item xs={6}>
-                <TextField label="Stock Quantity *" type="number" fullWidth
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="Stock Quantity *"
+                  type="number"
+                  fullWidth
                   value={form.stock || ''}
                   onChange={handleChange('stock')}
                   onBlur={() => clampNumber('stock', 1)}
@@ -398,7 +502,7 @@ function AddNewProduct({ editingProduct = null, onSuccess, onCancel }) {
                   inputProps={{ min: 1, step: 1 }}
                 />
               </Grid>
-              <Grid item xs={6}>
+              <Grid item xs={12} sm={6}>
                 <FormControl fullWidth>
                   <InputLabel>Stock Status</InputLabel>
                   <Select label="Stock Status" {...sel('stockStatus')}>
@@ -409,84 +513,98 @@ function AddNewProduct({ editingProduct = null, onSuccess, onCancel }) {
               </Grid>
             </Grid>
           </Section>
+        </Grid>
 
-          {/* ── 7. Features ── */}
+        {/* 7. Features */}
+        <Grid item xs={12}>
           <Section title={`Product Features (${features.length}/10)`}>
-            <Stack spacing={1.5}>
+            <Stack spacing={2}>
               {features.map((feat, i) => (
-                <Paper key={i} variant="outlined" sx={{ p: 1.5 }}>
-                  <Grid container spacing={1.5} alignItems="center">
+                <Paper key={i} variant="outlined" sx={{ p: 2 }}>
+                  <Grid container spacing={2} alignItems="center">
                     <Grid item xs={12} sm={5}>
-                      <TextField label="Feature Title" fullWidth size="small"
+                      <TextField
+                        label="Feature Title"
+                        fullWidth
+                        size="small"
                         value={feat.title || ''}
                         onChange={(e) => updateFeature(i, 'title', e.target.value)}
                       />
                     </Grid>
-                    <Grid item xs={11} sm={6}>
-                      <TextField label="Description" fullWidth size="small"
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        label="Description"
+                        fullWidth
+                        size="small"
                         value={feat.description || ''}
                         onChange={(e) => updateFeature(i, 'description', e.target.value)}
                       />
                     </Grid>
-                    <Grid item xs={1}>
-                      <IconButton size="small" color="error"
+                    <Grid item xs={12} sm={1}>
+                      <IconButton
+                        color="error"
                         onClick={() => removeFeature(i)}
-                        aria-label="Remove feature">
-                        <RemoveCircleOutlineIcon fontSize="small" />
+                        size="small"
+                      >
+                        <RemoveCircleOutlineIcon />
                       </IconButton>
                     </Grid>
                   </Grid>
                 </Paper>
               ))}
-              <Button variant="outlined" size="small"
+
+              <Button
+                variant="outlined"
                 startIcon={<AddCircleOutlineIcon />}
                 onClick={addFeature}
                 disabled={features.length >= 10}
-                sx={{ alignSelf: 'flex-start' }}>
+                sx={{ alignSelf: 'flex-start' }}
+              >
                 Add Feature
               </Button>
             </Stack>
           </Section>
+        </Grid>
 
-          {/* ── 8. Description ── */}
+        {/* 8. Description */}
+        <Grid item xs={12}>
           <Section title="Description">
             <Grid container spacing={2}>
-              <Grid item xs={6} className="MuiGrid-item--full-width">
+              <Grid item xs={12}>
                 <TextField
                   label="Short Description"
-                  fullWidth multiline rows={4}
+                  fullWidth
+                  multiline
+                  rows={3}
                   inputProps={{ maxLength: 250 }}
                   value={form.shortDescription || ''}
                   onChange={handleChange('shortDescription')}
                   helperText={`${(form.shortDescription || '').length}/250 characters`}
-                  sx={{ width: '520px !important', maxWidth: '100%' }}
                 />
               </Grid>
-              <Grid item xs={6} className="MuiGrid-item--full-width">
+              <Grid item xs={12}>
                 <TextField
                   label="Full Description *"
-                  fullWidth multiline rows={8}
+                  fullWidth
+                  multiline
+                  rows={8}
                   value={form.fullDescription || ''}
                   onChange={handleChange('fullDescription')}
                   error={Boolean(errors.fullDescription)}
                   helperText={errors.fullDescription || 'Plain text. Use line breaks for paragraphs.'}
-                  placeholder="Enter the detailed product description here…"
-                  sx={{ width: '520px !important', maxWidth: '100%' }}
                 />
               </Grid>
             </Grid>
           </Section>
+        </Grid>
 
-          {/* ── 9. Visibility & Display Settings ── */}
+        {/* 9. Visibility & Display Settings */}
+        <Grid item xs={12}>
           <Section title="Visibility & Display Settings">
-            <Paper variant="outlined" sx={{ p: 2.5, borderRadius: 2 }}>
-              <Grid container spacing={0}>
-
-                {/* Is Live */}
+            <Paper variant="outlined" sx={{ p: 3 }}>
+              <Grid container spacing={2}>
                 <Grid item xs={12} sm={6}>
-                  <Box sx={{ display: 'flex', alignItems: 'flex-start',
-                    justifyContent: 'space-between', py: 1.5, pr: { sm: 3 },
-                    borderBottom: '1px solid', borderColor: 'divider' }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Box>
                       <Typography variant="body2" fontWeight={600}>Live on Website</Typography>
                       <Typography variant="caption" color="text.secondary">
@@ -496,20 +614,16 @@ function AddNewProduct({ editingProduct = null, onSuccess, onCancel }) {
                     <Switch
                       checked={Boolean(form.isLive)}
                       onChange={(e) => setFieldValue('isLive', e.target.checked)}
-                      color="primary"
                     />
                   </Box>
                 </Grid>
 
-                {/* New Arrival */}
                 <Grid item xs={12} sm={6}>
-                  <Box sx={{ display: 'flex', alignItems: 'flex-start',
-                    justifyContent: 'space-between', py: 1.5, pl: { sm: 3 },
-                    borderBottom: '1px solid', borderColor: 'divider' }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Box>
                       <Typography variant="body2" fontWeight={600}>New Arrival</Typography>
                       <Typography variant="caption" color="text.secondary">
-                        Show in New Arrivals section on homepage
+                        Show in New Arrivals section
                       </Typography>
                     </Box>
                     <Switch
@@ -520,15 +634,12 @@ function AddNewProduct({ editingProduct = null, onSuccess, onCancel }) {
                   </Box>
                 </Grid>
 
-                {/* Card Slider */}
                 <Grid item xs={12} sm={6}>
-                  <Box sx={{ display: 'flex', alignItems: 'flex-start',
-                    justifyContent: 'space-between', py: 1.5, pr: { sm: 3 },
-                    borderBottom: { xs: '1px solid', sm: 'none' }, borderColor: 'divider' }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Box>
                       <Typography variant="body2" fontWeight={600}>Card Slider</Typography>
                       <Typography variant="caption" color="text.secondary">
-                        Include in homepage product card slider
+                        Include in homepage slider
                       </Typography>
                     </Box>
                     <Switch
@@ -539,14 +650,12 @@ function AddNewProduct({ editingProduct = null, onSuccess, onCancel }) {
                   </Box>
                 </Grid>
 
-                {/* Homepage Banner */}
                 <Grid item xs={12} sm={6}>
-                  <Box sx={{ display: 'flex', alignItems: 'flex-start',
-                    justifyContent: 'space-between', py: 1.5, pl: { sm: 3 } }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Box>
                       <Typography variant="body2" fontWeight={600}>Homepage Banner</Typography>
                       <Typography variant="caption" color="text.secondary">
-                        Feature this product on the homepage hero banner
+                        Feature on homepage hero banner
                       </Typography>
                     </Box>
                     <Switch
@@ -556,45 +665,41 @@ function AddNewProduct({ editingProduct = null, onSuccess, onCancel }) {
                     />
                   </Box>
                 </Grid>
-
               </Grid>
 
-              {/* Banner details — shown only when banner is enabled */}
               {form.homepageBannerEnabled && (
-                <Box sx={{ mt: 2.5, pt: 2.5, borderTop: '1px solid',
-                  borderColor: 'divider' }}>
-                  <Typography variant="caption" color="text.secondary"
-                    sx={{ display: 'block', mb: 1.5, fontWeight: 600,
-                      textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                    Banner Content
-                  </Typography>
+                <Box sx={{ mt: 3, pt: 3, borderTop: '1px solid', borderColor: 'divider' }}>
                   <Grid container spacing={2}>
-                    <Grid item xs={6}>
-                      <TextField label="Banner Title" fullWidth
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        label="Banner Title"
+                        fullWidth
                         value={form.heroBannerTitle || ''}
                         onChange={handleChange('heroBannerTitle')}
-                        placeholder="e.g. New Collection Arrived"
                       />
                     </Grid>
-                    <Grid item xs={6}>
-                      <TextField label="Banner Subtitle" fullWidth
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        label="Banner Subtitle"
+                        fullWidth
                         value={form.heroBannerSubtitle || ''}
                         onChange={handleChange('heroBannerSubtitle')}
-                        placeholder="e.g. Explore our latest school bags"
                       />
                     </Grid>
-                    <Grid item xs={6}>
-                      <TextField label="CTA Button Text" fullWidth
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        label="CTA Button Text"
+                        fullWidth
                         value={form.heroBannerCTA || ''}
                         onChange={handleChange('heroBannerCTA')}
-                        placeholder="e.g. Shop Now"
                       />
                     </Grid>
-                    <Grid item xs={6}>
-                      <TextField label="CTA Link URL" fullWidth
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        label="CTA Link URL"
+                        fullWidth
                         value={form.heroBannerUrl || ''}
                         onChange={handleChange('heroBannerUrl')}
-                        placeholder="/products/school-bags"
                       />
                     </Grid>
                   </Grid>
@@ -602,27 +707,44 @@ function AddNewProduct({ editingProduct = null, onSuccess, onCancel }) {
               )}
             </Paper>
           </Section>
-
         </Grid>
       </Grid>
 
-      {/* ── Actions ── */}
-      <Box className="add-new-product__actions"
-        sx={{ mt: 4, pt: 2, borderTop: 1, borderColor: 'divider',
-          display: 'flex', gap: 1.5, justifyContent: 'flex-end',
-          flexWrap: 'wrap' }}>
+      {/* Actions */}
+      <Box
+        sx={{
+          mt: 5,
+          pt: 3,
+          borderTop: 1,
+          borderColor: 'divider',
+          display: 'flex',
+          gap: 2,
+          justifyContent: 'flex-end',
+          flexWrap: 'wrap',
+        }}
+      >
         <Button onClick={onCancel} disabled={loading} color="inherit">
           Cancel
         </Button>
-        <Button variant="outlined" disabled={loading}
-          onClick={() => submitProduct('draft')}>
+        <Button
+          variant="outlined"
+          disabled={loading}
+          onClick={() => submitProduct('draft')}
+        >
           Save as Draft
         </Button>
-        <Button variant="contained" disabled={loading}
-          onClick={() => submitProduct('published')}>
+        <Button
+          variant="contained"
+          disabled={loading}
+          onClick={() => submitProduct('published')}
+        >
           {loading
-            ? (isEditing ? 'Updating…' : 'Publishing…')
-            : (isEditing ? 'Update Product' : 'Publish Product')}
+            ? isEditing
+              ? 'Updating…'
+              : 'Publishing…'
+            : isEditing
+            ? 'Update Product'
+            : 'Publish Product'}
         </Button>
       </Box>
     </Box>
