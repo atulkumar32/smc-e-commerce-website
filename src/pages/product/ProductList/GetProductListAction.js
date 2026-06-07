@@ -2,8 +2,8 @@
 import { WEB_URLS } from '../../Config/UrlsConfig';
 
 const DEFAULT_PARAMS = {
-  category: 'all',
-  sort: 'recommended',
+  category: null,
+  sort: null,
   page: 1,
   limit: 12,
 };
@@ -11,7 +11,7 @@ const DEFAULT_PARAMS = {
 function buildQueryString(params = {}) {
   const query = new URLSearchParams();
 
-  Object.entries({ ...DEFAULT_PARAMS, ...params }).forEach(([key, value]) => {
+  Object.entries({ ...DEFAULT_PARAMS }).forEach(([key, value]) => {
     if (value === null || value === undefined || value === '') return;
     query.append(key, String(value));
   });

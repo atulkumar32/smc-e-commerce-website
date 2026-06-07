@@ -141,6 +141,95 @@
     @include md {
       grid-template-columns: 1fr;
     }
+
+    // Product grid area (right column) — ensure rows have equal card heights
+    .product-list__grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+
+      // Stretch each grid cell so its child (the card wrapper div) fills height
+      & > div {
+        display: flex;
+        align-items: stretch;
+        width: 100%;
+      }
+
+      // Ensure the card itself fills the wrapper width
+      & > div > .pcard {
+        width: 100%;
+        max-width: 100%;
+      }
+
+      /* fixed card width per column; auto-fill wraps as many as fit */
+      --pcard-width: 280px;
+      grid-template-columns: repeat(auto-fill, var(--pcard-width));
+      justify-content: center;
+      gap: 1.5rem;
+
+      /* Wrapper: center the card and allow it to stretch vertically */
+      & > div {
+        display: flex;
+        align-items: stretch;
+        justify-content: center;
+      }
+
+      /* Card should use the fixed width defined above */
+      & > div > .pcard {
+        width: var(--pcard-width);
+        max-width: var(--pcard-width);
+      }
+
+      /* Tune card width per breakpoint */
+      @media (max-width: 1280px) {
+        --pcard-width: 260px;
+      }
+
+      @media (max-width: 1024px) {
+        --pcard-width: 240px;
+      }
+
+      @media (max-width: 768px) {
+        --pcard-width: 220px;
+      }
+
+      @media (max-width: 480px) {
+        --pcard-width: 100%;
+        grid-template-columns: 1fr;
+      }
+    }
+      .product-list__grid {
+        display: grid;
+        /* flexible columns: each column is at least 220px and grows to fill space */
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.5rem;
+        align-items: start;
+
+        /* Each grid cell should stretch so cards align vertically where possible */
+        & > div {
+          display: flex;
+          align-items: stretch;
+        }
+
+        /* Card fills its grid cell width */
+        & > div > .pcard {
+          width: 100%;
+          max-width: 100%;
+        }
+
+        /* Tweak min column width for smaller screens */
+        @media (max-width: 1280px) {
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        }
+
+        @media (max-width: 768px) {
+          grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        }
+
+        @media (max-width: 480px) {
+          grid-template-columns: 1fr;
+        }
+      }
   }
 
   &__sidebar {
@@ -253,60 +342,7 @@
   &__price-clear:hover {
     background-color: rgba($color-primary, 0.08);
   }
-
-  // ── Product grid ─────────────────────────────────────────────
-  &__grid {
-    display: grid;
-    // ≥1280px: 4 columns
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1.5rem;
-    margin-bottom: 3rem;
-
-    // ≤1280px: still 4 but tighter gap
-    @media (max-width: 1280px) {
-      gap: 1.25rem;
-    }
-
-    // ≤1024px: 3 columns
-    @include lg {
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1.25rem;
-    }
-
-    // ≤768px: 2 columns
-    @include md {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1rem;
-    }
-
-    // ≤640px: 2 columns, tighter gap
-    @include sm {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 0.75rem;
-    }
-
-    // ≤480px: 2 columns, minimal gap
-    @include xs {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 0.5rem;
-    }
-
-    // ≤360px: 1 column — too narrow for 2
-    @media (max-width: 360px) {
-      grid-template-columns: 1fr;
-      gap: 0.75rem;
-    }
-
-    // stagger animation via parent delay
-    & > div {
-      animation: pcardFadeIn 0.5s ease both;
-    }
-
-    @keyframes pcardFadeIn {
-      from { opacity: 0; transform: translateY(16px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-  }
+ 
 
   // ── Empty state ──────────────────────────────────────────────
   &__empty {

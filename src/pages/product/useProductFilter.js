@@ -2,6 +2,8 @@ import { useState, useMemo, useEffect } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { PRODUCTS } from './productData';
 import { fetchWebProductList } from '../../Actions/Web/GetProductListAction';
+import BASE_URL from '../../Config/ApiConfig';
+import { MEDIA_BASE } from '../../Config/UrlsConfig';
 
 const DEFAULT_PAGE_SIZE = 12;
 
@@ -16,10 +18,13 @@ function resolvePathCategory(pathname) {
 function resolveApiImage(path) {
   if (!path) return '';
   if (path.startsWith('http://') || path.startsWith('https://')) return path;
-  if (path.startsWith('/')) {
-    return `${window.location.origin}${path}`;
+
+  const normalized = path.replace(/^\/+/, '');
+  if (normalized.startsWith('smc/')) {
+    return `${BASE_URL}${normalized}`;
   }
-  return `${window.location.origin}/${path}`;
+
+  return `${MEDIA_BASE}${normalized}`;
 }
 
 function mapApiProduct(product) {
@@ -33,6 +38,8 @@ function mapApiProduct(product) {
     originalPrice: mrp !== price ? mrp : null,
     category: product.category || product.category_id || 'all',
     badge: product.badge || null,
+    brand: product.brand || null,
+    shortDescription: product.short_description || product.shortDescription || null,
     colors: Array.isArray(product.colors)
       ? product.colors
       : product.colors
@@ -207,8 +214,29 @@ export function useProductFilter() {
         badge: queryBadge || undefined,
       };
 
+      // Remove category param when it's the default 'all' to avoid sending it
+      if (params.category === 'all' || params.category === null) {
+        delete params.category;
+      }
+
+      // If only default values remain (no meaningful filters), call API with null
+      // so the request is sent without a query string.
+      const onlyDefaults =
+        !params.category &&
+        (!params.q || params.q === '') &&
+        (!params.min_price && !params.max_price && !params.badge) &&
+        (params.sort === 'recommended' || typeof params.sort === 'undefined') &&
+        (params.page === 1 || typeof params.page === 'undefined') &&
+        (params.limit === DEFAULT_PAGE_SIZE || typeof params.limit === 'undefined');
+
       try {
-        const data = await fetchWebProductList(params);
+        // Temporarily call the API with no query string for all requests
+        // (params === null causes GetProductList.php to be requested without any query values)
+        const data = await fetchWebProductList(null);
+        // Debug: expose raw API response in browser console to help verify mapping
+        // Remove this in production once verified.
+        // eslint-disable-next-line no-console
+        console.debug('[useProductFilter] fetchWebProductList response:', data);
         if (!isMounted) return;
 
         const apiProducts = Array.isArray(data.products) ? data.products : [];

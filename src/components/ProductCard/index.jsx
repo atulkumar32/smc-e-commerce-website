@@ -23,7 +23,7 @@ function ProductCard({ product, animate = false }) {
 
   const handleBuyNow = (e) => {
     e.preventDefault();
-    navigate(`/products/${product.id}`);
+    navigate(`/products/${product.name}`);
   };
 
   const handleWishlist = (e) => {
@@ -38,7 +38,7 @@ function ProductCard({ product, animate = false }) {
 
   return (
     <article className={`pcard${animate ? ' pcard--animate' : ''}`}>
-      <Link to={`/products/${product.id}`} className="pcard__img-wrap">
+      <Link to={`/products/${product.name}`} className="pcard__img-wrap">
         <img
           src={product.image}
           alt={product.name}
@@ -106,6 +106,14 @@ function ProductCard({ product, animate = false }) {
         <h3 className="pcard__name">
           <Link to={`/products/${product.id}`}>{product.name}</Link>
         </h3>
+
+        {product.brand && (
+          <div className="pcard__brand">{product.brand}</div>
+        )}
+
+        {product.shortDescription && (
+          <p className="pcard__short">{product.shortDescription}</p>
+        )}
 
         <div className="pcard__pricing">
           <span className="pcard__price">{formatPrice(product.price)}</span>

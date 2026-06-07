@@ -7,7 +7,7 @@ const NAV_LINKS = [
   { label: 'HOME', to: '/' },
   { label: 'ABOUT', to: '/about' },
   {
-    label: 'OUR PRODUCTS',
+    label: 'PRODUCTS',
     to: '/our-products',
     dropdown: [
       { label: 'School Bags', to: '/products/school-bags' },
