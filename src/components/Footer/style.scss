@@ -190,17 +190,14 @@
       align-items: center;
       box-shadow: 0 -6px 18px rgba(0,0,0,0.08);
       padding-bottom: env(safe-area-inset-bottom, 12px);
-      transition: background-color 0.32s ease, transform 0.32s ease;
-    }
-
-    &__mobile-bar.is-divider-visible .site-footer__mobile-divider {
+      transition: transform 0.3s ease, opacity 0.25s ease;
+      transform: translateY(0);
       opacity: 1;
-      transform: scaleY(1);
-    }
 
-    &__mobile-bar.is-divider-hidden .site-footer__mobile-divider {
-      opacity: 0;
-      transform: scaleY(0);
+      &.is-hidden {
+        transform: translateY(110%);
+        opacity: 0;
+      }
     }
 
     &__mobile-action {

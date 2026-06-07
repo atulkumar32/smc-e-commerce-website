@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useScrollDirection } from '../../hooks/useScrollDirection';
 import './style.scss';
@@ -25,7 +26,16 @@ const CONCIERGE = [
 
 function Footer() {
   const direction = useScrollDirection({ initialDirection: 'up', threshold: 16 });
-  const showDivider = direction === 'down';
+  const [barVisible, setBarVisible] = useState(true);
+  const isFirstRender = useRef(true);
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    setBarVisible(direction === 'down');
+  }, [direction]);
 
   return (
     <footer className="site-footer">
@@ -135,7 +145,7 @@ function Footer() {
       </div>
 
       {/* Mobile fixed action bar (cart / wishlist) - visible only on small viewports */}
-      <div className={`site-footer__mobile-bar ${showDivider ? 'is-divider-visible' : 'is-divider-hidden'}`} role="navigation" aria-label="Mobile quick actions">
+      <div className={`site-footer__mobile-bar ${barVisible ? 'is-visible' : 'is-hidden'}`} role="navigation" aria-label="Mobile quick actions">
         <Link to="/cart" className="site-footer__mobile-action" aria-label="Open cart">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <circle cx="9" cy="21" r="1" />
