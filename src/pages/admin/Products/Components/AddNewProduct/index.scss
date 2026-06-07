@@ -102,27 +102,27 @@ $GREY:   #6b7280;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  FORM GRID  — 2 columns, each field exactly 250px
+//  FORM GRID  — responsive multi-column layout, no hard-coded 250px fields
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Every <Grid container> inside the form becomes a 2-col, 250px-per-column grid
+// Every <Grid container> inside the form is a responsive grid
 .add-new-product .MuiGrid-container {
   display: grid !important;
-  grid-template-columns: #{$FW} #{$FW} !important;
-  gap: 16px 20px !important;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)) !important;
+  gap: 1.25rem 1.25rem !important;
   align-items: start;
 }
 
-// Every <Grid item> fills exactly one 250px cell
+// Every <Grid item> should fill its available column
 .add-new-product .MuiGrid-item {
-  width: #{$FW} !important;
-  max-width: #{$FW} !important;
-  flex: none !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  flex: 1 1 auto !important;
   padding: 0 !important;
   box-sizing: border-box;
 }
 
-// Description textareas span both columns
+// Full-width rows span the entire section
 .add-new-product .MuiGrid-item--full-width {
   grid-column: 1 / -1 !important;
   width: 100% !important;
@@ -130,17 +130,17 @@ $GREY:   #6b7280;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  UNIVERSAL INPUT NORMALISATION  — all field types same 44px height, 250px wide
+//  UNIVERSAL INPUT NORMALISATION  — all field types should stretch to the grid cell
 // ─────────────────────────────────────────────────────────────────────────────
 .add-new-product {
 
-  // Every field wrapper: exactly 250px
+  // Every field wrapper should fill the column width
   .MuiTextField-root,
   .MuiFormControl-root,
   .MuiAutocomplete-root {
-    width: #{$FW} !important;
-    min-width: #{$FW} !important;
-    max-width: #{$FW} !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
   }
 
   // Font size on all inputs
