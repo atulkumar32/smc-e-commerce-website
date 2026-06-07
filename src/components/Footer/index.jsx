@@ -129,6 +129,25 @@ function Footer() {
           <p>v1.0.0</p>
         </div>
       </div>
+
+      {/* Mobile fixed action bar (cart / wishlist) - visible only on small viewports */}
+      <div className="site-footer__mobile-bar" role="navigation" aria-label="Mobile quick actions">
+        <Link to="/cart" className="site-footer__mobile-action" aria-label="Open cart">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <circle cx="9" cy="21" r="1" />
+            <circle cx="20" cy="21" r="1" />
+            <path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.95-1.44L23 6H6" />
+          </svg>
+          <span>Cart</span>
+        </Link>
+
+        <Link to="/wishlist" className="site-footer__mobile-action" aria-label="Open wishlist">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.6l-1-1a5.5 5.5 0 10-7.8 7.8L12 22l8.8-9.6a5.5 5.5 0 000-7.8z" />
+          </svg>
+          <span>Wishlist</span>
+        </Link>
+      </div>
     </footer>
   );
 }

@@ -42,8 +42,10 @@ export const URL_CATEGORIES_DELETE   = `${BASE_URL}smc/admin/api/DelteCategory.p
 
 
 
-
-
+// web page all apis here now 
+export const WEB_URLS = {
+ PRODUCT_LIST: `${BASE_URL}smc/api/v1/data/GetProductList.php`,
+};
 
 
 

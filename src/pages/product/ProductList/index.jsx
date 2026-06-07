@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import ProductCard from '../../../components/ProductCard';
 import NavDrawer from '../../../components/NavDrawer';
 import { useProductFilter } from '../useProductFilter';
-import { SORT_OPTIONS } from '../productData';
+import { CATEGORIES, SORT_OPTIONS } from '../productData';
 import './style.scss';
 
 function ProductList() {
@@ -18,9 +18,22 @@ function ProductList() {
     activeCategory,
     changeCategory,
     sortBy,
-    setSortBy,
+    changeSort,
     pageTitle,
+    loading,
+    minPrice,
+    maxPrice,
+    applyPriceFilter,
+    clearPriceFilters,
   } = useProductFilter();
+
+  const [minPriceInput, setMinPriceInput] = useState(minPrice ?? '');
+  const [maxPriceInput, setMaxPriceInput] = useState(maxPrice ?? '');
+
+  useEffect(() => {
+    setMinPriceInput(minPrice ?? '');
+    setMaxPriceInput(maxPrice ?? '');
+  }, [minPrice, maxPrice]);
 
   const progressPct = totalCount > 0 ? Math.round((visibleCount / totalCount) * 100) : 0;
 
@@ -52,44 +65,114 @@ function ProductList() {
           </div>
         </section>
 
-        {/* ── Filter & Sort Bar ── */}
-        <div className="product-list__toolbar" role="toolbar" aria-label="Filter and sort">
-          <button
-            className="product-list__filter-btn"
-            onClick={() => setDrawerOpen(true)}
-            aria-expanded={drawerOpen}
-            aria-controls="nav-drawer"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"
-              strokeLinejoin="round" aria-hidden="true">
-              <line x1="4" y1="6" x2="20" y2="6" />
-              <line x1="8" y1="12" x2="20" y2="12" />
-              <line x1="12" y1="18" x2="20" y2="18" />
-            </svg>
-            <span>Filters</span>
-          </button>
+        <div className="product-list__content-wrap">
+          <aside className="product-list__sidebar">
+            <div className="product-list__sidebar-panel">
+              <h2 className="product-list__sidebar-title">Categories</h2>
+              <div className="product-list__categories">
+                {CATEGORIES.map((category) => (
+                  <button
+                    key={category.key}
+                    type="button"
+                    className={`product-list__category-btn ${activeCategory === category.key ? 'active' : ''}`}
+                    onClick={() => changeCategory(category.key)}
+                  >
+                    {category.label}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-          <div className="product-list__sort">
-            <label className="product-list__sort-label" htmlFor="sort-select">
-              Sort By:
-            </label>
-            <select
-              id="sort-select"
-              className="product-list__sort-select"
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              aria-label="Sort products"
-            >
-              {SORT_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
-              ))}
-            </select>
+            <div className="product-list__sidebar-panel">
+              <h2 className="product-list__sidebar-title">Price Range</h2>
+              <div className="product-list__price-inputs">
+                <label className="product-list__price-label">
+                  Min
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="0"
+                    value={minPriceInput}
+                    onChange={(e) => setMinPriceInput(e.target.value)}
+                  />
+                </label>
+                <label className="product-list__price-label">
+                  Max
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="0"
+                    value={maxPriceInput}
+                    onChange={(e) => setMaxPriceInput(e.target.value)}
+                  />
+                </label>
+              </div>
+              <div className="product-list__sidebar-actions">
+                <button
+                  type="button"
+                  className="product-list__price-btn"
+                  onClick={() => applyPriceFilter(minPriceInput || null, maxPriceInput || null)}
+                >
+                  Apply
+                </button>
+                <button
+                  type="button"
+                  className="product-list__price-clear"
+                  onClick={() => {
+                    setMinPriceInput('');
+                    setMaxPriceInput('');
+                    clearPriceFilters();
+                  }}
+                >
+                  Clear
+                </button>
+              </div>
+            </div>
+          </aside>
+
+          <div className="product-list__main">
+            {/* ── Filter & Sort Bar ── */}
+            <div className="product-list__toolbar" role="toolbar" aria-label="Filter and sort">
+              <button
+                className="product-list__filter-btn"
+                onClick={() => setDrawerOpen(true)}
+                aria-expanded={drawerOpen}
+                aria-controls="nav-drawer"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"
+                  strokeLinejoin="round" aria-hidden="true">
+                  <line x1="4" y1="6" x2="20" y2="6" />
+                  <line x1="8" y1="12" x2="20" y2="12" />
+                  <line x1="12" y1="18" x2="20" y2="18" />
+                </svg>
+                <span>Filters</span>
+              </button>
+
+              <div className="product-list__sort">
+                <label className="product-list__sort-label" htmlFor="sort-select">
+                  Sort By:
+                </label>
+                <select
+                  id="sort-select"
+                  className="product-list__sort-select"
+                  value={sortBy}
+                  onChange={(e) => changeSort(e.target.value)}
+                  aria-label="Sort products"
+                >
+                  {SORT_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* ── Product Grid ── */}
+        {loading && products.length === 0 ? (
+          <div className="product-list__empty">
+            <p>Loading products…</p>
           </div>
-        </div>
-
-        {/* ── Product Grid ── */}
-        {products.length > 0 ? (
+        ) : products.length > 0 ? (
           <div className="product-list__grid" role="list" aria-label={`${pageTitle} products`}>
             {products.map((product, i) => (
               <div key={product.id} role="listitem" style={{ animationDelay: `${i * 60}ms` }}>
@@ -133,6 +216,8 @@ function ProductList() {
             )}
           </div>
         )}
+          </div>
+        </div>
       </div>
     </div>
   );

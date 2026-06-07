@@ -131,6 +131,129 @@
     &:hover { color: $color-secondary; }
   }
 
+  &__content-wrap {
+    display: grid;
+    grid-template-columns: 280px minmax(0, 1fr);
+    gap: 2rem;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+
+    @include md {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  &__sidebar {
+    position: sticky;
+    top: 110px;
+    align-self: start;
+    display: block;
+
+    @include md {
+      display: none;
+    }
+  }
+
+  &__sidebar-panel {
+    background-color: #ffffff;
+    border: 1px solid $color-neutral-200;
+    border-radius: 18px;
+    padding: 1.2rem;
+    margin-bottom: 1.25rem;
+  }
+
+  &__sidebar-title {
+    @include label($fs-sm, $fw-bold);
+    color: $color-primary;
+    margin: 0 0 1rem;
+  }
+
+  &__categories {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  &__category-btn {
+    width: 100%;
+    text-align: left;
+    padding: 0.85rem 1rem;
+    border: 1px solid $color-neutral-300;
+    border-radius: 12px;
+    background: #ffffff;
+    color: $color-primary;
+    @include label($fs-sm, $fw-medium);
+    cursor: pointer;
+    @include transition(all);
+    @include focus-ring($color-secondary);
+
+    &:hover {
+      background-color: $color-neutral-100;
+    }
+
+    &.active {
+      background-color: $color-primary;
+      color: #ffffff;
+      border-color: $color-primary;
+    }
+  }
+
+  &__price-inputs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+
+  &__price-label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    font-size: $fs-xs;
+    color: $color-tertiary-500;
+
+    input {
+      width: 100%;
+      padding: 0.9rem 1rem;
+      border-radius: 14px;
+      border: 1px solid $color-neutral-300;
+      background-color: #ffffff;
+      color: $color-primary;
+      @include focus-ring($color-secondary);
+    }
+  }
+
+  &__sidebar-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+  }
+
+  &__price-btn,
+  &__price-clear {
+    flex: 1;
+    min-width: 0;
+    border-radius: 12px;
+    border: 1px solid $color-primary;
+    padding: 0.85rem 1rem;
+    cursor: pointer;
+    font-weight: $fw-bold;
+    @include transition(all);
+  }
+
+  &__price-btn {
+    background-color: $color-primary;
+    color: #ffffff;
+  }
+
+  &__price-clear {
+    background-color: #ffffff;
+    color: $color-primary;
+  }
+
+  &__price-clear:hover {
+    background-color: rgba($color-primary, 0.08);
+  }
+
   // ── Product grid ─────────────────────────────────────────────
   &__grid {
     display: grid;
