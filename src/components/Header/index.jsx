@@ -256,20 +256,7 @@ function Header() {
           >
             LOGIN
           </NavLink>
-          <Link
-            to="/wishlist"
-            className="site-header__mobile-link"
-            onClick={handleNavClick}
-          >
-            WISHLIST {wishlistCount > 0 && `(${wishlistCount})`}
-          </Link>
-          <Link
-            to="/cart"
-            className="site-header__mobile-link"
-            onClick={handleNavClick}
-          >
-            CART {totalItems > 0 && `(${totalItems})`}
-          </Link>
+          {/* Cart & Wishlist are provided by the mobile bottom bar; remove duplicates here */}
         </div>
       </nav>
     </header>

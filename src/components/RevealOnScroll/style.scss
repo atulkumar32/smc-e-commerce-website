@@ -1,0 +1,22 @@
+@import '../../Styles/Mixins';
+
+// Lightweight reveal-from-bottom animation used across the app.
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: transform 0.64s cubic-bezier(.2,.9,.2,1), opacity 0.52s ease;
+  will-change: transform, opacity;
+}
+
+.reveal--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+// Optional subtle stagger control when needed
+.reveal[data-delay] {
+  transition-delay: attr(data-delay ms);
+}
+
+// Improve perceived smoothness on mobile
+html { -webkit-font-smoothing: antialiased; -webkit-overflow-scrolling: touch; }

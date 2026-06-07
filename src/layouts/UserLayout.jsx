@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom';
 import { Box, Toolbar } from '@mui/material';
 import UserSidebar, { DRAWER_WIDTH } from '../components/UserSidebar';
 import UserTopbar from '../components/UserTopbar';
+import RevealOnScroll from '../components/RevealOnScroll';
 
 function UserLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -24,6 +25,7 @@ function UserLayout() {
         }}
       >
         <Toolbar />
+        <RevealOnScroll />
         <Box sx={{ p: { xs: 2, sm: 3 } }}>
           <Outlet />
         </Box>
