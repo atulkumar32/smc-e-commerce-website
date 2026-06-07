@@ -111,9 +111,9 @@ function ProductCard({ product, animate = false }) {
           <div className="pcard__brand">{product.brand}</div>
         )}
 
-        {product.shortDescription && (
+        {/* {product.shortDescription && (
           <p className="pcard__short">{product.shortDescription}</p>
-        )}
+        )} */}
 
         <div className="pcard__pricing">
           <span className="pcard__price">{formatPrice(product.price)}</span>
