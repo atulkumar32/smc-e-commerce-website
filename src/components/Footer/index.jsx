@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useScrollDirection } from '../../hooks/useScrollDirection';
 import './style.scss';
 
 const COLLECTIONS = [
@@ -23,6 +24,9 @@ const CONCIERGE = [
 ];
 
 function Footer() {
+  const direction = useScrollDirection({ initialDirection: 'up', threshold: 16 });
+  const showDivider = direction === 'down';
+
   return (
     <footer className="site-footer">
       <div className="site-footer__container">
@@ -131,7 +135,7 @@ function Footer() {
       </div>
 
       {/* Mobile fixed action bar (cart / wishlist) - visible only on small viewports */}
-      <div className="site-footer__mobile-bar" role="navigation" aria-label="Mobile quick actions">
+      <div className={`site-footer__mobile-bar ${showDivider ? 'is-divider-visible' : 'is-divider-hidden'}`} role="navigation" aria-label="Mobile quick actions">
         <Link to="/cart" className="site-footer__mobile-action" aria-label="Open cart">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <circle cx="9" cy="21" r="1" />
@@ -140,6 +144,8 @@ function Footer() {
           </svg>
           <span>Cart</span>
         </Link>
+
+        <span className="site-footer__mobile-divider" aria-hidden="true" />
 
         <Link to="/wishlist" className="site-footer__mobile-action" aria-label="Open wishlist">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
