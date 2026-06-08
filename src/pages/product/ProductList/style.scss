@@ -1,4 +1,4 @@
-@import '../../../Styles/Mixins';
+@import "../../../Styles/Mixins";
 
 .product-list {
   background-color: $color-neutral-50;
@@ -9,10 +9,18 @@
     margin: 0 auto;
     padding: 2rem 1.5rem;
 
-    @include md  { padding: 1.5rem 1.25rem; }
-    @include sm  { padding: 1.25rem 0.875rem; }
-    @include xs  { padding: 1rem 0.75rem; }
-    @media (max-width: 360px) { padding: 0.875rem 0.5rem; }
+    @include md {
+      padding: 1.5rem 1.25rem;
+    }
+    @include sm {
+      padding: 1.25rem 0.875rem;
+    }
+    @include xs {
+      padding: 1rem 0.75rem;
+    }
+    @media (max-width: 360px) {
+      padding: 0.875rem 0.5rem;
+    }
   }
 
   // ── Category header ──────────────────────────────────────────
@@ -41,7 +49,9 @@
     text-decoration: none;
     @include transition(color);
 
-    &:hover { color: $color-primary; }
+    &:hover {
+      color: $color-primary;
+    }
   }
 
   &__breadcrumb-current {
@@ -54,8 +64,12 @@
     color: $color-primary;
     margin: 0 0 0.25rem;
 
-    @include md { font-size: $fs-3xl; }
-    @include sm { font-size: $fs-2xl; }
+    @include md {
+      font-size: $fs-3xl;
+    }
+    @include sm {
+      font-size: $fs-2xl;
+    }
   }
 
   &__count {
@@ -80,7 +94,9 @@
     justify-content: space-between;
     gap: 1rem;
 
-    @include sm { top: 60px; }
+    @include sm {
+      top: 60px;
+    }
   }
 
   &__filter-btn {
@@ -98,7 +114,9 @@
     @include transition(border-color);
     @include focus-ring($color-secondary);
 
-    &:hover { border-color: $color-primary; }
+    &:hover {
+      border-color: $color-primary;
+    }
   }
 
   &__sort {
@@ -112,7 +130,9 @@
     color: $color-tertiary-500;
     white-space: nowrap;
 
-    @include sm { display: none; }
+    @include sm {
+      display: none;
+    }
   }
 
   &__sort-select {
@@ -128,11 +148,13 @@
     @include transition(color);
     @include focus-ring($color-secondary);
 
-    &:hover { color: $color-secondary; }
+    &:hover {
+      color: $color-secondary;
+    }
   }
 
   &__content-wrap {
-    display: grid;
+    // display: grid;
     grid-template-columns: 280px minmax(0, 1fr);
     gap: 2rem;
     align-items: flex-start;
@@ -198,38 +220,38 @@
         grid-template-columns: 1fr;
       }
     }
-      .product-list__grid {
-        display: grid;
-        /* flexible columns: each column is at least 220px and grows to fill space */
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 1.5rem;
-        align-items: start;
+    .product-list__grid {
+      display: grid;
+      /* flexible columns: each column is at least 220px and grows to fill space */
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+      align-items: start;
 
-        /* Each grid cell should stretch so cards align vertically where possible */
-        & > div {
-          display: flex;
-          align-items: stretch;
-        }
-
-        /* Card fills its grid cell width */
-        & > div > .pcard {
-          width: 100%;
-          max-width: 100%;
-        }
-
-        /* Tweak min column width for smaller screens */
-        @media (max-width: 1280px) {
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        }
-
-        @media (max-width: 768px) {
-          grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-        }
-
-        @media (max-width: 480px) {
-          grid-template-columns: 1fr;
-        }
+      /* Each grid cell should stretch so cards align vertically where possible */
+      & > div {
+        display: flex;
+        align-items: stretch;
       }
+
+      /* Card fills its grid cell width */
+      & > div > .pcard {
+        width: 100%;
+        max-width: 100%;
+      }
+
+      /* Tweak min column width for smaller screens */
+      @media (max-width: 1280px) {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      }
+
+      @media (max-width: 768px) {
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      }
+
+      @media (max-width: 480px) {
+        grid-template-columns: 1fr;
+      }
+    }
   }
 
   &__sidebar {
@@ -342,7 +364,6 @@
   &__price-clear:hover {
     background-color: rgba($color-primary, 0.08);
   }
- 
 
   // ── Empty state ──────────────────────────────────────────────
   &__empty {
@@ -416,6 +437,8 @@
       color: #ffffff;
     }
 
-    &:active { transform: scale(0.97); }
+    &:active {
+      transform: scale(0.97);
+    }
   }
 }

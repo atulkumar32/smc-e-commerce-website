@@ -66,7 +66,7 @@ function ProductList() {
         </section>
 
         <div className="product-list__content-wrap">
-          <aside className="product-list__sidebar">
+          {/* <aside className="product-list__sidebar">
             <div className="product-list__sidebar-panel">
               <h2 className="product-list__sidebar-title">Categories</h2>
               <div className="product-list__categories">
@@ -128,7 +128,7 @@ function ProductList() {
                 </button>
               </div>
             </div>
-          </aside>
+          </aside> */}
 
           <div className="product-list__main">
             {/* ── Filter & Sort Bar ── */}
