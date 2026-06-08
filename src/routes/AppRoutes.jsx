@@ -67,7 +67,7 @@ function AppRoutes() {
 
         {/* Product pages */}
         <Route path="/products" element={<ProductList />} />
-        <Route path="/products/:id" element={<ProductDetail />} />
+        <Route path="/products/:slug" element={<ProductDetail />} />
         {/* Category sub-routes — reuse ProductList with a filter param */}
         <Route path="/products/school-bags" element={<ProductList />} />
         <Route path="/products/purses" element={<ProductList />} />

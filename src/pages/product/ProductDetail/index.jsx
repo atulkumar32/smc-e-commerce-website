@@ -1,8 +1,88 @@
-import { useState, useCallback } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { useState, useCallback, useEffect } from 'react';
+import { Link, useLocation, useParams, useNavigate } from 'react-router-dom';
 import { useCart } from '../../../context/CartContext';
-import { getProductDetail, RECENTLY_VIEWED } from '../productData';
+import { RECENTLY_VIEWED } from '../productData';
+import BASE_URL from '../../../Config/ApiConfig';
+import { MEDIA_BASE } from '../../../Config/UrlsConfig';
+import useProductDetail from '../useProductDetail';
 import './style.scss';
+
+function resolveApiImage(path) {
+  if (!path) return '';
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+  const normalized = path.replace(/^\/+/, '');
+  if (normalized.startsWith('smc/')) {
+    return `${BASE_URL}${normalized}`;
+  }
+  return `${MEDIA_BASE}${normalized}`;
+}
+
+function normalizeColor(color) {
+  if (!color) return null;
+  if (typeof color === 'string') return color;
+  if (typeof color === 'object') {
+    return color.hex || color.value || color.code || null;
+  }
+  return null;
+}
+
+function mapProductResponse(product) {
+  if (!product) return null;
+
+  const images = Array.isArray(product.images) ? product.images : [];
+  const gallery = images.map((img) => {
+    const raw = img.image_url || img.url || img.data || img;
+    return resolveApiImage(typeof raw === 'string' ? raw : '');
+  });
+  const primary = resolveApiImage(product.primary_image || (gallery[0] ?? ''));
+
+  const colors = Array.isArray(product.colors)
+    ? product.colors.map(normalizeColor).filter(Boolean)
+    : typeof product.colors === 'string'
+      ? product.colors.split(',').map((v) => normalizeColor(v.trim())).filter(Boolean)
+      : [];
+
+  return {
+    id: product.product_id || product.id || '',
+    name: product.product_name || product.name || 'Product',
+    genericName: product.generic_name || null,
+    brand: product.brand || null,
+    categoryId: product.category_id || null,
+    categoryName: product.category_name || null,
+    shortDescription: product.short_description || null,
+    description: product.full_description || product.description || null,
+    price: Number(product.selling_price ?? product.discount_price ?? product.price ?? product.mrp ?? 0),
+    originalPrice: Number(product.mrp ?? product.price ?? 0) || null,
+    discountPercent: Number(product.discount_percent ?? 0),
+    stock: Number(product.stock ?? 0),
+    isLive: Boolean(
+      product.is_live ??
+      (product.status === 'published' || product.status === 'live' || product.is_live === 1)
+    ),
+    isNewArrival: Boolean(product.is_new_arrival),
+    showInCardSlider: Boolean(product.show_in_card_slider),
+    size: product.size || null,
+    sizes: Array.isArray(product.sizes) ? product.sizes : [],
+    outOfSizes: Array.isArray(product.outOfSizes) ? product.outOfSizes : [],
+    countryOfOrigin: product.country_of_origin || null,
+    material: product.material || null,
+    pattern: product.pattern || null,
+    gender: product.gender || null,
+    bagCapacity: product.bag_capacity || null,
+    netWeight: product.net_weight || null,
+    recommendedAge: product.recommended_age || null,
+    backpackStyle: product.backpack_style || null,
+    colors,
+    colorNames: product.colorNames || {},
+    gallery: gallery.length > 0 ? gallery : [primary],
+    primaryImage: primary,
+    badge: product.badge || null,
+    createdAt: product.created_at || null,
+    rating: Number(product.rating ?? 4),
+    reviewCount: Number(product.reviewCount ?? product.review_count ?? 0),
+    accordion: product.accordion || [],
+  };
+}
 
 // ── Star rating ───────────────────────────────────────────────────────────────
 function StarRating({ rating }) {
@@ -66,16 +146,39 @@ function AccordionItem({ item, isOpen, onToggle }) {
 
 // ── Main component ────────────────────────────────────────────────────────────
 function ProductDetail() {
-  const { id } = useParams();
+  const { slug } = useParams();
+  const { search } = useLocation();
   const navigate = useNavigate();
   const { addItem, toggleWishlist, isWishlisted } = useCart();
 
-  const product = getProductDetail(id);
+  const [product, setProduct] = useState(null);
+  const [activeImg, setActiveImg] = useState(0);
+  const [selectedColor, setSelectedColor] = useState(null);
+  const [selectedSize, setSelectedSize] = useState(null);
+  const [openAcc, setOpenAcc] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  const [activeImg, setActiveImg]       = useState(0);
-  const [selectedColor, setSelectedColor] = useState(product?.colors?.[0] ?? null);
-  const [selectedSize, setSelectedSize]   = useState(product?.sizes?.[0] ?? null);
-  const [openAcc, setOpenAcc]             = useState(null);
+  const productId = new URLSearchParams(search).get('product_id') || slug;
+
+  // use shared hook to fetch and normalize product
+  const { product: fetchedProduct, loading: fetchedLoading, error: fetchedError } = useProductDetail(productId);
+
+  useEffect(() => {
+    if (fetchedProduct) {
+      setProduct(fetchedProduct);
+      setSelectedColor(fetchedProduct.colors?.[0] ?? null);
+      setSelectedSize(fetchedProduct.sizes?.[0] ?? null);
+    }
+  }, [fetchedProduct]);
+
+  useEffect(() => {
+    if (fetchedError) setError(fetchedError);
+  }, [fetchedError]);
+
+  useEffect(() => {
+    setLoading(fetchedLoading);
+  }, [fetchedLoading]);
 
   const wished = product ? isWishlisted(product.id) : false;
 
@@ -100,10 +203,18 @@ function ProductDetail() {
     navigate('/cart');
   }, [product, addItem, selectedColor, selectedSize, navigate]);
 
-  if (!product) {
+  if (loading) {
     return (
       <div className="pd-not-found">
-        <h2>Product not found</h2>
+        <h2>Loading product details…</h2>
+      </div>
+    );
+  }
+
+  if (error || !product) {
+    return (
+      <div className="pd-not-found">
+        <h2>{error || 'Product not found'}</h2>
         <Link to="/products" className="pd-not-found__link">← Back to Products</Link>
       </div>
     );
