@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { userLoginAction } from '../../../Actions/AuthAction';
 import { saveUserAuth } from '../../../services/apiClients';
 import './style.scss';
@@ -55,6 +55,14 @@ const BG_IMG = 'https://lh3.googleusercontent.com/aida-public/AB6AXuBwyI-VTgFJ4O
 
 function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const returnTo = location.state?.from || '/user/dashboard';
+  const redirectState = location.state?.selectedProduct
+    ? {
+        selectedProduct: location.state.selectedProduct,
+        checkoutMode: location.state.checkoutMode,
+      }
+    : undefined;
   const [form, setForm]               = useState({ email: '', password: '' });
   const [showPwd, setShowPwd]         = useState(false);
   const [loading, setLoading]         = useState(false);
@@ -76,7 +84,7 @@ function LoginPage() {
     try {
       const data = await userLoginAction(form);
       saveUserAuth(data);
-      window.location.href = '/user/dashboard';
+      navigate(returnTo, { replace: true, state: redirectState });
     } catch (err) {
       setError(err.message || 'Login failed. Please check your credentials.');
     } finally {

@@ -1,12 +1,18 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useMemo } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
+import { isUserAuthenticated, getUserProfile } from '../../services/apiClients';
+import { createOrderOnline } from '../../Actions/Web/CreateOrderActions';
 import './style.scss';
+
 
 const fmt = (n) =>
   new Intl.NumberFormat('en-IN', {
     style: 'currency', currency: 'INR', maximumFractionDigits: 0,
   }).format(n);
+
+const TAX_RATE = 0.08;
+const SHIPPING_THRESHOLD = 5000;
 
 const STEPS = ['01 Shipping', '02 Payment', '03 Review'];
 
@@ -57,6 +63,11 @@ function ShippingStep({ data, onChange, onNext }) {
             value={data.zip} onChange={(e) => onChange('zip', e.target.value)} required />
         </div>
       </div>
+      <div className="co-form__field">
+        <label className="co-form__label" htmlFor="co-phone">Phone *</label>
+        <input id="co-phone" className="co-form__input" type="tel" placeholder="Phone number"
+          value={data.phone} onChange={(e) => onChange('phone', e.target.value)} required />
+      </div>
 
       <div className="co-form__delivery-card">
         <div className="co-form__delivery-icon" aria-hidden="true">
@@ -84,7 +95,7 @@ function ShippingStep({ data, onChange, onNext }) {
 }
 
 // ── Step 2: Payment ───────────────────────────────────────────────────────────
-function PaymentStep({ data, onChange, onNext, onBack }) {
+function PaymentStep({ paymentMethod, onMethodChange, onNext, onBack }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     onNext();
@@ -95,41 +106,36 @@ function PaymentStep({ data, onChange, onNext, onBack }) {
       <h2 className="co-form__title">Payment Details</h2>
 
       <div className="co-form__field">
-        <label className="co-form__label" htmlFor="co-card">Card Number *</label>
-        <input id="co-card" className="co-form__input" type="text"
-          placeholder="1234 5678 9012 3456" maxLength={19}
-          value={data.cardNumber} onChange={(e) => onChange('cardNumber', e.target.value)} required />
-      </div>
-
-      <div className="co-form__row co-form__row--2">
-        <div className="co-form__field">
-          <label className="co-form__label" htmlFor="co-expiry">Expiry *</label>
-          <input id="co-expiry" className="co-form__input" type="text" placeholder="MM / YY"
-            maxLength={7}
-            value={data.expiry} onChange={(e) => onChange('expiry', e.target.value)} required />
+        <label className="co-form__label">Payment Method *</label>
+        <div className="co-form__radio-group">
+          <label className="co-form__radio">
+            <input
+              type="radio"
+              name="paymentMethod"
+              value="COD"
+              checked={paymentMethod === 'COD'}
+              onChange={() => onMethodChange('COD')}
+            />
+            Cash on Delivery
+          </label>
+          <label className="co-form__radio">
+            <input
+              type="radio"
+              name="paymentMethod"
+              value="ONLINE"
+              checked={paymentMethod === 'ONLINE'}
+              onChange={() => onMethodChange('ONLINE')}
+            />
+            PhonePe / Online Payment
+          </label>
         </div>
-        <div className="co-form__field">
-          <label className="co-form__label" htmlFor="co-cvv">CVV *</label>
-          <input id="co-cvv" className="co-form__input" type="password" placeholder="•••"
-            maxLength={4}
-            value={data.cvv} onChange={(e) => onChange('cvv', e.target.value)} required />
+      </div>
+
+      {paymentMethod === 'ONLINE' && (
+        <div className="co-form__note">
+          After you place the order, you will be redirected to PhonePe to complete the payment.
         </div>
-      </div>
-
-      <div className="co-form__field">
-        <label className="co-form__label" htmlFor="co-name-card">Name on Card *</label>
-        <input id="co-name-card" className="co-form__input" type="text" placeholder="Full name"
-          value={data.nameOnCard} onChange={(e) => onChange('nameOnCard', e.target.value)} required />
-      </div>
-
-      <div className="co-form__secure-note">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-          stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-          <path d="M7 11V7a5 5 0 0110 0v4" />
-        </svg>
-        256-bit SSL encrypted. Your payment info is never stored.
-      </div>
+      )}
 
       <div className="co-form__btn-row">
         <button type="button" className="co-form__back-btn" onClick={onBack}>← Back</button>
@@ -142,7 +148,7 @@ function PaymentStep({ data, onChange, onNext, onBack }) {
 }
 
 // ── Step 3: Review ────────────────────────────────────────────────────────────
-function ReviewStep({ shipping, cartItems, totals, onBack, onPlace }) {
+function ReviewStep({ shipping, paymentMethod, items, totals, onBack, onPlace }) {
   return (
     <div className="co-form">
       <h2 className="co-form__title">Review Your Order</h2>
@@ -151,24 +157,42 @@ function ReviewStep({ shipping, cartItems, totals, onBack, onPlace }) {
         <h3 className="co-review__section-title">Shipping To</h3>
         <p className="co-review__text">
           {shipping.firstName} {shipping.lastName}<br />
-          {shipping.address}, {shipping.city}, {shipping.state} – {shipping.zip}
+          {shipping.address}, {shipping.city}, {shipping.state} – {shipping.zip}<br />
+          {shipping.phone}
         </p>
       </div>
 
       <div className="co-review__section">
-        <h3 className="co-review__section-title">Items ({cartItems.length})</h3>
-        {cartItems.map((item) => (
-          <div key={item.id} className="co-review__item">
-            <img src={item.image} alt={item.name} className="co-review__item-img" />
-            <div className="co-review__item-info">
-              <p className="co-review__item-name">{item.name}</p>
-              <p className="co-review__item-qty">Qty: {item.quantity}</p>
+        <h3 className="co-review__section-title">Payment Method</h3>
+        <p className="co-review__text">
+          {paymentMethod === 'ONLINE' ? 'PhonePe / Online Payment' : 'Cash on Delivery'}
+        </p>
+      </div>
+
+      <div className="co-review__section">
+        <h3 className="co-review__section-title">Items ({items.length})</h3>
+        {items.map((item) => {
+          const quantity = item.quantity || 1;
+          return (
+            <div key={item.id} className="co-review__item">
+              <img src={item.image} alt={item.name} className="co-review__item-img" />
+              <div className="co-review__item-info">
+                <p className="co-review__item-name">{item.name}</p>
+                <p className="co-review__item-qty">Qty: {quantity}</p>
+                {(item.selectedColor || item.selectedSize) && (
+                  <p className="co-review__item-meta">
+                    {item.selectedColor ? `Color: ${item.selectedColor}` : ''}
+                    {item.selectedColor && item.selectedSize ? ' · ' : ''}
+                    {item.selectedSize ? `Size: ${item.selectedSize}` : ''}
+                  </p>
+                )}
+              </div>
+              <p className="co-review__item-price">
+                {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(item.price * quantity)}
+              </p>
             </div>
-            <p className="co-review__item-price">
-              {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(item.price * item.quantity)}
-            </p>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className="co-review__totals">
@@ -220,27 +244,163 @@ function OrderSuccess() {
 
 // ── Main checkout page ────────────────────────────────────────────────────────
 function CheckoutPage() {
-  const { cartItems, totals, clearCart } = useCart();
+  const { cartItems, clearCart } = useCart();
   const navigate = useNavigate();
+  const location = useLocation();
   const [step, setStep] = useState(0);
   const [success, setSuccess] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('COD');
 
   const [shipping, setShipping] = useState({
-    firstName: '', lastName: '', address: '', city: '', state: '', zip: '',
+    firstName: '', lastName: '', address: '', city: '', state: '', zip: '', phone: '',
   });
-  const [payment, setPayment] = useState({
-    cardNumber: '', expiry: '', cvv: '', nameOnCard: '',
-  });
+
+  const locationState = location.state || {};
+  const selectedProduct = locationState.selectedProduct || null;
+  const isAuthenticated = isUserAuthenticated();
+  const userProfile = getUserProfile();
+  const [checkoutMode, setCheckoutMode] = useState(() =>
+    locationState.checkoutMode ?? (isAuthenticated ? 'user' : 'prompt')
+  );
+
+  const orderItems = useMemo(() => {
+    if (selectedProduct) {
+      return [{
+        ...selectedProduct,
+        quantity: selectedProduct.quantity ?? 1,
+        image: selectedProduct.image || selectedProduct.primaryImage || selectedProduct.gallery?.[0] || '',
+      }];
+    }
+    if (cartItems.length > 0) return cartItems;
+    return [];
+  }, [cartItems, selectedProduct]);
+
+  const totals = useMemo(() => {
+    const subtotal = orderItems.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 1), 0);
+    const shippingCost = subtotal > 0 && subtotal < SHIPPING_THRESHOLD ? 299 : 0;
+    const tax = Math.round(subtotal * TAX_RATE);
+    return { subtotal, shipping: shippingCost, tax, total: subtotal + shippingCost + tax };
+  }, [orderItems]);
+
+  const isCartCheckout = !selectedProduct && cartItems.length > 0;
 
   const updateShipping = (field, val) => setShipping((p) => ({ ...p, [field]: val }));
-  const updatePayment  = (field, val) => setPayment((p) => ({ ...p, [field]: val }));
 
-  const handlePlace = () => {
-    clearCart();
-    setSuccess(true);
+  const validateOrder = () => {
+    if (!shipping.firstName.trim() || !shipping.lastName.trim() || !shipping.address.trim() || !shipping.city.trim() || !shipping.state.trim() || !shipping.zip.trim() || !shipping.phone.trim()) {
+      setErrorMessage('Please fill in all shipping details, including phone number.');
+      return false;
+    }
+    if (orderItems.length === 0) {
+      setErrorMessage('Your order is empty.');
+      return false;
+    }
+    return true;
   };
 
-  if (cartItems.length === 0 && !success) {
+  const handlePlace = async () => {
+    if (!validateOrder()) return;
+    setErrorMessage('');
+    setSubmitting(true);
+
+    const normalizedItems = orderItems.map((item) => {
+      const quantity = Number(item.quantity ?? 1) || 1;
+      const price = Number(item.price ?? 0) || 0;
+      return {
+        product_id: item.product_id || item.id,
+        name: item.name,
+        quantity,
+        price,
+        total_price: quantity * price,
+        selectedColor: item.selectedColor ?? null,
+        selectedSize: item.selectedSize ?? null,
+        image: item.image,
+      };
+    });
+
+    const payload = {
+      payment_method: paymentMethod,
+      payment_status: 'pending',
+      order_status: 'pending',
+      customer_name: `${shipping.firstName} ${shipping.lastName}`,
+      phone: shipping.phone,
+      shipping_address: shipping.address,
+      city: shipping.city,
+      state: shipping.state,
+      country: shipping.country || 'India',
+      pincode: shipping.zip,
+      // Required by backend contract
+      items: normalizedItems,
+      shipping_cost: Number(totals.shipping ?? 0) || 0,
+      total_amount: Number(totals.total ?? 0) || 0,
+      // Extra breakdown
+      subtotal: Number(totals.subtotal ?? 0) || 0,
+      tax: Number(totals.tax ?? 0) || 0,
+    };
+
+    // Debug: inspect every step
+    console.log('================= CHECKOUT DEBUG =================');
+    console.log('Step:', step);
+    console.log('Payment method:', paymentMethod);
+    console.log('Shipping:', shipping);
+    console.log('Order items (raw):', orderItems);
+    console.log('Order items (normalized):', normalizedItems);
+    console.log('Totals:', totals);
+    console.log('Payload sent:', payload);
+    console.log('====================================================');
+
+    try {
+      const result = await createOrderOnline(payload);
+
+
+      if (paymentMethod === 'ONLINE' && result.payment_url) {
+        window.location.href = result.payment_url;
+        return;
+      }
+
+      if (paymentMethod === 'COD') {
+        clearCart();
+        setSuccess(true);
+      } else {
+        setSuccess(true);
+      }
+    } catch (error) {
+      setErrorMessage(error.message || 'Order submission failed.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleContinueAsGuest = () => {
+    setCheckoutMode('guest');
+  };
+
+  const handleLogin = () => {
+    navigate('/login', { state: { from: '/checkout', selectedProduct, checkoutMode: 'user' } });
+  };
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      setCheckoutMode('user');
+    }
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (!isAuthenticated || !userProfile) return;
+    setShipping((prev) => ({
+      firstName: prev.firstName || userProfile.first_name || userProfile.name?.split(' ')[0] || '',
+      lastName: prev.lastName || userProfile.last_name || userProfile.name?.split(' ').slice(1).join(' ') || '',
+      address: prev.address || userProfile.address || userProfile.shipping_address || '',
+      city: prev.city || userProfile.city || '',
+      state: prev.state || userProfile.state || '',
+      zip: prev.zip || userProfile.zip || userProfile.pin_code || '',
+      phone: prev.phone || userProfile.phone || userProfile.mobile || userProfile.phone_number || '',
+    }));
+  }, [isAuthenticated, userProfile]);
+
+  if (orderItems.length === 0 && !success) {
     return (
       <div className="co-page">
         <div className="co-page__inner co-page__inner--empty">
@@ -260,70 +420,135 @@ function CheckoutPage() {
           <OrderSuccess />
         ) : (
           <>
-            {/* Step indicator */}
-            <div className="co-steps" role="list" aria-label="Checkout steps">
-              {STEPS.map((label, i) => (
-                <div
-                  key={label}
-                  role="listitem"
-                  className={`co-steps__item${i === step ? ' is-active' : i < step ? ' is-done' : ''}`}
-                  aria-current={i === step ? 'step' : undefined}
-                >
-                  {label}
+            {!isAuthenticated && checkoutMode === 'prompt' ? (
+              <div className="co-page__grid">
+                <div className="co-page__form-col">
+                  <div className="co-guest-prompt">
+                    <h2>Continue Checkout</h2>
+                    <p>
+                      Sign in for faster checkout and auto-filled shipping details, or continue
+                      as a guest to complete your order without an account.
+                    </p>
+                    <div className="co-guest-prompt__actions">
+                      <button type="button" className="co-form__next-btn" onClick={handleLogin}>
+                        Sign in to checkout
+                      </button>
+                      <button type="button" className="co-form__back-btn" onClick={handleContinueAsGuest}>
+                        Continue as guest
+                      </button>
+                    </div>
+                    <div className="co-guest-prompt__note">
+                      You can still place your order without registering. If you already have an account,
+                      signing in saves your address and speeds up the purchase.
+                    </div>
+                  </div>
                 </div>
-              ))}
-            </div>
-
-            <div className="co-page__grid">
-              {/* Left: form */}
-              <div className="co-page__form-col">
-                {step === 0 && (
-                  <ShippingStep data={shipping} onChange={updateShipping} onNext={() => setStep(1)} />
-                )}
-                {step === 1 && (
-                  <PaymentStep data={payment} onChange={updatePayment}
-                    onNext={() => setStep(2)} onBack={() => setStep(0)} />
-                )}
-                {step === 2 && (
-                  <ReviewStep shipping={shipping} cartItems={cartItems}
-                    totals={totals} onBack={() => setStep(1)} onPlace={handlePlace} />
-                )}
-              </div>
-
-              {/* Right: mini summary */}
-              <aside className="co-page__summary">
-                <h2 className="co-page__summary-title">Order Summary</h2>
-                <div className="co-page__summary-items">
-                  {cartItems.map((item) => (
-                    <div key={item.id} className="co-page__summary-item">
-                      <img src={item.image} alt={item.name} className="co-page__summary-img" />
-                      <div className="co-page__summary-info">
-                        <p className="co-page__summary-name">{item.name}</p>
-                        <p className="co-page__summary-qty">× {item.quantity}</p>
+                <aside className="co-page__summary">
+                  <h2 className="co-page__summary-title">Order Summary</h2>
+                  <div className="co-page__summary-items">
+                    {orderItems.map((item) => (
+                      <div key={item.id} className="co-page__summary-item">
+                        <img src={item.image} alt={item.name} className="co-page__summary-img" />
+                        <div className="co-page__summary-info">
+                          <p className="co-page__summary-name">{item.name}</p>
+                          <p className="co-page__summary-qty">× {item.quantity}</p>
+                        </div>
+                        <p className="co-page__summary-price">
+                          {fmt((item.price || 0) * (item.quantity || 1))}
+                        </p>
                       </div>
-                      <p className="co-page__summary-price">
-                        {fmt(item.price * item.quantity)}
-                      </p>
+                    ))}
+                  </div>
+                  <div className="co-page__summary-totals">
+                    <div className="co-page__summary-row">
+                      <span>Subtotal</span><span>{fmt(totals.subtotal)}</span>
+                    </div>
+                    <div className="co-page__summary-row">
+                      <span>Shipping</span>
+                      <span>{totals.shipping === 0 ? 'Free' : fmt(totals.shipping)}</span>
+                    </div>
+                    <div className="co-page__summary-row">
+                      <span>Tax</span><span>{fmt(totals.tax)}</span>
+                    </div>
+                    <div className="co-page__summary-row co-page__summary-row--total">
+                      <span>Total</span><span>{fmt(totals.total)}</span>
+                    </div>
+                  </div>
+                </aside>
+              </div>
+            ) : (
+              <>
+                {/* Step indicator */}
+                {errorMessage && (
+                  <div className="co-form__error" role="alert">
+                    {errorMessage}
+                  </div>
+                )}
+                <div className="co-steps" role="list" aria-label="Checkout steps">
+                  {STEPS.map((label, i) => (
+                    <div
+                      key={label}
+                      role="listitem"
+                      className={`co-steps__item${i === step ? ' is-active' : i < step ? ' is-done' : ''}`}
+                      aria-current={i === step ? 'step' : undefined}
+                    >
+                      {label}
                     </div>
                   ))}
                 </div>
-                <div className="co-page__summary-totals">
-                  <div className="co-page__summary-row">
-                    <span>Subtotal</span><span>{fmt(totals.subtotal)}</span>
+
+                <div className="co-page__grid">
+                  {/* Left: form */}
+                  <div className="co-page__form-col">
+                    {step === 0 && (
+                      <ShippingStep data={shipping} onChange={updateShipping} onNext={() => setStep(1)} />
+                    )}
+                    {step === 1 && (
+                      <PaymentStep paymentMethod={paymentMethod} onMethodChange={setPaymentMethod}
+                        onNext={() => setStep(2)} onBack={() => setStep(0)} />
+                    )}
+                    {step === 2 && (
+                      <ReviewStep shipping={shipping} paymentMethod={paymentMethod} items={orderItems}
+                        totals={totals} onBack={() => setStep(1)} onPlace={handlePlace} />
+                    )}
                   </div>
-                  <div className="co-page__summary-row">
-                    <span>Shipping</span>
-                    <span>{totals.shipping === 0 ? 'Free' : fmt(totals.shipping)}</span>
-                  </div>
-                  <div className="co-page__summary-row">
-                    <span>Tax</span><span>{fmt(totals.tax)}</span>
-                  </div>
-                  <div className="co-page__summary-row co-page__summary-row--total">
-                    <span>Total</span><span>{fmt(totals.total)}</span>
-                  </div>
+
+                  {/* Right: mini summary */}
+                  <aside className="co-page__summary">
+                    <h2 className="co-page__summary-title">Order Summary</h2>
+                    <div className="co-page__summary-items">
+                      {orderItems.map((item) => (
+                        <div key={item.id} className="co-page__summary-item">
+                          <img src={item.image} alt={item.name} className="co-page__summary-img" />
+                          <div className="co-page__summary-info">
+                            <p className="co-page__summary-name">{item.name}</p>
+                            <p className="co-page__summary-qty">× {item.quantity}</p>
+                          </div>
+                          <p className="co-page__summary-price">
+                            {fmt((item.price || 0) * (item.quantity || 1))}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="co-page__summary-totals">
+                      <div className="co-page__summary-row">
+                        <span>Subtotal</span><span>{fmt(totals.subtotal)}</span>
+                      </div>
+                      <div className="co-page__summary-row">
+                        <span>Shipping</span>
+                        <span>{totals.shipping === 0 ? 'Free' : fmt(totals.shipping)}</span>
+                      </div>
+                      <div className="co-page__summary-row">
+                        <span>Tax</span><span>{fmt(totals.tax)}</span>
+                      </div>
+                      <div className="co-page__summary-row co-page__summary-row--total">
+                        <span>Total</span><span>{fmt(totals.total)}</span>
+                      </div>
+                    </div>
+                  </aside>
                 </div>
-              </aside>
-            </div>
+              </>
+            )}
           </>
         )}
       </div>

@@ -306,6 +306,86 @@
     padding-top: 0.5rem;
   }
 
+  &__modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba($color-neutral-900, 0.55);
+    display: grid;
+    place-items: center;
+    padding: 1.5rem;
+    z-index: 40;
+  }
+
+  &__modal {
+    width: min(520px, 100%);
+    background: #ffffff;
+    border-radius: 24px;
+    padding: 2rem;
+    box-shadow: 0 28px 80px rgba($color-primary, 0.12);
+    position: relative;
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  &__modal-title {
+    margin: 0;
+    @include headline($fs-2xl, $fw-semibold);
+    color: $color-primary;
+  }
+
+  &__modal-copy {
+    @include body-text($fs-base);
+    color: $color-tertiary-600;
+    margin: 0;
+  }
+
+  &__modal-actions {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  &__modal-btn {
+    padding: 1rem 1.25rem;
+    border-radius: 12px;
+    font-family: $font-body;
+    font-weight: $fw-semibold;
+    letter-spacing: $ls-wider;
+    cursor: pointer;
+    border: none;
+    @include transition(all);
+
+    &--primary {
+      background: $color-primary;
+      color: #ffffff;
+    }
+
+    &--outline {
+      background: transparent;
+      color: $color-primary;
+      border: 2px solid $color-primary;
+    }
+  }
+
+  &__modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 2rem;
+    height: 2rem;
+    border: none;
+    border-radius: 50%;
+    background: rgba($color-neutral-200, 0.85);
+    color: $color-primary;
+    font-size: 1.25rem;
+    line-height: 1;
+    cursor: pointer;
+    @include transition(background-color);
+
+    &:hover {
+      background: rgba($color-neutral-200, 1);
+    }
+  }
+
   &__btn {
     width: 100%;
     padding: 1rem 1.5rem;

@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { Link, useLocation, useParams, useNavigate } from 'react-router-dom';
 import { useCart } from '../../../context/CartContext';
+import { isUserAuthenticated } from '../../../services/apiClients';
 import { RECENTLY_VIEWED } from '../productData';
 import BASE_URL from '../../../Config/ApiConfig';
 import { MEDIA_BASE } from '../../../Config/UrlsConfig';
@@ -158,6 +159,7 @@ function ProductDetail() {
   const [openAcc, setOpenAcc] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showBuyNowModal, setShowBuyNowModal] = useState(false);
 
   const productId = new URLSearchParams(search).get('product_id') || slug;
 
@@ -199,9 +201,49 @@ function ProductDetail() {
 
   const handleBuyNow = useCallback(() => {
     if (!product) return;
-    addItem({ ...product, selectedColor, selectedSize });
-    navigate('/cart');
-  }, [product, addItem, selectedColor, selectedSize, navigate]);
+    if (!isUserAuthenticated()) {
+      setShowBuyNowModal(true);
+      return;
+    }
+    const selectedProduct = {
+      ...product,
+      image: product.primaryImage || product.gallery?.[0] || '',
+      quantity: 1,
+      selectedColor,
+      selectedSize,
+    };
+    navigate('/checkout', { state: { selectedProduct, checkoutMode: 'user' } });
+  }, [product, selectedColor, selectedSize, navigate]);
+
+  const closeBuyNowModal = useCallback(() => {
+    setShowBuyNowModal(false);
+  }, []);
+
+  const goCheckoutAsGuest = useCallback(() => {
+    if (!product) return;
+    const selectedProduct = {
+      ...product,
+      image: product.primaryImage || product.gallery?.[0] || '',
+      quantity: 1,
+      selectedColor,
+      selectedSize,
+    };
+    setShowBuyNowModal(false);
+    navigate('/checkout', { state: { selectedProduct, checkoutMode: 'guest' } });
+  }, [product, selectedColor, selectedSize, navigate]);
+
+  const goLoginForCheckout = useCallback(() => {
+    if (!product) return;
+    const selectedProduct = {
+      ...product,
+      image: product.primaryImage || product.gallery?.[0] || '',
+      quantity: 1,
+      selectedColor,
+      selectedSize,
+    };
+    setShowBuyNowModal(false);
+    navigate('/login', { state: { from: '/checkout', selectedProduct, checkoutMode: 'user' } });
+  }, [product, selectedColor, selectedSize, navigate]);
 
   if (loading) {
     return (
@@ -371,6 +413,28 @@ function ProductDetail() {
                 {wished ? 'Wishlisted' : 'Save to Wishlist'}
               </button>
             </div>
+
+            {showBuyNowModal && (
+              <div className="pd__modal-backdrop" onClick={closeBuyNowModal} role="dialog" aria-modal="true">
+                <div className="pd__modal" onClick={(e) => e.stopPropagation()}>
+                  <h2 className="pd__modal-title">Continue checkout</h2>
+                  <p className="pd__modal-copy">
+                    Sign in to checkout faster with saved address details, or continue as a guest now.
+                  </p>
+                  <div className="pd__modal-actions">
+                    <button type="button" className="pd__modal-btn pd__modal-btn--primary" onClick={goLoginForCheckout}>
+                      Sign in to checkout
+                    </button>
+                    <button type="button" className="pd__modal-btn pd__modal-btn--outline" onClick={goCheckoutAsGuest}>
+                      Continue as guest
+                    </button>
+                  </div>
+                  <button type="button" className="pd__modal-close" onClick={closeBuyNowModal} aria-label="Close checkout options">
+                    ×
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* Accordion specs */}
             {product.accordion?.length > 0 && (
