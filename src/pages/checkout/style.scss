@@ -208,6 +208,68 @@
       border-color: $color-primary;
       box-shadow: 0 0 0 3px rgba($color-primary, 0.08);
     }
+
+    // error state
+    &--error {
+      border-color: $color-error;
+      &:focus { box-shadow: 0 0 0 3px rgba($color-error, 0.1); }
+    }
+  }
+
+  &__error-msg {
+    font-family: $font-body;
+    font-size: $fs-xs;
+    color: $color-error;
+    margin-top: 0.2rem;
+  }
+
+  &__error {
+    background-color: rgba($color-error, 0.08);
+    border: 1px solid rgba($color-error, 0.3);
+    color: $color-error;
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    font-family: $font-body;
+    font-size: $fs-sm;
+    margin-bottom: 1.5rem;
+  }
+
+  &__radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1rem;
+    background-color: $color-neutral-100;
+    border-radius: 6px;
+    border: 1.5px solid $color-neutral-300;
+  }
+
+  &__radio {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-family: $font-body;
+    font-size: $fs-base;
+    color: $color-neutral-800;
+    cursor: pointer;
+
+    input[type="radio"] {
+      width: 18px;
+      height: 18px;
+      accent-color: $color-primary;
+      cursor: pointer;
+    }
+  }
+
+  &__note {
+    background-color: $color-secondary-50;
+    border-left: 3px solid $color-secondary;
+    padding: 0.875rem 1rem;
+    border-radius: 0 6px 6px 0;
+    font-family: $font-body;
+    font-size: $fs-sm;
+    color: $color-neutral-700;
+    line-height: $lh-relaxed;
   }
 
   // Delivery info card

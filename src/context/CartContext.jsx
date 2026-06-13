@@ -12,7 +12,8 @@ const TAX_RATE          = 0.08;   // 8 %
 const SHIPPING_THRESHOLD = 5000;  // free shipping above ₹5 000
 
 // ── Shared toast config ───────────────────────────────────────────────────────
-const TOAST_OPTS = { position: 'top-right', autoClose: 2500 };
+const TOAST_OPTS = { position: 'top-right', autoClose: 2800 };
+const TOAST_ERR  = { position: 'top-right', autoClose: 4000 };
 
 export function CartProvider({ children }) {
   const [cartItems,     setCartItems]     = useState([]);
@@ -21,10 +22,15 @@ export function CartProvider({ children }) {
   // ── Cart ──────────────────────────────────────────────────────────────────
 
   const addItem = useCallback((product, quantity = 1) => {
+    // Guard: out of stock
+    if (product.stock !== undefined && Number(product.stock) === 0) {
+      toast.error(`❌ ${product.name} is out of stock`, TOAST_ERR);
+      return;
+    }
     setCartItems((prev) => {
       const existing = prev.find((i) => i.id === product.id);
       if (existing) {
-        toast.success(`🛒 ${product.name} quantity updated`, TOAST_OPTS);
+        toast.success(`🛒 ${product.name} — quantity updated`, TOAST_OPTS);
         return prev.map((i) =>
           i.id === product.id ? { ...i, quantity: i.quantity + quantity } : i
         );
@@ -48,7 +54,7 @@ export function CartProvider({ children }) {
 
   const clearCart = useCallback(() => {
     setCartItems([]);
-    toast.info('🛒 Cart cleared', TOAST_OPTS);
+    toast.success('🛒 Cart cleared successfully', TOAST_OPTS);
   }, []);
 
   // ── Wishlist ──────────────────────────────────────────────────────────────

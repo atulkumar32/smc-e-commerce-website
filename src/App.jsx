@@ -13,13 +13,19 @@ function App() {
         <AppRoutes />
         <ToastContainer
           position="top-right"
-          autoClose={4000}
+          autoClose={2800}
           hideProgressBar={false}
           newestOnTop
           closeOnClick
           pauseOnHover
+          pauseOnFocusLoss
           draggable
-          theme="colored"
+          theme="light"
+          toastStyle={{
+            fontFamily: "'Hanken Grotesk', sans-serif",
+            fontSize: '14px',
+            borderRadius: '8px',
+          }}
         />
       </CartProvider>
     </BrowserRouter>

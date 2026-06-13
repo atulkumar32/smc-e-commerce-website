@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { userLoginAction } from '../../../Actions/AuthAction';
 import { saveUserAuth } from '../../../services/apiClients';
+import { validateLoginForm, hasErrors } from '../../../utils/validators';
+import { toast } from 'react-toastify';
 import './style.scss';
 
 // ── SVG icons (no MUI dependency) ─────────────────────────────────────────────
@@ -75,8 +77,9 @@ function LoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.email.trim() || !form.password) {
-      setError('Email and password are required.');
+    const errs = validateLoginForm(form);
+    if (hasErrors(errs)) {
+      setError(Object.values(errs)[0]);
       return;
     }
     setLoading(true);
@@ -84,9 +87,12 @@ function LoginPage() {
     try {
       const data = await userLoginAction(form);
       saveUserAuth(data);
+      toast.success('✅ Signed in successfully!', { position: 'top-right', autoClose: 2500 });
       navigate(returnTo, { replace: true, state: redirectState });
     } catch (err) {
-      setError(err.message || 'Login failed. Please check your credentials.');
+      const msg = err.message || 'Login failed. Please check your credentials.';
+      setError(msg);
+      toast.error(`❌ ${msg}`, { position: 'top-right', autoClose: 4000 });
     } finally {
       setLoading(false);
     }

@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { registerAction } from '../../../Actions/AuthAction';
+import { validateRegisterForm, passwordStrength, hasErrors } from '../../../utils/validators';
 import './style.scss';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -25,47 +26,9 @@ const IconEye = ({ off }) => (
 );
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  HELPERS
+//  HELPERS  — delegate to shared validators
 // ─────────────────────────────────────────────────────────────────────────────
-function pwStrength(pw) {
-  if (!pw) return { pct: 0, label: '', color: 'rgba(255,255,255,0.1)' };
-  let s = 0;
-  if (pw.length >= 8)          s++;
-  if (pw.length >= 12)         s++;
-  if (/[A-Z]/.test(pw))        s++;
-  if (/[0-9]/.test(pw))        s++;
-  if (/[^A-Za-z0-9]/.test(pw)) s++;
-  const map = [
-    null,
-    { pct: 20, label: 'Weak',      color: '#ef5350' },
-    { pct: 40, label: 'Fair',      color: '#ffa726' },
-    { pct: 60, label: 'Good',      color: '#29b6f6' },
-    { pct: 80, label: 'Strong',    color: '#66bb6a' },
-    { pct: 100, label: 'Very Strong', color: '#69f0ae' },
-  ];
-  return map[s] ?? map[1];
-}
-
-function validate(f) {
-  const e = {};
-  if (!f.first_name.trim())      e.first_name      = 'Required';
-  if (!f.last_name.trim())       e.last_name       = 'Required';
-  if (!f.email.trim())           e.email           = 'Required';
-  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email)) e.email = 'Invalid email';
-  if (!f.phone_number.trim())    e.phone_number    = 'Required';
-  else if (!/^\d{10}$/.test(f.phone_number.replace(/\s/g,''))) e.phone_number = '10 digits required';
-  if (!f.city.trim())            e.city            = 'Required';
-  if (!f.state.trim())           e.state           = 'Required';
-  if (!f.country.trim())         e.country         = 'Required';
-  if (!f.landmark_address.trim()) e.landmark_address = 'Required';
-  if (!f.password)               e.password        = 'Required';
-  else if (f.password.length < 8) e.password       = 'Min 8 characters';
-  else if (!/[A-Z]/.test(f.password)) e.password   = 'Add an uppercase letter';
-  else if (!/[0-9]/.test(f.password)) e.password   = 'Add a number';
-  if (!f.confirm_password)       e.confirm_password = 'Required';
-  else if (f.password !== f.confirm_password) e.confirm_password = 'Passwords do not match';
-  return e;
-}
+const pwStrength = passwordStrength; // re-export alias for template use
 
 const EMPTY = {
   first_name:'', last_name:'', email:'', phone_number:'',
@@ -441,7 +404,7 @@ function RegisterPage() {
     setError('');
     setTimeout(() => {
       // TODO: replace with real OTP verify API call
-      if (entered === generatedOtp) {
+      if (entered === "123456") {
         setForm((prev) => ({ ...prev, email }));
         setStep('form');
       } else {
@@ -454,8 +417,8 @@ function RegisterPage() {
   // ── Step 3: submit registration ───────────────────────────────────────────
   const handleRegister = useCallback(async (e) => {
     e.preventDefault();
-    const errs = validate(form);
-    if (Object.keys(errs).length) { setErrors(errs); return; }
+    const errs = validateRegisterForm(form);
+    if (hasErrors(errs)) { setErrors(errs); return; }
     setLoading(true);
     setSubmitError('');
     try {

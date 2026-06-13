@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { isUserAuthenticated, getUserProfile } from '../../services/apiClients';
 import { createOrderOnline } from '../../Actions/Web/CreateOrderActions';
+import { validateShipping, hasErrors } from '../../utils/validators';
 import './style.scss';
 
 
@@ -18,10 +19,21 @@ const STEPS = ['01 Shipping', '02 Payment', '03 Review'];
 
 // ── Step 1: Shipping ──────────────────────────────────────────────────────────
 function ShippingStep({ data, onChange, onNext }) {
+  const [errs, setErrs] = useState({});
+
   const handleSubmit = (e) => {
     e.preventDefault();
+    const validation = validateShipping(data);
+    if (hasErrors(validation)) { setErrs(validation); return; }
+    setErrs({});
     onNext();
   };
+
+  const f = (name) => ({
+    value: data[name],
+    onChange: (e) => { onChange(name, e.target.value); setErrs((p) => { const n={...p}; delete n[name]; return n; }); },
+    className: `co-form__input${errs[name] ? ' co-form__input--error' : ''}`,
+  });
 
   return (
     <form className="co-form" onSubmit={handleSubmit} noValidate>
@@ -30,43 +42,44 @@ function ShippingStep({ data, onChange, onNext }) {
       <div className="co-form__row co-form__row--2">
         <div className="co-form__field">
           <label className="co-form__label" htmlFor="co-fname">First Name *</label>
-          <input id="co-fname" className="co-form__input" type="text" placeholder="First Name"
-            value={data.firstName} onChange={(e) => onChange('firstName', e.target.value)} required />
+          <input id="co-fname" type="text" placeholder="First Name" {...f('firstName')} />
+          {errs.firstName && <span className="co-form__error-msg">{errs.firstName}</span>}
         </div>
         <div className="co-form__field">
           <label className="co-form__label" htmlFor="co-lname">Last Name *</label>
-          <input id="co-lname" className="co-form__input" type="text" placeholder="Last Name"
-            value={data.lastName} onChange={(e) => onChange('lastName', e.target.value)} required />
+          <input id="co-lname" type="text" placeholder="Last Name" {...f('lastName')} />
+          {errs.lastName && <span className="co-form__error-msg">{errs.lastName}</span>}
         </div>
       </div>
 
       <div className="co-form__field">
         <label className="co-form__label" htmlFor="co-addr">Address *</label>
-        <input id="co-addr" className="co-form__input" type="text" placeholder="Street address"
-          value={data.address} onChange={(e) => onChange('address', e.target.value)} required />
+        <input id="co-addr" type="text" placeholder="Street address" {...f('address')} />
+        {errs.address && <span className="co-form__error-msg">{errs.address}</span>}
       </div>
 
       <div className="co-form__row co-form__row--3">
         <div className="co-form__field">
           <label className="co-form__label" htmlFor="co-city">City *</label>
-          <input id="co-city" className="co-form__input" type="text" placeholder="City"
-            value={data.city} onChange={(e) => onChange('city', e.target.value)} required />
+          <input id="co-city" type="text" placeholder="City" {...f('city')} />
+          {errs.city && <span className="co-form__error-msg">{errs.city}</span>}
         </div>
         <div className="co-form__field">
           <label className="co-form__label" htmlFor="co-state">State *</label>
-          <input id="co-state" className="co-form__input" type="text" placeholder="State"
-            value={data.state} onChange={(e) => onChange('state', e.target.value)} required />
+          <input id="co-state" type="text" placeholder="State" {...f('state')} />
+          {errs.state && <span className="co-form__error-msg">{errs.state}</span>}
         </div>
         <div className="co-form__field">
           <label className="co-form__label" htmlFor="co-zip">PIN Code *</label>
-          <input id="co-zip" className="co-form__input" type="text" placeholder="PIN"
-            value={data.zip} onChange={(e) => onChange('zip', e.target.value)} required />
+          <input id="co-zip" type="text" placeholder="6-digit PIN" maxLength={6} {...f('zip')} />
+          {errs.zip && <span className="co-form__error-msg">{errs.zip}</span>}
         </div>
       </div>
+
       <div className="co-form__field">
         <label className="co-form__label" htmlFor="co-phone">Phone *</label>
-        <input id="co-phone" className="co-form__input" type="tel" placeholder="Phone number"
-          value={data.phone} onChange={(e) => onChange('phone', e.target.value)} required />
+        <input id="co-phone" type="tel" placeholder="10-digit mobile number" maxLength={10} {...f('phone')} />
+        {errs.phone && <span className="co-form__error-msg">{errs.phone}</span>}
       </div>
 
       <div className="co-form__delivery-card">
@@ -88,7 +101,7 @@ function ShippingStep({ data, onChange, onNext }) {
       </div>
 
       <button type="submit" className="co-form__next-btn">
-        Continue to Payment
+        Continue to Payment →
       </button>
     </form>
   );
@@ -249,7 +262,7 @@ function CheckoutPage() {
   const location = useLocation();
   const [step, setStep] = useState(0);
   const [success, setSuccess] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
+  const [orderPlacing, setOrderPlacing] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('COD');
 
@@ -284,8 +297,6 @@ function CheckoutPage() {
     return { subtotal, shipping: shippingCost, tax, total: subtotal + shippingCost + tax };
   }, [orderItems]);
 
-  const isCartCheckout = !selectedProduct && cartItems.length > 0;
-
   const updateShipping = (field, val) => setShipping((p) => ({ ...p, [field]: val }));
 
   const validateOrder = () => {
@@ -303,7 +314,7 @@ function CheckoutPage() {
   const handlePlace = async () => {
     if (!validateOrder()) return;
     setErrorMessage('');
-    setSubmitting(true);
+    setOrderPlacing(true);
 
     const normalizedItems = orderItems.map((item) => {
       const quantity = Number(item.quantity ?? 1) || 1;
@@ -369,7 +380,7 @@ function CheckoutPage() {
     } catch (error) {
       setErrorMessage(error.message || 'Order submission failed.');
     } finally {
-      setSubmitting(false);
+      setOrderPlacing(false);
     }
   };
 
@@ -509,7 +520,8 @@ function CheckoutPage() {
                     )}
                     {step === 2 && (
                       <ReviewStep shipping={shipping} paymentMethod={paymentMethod} items={orderItems}
-                        totals={totals} onBack={() => setStep(1)} onPlace={handlePlace} />
+                        totals={totals} onBack={() => setStep(1)} onPlace={handlePlace}
+                        placing={orderPlacing} />
                     )}
                   </div>
 
