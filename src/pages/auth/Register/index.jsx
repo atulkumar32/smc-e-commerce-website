@@ -405,6 +405,7 @@ function RegisterPage() {
     setTimeout(() => {
       // TODO: replace with real OTP verify API call
       if (entered === "123456") {
+        console.log("OTP  : ",entered)
         setForm((prev) => ({ ...prev, email }));
         setStep('form');
       } else {
