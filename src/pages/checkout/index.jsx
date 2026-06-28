@@ -384,7 +384,6 @@ function CheckoutPage() {
         // status false or no url — surface the server message
         throw new Error(result.message || 'Payment initiation failed. Please try again.');
       }
-
       // ── COD: order saved, go to success ──
       if (result.status === true || result.status === 'true') {
         toast.success(`✅ Order placed! Order ID: ${result.order_id || ''}`, {

@@ -17,12 +17,12 @@ import ProductDetail from '../pages/product/ProductDetail';
 import CartPage from '../pages/cart';
 import CheckoutPage from '../pages/checkout';
 import WishlistPage from '../pages/wishlist';
-import PaymentLoadingPage from '../pages/payment/PaymentLoading/index.jsx';
-import PaymentSuccessPage from '../pages/payment/PaymentSuccess/index.jsx';
-import PaymentFailedPage from '../pages/payment/PaymentFailed/index.jsx';
+import PaymentLoadingPage from '../pages/payment/PaymentLoading';
+import PaymentSuccessPage from '../pages/payment/PaymentSuccess';
+import PaymentFailedPage  from '../pages/payment/PaymentFailed';
 import LoginPage from '../pages/auth/Login';
 import RegisterPage from '../pages/auth/Register';
-import UpcomingPage from '../pages/upComingPage/index.js';
+import UpcomingPage from '../pages/upComingPage';
 
 function AppRoutes() {
   return (
@@ -61,10 +61,18 @@ function AppRoutes() {
       {/* ── User routes — dedicated user pages under /user/* ── */}
       {UserRoutes()}
 
-      {/* ── Store (public) ── */}
+      {/* ── Upcoming / Coming Soon — standalone, no header/footer ── */}
+      <Route path="/" element={<UpcomingPage />} />
+
+      {/* ── Payment pages — standalone, no header/footer ── */}
+      <Route path="/payment/loading" element={<PaymentLoadingPage />} />
+      <Route path="/payment/success" element={<PaymentSuccessPage />} />
+      <Route path="/payment/failed"  element={<PaymentFailedPage />} />
+
+      {/* ── Store (public) — all pages with Header + Footer ── */}
       <Route element={<StoreLayout />}>
 
-        <Route path="/" element={<UpcomingPage />} />
+        <Route path="/home" element={<HomePage />} />
         <Route path="/uat/" element={<HomePage />} />
 
         {/* Info pages */}
@@ -93,11 +101,6 @@ function AppRoutes() {
         {/* Auth */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
-
-        {/* Payment status pages (PhonePe redirect targets) */}
-        <Route path="/payment/loading" element={<PaymentLoadingPage />} />
-        <Route path="/payment/success" element={<PaymentSuccessPage />} />
-        <Route path="/payment/failed" element={<PaymentFailedPage />} />
 
         {/* Static info pages */}
         <Route path="/craftsmanship" element={<AboutPage />} />

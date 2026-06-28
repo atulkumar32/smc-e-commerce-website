@@ -1,15 +1,10 @@
-import React from "react";
-import './index.scss';
+    import './index.scss';
 
 function UpcomingPage() {
   return (
     <div className="upcoming-page">
       <div className="background-animation">
-        <span></span>
-        <span></span>
-        <span></span>
-        <span></span>
-        <span></span>
+        <span /><span /><span /><span /><span />
       </div>
 
       <div className="content">
@@ -18,7 +13,6 @@ function UpcomingPage() {
         </div>
 
         <h1>Shree Mahaveer Collections</h1>
-
         <h2>🚀 Website Launching Soon</h2>
 
         <p>
@@ -31,12 +25,10 @@ function UpcomingPage() {
             <h3>100+</h3>
             <span>Products</span>
           </div>
-
           <div className="box">
             <h3>24/7</h3>
             <span>Support</span>
           </div>
-
           <div className="box">
             <h3>100%</h3>
             <span>Quality</span>
@@ -49,4 +41,4 @@ function UpcomingPage() {
   );
 }
 
-export default UpcomingPage;   
+export default UpcomingPage;

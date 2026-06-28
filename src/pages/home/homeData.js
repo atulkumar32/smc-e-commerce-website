@@ -8,6 +8,22 @@ export const heroSlides = [
     heading: 'Majestic Heritage for the Modern Individual',
     subtext: 'Discover our curated collection of artisanal school bags and luxury purses designed to withstand time and trends.',
   },
+  {
+    id: 2,
+    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAq2xMeeqj9asDSXGsewqmAPNY1XDD51v4-uMV52dpgaIJLZpIWZSTjysOZsog3ERrfmo3uGSjkA6A29XqzDUpT9hRGnQv4D03s8MzY5-zUWRiJu1mCL3BdY2iUZU1pRaV2uENJIrnIC4Q-GhBzThL3rytfmZHYPbICFOZGQniGIuaQwTG-q9f4nM1jqpq__0quFuOaqjYvn0VY69AIMr3OMU674AsuBB8IwgLq3Nz7CjiKLpFH-7Mu6PJHWWEletARHIAsFgmWA7s',
+    alt: 'Premium school bags collection',
+    badge: 'New Collection',
+    heading: 'School Bags Built for Champions',
+    subtext: 'Ergonomic, durable and stylish — crafted for students who demand the very best every single day.',
+  },
+  {
+    id: 3,
+    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAomPg6dh9sVlKMDf3VBdKXX2lNGOQs37d6D6JSuJgMVgKvxJKvMdBPut146_Eu8zlj6jumajVenmEDmSabioR9-XJFYttAk4QshkZvuFIGHdJqMz-mQrMlau8870ohU1TeqkMTQ3WaGtE-HuQxV2OEZq5eSqbSbVbTw4TJ32x6tMiRzgGxSTOe9Sb2tR7CoOnn04dV-XpmMdDUE5azoO9-HwUl-1xqKXMv80QYCgU2m7b03I8RWLZQHG7D-A93VJUYHppRTETuarI',
+    alt: 'Luxury purses and accessories',
+    badge: 'Luxury Collection',
+    heading: 'Timeless Elegance, Every Day',
+    subtext: 'Handcrafted leather purses and accessories that tell a story. Excellence woven into every stitch.',
+  },
 ];
 
 // ── Collections ───────────────────────────────────────────────

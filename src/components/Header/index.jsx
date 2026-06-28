@@ -4,7 +4,7 @@ import { useCart } from '../../context/CartContext';
 import './style.scss';
 
 const NAV_LINKS = [
-  { label: 'HOME', to: '/' },
+  { label: 'HOME', to: '/home' },
   { label: 'ABOUT', to: '/about' },
   {
     label: 'PRODUCTS',

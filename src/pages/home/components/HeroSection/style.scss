@@ -1,24 +1,42 @@
 @import '../../../../Styles/Mixins';
 
+// ── Entrance timings (first load only — run once via key remount) ─────────────
+$ease-in: cubic-bezier(0.22, 1, 0.36, 1);
+
 .hero {
   position: relative;
-  height: 85vh;
+  height: 100vh;
   min-height: 520px;
   width: 100%;
   overflow: hidden;
   background-color: $color-primary;
 
+  // ── Background image layers — cross-fade via opacity ──────────
   &__bg {
     position: absolute;
     inset: 0;
     background-size: cover;
     background-position: center;
-    transition: background-image 0.8s ease;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+    will-change: opacity;
+
+    &.is-active {
+      opacity: 1;
+      // Subtle Ken Burns only on the active slide
+      animation: heroBgZoom 6s ease-in-out forwards;
+    }
+  }
+
+  @keyframes heroBgZoom {
+    from { transform: scale(1.04); }
+    to   { transform: scale(1); }
   }
 
   &__overlay {
     position: absolute;
     inset: 0;
+    z-index: 1;
     background: linear-gradient(
       to right,
       rgba(0, 6, 19, 0.92) 0%,
@@ -27,6 +45,7 @@
     );
   }
 
+  // ── Content wrapper ───────────────────────────────────────────
   &__content {
     position: relative;
     z-index: 2;
@@ -36,9 +55,33 @@
     flex-direction: column;
     justify-content: center;
     gap: 1.25rem;
-    // max-width: 90vw;
+
+    // Fade out when animating between slides
+    &.is-fading {
+      opacity: 0;
+      transition: opacity 0.35s ease;
+    }
   }
 
+  // ── Per-element entrance animations (staggered, run once on mount) ──
+
+  &__anim-1 { animation: heroSlideUp 0.7s $ease-in 0.1s both; }
+  &__anim-2 { animation: heroSlideUp 0.7s $ease-in 0.22s both; }
+  &__anim-3 { animation: heroSlideUp 0.7s $ease-in 0.34s both; }
+  &__anim-4 { animation: heroSlideUp 0.7s $ease-in 0.46s both; }
+
+  @keyframes heroSlideUp {
+    from {
+      opacity: 0;
+      transform: translateY(28px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  // ── Individual elements ───────────────────────────────────────
   &__badge {
     font-family: $font-label;
     font-size: $fs-xs;
@@ -46,6 +89,7 @@
     letter-spacing: $ls-widest;
     text-transform: uppercase;
     color: $color-secondary;
+    display: inline-block;
   }
 
   &__heading {
@@ -55,6 +99,7 @@
     line-height: $lh-tight;
     letter-spacing: $ls-tight;
     color: #ffffff;
+    max-width: 640px;
   }
 
   &__subtext {
@@ -97,9 +142,10 @@
     }
   }
 
+  // ── Dots ──────────────────────────────────────────────────────
   &__dots {
     position: absolute;
-    bottom: 1.5rem;
+    bottom: 1.75rem;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
@@ -108,17 +154,55 @@
   }
 
   &__dot {
-    width: 3rem;
+    width: 2.5rem;
     height: 3px;
     border: none;
     cursor: pointer;
     background-color: rgba(255, 255, 255, 0.3);
-    @include transition(background-color);
+    @include transition(all, 0.35s);
     padding: 0;
-    &.is-active { background-color: $color-secondary; }
+    border-radius: 2px;
+
+    &.is-active {
+      background-color: $color-secondary;
+      width: 3.5rem;
+    }
+
+    &:hover:not(.is-active) {
+      background-color: rgba(255, 255, 255, 0.6);
+    }
   }
 
-  // ── 4K / large desktop ≥1536px ───────────────────────────────
+  // ── Prev / Next arrows ────────────────────────────────────────
+  &__arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 3;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1.5px solid rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(6px);
+    color: #ffffff;
+    cursor: pointer;
+    @include flex-center;
+    @include transition(all, 0.25s);
+    @include focus-ring($color-secondary);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.25);
+      border-color: rgba(255, 255, 255, 0.5);
+    }
+
+    &--prev { left: 1.5rem;  }
+    &--next { right: 1.5rem; }
+
+    @include sm { display: none; } // swipe on mobile
+  }
+
+  // ── Responsive ────────────────────────────────────────────────
   @include min-2xl {
     height: 80vh;
     &__heading  { font-size: 4rem; }
@@ -126,14 +210,12 @@
     &__btn      { padding: 1rem 2.5rem; }
   }
 
-  // ── Tablet landscape ≤1024px ──────────────────────────────────
   @include lg {
     height: 78vh;
     &__heading  { font-size: $fs-3xl; }
     &__subtext  { font-size: $fs-base; }
   }
 
-  // ── Tablet portrait ≤768px ────────────────────────────────────
   @include md {
     height: 72vh;
     min-height: 480px;
@@ -148,7 +230,6 @@
     }
   }
 
-  // ── Large phone ≤640px ────────────────────────────────────────
   @include sm {
     height: 68vh;
     min-height: 460px;
@@ -156,9 +237,9 @@
     &__content  { gap: 1rem; }
     &__btn      { padding: 0.75rem 1.5rem; }
     &__subtext  { font-size: $fs-sm; max-width: 100%; }
+    &__dots     { bottom: 1.25rem; }
   }
 
-  // ── Standard phone ≤480px ─────────────────────────────────────
   @include xs {
     height: 65vh;
     min-height: 420px;
@@ -167,10 +248,9 @@
     &__actions  { flex-direction: column; gap: 0.75rem; }
     &__btn      { text-align: center; width: 100%; }
     &__dots     { bottom: 1rem; }
-    &__dot      { width: 2rem; }
+    &__dot      { width: 1.75rem; &.is-active { width: 2.5rem; } }
   }
 
-  // ── Very small phone ≤360px ───────────────────────────────────
   @include xxs {
     height: 60vh;
     min-height: 380px;
@@ -179,7 +259,6 @@
     &__content  { gap: 0.75rem; }
   }
 
-  // ── Landscape phone ───────────────────────────────────────────
   @include landscape {
     @include xs {
       height: 100vw;
@@ -189,8 +268,8 @@
     }
   }
 
-  // ── Reduced motion ────────────────────────────────────────────
   @include reduced-motion {
-    &__bg { transition: none; }
+    &__bg        { transition: opacity 0.1s; animation: none; }
+    &__anim-1, &__anim-2, &__anim-3, &__anim-4 { animation: none; }
   }
 }

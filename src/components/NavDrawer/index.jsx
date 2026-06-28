@@ -13,10 +13,17 @@ import './style.scss';
  *  onCategory     – fn(key)
  */
 function NavDrawer({ open, onClose, activeCategory, onCategory }) {
-  // Lock body scroll when open
+  // Lock body scroll when open — always clean up on unmount or close
   useEffect(() => {
-    document.body.style.overflow = open ? 'hidden' : '';
-    return () => { document.body.style.overflow = ''; };
+    if (open) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    // Always restore on unmount
+    return () => {
+      document.body.style.overflow = '';
+    };
   }, [open]);
 
   // Close on Escape
