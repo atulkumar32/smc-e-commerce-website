@@ -125,19 +125,22 @@ function PaymentLoadingPage() {
   return (
     <div className="pay-loading">
       <div className="pay-loading__card">
-        {/* Animated spinner */}
+        {/* Spinner */}
         <div className="pay-loading__spinner" aria-hidden="true">
-          <svg viewBox="0 0 50 50" className="pay-loading__circle">
-            <circle cx="25" cy="25" r="20" fill="none" strokeWidth="4" />
+          <svg viewBox="0 0 64 64" className="pay-loading__circle">
+            <circle cx="32" cy="32" r="28" fill="none" strokeWidth="4" />
           </svg>
         </div>
 
-        {/* PhonePe logo mark */}
+        {/* PhonePe brand */}
         <div className="pay-loading__brand">
-          <svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true">
-            <rect width="36" height="36" rx="8" fill="#5f259f"/>
-            <text x="6" y="26" fontSize="18" fontWeight="bold" fill="white">Pe</text>
-          </svg>
+          <div className="pay-loading__brand-logo">
+            <svg width="32" height="32" viewBox="0 0 36 36" fill="none" aria-label="PhonePe">
+              <rect width="36" height="36" rx="8" fill="#5f259f"/>
+              <text x="6" y="26" fontSize="17" fontWeight="bold" fill="white">Pe</text>
+            </svg>
+          </div>
+          <span className="pay-loading__brand-text">Secured by PhonePe</span>
         </div>
 
         <h2 className="pay-loading__title">Processing Payment</h2>
@@ -149,14 +152,20 @@ function PaymentLoadingPage() {
           </p>
         )}
 
+        {/* Animated progress bar */}
+        <div className="pay-loading__progress" role="progressbar" aria-label="Processing">
+          <div className="pay-loading__progress-fill" />
+        </div>
+
         <p className="pay-loading__hint">
           Please do not close or refresh this page.
         </p>
 
-        {/* Progress dots */}
-        <div className="pay-loading__dots" aria-label="Loading">
-          <span /><span /><span />
-        </div>
+        {attempt > 2 && (
+          <p className="pay-loading__attempt">
+            Check {attempt} of {MAX_ATTEMPTS}…
+          </p>
+        )}
       </div>
     </div>
   );
