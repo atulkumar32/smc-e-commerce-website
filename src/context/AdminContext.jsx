@@ -9,27 +9,25 @@ export function AdminProvider({ children }) {
   const [productsLoading, setProductsLoading] = useState(true);
   const [orders] = useState(initialOrders);
 
-  useEffect(() => {
-    const load = async () => {
-      setProductsLoading(true);
-      try {
-        const data = await fetchProductsAction();
-        // API returns { products: [...], totalRecords, ... }
-        const list = Array.isArray(data)
-          ? data
-          : Array.isArray(data.products)
-          ? data.products
-          : [];
-        setProducts(list);
-      } catch (err) {
-        console.error('[AdminContext] Failed to load products:', err.message);
-        setProducts([]);
-      } finally {
-        setProductsLoading(false);
-      }
-    };
-    load();
-  }, []);
+  const loadProducts = async () => {
+    setProductsLoading(true);
+    try {
+      const data = await fetchProductsAction();
+      const list = Array.isArray(data)
+        ? data
+        : Array.isArray(data.products)
+        ? data.products
+        : [];
+      setProducts(list);
+    } catch (err) {
+      console.error('[AdminContext] Failed to load products:', err.message);
+      setProducts([]);
+    } finally {
+      setProductsLoading(false);
+    }
+  };
+
+  useEffect(() => { loadProducts(); }, []);
 
   // ── Upsert (add or update) a product in local state ─────────────────────────
   const upsertProduct = (product) => {
@@ -72,6 +70,7 @@ export function AdminProvider({ children }) {
         stats,
         upsertProduct,
         deleteProduct,
+        refreshProducts: loadProducts,
       }}
     >
       {children}

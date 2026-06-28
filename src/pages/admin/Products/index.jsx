@@ -140,7 +140,7 @@ function ProductViewDetails({ product: p }) {
 
 // ── Main Products Page ─────────────────────────────────────────────────────────
 function ProductsPage() {
-  const { products, upsertProduct, deleteProduct } = useAdmin();
+  const { products, upsertProduct, deleteProduct, refreshProducts } = useAdmin();
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
@@ -153,10 +153,13 @@ function ProductsPage() {
     setSnackbar({ open: true, message, severity });
 
   // ── Handlers ────────────────────────────────────────────────────────────────
-  const handleProductSuccess = (savedProduct, status) => {
+  const handleProductSuccess = async (savedProduct, status) => {
+    // Optimistic update immediately
     upsertProduct(savedProduct);
     setEditModal({ open: false, product: null });
     showSnack(status === 'draft' ? 'Saved as draft' : 'Product published successfully');
+    // Background refresh so list stays in sync with server
+    try { await refreshProducts(); } catch { /* silent */ }
   };
 
   const handleConfirmDelete = async () => {

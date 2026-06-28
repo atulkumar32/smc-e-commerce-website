@@ -1,12 +1,9 @@
-// ── Product form — clean 2-column grid, every field 250px wide ───────────────
-
-$FW:     250px;   // fixed field width
-$INPUT_H: 44px;   // uniform input height
-$FONT:   0.875rem;
-$BORDER: #e5e7eb;
-$BG:     #f9fafb;
-$BLUE:   #1d4ed8;
-$GREY:   #6b7280;
+// ── Add / Edit Product form ───────────────────────────────────────────────────
+$INPUT_H : 40px;
+$FONT    : 0.875rem;
+$BORDER  : #e8eaed;
+$BG      : #f8f9fa;
+$BLUE    : #1565c0;
 
 // ── Wrapper ───────────────────────────────────────────────────────────────────
 .add-new-product {
@@ -14,51 +11,84 @@ $GREY:   #6b7280;
   color: #111827;
   width: 100%;
 
-  // ── Section heading ───────────────────────────────────────────
-  &__section-title {
-    font-size: 0.7rem !important;
-    font-weight: 700 !important;
-    color: $GREY !important;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-  }
+  // ─────────────────────────────────────────────────────────────
+  //  FORM GRID  — plain CSS, no MUI Grid inside sections
+  //  .anp-row  = 2-column row
+  //  .anp-field = one cell (always fills its column)
+  // ─────────────────────────────────────────────────────────────
+  &__row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;   // strict 2 cols, equal width
+    gap: 16px;
+    margin-bottom: 0;                  // gap handled by parent Stack spacing
 
-  // ── Error banner ─────────────────────────────────────────────
-  &__error-banner {
-    margin-bottom: 1rem;
-    border-radius: 8px;
-  }
-
-  // ── Sticky action bar ─────────────────────────────────────────
-  &__actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    justify-content: flex-end;
-    align-items: center;
-    margin-top: 1.5rem;
-    padding: 1rem 0 0.25rem;
-    border-top: 1px solid $BORDER;
-    position: sticky;
-    bottom: 0;
-    background: #fff;
-    z-index: 10;
-
-    .MuiButton-root {
-      min-width: 140px;
-      height: 40px;
-      font-size: 0.8rem;
-      font-weight: 600;
+    // On very small screens collapse to 1 col
+    @media (max-width: 480px) {
+      grid-template-columns: 1fr;
     }
   }
 
-  // ── Image slots ───────────────────────────────────────────────
+  &__row--4 {
+    grid-template-columns: repeat(4, 1fr);
+    @media (max-width: 900px)  { grid-template-columns: 1fr 1fr; }
+    @media (max-width: 480px)  { grid-template-columns: 1fr; }
+  }
+
+  &__row--full {
+    grid-template-columns: 1fr;   // single full-width field
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;                  // prevent overflow in grid cell
+
+    // MUI components inside always fill the cell
+    .MuiTextField-root,
+    .MuiFormControl-root,
+    .MuiAutocomplete-root {
+      width: 100% !important;
+      min-width: 0 !important;
+      max-width: none !important;
+    }
+  }
+
+  // ── MUI input normalisation ─────────────────────────────────
+  .MuiInputBase-root   { font-size: $FONT; }
+  .MuiInputLabel-root  { font-size: $FONT; }
+  .MuiSelect-select    { font-size: $FONT; display: flex; align-items: center; }
+  .MuiFormHelperText-root { font-size: .72rem; margin-top: 3px; margin-left: 0; }
+
+  // Multi-chip autocomplete
+  .MuiAutocomplete-multiple .MuiOutlinedInput-root {
+    height: auto !important;
+    min-height: $INPUT_H;
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
+  }
+
+  // Textarea — no height clamp
+  .MuiInputBase-multiline { height: auto !important; font-size: $FONT; }
+
+  // Chips
+  .MuiChip-root { font-size: .72rem; height: 22px; }
+
+  // Paper borders in feature rows
+  .MuiPaper-outlined { border-color: $BORDER; border-radius: 8px; }
+
+  // ── Image slots ────────────────────────────────────────────
+  &__images-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
   &__image-card {
-    position: relative;
-    width: 96px; height: 96px;
+    position: relative; width: 88px; height: 88px;
     border-radius: 8px; overflow: hidden;
     border: 1.5px solid $BORDER; background: $BG;
-    transition: border-color 0.2s;
+    flex-shrink: 0; transition: border-color .2s;
     &:hover { border-color: $BLUE; }
     img { width: 100%; height: 100%; object-fit: cover; display: block; }
   }
@@ -66,27 +96,25 @@ $GREY:   #6b7280;
   &__image-primary {
     position: absolute; bottom: 4px; left: 4px;
     background: $BLUE; color: #fff;
-    font-size: 0.6rem; font-weight: 700;
+    font-size: .58rem; font-weight: 700;
     padding: 2px 5px; border-radius: 3px;
-    text-transform: uppercase; letter-spacing: 0.04em;
+    text-transform: uppercase;
   }
 
   &__image-remove {
-    position: absolute !important;
-    top: 3px; right: 3px;
-    background: rgba(0,0,0,.5) !important;
-    color: #fff !important; padding: 2px !important;
-    border-radius: 50% !important;
-    &:hover { background: rgba(0,0,0,.75) !important; }
+    position: absolute !important; top: 3px; right: 3px;
+    background: rgba(0,0,0,.45) !important; color: #fff !important;
+    padding: 2px !important; border-radius: 50% !important;
+    &:hover { background: rgba(0,0,0,.7) !important; }
   }
 
   &__image-upload-slot {
-    width: 96px; height: 96px;
+    width: 88px; height: 88px;
     border: 2px dashed #d1d5db; border-radius: 8px;
     display: flex; flex-direction: column;
     align-items: center; justify-content: center; gap: 3px;
-    cursor: pointer; background: $BG;
-    transition: border-color 0.2s, background 0.2s;
+    cursor: pointer; background: $BG; flex-shrink: 0;
+    transition: border-color .2s, background .2s;
     &:hover { border-color: $BLUE; background: #eff6ff; }
   }
 
@@ -96,140 +124,7 @@ $GREY:   #6b7280;
     padding: 2rem 1rem; border: 2px dashed #d1d5db;
     border-radius: 10px; background: $BG;
     cursor: pointer; text-align: center;
-    transition: border-color 0.2s, background 0.2s;
+    transition: border-color .2s, background .2s;
     &:hover { border-color: $BLUE; background: #eff6ff; }
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-//  FORM GRID  — responsive multi-column layout, no hard-coded 250px fields
-// ─────────────────────────────────────────────────────────────────────────────
-
-// Every <Grid container> inside the form is a responsive grid
-.add-new-product .MuiGrid-container {
-  display: grid !important;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)) !important;
-  gap: 1.25rem 1.25rem !important;
-  align-items: start;
-}
-
-// Every <Grid item> should fill its available column
-.add-new-product .MuiGrid-item {
-  width: 100% !important;
-  max-width: 100% !important;
-  flex: 1 1 auto !important;
-  padding: 0 !important;
-  box-sizing: border-box;
-}
-
-// Full-width rows span the entire section
-.add-new-product .MuiGrid-item--full-width {
-  grid-column: 1 / -1 !important;
-  width: 100% !important;
-  max-width: 100% !important;
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-//  UNIVERSAL INPUT NORMALISATION  — all field types should stretch to the grid cell
-// ─────────────────────────────────────────────────────────────────────────────
-.add-new-product {
-
-  // Every field wrapper should fill the column width
-  .MuiTextField-root,
-  .MuiFormControl-root,
-  .MuiAutocomplete-root {
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: 100% !important;
-  }
-
-  // Font size on all inputs
-  .MuiInputBase-root { font-size: $FONT; }
-
-  // Single-line inputs & selects: 44px high
-  .MuiOutlinedInput-root:not(.MuiInputBase-multiline) {
-    height: $INPUT_H;
-    box-sizing: border-box;
-  }
-
-  // Select inner element
-  .MuiSelect-select {
-    height: $INPUT_H !important;
-    min-height: unset !important;
-    box-sizing: border-box;
-    display: flex;
-    align-items: center;
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-    font-size: $FONT;
-  }
-
-  // Autocomplete single-value
-  .MuiAutocomplete-root:not(.MuiAutocomplete-multiple) {
-    .MuiOutlinedInput-root {
-      height: $INPUT_H;
-      padding-top: 0 !important;
-      padding-bottom: 0 !important;
-      .MuiAutocomplete-input {
-        padding-top: 0 !important;
-        padding-bottom: 0 !important;
-        height: 100%;
-        box-sizing: border-box;
-        font-size: $FONT;
-      }
-    }
-  }
-
-  // Autocomplete multi-chip (Colors): flexible height, min 44px
-  .MuiAutocomplete-multiple {
-    .MuiOutlinedInput-root {
-      height: auto !important;
-      min-height: $INPUT_H;
-      padding-top: 6px !important;
-      padding-bottom: 6px !important;
-      .MuiAutocomplete-input {
-        padding-top: 2px !important;
-        padding-bottom: 2px !important;
-        font-size: $FONT;
-      }
-    }
-  }
-
-  // Float label correctly for 44px input
-  .MuiInputLabel-outlined:not(.MuiInputLabel-shrink) {
-    transform: translate(14px, 12px) scale(1);
-  }
-  .MuiInputLabel-root { font-size: $FONT; }
-
-  // Helper / error text
-  .MuiFormHelperText-root {
-    font-size: 0.72rem;
-    margin-top: 3px;
-    margin-left: 0;
-  }
-
-  // Multiline textarea — no height clamp
-  .MuiInputBase-multiline {
-    height: auto !important;
-    min-height: unset !important;
-    width: #{$FW} !important;
-    font-size: $FONT;
-    .MuiOutlinedInput-notchedOutline { height: auto !important; }
-  }
-
-  // Chips
-  .MuiChip-root { font-size: 0.75rem; height: 24px; }
-
-  // Feature paper cards
-  .MuiPaper-outlined { border-color: $BORDER; border-radius: 8px; }
-
-  // Dividers
-  .MuiDivider-root { border-color: $BORDER; }
-
-  // Section headings via Typography subtitle2
-  .MuiTypography-subtitle2 {
-    font-size: 0.7rem; font-weight: 700;
-    color: $GREY; letter-spacing: 0.1em;
-    text-transform: uppercase;
   }
 }
