@@ -1,0 +1,147 @@
+@import '../../../Styles/Mixins';
+
+.pay-failed {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #fff5f5 0%, #ffebee 100%);
+  @include flex-center;
+  padding: 1.5rem;
+
+  &__card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 3rem 2.5rem;
+    max-width: 480px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+    @include flex-col;
+    align-items: center;
+    gap: 1.25rem;
+
+    @include sm { padding: 2rem 1.25rem; }
+  }
+
+  &__icon {
+    svg { width: 80px; height: 80px; }
+  }
+
+  &__title {
+    font-family: $font-headline;
+    font-size: $fs-2xl;
+    font-weight: $fw-bold;
+    color: #c62828;
+    margin: 0;
+  }
+
+  &__msg {
+    font-family: $font-body;
+    font-size: $fs-base;
+    color: $color-tertiary-600;
+    line-height: $lh-relaxed;
+    margin: 0;
+  }
+
+  &__order-box {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    background: $color-neutral-100;
+    border-radius: 8px;
+    padding: 0.875rem 1.5rem;
+    width: 100%;
+  }
+
+  &__order-label {
+    font-family: $font-label;
+    font-size: $fs-xs;
+    font-weight: $fw-semibold;
+    letter-spacing: $ls-widest;
+    text-transform: uppercase;
+    color: $color-tertiary-500;
+  }
+
+  &__order-id {
+    font-family: $font-headline;
+    font-size: $fs-lg;
+    font-weight: $fw-bold;
+    color: $color-primary;
+    letter-spacing: 0.05em;
+  }
+
+  &__reasons {
+    background: #fff8e1;
+    border-left: 3px solid #f9a825;
+    border-radius: 0 8px 8px 0;
+    padding: 1rem 1.25rem;
+    text-align: left;
+    width: 100%;
+
+    &-title {
+      font-family: $font-label;
+      font-size: $fs-xs;
+      font-weight: $fw-semibold;
+      color: #e65100;
+      margin: 0 0 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: $ls-wider;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 1.25rem;
+      @include flex-col;
+      gap: 0.3rem;
+    }
+
+    li {
+      font-family: $font-body;
+      font-size: $fs-sm;
+      color: $color-neutral-700;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+
+  &__btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.9rem 1.5rem;
+    border-radius: 8px;
+    @include label($fs-sm, $fw-bold);
+    letter-spacing: $ls-wider;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    @include transition(all);
+    @include focus-ring($color-secondary);
+
+    &--primary {
+      background-color: $color-primary;
+      color: #ffffff;
+      border: none;
+      &:hover { background-color: $color-primary-700; }
+    }
+
+    &--outline {
+      background: transparent;
+      color: $color-primary;
+      border: 1.5px solid $color-neutral-300;
+      &:hover { border-color: $color-primary; }
+    }
+
+    &--ghost {
+      background: transparent;
+      color: $color-tertiary-500;
+      border: none;
+      font-size: $fs-xs;
+      &:hover { color: $color-primary; }
+    }
+  }
+}

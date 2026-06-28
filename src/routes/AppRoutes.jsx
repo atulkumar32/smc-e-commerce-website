@@ -17,8 +17,12 @@ import ProductDetail from '../pages/product/ProductDetail';
 import CartPage from '../pages/cart';
 import CheckoutPage from '../pages/checkout';
 import WishlistPage from '../pages/wishlist';
+import PaymentLoadingPage from '../pages/payment/PaymentLoading/index.jsx';
+import PaymentSuccessPage from '../pages/payment/PaymentSuccess/index.jsx';
+import PaymentFailedPage from '../pages/payment/PaymentFailed/index.jsx';
 import LoginPage from '../pages/auth/Login';
 import RegisterPage from '../pages/auth/Register';
+import UpcomingPage from '../pages/upComingPage/index.js';
 
 function AppRoutes() {
   return (
@@ -59,7 +63,9 @@ function AppRoutes() {
 
       {/* ── Store (public) ── */}
       <Route element={<StoreLayout />}>
-        <Route path="/" element={<HomePage />} />
+
+        <Route path="/" element={<UpcomingPage />} />
+        <Route path="/uat/" element={<HomePage />} />
 
         {/* Info pages */}
         <Route path="/about" element={<AboutPage />} />
@@ -87,6 +93,11 @@ function AppRoutes() {
         {/* Auth */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+
+        {/* Payment status pages (PhonePe redirect targets) */}
+        <Route path="/payment/loading" element={<PaymentLoadingPage />} />
+        <Route path="/payment/success" element={<PaymentSuccessPage />} />
+        <Route path="/payment/failed" element={<PaymentFailedPage />} />
 
         {/* Static info pages */}
         <Route path="/craftsmanship" element={<AboutPage />} />

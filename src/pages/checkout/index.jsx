@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { useCart } from '../../context/CartContext';
 import { isUserAuthenticated, getUserProfile } from '../../services/apiClients';
 import { createOrderOnline } from '../../Actions/Web/CreateOrderActions';
@@ -161,7 +162,7 @@ function PaymentStep({ paymentMethod, onMethodChange, onNext, onBack }) {
 }
 
 // ── Step 3: Review ────────────────────────────────────────────────────────────
-function ReviewStep({ shipping, paymentMethod, items, totals, onBack, onPlace }) {
+function ReviewStep({ shipping, paymentMethod, items, totals, onBack, onPlace, placing = false }) {
   return (
     <div className="co-form">
       <h2 className="co-form__title">Review Your Order</h2>
@@ -224,9 +225,19 @@ function ReviewStep({ shipping, paymentMethod, items, totals, onBack, onPlace })
       </div>
 
       <div className="co-form__btn-row">
-        <button type="button" className="co-form__back-btn" onClick={onBack}>← Back</button>
-        <button type="button" className="co-form__next-btn co-form__next-btn--flex co-form__next-btn--gold" onClick={onPlace}>
-          Place Order
+        <button type="button" className="co-form__back-btn" onClick={onBack} disabled={placing}>
+          ← Back
+        </button>
+        <button
+          type="button"
+          className="co-form__next-btn co-form__next-btn--flex co-form__next-btn--gold"
+          onClick={onPlace}
+          disabled={placing}
+          style={{ opacity: placing ? 0.7 : 1, cursor: placing ? 'not-allowed' : 'pointer' }}
+        >
+          {placing
+            ? (paymentMethod === 'ONLINE' ? '⏳ Redirecting to PhonePe…' : '⏳ Placing Order…')
+            : (paymentMethod === 'ONLINE' ? '💳 Pay with PhonePe' : '✅ Place Order')}
         </button>
       </div>
     </div>
@@ -351,34 +362,43 @@ function CheckoutPage() {
       tax: Number(totals.tax ?? 0) || 0,
     };
 
-    // Debug: inspect every step
-    console.log('================= CHECKOUT DEBUG =================');
-    console.log('Step:', step);
-    console.log('Payment method:', paymentMethod);
-    console.log('Shipping:', shipping);
-    console.log('Order items (raw):', orderItems);
-    console.log('Order items (normalized):', normalizedItems);
-    console.log('Totals:', totals);
-    console.log('Payload sent:', payload);
-    console.log('====================================================');
+    // remove debug logs in production
 
     try {
       const result = await createOrderOnline(payload);
 
-
-      if (paymentMethod === 'ONLINE' && result.payment_url) {
-        window.location.href = result.payment_url;
-        return;
+      // ── ONLINE payment: redirect_url comes back when status is true ──
+      if (paymentMethod === 'ONLINE') {
+        const redirectUrl = result.redirect_url || result.payment_url;
+        if (result.status === true && redirectUrl) {
+          toast.info('🔄 Redirecting to PhonePe payment gateway…', {
+            position: 'top-right', autoClose: 2000,
+          });
+          clearCart();
+          // Small delay so toast is visible before leaving the page
+          setTimeout(() => {
+            window.location.href = redirectUrl;
+          }, 800);
+          return;
+        }
+        // status false or no url — surface the server message
+        throw new Error(result.message || 'Payment initiation failed. Please try again.');
       }
 
-      if (paymentMethod === 'COD') {
+      // ── COD: order saved, go to success ──
+      if (result.status === true || result.status === 'true') {
+        toast.success(`✅ Order placed! Order ID: ${result.order_id || ''}`, {
+          position: 'top-right', autoClose: 4000,
+        });
         clearCart();
         setSuccess(true);
       } else {
-        setSuccess(true);
+        throw new Error(result.message || 'Order submission failed.');
       }
     } catch (error) {
-      setErrorMessage(error.message || 'Order submission failed.');
+      const msg = error.message || 'Order submission failed. Please try again.';
+      setErrorMessage(msg);
+      toast.error(`❌ ${msg}`, { position: 'top-right', autoClose: 5000 });
     } finally {
       setOrderPlacing(false);
     }

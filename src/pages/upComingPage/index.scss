@@ -1,0 +1,281 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+body {
+  overflow: hidden;
+}
+
+.upcoming-page {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  background: linear-gradient(135deg, #0f172a, #1e293b, #334155, #0f172a);
+  background-size: 400% 400%;
+  animation: gradientMove 12s ease infinite;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.content {
+  text-align: center;
+  z-index: 2;
+  color: #fff;
+  animation: fadeUp 1.5s ease;
+  max-width: 900px;
+  padding: 20px;
+  width: 100%;
+}
+
+/* ==================== LOGO ==================== */
+.logo-circle {
+  width: 130px;
+  height: 130px;
+  margin: 0 auto;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f59e0b, #f97316);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  font-weight: 700;
+  color: white;
+  box-shadow: 0 0 40px rgba(249, 115, 22, 0.5);
+  animation: pulse 2s infinite;
+}
+
+/* ==================== TYPOGRAPHY ==================== */
+.content h1 {
+  font-size: 3.8rem;
+  margin-top: 25px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.content h2 {
+  margin-top: 12px;
+  font-size: 1.9rem;
+  color: #f59e0b;
+}
+
+.content p {
+  margin-top: 20px;
+  color: #cbd5e1;
+  line-height: 1.7;
+  font-size: 1.1rem;
+  padding: 0 10px;
+}
+
+/* ==================== BOXES ==================== */
+.countdown-box {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  margin-top: 40px;
+  flex-wrap: wrap;
+}
+
+.box {
+  flex: 1;
+  min-width: 140px;
+  max-width: 190px;
+  padding: 24px 16px;
+  border-radius: 20px;
+  backdrop-filter: blur(20px);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  animation: float 4s ease-in-out infinite;
+}
+
+.box h3 {
+  font-size: 2.1rem;
+  color: #f59e0b;
+  margin-bottom: 6px;
+}
+
+.box span {
+  color: #cbd5e1;
+  font-size: 0.98rem;
+}
+
+/* ==================== BUTTON ==================== */
+.notify-btn {
+  margin-top: 40px;
+  padding: 16px 42px;
+  border: none;
+  border-radius: 50px;
+  background: linear-gradient(135deg, #f59e0b, #f97316);
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.4s ease;
+}
+
+.notify-btn:hover {
+  transform: translateY(-5px) scale(1.06);
+  box-shadow: 0 15px 35px rgba(249, 115, 22, 0.45);
+}
+
+/* ==================== BACKGROUND ANIMATION ==================== */
+.background-animation span {
+  position: absolute;
+  display: block;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  animation: animate 20s linear infinite;
+}
+
+/* Background circles positioning */
+.background-animation span:nth-child(1) { width: 80px; height: 80px; left: 10%; animation-duration: 12s; }
+.background-animation span:nth-child(2) { width: 150px; height: 150px; left: 25%; animation-duration: 18s; }
+.background-animation span:nth-child(3) { width: 60px; height: 60px; left: 50%; animation-duration: 15s; }
+.background-animation span:nth-child(4) { width: 180px; height: 180px; left: 70%; animation-duration: 22s; }
+.background-animation span:nth-child(5) { width: 100px; height: 100px; left: 90%; animation-duration: 16s; }
+
+/* ==================== RESPONSIVE DESIGN ==================== */
+
+/* Large Tablets & Small Laptops */
+@media (max-width: 1024px) {
+  .logo-circle {
+    width: 110px;
+    height: 110px;
+    font-size: 32px;
+  }
+  .content h1 {
+    font-size: 3.2rem;
+  }
+}
+
+/* Tablets & Large Mobile */
+@media (max-width: 768px) {
+  .content {
+    padding: 15px;
+  }
+  
+  .logo-circle {
+    width: 100px;
+    height: 100px;
+    font-size: 28px;
+  }
+
+  .content h1 {
+    font-size: 2.8rem;
+  }
+
+  .content h2 {
+    font-size: 1.6rem;
+  }
+
+  .content p {
+    font-size: 1.05rem;
+  }
+
+  .countdown-box {
+    gap: 15px;
+    margin-top: 35px;
+  }
+
+  .box {
+    min-width: 45%;
+    max-width: 48%;
+    padding: 20px 12px;
+  }
+
+  .box h3 {
+    font-size: 1.85rem;
+  }
+}
+
+/* Small Mobile Phones */
+@media (max-width: 480px) {
+  .content {
+    padding: 10px;
+  }
+
+  .logo-circle {
+    width: 90px;
+    height: 90px;
+    font-size: 26px;
+  }
+
+  .content h1 {
+    font-size: 2.4rem;
+  }
+
+  .content h2 {
+    font-size: 1.45rem;
+  }
+
+  .content p {
+    font-size: 1rem;
+  }
+
+  .countdown-box {
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    margin-top: 30px;
+  }
+
+  .box {
+    min-width: 100%;
+    max-width: 100%;
+    padding: 20px 15px;
+  }
+
+  .box h3 {
+    font-size: 1.7rem;
+  }
+
+  .notify-btn {
+    padding: 14px 35px;
+    font-size: 1rem;
+  }
+}
+
+/* Very Small Screens */
+@media (max-width: 360px) {
+  .content h1 {
+    font-size: 2.2rem;
+  }
+  
+  .logo-circle {
+    width: 80px;
+    height: 80px;
+    font-size: 24px;
+  }
+}
+
+/* Keyframes */
+@keyframes animate {
+  0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+  10% { opacity: 1; }
+  100% { transform: translateY(-120vh) rotate(360deg); opacity: 0; }
+}
+
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(60px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
+}
