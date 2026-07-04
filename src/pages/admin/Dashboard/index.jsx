@@ -6,79 +6,22 @@ import {
   Typography,
   Box,
   CircularProgress,
-  Divider,
+  Tooltip,
+  IconButton,
 } from '@mui/material';
-import InventoryIcon from '@mui/icons-material/Inventory';
-import PublishedWithChangesIcon from '@mui/icons-material/PublishedWithChanges';
-import UnpublishedIcon from '@mui/icons-material/Unpublished';
-import CategoryIcon from '@mui/icons-material/Category';
-import PeopleIcon from '@mui/icons-material/People';
-import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import TodayIcon from '@mui/icons-material/Today';
-import { fetchDashboardStatsAction } from '../../../Actions/DashboardAction';
 
-// ── Stat card config ───────────────────────────────────────────────────────────
-const STAT_CARDS = [
-  {
-    key: 'totalProducts',
-    label: 'Total Products',
-    icon: InventoryIcon,
-    color: '#1565c0',
-    bg: '#e3f2fd',
-  },
-  {
-    key: 'totalPublishedProducts',
-    label: 'Published',
-    icon: PublishedWithChangesIcon,
-    color: '#2e7d32',
-    bg: '#e8f5e9',
-  },
-  {
-    key: 'totalDraftProducts',
-    label: 'Drafts',
-    icon: UnpublishedIcon,
-    color: '#ed6c02',
-    bg: '#fff3e0',
-  },
-  {
-    key: 'totalCategories',
-    label: 'Categories',
-    icon: CategoryIcon,
-    color: '#7b1fa2',
-    bg: '#f3e5f5',
-  },
-  {
-    key: 'totalUserCount',
-    label: 'Total Users',
-    icon: PeopleIcon,
-    color: '#0288d1',
-    bg: '#e1f5fe',
-  },
-  {
-    key: 'totalNewUsersLast7Days',
-    label: 'New Users (7d)',
-    icon: PersonAddIcon,
-    color: '#00695c',
-    bg: '#e0f2f1',
-  },
-  {
-    key: 'totalNewUsersLast1Month',
-    label: 'New Users (30d)',
-    icon: PersonAddIcon,
-    color: '#558b2f',
-    bg: '#f1f8e9',
-  },
-  {
-    key: 'todayTotalNewUsers',
-    label: 'New Users Today',
-    icon: TodayIcon,
-    color: '#c62828',
-    bg: '#ffebee',
-  },
-];
+
+import { fetchDashboardStatsAction } from '../../../Actions/DashboardAction';
+import { STAT_CARDS } from './DashboardData';
+
+
 
 // ── Single stat card ───────────────────────────────────────────────────────────
-function StatCard({ label, value, icon: Icon, color, bg }) {
+function StatCard({ label, value, icon: Icon, color, bg, hasInfo, tooltip, isCurrency }) {
+  const displayValue = isCurrency
+    ? `₹${(value ?? 0).toLocaleString()}`
+    : value ?? 0;
+
   return (
     <Card>
       <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -96,12 +39,23 @@ function StatCard({ label, value, icon: Icon, color, bg }) {
         >
           <Icon sx={{ color, fontSize: 26 }} />
         </Box>
-        <Box>
-          <Typography variant="body2" color="text.secondary" noWrap>
-            {label}
-          </Typography>
+
+        <Box sx={{ flexGrow: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <Typography variant="body2" color="text.secondary" noWrap>
+              {label}
+            </Typography>
+            {hasInfo && tooltip && (
+              <Tooltip title={tooltip} arrow>
+                <IconButton size="small" sx={{ p: 0.3 }}>
+                  <InfoIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
+                </IconButton>
+              </Tooltip>
+            )}
+          </Box>
+
           <Typography variant="h5" fontWeight={700}>
-            {value ?? 0}
+            {displayValue}
           </Typography>
         </Box>
       </CardContent>
@@ -146,7 +100,7 @@ function DashboardPage() {
 
       {/* ── Stat cards ── */}
       <Grid container spacing={2.5}>
-        {STAT_CARDS.map(({ key, label, icon, color, bg }) => (
+        {STAT_CARDS.map(({ key, label, icon, color, bg, hasInfo, tooltip, isCurrency }) => (
           <Grid key={key} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
             <StatCard
               label={label}
@@ -154,58 +108,13 @@ function DashboardPage() {
               icon={icon}
               color={color}
               bg={bg}
+              hasInfo={hasInfo}
+              tooltip={tooltip}
+              isCurrency={isCurrency}
             />
           </Grid>
         ))}
       </Grid>
-
-      {/* ── Quick summary ── */}
-      {/* <Grid container spacing={2.5} sx={{ mt: 1 }}>
-        <Grid size={{ xs: 12, md: 6 }}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Products Summary
-              </Typography>
-              <Divider sx={{ mb: 1.5 }} />
-              {[
-                ['Total Products',    stats?.totalProducts],
-                ['Published',         stats?.totalPublishedProducts],
-                ['Drafts',            stats?.totalDraftProducts],
-                ['Categories',        stats?.totalCategories],
-              ].map(([label, val]) => (
-                <Box key={label} sx={{ display: 'flex', justifyContent: 'space-between', py: 0.5 }}>
-                  <Typography variant="body2" color="text.secondary">{label}</Typography>
-                  <Typography variant="body2" fontWeight={600}>{val ?? 0}</Typography>
-                </Box>
-              ))}
-            </CardContent>
-          </Card>
-        </Grid>
-
-        <Grid size={{ xs: 12, md: 6 }}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Users Activity
-              </Typography>
-              <Divider sx={{ mb: 1.5 }} />
-              {[
-                ['Total Users',         stats?.totalUserCount],
-                ['Active (last 7d)',     stats?.totalUserActiveLast7Days],
-                ['New (last 7d)',        stats?.totalNewUsersLast7Days],
-                ['New (last 30d)',       stats?.totalNewUsersLast1Month],
-                ['New Today',           stats?.todayTotalNewUsers],
-              ].map(([label, val]) => (
-                <Box key={label} sx={{ display: 'flex', justifyContent: 'space-between', py: 0.5 }}>
-                  <Typography variant="body2" color="text.secondary">{label}</Typography>
-                  <Typography variant="body2" fontWeight={600}>{val ?? 0}</Typography>
-                </Box>
-              ))}
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid> */}
     </Box>
   );
 }

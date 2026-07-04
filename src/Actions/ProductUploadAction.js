@@ -45,6 +45,12 @@ function buildFormData(payload) {
   const fd = new FormData();
   const { images, product_images, ...fields } = payload;
 
+  // Normalize: if 'id' is present but 'product_id' isn't, promote it
+  if (fields.id && !fields.product_id) {
+    fields.product_id = fields.id;
+  }
+  delete fields.id; // always drop raw 'id' — backend uses product_id
+
   // Only send the canonical backend keys.
   // Backend expects single (non-duplicate) keys; UI payload currently contains many aliases.
   // If an alias key exists, prefer the canonical one.
@@ -383,10 +389,14 @@ export const createProductAction = async (payload) => {
 
 // ── Update an existing product ─────────────────────────────────────────────────
 export const updateProductAction = async (id, payload) => {
+  // id = resolveProductId(editingProduct) — could be numeric DB id or "SMC-PROD-xxxx"
+  // Ensure product_id is set to the exact same value in the FormData body.
   const updatePayload = {
     ...payload,
-    id,
-    category_id: payload.category_id ?? null,
+    product_id: id,        // canonical key PHP reads to find the record
+    productId:  id,
+    // Preserve category_id from the payload; fall back to the raw id only if missing
+    category_id: payload.category_id ?? payload.categoryId ?? null,
   };
 
   const fd = buildFormData(updatePayload);

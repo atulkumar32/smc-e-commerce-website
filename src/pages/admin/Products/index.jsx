@@ -187,23 +187,23 @@ function ProductsPage() {
 
   // ── Table columns (limited) ──────────────────────────────────────────────────
   const columns = [
-    {
-      id: 'image',
-      label: 'Image',
-      render: (row) => {
-        const src = getPrimaryImage(row);
-        return src ? (
-          <Box
-            component="img"
-            src={src}
-            alt={getDisplayName(row)}
-            sx={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 1 }}
-          />
-        ) : (
-          <Box sx={{ width: 48, height: 48, bgcolor: 'grey.100', borderRadius: 1 }} />
-        );
-      },
-    },
+    // {
+    //   id: 'image',
+    //   label: 'Image',
+    //   render: (row) => {
+    //     const src = getPrimaryImage(row);
+    //     return src ? (
+    //       <Box
+    //         component="img"
+    //         src={src}
+    //         alt={getDisplayName(row)}
+    //         sx={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 1 }}
+    //       />
+    //     ) : (
+    //       <Box sx={{ width: 48, height: 48, bgcolor: 'grey.100', borderRadius: 1 }} />
+    //     );
+    //   },
+    // },
     {
       id: 'product_name',
       label: 'Product Name',

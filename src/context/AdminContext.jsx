@@ -31,14 +31,17 @@ export function AdminProvider({ children }) {
 
   // ── Upsert (add or update) a product in local state ─────────────────────────
   const upsertProduct = (product) => {
+    // Use string product_id as the canonical match key (same as resolveProductId)
+    const incomingId = product.product_id ?? product.productId ?? product.id;
     setProducts((prev) => {
-      const incomingId = product.id ?? product.product_id;
       const exists = prev.some(
-        (p) => (p.id ?? p.product_id) === incomingId
+        (p) => (p.product_id ?? p.productId ?? p.id) === incomingId
       );
       if (exists) {
         return prev.map((p) =>
-          (p.id ?? p.product_id) === incomingId ? { ...p, ...product } : p
+          (p.product_id ?? p.productId ?? p.id) === incomingId
+            ? { ...p, ...product }
+            : p
         );
       }
       return [product, ...prev];
@@ -47,7 +50,7 @@ export function AdminProvider({ children }) {
 
   const deleteProduct = (id) => {
     setProducts((prev) =>
-      prev.filter((p) => (p.id ?? p.product_id) !== id)
+      prev.filter((p) => (p.product_id ?? p.productId ?? p.id) !== id)
     );
   };
 

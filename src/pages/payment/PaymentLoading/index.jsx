@@ -1,174 +1,94 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { WEB_URLS } from '../../../Config/UrlsConfig';
+import { checkPaymentStatus } from '../../../Actions/Web/PaymentStatus';
 import './style.scss';
 
-/**
- * PaymentLoading
- *
- * PhonePe redirects back to this page after the payment attempt.
- * URL will contain: ?merchantOrderId=ORD17815xxxxx (or session-based)
- *
- * We poll  /paymentStatus.php?merchantOrderId=xxx  every 3 s
- * until we get a definitive status or reach the max retry count.
- *
- * Expected API responses:
- *   { status: 'SUCCESS', order_id, message }
- *   { status: 'FAILED',  order_id, message }
- *   { status: 'PENDING', order_id, message }   ← keep polling
- */
-
 const POLL_INTERVAL_MS = 3000;
-const MAX_ATTEMPTS     = 12;   // 12 × 3 s = 36 s max wait
+const MAX_ATTEMPTS = 12;
 
-async function fetchPaymentStatus(merchantOrderId) {
-  // Backend uses:
-  //   $merchantOrderId = $_SESSION['merchantOrderId'] ?? $_GET['merchantOrderId'] ?? null;
-  // So when merchantOrderId is missing on frontend, we call the API WITHOUT query param
-  // and let PHP read it from session.
-  const url = merchantOrderId
-    ? `${WEB_URLS.PAYMENT_STATUS}?merchantOrderId=${encodeURIComponent(merchantOrderId)}`
-    : `${WEB_URLS.PAYMENT_STATUS}`;
+export default function PaymentLoadingPage() {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
 
-  const res = await fetch(url, { method: 'GET', credentials: 'include' });
-  const text = await res.text();
-  try {
-    return JSON.parse(text);
-  } catch {
-    return {};
-  }
-}
+  const [statusMsg, setStatusMsg] = useState('Processing your payment...');
+  const [attempt, setAttempt] = useState(0);
 
-function PaymentLoadingPage() {
-  const [searchParams]         = useSearchParams();
-  const navigate               = useNavigate();
-  const [attempt, setAttempt]  = useState(0);
-  const [statusMsg, setStatusMsg] = useState('Verifying your payment…');
-  const timerRef               = useRef(null);
-  const doneRef                = useRef(false);
+  const doneRef = useRef(false);
+  const timerRef = useRef(null);
 
-  // Grab merchantOrderId from URL — PhonePe appends it as a query param
-  const merchantOrderIdFromUrl =
-    searchParams.get('merchantOrderId') ||
-    searchParams.get('order_id')        ||
-    searchParams.get('orderId')         ||
-    '';
+  const merchantOrderId = searchParams.get('morderid') || 
+                          searchParams.get('merchantOrderId') || 
+                          sessionStorage.getItem('smc_pay_order_id') || '';
 
-  // If we already received it once, keep it for a refresh / soft navigation
-  // (PHP session is server-side; this is only a frontend fallback).
-  if (merchantOrderIdFromUrl) {
-    try { sessionStorage.setItem('merchantOrderId', merchantOrderIdFromUrl); } catch {}
-  }
-
-  const merchantOrderId = merchantOrderIdFromUrl ||
-    (function () {
-      try { return sessionStorage.getItem('merchantOrderId') || ''; } catch { return ''; }
-    })();
-
-  const redirect = (status, orderId, msg) => {
+  const redirect = useCallback((status, msg = '') => {
     if (doneRef.current) return;
+    
     doneRef.current = true;
-    clearInterval(timerRef.current);
+    if (timerRef.current) clearInterval(timerRef.current);
 
-    const target = status === 'SUCCESS' ? '/payment/success' : '/payment/failed';
-    navigate(target, {
-      replace: true,
-      state: { orderId: orderId || merchantOrderId, message: msg, status },
+    console.log(`🚀 Redirecting to ${status} page`);
+
+    const path = status === 'SUCCESS' ? '/payment/success' : '/payment/failed';
+    
+    navigate(path, { 
+      replace: true, 
+      state: { 
+        orderId: merchantOrderId, 
+        message: msg || (status === 'SUCCESS' ? 'Payment completed successfully' : 'Payment failed'),
+        status 
+      } 
     });
-  };
+  }, [navigate, merchantOrderId]);
 
-  const poll = async () => {
-    if (doneRef.current) return;
+  const pollOnce = useCallback(async () => {
+    if (doneRef.current || !merchantOrderId) return;
 
-    setAttempt((prev) => {
-      const next = prev + 1;
+    const n = attempt + 1;
+    setAttempt(n);
 
-      // If merchantOrderId is missing from frontend, fetchPaymentStatus will call
-      // paymentStatus.php WITHOUT query param, letting PHP use $_SESSION.
-      fetchPaymentStatus(merchantOrderId)
-        .then((data) => {
-          const s = (data.status || '').toUpperCase();
+    console.log(`🔄 Poll #${n}/${MAX_ATTEMPTS}`);
 
-          if (s === 'SUCCESS') {
-            redirect('SUCCESS', data.order_id, data.message || 'Payment successful!');
-          } else if (s === 'FAILED' || s === 'FAILURE' || s === 'ERROR') {
-            redirect('FAILED', data.order_id, data.message || 'Payment failed. Please try again.');
-          } else if (next >= MAX_ATTEMPTS) {
-            // Timed out — treat as failed so user isn't stuck
-            redirect('FAILED', data.order_id, 'Payment verification timed out. Please check your orders.');
-          } else {
-            setStatusMsg(`Still verifying… (${next}/${MAX_ATTEMPTS})`);
-          }
-        })
-        .catch(() => {
-          if (next >= MAX_ATTEMPTS) {
-            redirect('FAILED', '', 'Could not reach the payment server. Please check your orders.');
-          }
-        });
+    try {
+      const result = await checkPaymentStatus(merchantOrderId);
 
-      return next;
-    });
-  };
+      if (result.status === 'SUCCESS') {
+        setStatusMsg('Payment Successful! Redirecting...');
+        redirect('SUCCESS', result.message);
+      } else {
+        setStatusMsg(result.message || 'Payment Failed');
+        redirect('FAILED', result.message);
+      }
+    } catch (err) {
+      console.error('Poll error:', err);
+      if (n >= MAX_ATTEMPTS) {
+        redirect('FAILED', 'Payment verification timed out.');
+      }
+    }
+  }, [merchantOrderId, redirect, attempt]);
 
   useEffect(() => {
-    // Start polling immediately then every POLL_INTERVAL_MS
-    poll();
-    timerRef.current = setInterval(poll, POLL_INTERVAL_MS);
+    if (!merchantOrderId) {
+      setStatusMsg('Order ID not found');
+      return;
+    }
+
+    pollOnce(); // First check
+    timerRef.current = setInterval(pollOnce, POLL_INTERVAL_MS);
 
     return () => {
-      doneRef.current = true;
-      clearInterval(timerRef.current);
+      if (timerRef.current) clearInterval(timerRef.current);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [merchantOrderId]);
+  }, [pollOnce]);
 
   return (
     <div className="pay-loading">
       <div className="pay-loading__card">
-        {/* Spinner */}
-        <div className="pay-loading__spinner" aria-hidden="true">
-          <svg viewBox="0 0 64 64" className="pay-loading__circle">
-            <circle cx="32" cy="32" r="28" fill="none" strokeWidth="4" />
-          </svg>
-        </div>
-
-        {/* PhonePe brand */}
-        <div className="pay-loading__brand">
-          <div className="pay-loading__brand-logo">
-            <svg width="32" height="32" viewBox="0 0 36 36" fill="none" aria-label="PhonePe">
-              <rect width="36" height="36" rx="8" fill="#5f259f"/>
-              <text x="6" y="26" fontSize="17" fontWeight="bold" fill="white">Pe</text>
-            </svg>
-          </div>
-          <span className="pay-loading__brand-text">Secured by PhonePe</span>
-        </div>
-
-        <h2 className="pay-loading__title">Processing Payment</h2>
-        <p className="pay-loading__msg">{statusMsg}</p>
-
-        {merchantOrderId && (
-          <p className="pay-loading__order">
-            Order: <strong>{merchantOrderId}</strong>
-          </p>
-        )}
-
-        {/* Animated progress bar */}
-        <div className="pay-loading__progress" role="progressbar" aria-label="Processing">
-          <div className="pay-loading__progress-fill" />
-        </div>
-
-        <p className="pay-loading__hint">
-          Please do not close or refresh this page.
-        </p>
-
-        {attempt > 2 && (
-          <p className="pay-loading__attempt">
-            Check {attempt} of {MAX_ATTEMPTS}…
-          </p>
-        )}
+        <div className="pay-loading__spinner">⭕</div>
+        <h2>Processing Payment</h2>
+        <p>{statusMsg}</p>
+        {merchantOrderId && <p>Order: <strong>{merchantOrderId}</strong></p>}
+        <p>Attempt: {attempt} / {MAX_ATTEMPTS}</p>
       </div>
     </div>
   );
 }
-
-export default PaymentLoadingPage;

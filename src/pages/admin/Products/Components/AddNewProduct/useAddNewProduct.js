@@ -164,9 +164,21 @@ function useAddNewProduct({ editingProduct = null, onSuccess } = {}) {
     }
 
     const productId = isEditing
+      // resolveProductId returns product.product_id ?? product.productId ?? product.id
+      // This ensures the string "SMC-PROD-xxxx" from the API list is passed to UpdateProducts.php
       ? resolveProductId(editingProduct)
       : generateProductId();
 
+    apiDebug('Step 1d — Product ID resolved', {
+      isEditing,
+      productId,
+      editingProductId: editingProduct
+        ? (editingProduct.product_id ?? editingProduct.productId ?? editingProduct.id)
+        : null,
+    });
+
+    // For update: make absolutely sure product_id in the payload matches
+    // the original record's primary key (not a generated one).
     const payload = buildProductPayload(
       form,
       status,
@@ -174,6 +186,13 @@ function useAddNewProduct({ editingProduct = null, onSuccess } = {}) {
       productId,
       categories
     );
+
+    // Extra safety: explicitly overwrite product_id with the resolved ID
+    // so even if buildProductPayload did anything unexpected, the update goes to the right row.
+    if (isEditing && productId) {
+      payload.product_id = productId;
+      payload.productId  = productId;
+    }
 
     apiDebug('Step 1e — Payload built', sanitizePayloadForLog(payload));
 

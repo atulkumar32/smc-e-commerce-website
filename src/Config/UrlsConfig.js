@@ -90,5 +90,5 @@ export const MEDIA_BASE = `${BASE_URL}smc/`;
 // ── Website APIs ──────────────────────────────────────────────────
 export const WEB_URLS = {
   PRODUCT_LIST: `${BASE_URL}smc/api/v1/data/GetProductList.php`,
-  PAYMENT_STATUS: `${BASE_URL}smc/payments/paymentStatus.php`,
+  PAYMENT_STATUS: `${BASE_URL}smc/payments/paymentStatus.php`, // http://localhost/smc/payments/paymentStatus.php?merchantOrderId=ORD1783138445
 };

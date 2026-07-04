@@ -7,8 +7,6 @@ import {
   ALLOWED_IMAGE_EXTENSIONS,
   MAX_IMAGE_SIZE_BYTES,
   MAX_IMAGE_SIZE_MB,
-  DISCOUNT_MIN,
-  DISCOUNT_MAX,
 } from './Components/AddNewProduct/AddNewProductData';
 
 import { MEDIA_BASE } from '../../../Config/UrlsConfig';
@@ -235,8 +233,15 @@ export function generateProductId() {
 
 export function resolveProductId(product) {
   if (!product) return null;
-  // API returns numeric "id" as primary key
-  return product.id ?? product.product_id ?? product.productId ?? null;
+  // For UPDATE operations, the backend PHP reads product_id (the string "SMC-PROD-xxxx").
+  // Prefer product_id string over numeric id to ensure correct record matching.
+  // Falls back to numeric id if no string product_id exists.
+  return (
+    product.product_id  ??   // "SMC-PROD-0009" — what PHP UPDATE uses
+    product.productId   ??   // camelCase alias
+    product.id          ??   // numeric DB PK fallback
+    null
+  );
 }
 
 export function buildProductPayload(
