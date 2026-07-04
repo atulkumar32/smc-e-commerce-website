@@ -181,7 +181,7 @@ function ProductsPage() {
   const getPrimaryImage = (row) => {
     // API: images: [{ image_url: "uploads/products/...", is_main: true }]
     const main = row.images?.find((i) => i.is_main) || row.images?.[0];
-    const raw = main?.image_url || main?.url || row.image_url || row.imageUrl || '';
+    const raw = "uploads/products". main?.image_url || main?.url || row.image_url || row.imageUrl || '';
     return resolveImg(raw);
   };
 

@@ -54,7 +54,7 @@ function AdminLoginPage() {
       }
 
       showSuccess("Admin signed in successfully");
-
+      console.log("DATA admin :", res)
       if (res.status === true) {
         window.location.href = "/admin/dashboard"; // Force full reload to ensure auth state is fresh
         return;

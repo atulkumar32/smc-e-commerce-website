@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import BASE_URL from '../../Config/ApiConfig';
 import { MEDIA_BASE } from '../../Config/UrlsConfig';
+import { BASE_URL } from '../../Config/ApiConfig';
+import { FetchProductDetailsActions } from '../../Actions/Web/GetProductDetailsActions';
 
 function resolveApiImage(path) {
   if (!path) return '';
@@ -95,9 +96,9 @@ export default function useProductDetail(productId) {
 
       setLoading(true);
       setError('');
-
+// products/[object%20Object]smc/api/v1/data/GetProductDetails.php
       try {
-        const resp = await fetch(`${BASE_URL}smc/api/v1/data/GetProductDetails.php?product_id=${encodeURIComponent(productId)}`);
+        const resp = await fetch(FetchProductDetailsActions(productId));
         if (!resp.ok) throw new Error(`Server returned ${resp.status}`);
         const data = await resp.json();
         const payload = data.product || data;

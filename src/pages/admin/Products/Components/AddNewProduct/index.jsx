@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import {
-  Box, Button, Chip, Stack, Typography, Divider, Grid, Alert,
+  Box, Button, Chip, Stack, Typography, Grid, Alert,
   TextField, FormControl, InputLabel, Select, MenuItem,
   Paper, IconButton, Autocomplete, Switch,
 } from '@mui/material';
@@ -394,8 +394,12 @@ function AddNewProduct({ editingProduct = null, onSuccess, onCancel }) {
                 </Typography>
               </Box>
               <Box sx={{ p: 2.5 }}>
-                <ProductImageUpload images={form.images}
-                  onChange={handleImagesChange} error={errors.images} />
+                <ProductImageUpload
+                  images={form.images}
+                  onChange={handleImagesChange}
+                  error={errors.images}
+                  selectedColors={form.selectedColors || []}
+                />
               </Box>
             </Paper>
 

@@ -4,7 +4,9 @@ $FONT    : 0.875rem;
 $BORDER  : #e8eaed;
 $BG      : #f8f9fa;
 $BLUE    : #1565c0;
-
+.css-38jk04-MuiPaper-root-MuiDialog-paper{
+  max-width: 900px!important;
+}
 // ── Wrapper ───────────────────────────────────────────────────────────────────
 .add-new-product {
   background: #fff;

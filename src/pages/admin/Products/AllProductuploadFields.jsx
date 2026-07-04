@@ -107,15 +107,17 @@ export function fileToBase64(file) {
 }
 
 export async function prepareImagesForPayload(images = []) {
-  // Keep File objects as-is — they'll be sent via FormData, not base64
   return images.map((img, index) => ({
     id: img.id,
-    file: img.file || null,          // raw File object for FormData upload
-    url: img.isExisting ? (img.url || img.preview) : null, // existing URL (edit mode)
+    file: img.file || null,
+    url: img.isExisting ? (img.url || img.preview) : null,
     name: img.name || img.file?.name || `image-${index + 1}`,
     type: img.type || img.file?.type || 'image/jpeg',
     isPrimary: index === 0,
     isExisting: img.isExisting || false,
+    // Color association — which product color this image represents
+    color_label: img.colorLabel || '',
+    color_hex:   img.colorHex   || '',
   }));
 }
 
@@ -198,7 +200,6 @@ export function mapProductToForm(product = {}) {
 function mapStoredImagesToForm(product) {
   if (product.images?.length) {
     return product.images.map((img, index) => {
-      // API shape: { image_url: "uploads/products/...", is_main: true }
       const rawUrl = img.image_url || img.url || img.preview || img.data || '';
       const fullUrl = resolveImageUrl(rawUrl);
       return {
@@ -209,6 +210,8 @@ function mapStoredImagesToForm(product) {
         type: img.type || 'image/jpeg',
         isPrimary: img.is_main === true || img.isPrimary === true || index === 0,
         isExisting: true,
+        colorLabel: img.color_label || img.colorLabel || '',
+        colorHex:   img.color_hex   || img.colorHex   || '',
       };
     });
   }
@@ -217,12 +220,10 @@ function mapStoredImagesToForm(product) {
     const fullUrl = resolveImageUrl(rawUrl);
     return [{
       id: 'existing-0',
-      url: fullUrl,
-      preview: fullUrl,
-      name: 'product-image.jpg',
-      type: 'image/jpeg',
-      isPrimary: true,
-      isExisting: true,
+      url: fullUrl, preview: fullUrl,
+      name: 'product-image.jpg', type: 'image/jpeg',
+      isPrimary: true, isExisting: true,
+      colorLabel: '', colorHex: '',
     }];
   }
   return [];

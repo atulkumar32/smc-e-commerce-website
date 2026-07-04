@@ -337,13 +337,17 @@ function buildFormData(payload) {
   const imgs = images || product_images || [];
   imgs.forEach((img, index) => {
     if (img.file instanceof File) {
-      // New file upload — send as images[] or images[0], images[1], etc.
       fd.append(`images[${index}]`, img.file, img.name || img.file.name);
     } else if (img.url && img.isExisting) {
-      // Existing image — send URL as text so backend keeps it
       fd.append(`existing_images[${index}]`, img.url);
     }
-    // Mark primary image index
+    // Attach color metadata alongside each image
+    if (img.color_label) {
+      fd.append(`image_color_label[${index}]`, img.color_label);
+    }
+    if (img.color_hex) {
+      fd.append(`image_color_hex[${index}]`, img.color_hex);
+    }
     if (img.isPrimary) {
       fd.append('primary_image_index', String(index));
     }
