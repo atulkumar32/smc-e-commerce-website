@@ -84,9 +84,11 @@ function LoginPage() {
     }
     setLoading(true);
     setError('');
+    console.log("Form data : ",form);
     try {
       const data = await userLoginAction(form);
       saveUserAuth(data);
+      console.log("DATA : ",data)
       toast.success('✅ Signed in successfully!', { position: 'top-right', autoClose: 2500 });
       navigate(returnTo, { replace: true, state: redirectState });
     } catch (err) {
