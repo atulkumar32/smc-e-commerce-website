@@ -7,26 +7,46 @@ import {
   TableHead,
   TableRow,
   TablePagination,
-  Box,
 } from '@mui/material';
 
+/**
+ * TableComponent
+ *
+ * Props:
+ *   columns           – [{ id, label, align?, render? }]
+ *   rows              – data rows for the current page
+ *   page              – 0-based current page (used for TablePagination)
+ *   rowsPerPage       – rows per page
+ *   onPageChange      – fn(event, page) — if omitted, pagination is hidden
+ *   onRowsPerPageChange
+ *   rowsPerPageOptions
+ *   emptyMessage      – text shown when rows is empty
+ *   getRowId          – fn(row) → unique key
+ *   totalCount        – when provided, rows are already sliced by the caller;
+ *                       disables internal slicing AND hides built-in TablePagination
+ *                       (use AdminPagination externally instead)
+ */
 function TableComponent({
   columns,
   rows,
-  page,
-  rowsPerPage,
+  page              = 0,
+  rowsPerPage       = 10,
   onPageChange,
   onRowsPerPageChange,
-  rowsPerPageOptions = [5, 10, 25],
-  emptyMessage = 'No data available',
-  getRowId = (row) => row.id,
-  // When provided, enables server-side pagination (rows are already the current page)
-  totalCount,
+  rowsPerPageOptions = [10, 25, 50],
+  emptyMessage       = 'No data available',
+  getRowId           = (row) => row.id,
+  totalCount,          // if set → rows are pre-sliced, hide built-in pagination
 }) {
-  // If totalCount is provided, rows are already paginated by the server
-  const paginatedRows = totalCount !== undefined
+  // When totalCount is given, the parent already sliced the rows
+  const displayRows = totalCount !== undefined
     ? rows
     : rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+
+  // Show the built-in MUI TablePagination only when:
+  //   • onPageChange is provided  (caller wants it)
+  //   • totalCount is NOT provided (rows aren't pre-sliced)
+  const showBuiltInPagination = !!onPageChange && totalCount === undefined;
 
   return (
     <Paper elevation={0} sx={{ border: '1px solid', borderColor: 'divider' }}>
@@ -35,25 +55,22 @@ function TableComponent({
           <TableHead>
             <TableRow sx={{ bgcolor: 'grey.50' }}>
               {columns.map((col) => (
-                <TableCell
-                  key={col.id}
-                  align={col.align || 'left'}
-                  sx={{ fontWeight: 600 }}
-                >
+                <TableCell key={col.id} align={col.align || 'left'} sx={{ fontWeight: 600 }}>
                   {col.label}
                 </TableCell>
               ))}
             </TableRow>
           </TableHead>
+
           <TableBody>
-            {paginatedRows.length === 0 ? (
+            {displayRows.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={columns.length} align="center" sx={{ py: 4 }}>
                   {emptyMessage}
                 </TableCell>
               </TableRow>
             ) : (
-              paginatedRows.map((row) => (
+              displayRows.map((row) => (
                 <TableRow key={getRowId(row)} hover>
                   {columns.map((col) => (
                     <TableCell key={col.id} align={col.align || 'left'}>
@@ -66,10 +83,11 @@ function TableComponent({
           </TableBody>
         </Table>
       </TableContainer>
-      {onPageChange && (
+
+      {showBuiltInPagination && (
         <TablePagination
           component="div"
-          count={totalCount !== undefined ? totalCount : rows.length}
+          count={rows.length}
           page={page}
           onPageChange={onPageChange}
           rowsPerPage={rowsPerPage}

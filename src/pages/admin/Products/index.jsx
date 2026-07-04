@@ -1,62 +1,50 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import {
-  Box,
-  Button,
-  IconButton,
-  Chip,
-  Stack,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
-  Typography,
-  Divider,
-  Grid,
-  Snackbar,
-  Alert,
+  Box, Button, IconButton, Chip, Stack,
+  Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions,
+  Typography, Divider, Grid, Snackbar, Alert, Paper,
 } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
-import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
-import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
+import AddIcon                from '@mui/icons-material/Add';
+import EditOutlinedIcon       from '@mui/icons-material/EditOutlined';
+import DeleteOutlinedIcon     from '@mui/icons-material/DeleteOutlined';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
-import ModalComponent from '../../../components/ModalComponent';
-import TableComponent from '../../../components/TableComponent';
-import AddNewProduct from './Components/AddNewProduct';
-import { useAdmin } from '../../../context/AdminContext';
-import { deleteProductAction } from '../../../Actions/ProductUploadAction';
-import { resolveProductId } from './AllProductuploadFields';
-import { MEDIA_BASE } from '../../../Config/UrlsConfig';
+import RefreshIcon            from '@mui/icons-material/Refresh';
+import ModalComponent    from '../../../components/ModalComponent';
+import TableComponent    from '../../../components/TableComponent';
+import AdminPagination   from '../../../components/Paginations';
+import AdminFilters      from '../../../components/AdminFilters';
+import AddNewProduct     from './Components/AddNewProduct';
+import { useAdmin }      from '../../../context/AdminContext';
+import { deleteProductAction }  from '../../../Actions/ProductUploadAction';
+import { resolveProductId }     from './AllProductuploadFields';
+import { MEDIA_BASE }           from '../../../Config/UrlsConfig';
 
-// Resolve a relative image path to a full URL
+// ── helpers ───────────────────────────────────────────────────────────────────
 function resolveImg(path) {
   if (!path) return '';
   if (path.startsWith('http://') || path.startsWith('https://')) return path;
   return `${MEDIA_BASE}${path}`;
 }
 
-// ── Product detail row helper ──────────────────────────────────────────────────
+function getDisplayId(row)       { return row.product_id   || '—'; }
+function getDisplayName(row)     { return row.product_name || row.productName || row.name || '—'; }
+function getCategoryName(row)    { return row.category_name || row.category || '—'; }
+
+// ── Product detail row ────────────────────────────────────────────────────────
 function DetailRow({ label, value }) {
   if (value === null || value === undefined || value === '') return null;
   return (
     <Grid size={{ xs: 12, sm: 6 }}>
-      <Typography variant="caption" color="text.secondary" display="block">
-        {label}
-      </Typography>
-      <Typography variant="body2" fontWeight={500}>
-        {value}
-      </Typography>
+      <Typography variant="caption" color="text.secondary" display="block">{label}</Typography>
+      <Typography variant="body2" fontWeight={500}>{value}</Typography>
     </Grid>
   );
 }
 
-// ── View Product Modal content ─────────────────────────────────────────────────
+// ── View Modal ────────────────────────────────────────────────────────────────
 function ProductViewDetails({ product: p }) {
   if (!p) return null;
-
-  const product_id        = p.product_id  || p.product_id  || p.product_id || '—';
-  const name        = p.product_name  || p.productName  || p.name || '—';
-  const mainImg     = p.images?.find((i) => i.is_main) || p.images?.[0];
+  const name = getDisplayName(p);
 
   return (
     <Box>
@@ -68,41 +56,38 @@ function ProductViewDetails({ product: p }) {
             return src ? (
               <Box key={i} sx={{ position: 'relative' }}>
                 <Box
-                  component="img"
-                  src={src}
-                  alt={`Product image ${i + 1}`}
-                  sx={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 1, border: img.is_main ? '2px solid' : '1px solid', borderColor: img.is_main ? 'primary.main' : 'divider' }}
+                  component="img" src={src} alt={`img-${i}`}
+                  sx={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 1,
+                    border: img.is_main ? '2px solid' : '1px solid',
+                    borderColor: img.is_main ? 'primary.main' : 'divider' }}
                 />
                 {img.is_main && (
-                  <Typography variant="caption" sx={{ position: 'absolute', bottom: 2, left: 2, bgcolor: 'primary.main', color: '#fff', px: 0.5, borderRadius: 0.5, fontSize: 9 }}>
-                    Main
-                  </Typography>
+                  <Typography variant="caption" sx={{
+                    position: 'absolute', bottom: 2, left: 2,
+                    bgcolor: 'primary.main', color: '#fff', px: 0.5, borderRadius: 0.5, fontSize: 9,
+                  }}>Main</Typography>
                 )}
               </Box>
             ) : null;
           })}
         </Stack>
       ) : (
-        <Box sx={{ width: '100%', height: 100, bgcolor: 'grey.100', borderRadius: 1, mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Box sx={{ width: '100%', height: 100, bgcolor: 'grey.100', borderRadius: 1, mb: 2,
+          display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <Typography variant="caption" color="text.secondary">No images</Typography>
         </Box>
       )}
 
-      {/* Name + status */}
       <Stack direction="row" alignItems="center" spacing={1} mb={2}>
         <Typography variant="subtitle1" fontWeight={700} flex={1}>{name}</Typography>
-        <Chip
-          label={p.status || 'draft'}
-          size="small"
-          color={p.status === 'published' ? 'success' : 'default'}
-          variant="outlined"
-        />
+        <Chip label={p.status || 'draft'} size="small"
+          color={p.status === 'published' ? 'success' : 'default'} variant="outlined" />
       </Stack>
 
       <Divider sx={{ mb: 2 }} />
 
       <Grid container spacing={1.5}>
-        <DetailRow label="Product ID"        value={p.product_id || p.productId} />
+        <DetailRow label="Product ID"        value={p.product_id} />
         <DetailRow label="Generic Name"      value={p.generic_name || p.genericName} />
         <DetailRow label="Brand"             value={p.brand} />
         <DetailRow label="Category"          value={p.category_name || p.category} />
@@ -141,26 +126,63 @@ function ProductViewDetails({ product: p }) {
 
 // ── Main Products Page ─────────────────────────────────────────────────────────
 function ProductsPage() {
-  const { products, upsertProduct, deleteProduct, refreshProducts } = useAdmin();
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const { products, productsLoading, upsertProduct, deleteProduct, refreshProducts } = useAdmin();
 
-  const [editModal, setEditModal] = useState({ open: false, product: null });
-  const [viewModal, setViewModal] = useState({ open: false, product: null });
+  // Pagination — default 10 rows
+  const [page, setPage]               = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  // Client-side filter
+  const [search, setSearch] = useState('');
+
+  // Modals
+  const [editModal,    setEditModal]    = useState({ open: false, product: null });
+  const [viewModal,    setViewModal]    = useState({ open: false, product: null });
   const [deleteDialog, setDeleteDialog] = useState({ open: false, product: null });
-  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+  const [snackbar,     setSnackbar]     = useState({ open: false, message: '', severity: 'success' });
+  const [refreshing,   setRefreshing]   = useState(false);
 
   const showSnack = (message, severity = 'success') =>
     setSnackbar({ open: true, message, severity });
 
+  // ── Filter products client-side ──────────────────────────────────────────────
+  const filteredProducts = useMemo(() => {
+    if (!search.trim()) return products;
+    const q = search.trim().toLowerCase();
+    return products.filter((p) =>
+      getDisplayName(p).toLowerCase().includes(q)       ||
+      getDisplayId(p).toLowerCase().includes(q)         ||
+      getCategoryName(p).toLowerCase().includes(q)      ||
+      (p.brand || '').toLowerCase().includes(q)         ||
+      (p.color || '').toLowerCase().includes(q)
+    );
+  }, [products, search]);
+
+  // Current page slice
+  const pagedProducts = useMemo(
+    () => filteredProducts.slice(page * rowsPerPage, (page + 1) * rowsPerPage),
+    [filteredProducts, page, rowsPerPage],
+  );
+
+  // ── Filter handler ───────────────────────────────────────────────────────────
+  const handleSearch = (searchTerm) => {
+    setSearch(searchTerm);
+    setPage(0);
+  };
+
   // ── Handlers ────────────────────────────────────────────────────────────────
   const handleProductSuccess = async (savedProduct, status) => {
-    // Optimistic update immediately
     upsertProduct(savedProduct);
     setEditModal({ open: false, product: null });
     showSnack(status === 'draft' ? 'Saved as draft' : 'Product published successfully');
-    // Background refresh so list stays in sync with server
     try { await refreshProducts(); } catch { /* silent */ }
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try { await refreshProducts(); showSnack('Products refreshed'); }
+    catch { showSnack('Failed to refresh', 'error'); }
+    finally { setRefreshing(false); }
   };
 
   const handleConfirmDelete = async () => {
@@ -176,41 +198,13 @@ function ProductsPage() {
     setDeleteDialog({ open: false, product: null });
   };
 
-  // ── Field helpers ────────────────────────────────────────────────────────────
-  const getDisplayId = (row) => row.product_id || row.product_id || row.product_id || '—';
-  const getDisplayName = (row) => row.product_name || row.productName || row.name || '—';
-  const getCategoryName = (row) => row.category_name || row.category || '—';
-  const getPrimaryImage = (row) => {
-    // API: images: [{ image_url: "uploads/products/...", is_main: true }]
-    const main = row.images?.find((i) => i.is_main) || row.images?.[0];
-    const raw = "uploads/products". main?.image_url || main?.url || row.image_url || row.imageUrl || '';
-    return resolveImg(raw);
-  };
-
-  // ── Table columns (limited) ──────────────────────────────────────────────────
+  // ── Table columns ────────────────────────────────────────────────────────────
   const columns = [
-    // {
-    //   id: 'image',
-    //   label: 'Image',
-    //   render: (row) => {
-    //     const src = getPrimaryImage(row);
-    //     return src ? (
-    //       <Box
-    //         component="img"
-    //         src={src}
-    //         alt={getDisplayName(row)}
-    //         sx={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 1 }}
-    //       />
-    //     ) : (
-    //       <Box sx={{ width: 48, height: 48, bgcolor: 'grey.100', borderRadius: 1 }} />
-    //     );
-    //   },
-    // },
     {
       id: 'product_id',
       label: 'Product ID',
       render: (row) => (
-        <Typography variant="body2" fontWeight={500}>
+        <Typography variant="body2" fontWeight={500} sx={{ fontFamily: 'monospace', fontSize: '0.78rem' }}>
           {getDisplayId(row)}
         </Typography>
       ),
@@ -219,41 +213,16 @@ function ProductsPage() {
       id: 'product_name',
       label: 'Product Name',
       render: (row) => (
-        <Typography variant="body2" fontWeight={500}>
-          {getDisplayName(row)}
-        </Typography>
+        <Typography variant="body2" fontWeight={500}>{getDisplayName(row)}</Typography>
       ),
     },
-    // { id: 'brand', label: 'Brand' },
     {
       id: 'category_name',
       label: 'Category',
-      render: (row) => getCategoryName(row),
+      render: (row) => (
+        <Typography variant="body2">{getCategoryName(row)}</Typography>
+      ),
     },
-    // {
-    //   id: 'price',
-    //   label: 'Price',
-    //   render: (row) => {
-    //     const mrp = row.mrp ?? row.price;
-    //     const selling = row.selling_price ?? row.price;
-    //     const discount = row.discount_percent ?? row.discountPercent;
-    //     return (
-    //       <Box>
-    //         {mrp && selling && mrp !== selling ? (
-    //           <Typography variant="body2" sx={{ textDecoration: 'line-through', color: 'text.secondary' }}>
-    //             ₹{Number(mrp).toFixed(2)}
-    //           </Typography>
-    //         ) : null}
-    //         <Typography variant="body2" fontWeight={600}>
-    //           ₹{Number(selling || mrp || 0).toFixed(2)}
-    //         </Typography>
-    //         {discount ? (
-    //           <Chip label={`${discount}% off`} size="small" color="secondary" sx={{ mt: 0.5 }} />
-    //         ) : null}
-    //       </Box>
-    //     );
-    //   },
-    // },
     {
       id: 'stock',
       label: 'Stock',
@@ -287,31 +256,16 @@ function ProductsPage() {
       align: 'right',
       render: (row) => (
         <Stack direction="row" spacing={0.5} justifyContent="flex-end">
-          {/* View */}
-          <IconButton
-            size="small"
-            color="info"
-            title="View details"
-            onClick={() => setViewModal({ open: true, product: row })}
-          >
+          <IconButton size="small" color="info" title="View details"
+            onClick={() => setViewModal({ open: true, product: row })}>
             <VisibilityOutlinedIcon fontSize="small" />
           </IconButton>
-          {/* Edit */}
-          <IconButton
-            size="small"
-            color="primary"
-            title="Edit product"
-            onClick={() => setEditModal({ open: true, product: row })}
-          >
+          <IconButton size="small" color="primary" title="Edit product"
+            onClick={() => setEditModal({ open: true, product: row })}>
             <EditOutlinedIcon fontSize="small" />
           </IconButton>
-          {/* Delete */}
-          <IconButton
-            size="small"
-            color="error"
-            title="Delete product"
-            onClick={() => setDeleteDialog({ open: true, product: row })}
-          >
+          <IconButton size="small" color="error" title="Delete product"
+            onClick={() => setDeleteDialog({ open: true, product: row })}>
             <DeleteOutlinedIcon fontSize="small" />
           </IconButton>
         </Stack>
@@ -321,42 +275,63 @@ function ProductsPage() {
 
   return (
     <Box>
-      {/* ── Header ── */}
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          mb: 3,
-          flexWrap: 'wrap',
-          gap: 2,
-        }}
-      >
-        <Typography variant="body2" color="text.secondary">
-          Manage your school bag inventory
-        </Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => setEditModal({ open: true, product: null })}
-        >
-          Add Product
-        </Button>
+      {/* ── Page Header ── */}
+      <Box sx={{ display: 'flex', justifyContent: 'space-between',
+        alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 2 }}>
+        <Box>
+          <Typography variant="h5" fontWeight={700}>Products</Typography>
+          <Typography variant="body2" color="text.secondary">
+            {productsLoading
+              ? 'Loading…'
+              : `${filteredProducts.length} of ${products.length} product${products.length !== 1 ? 's' : ''}`}
+          </Typography>
+        </Box>
+        <Stack direction="row" spacing={1}>
+          <IconButton size="small" title="Refresh" onClick={handleRefresh}
+            disabled={refreshing || productsLoading}>
+            <RefreshIcon fontSize="small"
+              sx={{ animation: refreshing ? 'spin 1s linear infinite' : 'none',
+                '@keyframes spin': { '0%': { transform: 'rotate(0deg)' }, '100%': { transform: 'rotate(360deg)' } } }} />
+          </IconButton>
+          <Button variant="contained" startIcon={<AddIcon />}
+            onClick={() => setEditModal({ open: true, product: null })}>
+            Add Product
+          </Button>
+        </Stack>
       </Box>
 
-      {/* ── Table ── */}
-      <TableComponent
-        columns={columns}
-        rows={products}
-        page={page}
-        rowsPerPage={rowsPerPage}
-        onPageChange={(_, newPage) => setPage(newPage)}
-        onRowsPerPageChange={(e) => {
-          setRowsPerPage(parseInt(e.target.value, 10));
-          setPage(0);
-        }}
-        emptyMessage="No products yet. Click Add Product to get started."
+      {/* ── Filters ── */}
+      <AdminFilters
+        onSearch={handleSearch}
+        searchPlaceholder="Search by name, ID, category, brand, color…"
+        showDateFilter={false}
       />
+
+      {/* ── Table + Pagination ── */}
+      <Paper elevation={0} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: '8px', overflow: 'hidden' }}>
+        <TableComponent
+          columns={columns}
+          rows={pagedProducts}
+          page={0}
+          rowsPerPage={rowsPerPage}
+          totalCount={pagedProducts.length}
+          getRowId={(row) => row.product_id || row.id}
+          emptyMessage={
+            productsLoading
+              ? 'Loading products…'
+              : search
+              ? `No products match "${search}"`
+              : 'No products yet. Click Add Product to get started.'
+          }
+        />
+        <AdminPagination
+          page={page}
+          totalRecords={filteredProducts.length}
+          rowsPerPage={rowsPerPage}
+          onPageChange={(p) => setPage(p)}
+          onRowsPerPageChange={(n) => { setRowsPerPage(n); setPage(0); }}
+        />
+      </Paper>
 
       {/* ── Add / Edit Modal ── */}
       <ModalComponent
@@ -383,10 +358,8 @@ function ProductsPage() {
       </ModalComponent>
 
       {/* ── Delete Confirm Dialog ── */}
-      <Dialog
-        open={deleteDialog.open}
-        onClose={() => setDeleteDialog({ open: false, product: null })}
-      >
+      <Dialog open={deleteDialog.open}
+        onClose={() => setDeleteDialog({ open: false, product: null })}>
         <DialogTitle>Delete Product</DialogTitle>
         <DialogContent>
           <DialogContentText>
@@ -394,26 +367,17 @@ function ProductsPage() {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDeleteDialog({ open: false, product: null })}>
-            Cancel
-          </Button>
-          <Button variant="contained" color="error" onClick={handleConfirmDelete}>
-            Delete
-          </Button>
+          <Button onClick={() => setDeleteDialog({ open: false, product: null })}>Cancel</Button>
+          <Button variant="contained" color="error" onClick={handleConfirmDelete}>Delete</Button>
         </DialogActions>
       </Dialog>
 
       {/* ── Snackbar ── */}
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={4000}
+      <Snackbar open={snackbar.open} autoHideDuration={4000}
         onClose={() => setSnackbar((s) => ({ ...s, open: false }))}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-      >
-        <Alert
-          severity={snackbar.severity}
-          onClose={() => setSnackbar((s) => ({ ...s, open: false }))}
-        >
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
+        <Alert severity={snackbar.severity}
+          onClose={() => setSnackbar((s) => ({ ...s, open: false }))}>
           {snackbar.message}
         </Alert>
       </Snackbar>
