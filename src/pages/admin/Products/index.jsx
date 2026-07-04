@@ -54,6 +54,7 @@ function DetailRow({ label, value }) {
 function ProductViewDetails({ product: p }) {
   if (!p) return null;
 
+  const product_id        = p.product_id  || p.product_id  || p.product_id || '—';
   const name        = p.product_name  || p.productName  || p.name || '—';
   const mainImg     = p.images?.find((i) => i.is_main) || p.images?.[0];
 
@@ -176,6 +177,7 @@ function ProductsPage() {
   };
 
   // ── Field helpers ────────────────────────────────────────────────────────────
+  const getDisplayId = (row) => row.product_id || row.product_id || row.product_id || '—';
   const getDisplayName = (row) => row.product_name || row.productName || row.name || '—';
   const getCategoryName = (row) => row.category_name || row.category || '—';
   const getPrimaryImage = (row) => {
@@ -205,6 +207,15 @@ function ProductsPage() {
     //   },
     // },
     {
+      id: 'product_id',
+      label: 'Product ID',
+      render: (row) => (
+        <Typography variant="body2" fontWeight={500}>
+          {getDisplayId(row)}
+        </Typography>
+      ),
+    },
+    {
       id: 'product_name',
       label: 'Product Name',
       render: (row) => (
@@ -213,36 +224,36 @@ function ProductsPage() {
         </Typography>
       ),
     },
-    { id: 'brand', label: 'Brand' },
+    // { id: 'brand', label: 'Brand' },
     {
       id: 'category_name',
       label: 'Category',
       render: (row) => getCategoryName(row),
     },
-    {
-      id: 'price',
-      label: 'Price',
-      render: (row) => {
-        const mrp = row.mrp ?? row.price;
-        const selling = row.selling_price ?? row.price;
-        const discount = row.discount_percent ?? row.discountPercent;
-        return (
-          <Box>
-            {mrp && selling && mrp !== selling ? (
-              <Typography variant="body2" sx={{ textDecoration: 'line-through', color: 'text.secondary' }}>
-                ₹{Number(mrp).toFixed(2)}
-              </Typography>
-            ) : null}
-            <Typography variant="body2" fontWeight={600}>
-              ₹{Number(selling || mrp || 0).toFixed(2)}
-            </Typography>
-            {discount ? (
-              <Chip label={`${discount}% off`} size="small" color="secondary" sx={{ mt: 0.5 }} />
-            ) : null}
-          </Box>
-        );
-      },
-    },
+    // {
+    //   id: 'price',
+    //   label: 'Price',
+    //   render: (row) => {
+    //     const mrp = row.mrp ?? row.price;
+    //     const selling = row.selling_price ?? row.price;
+    //     const discount = row.discount_percent ?? row.discountPercent;
+    //     return (
+    //       <Box>
+    //         {mrp && selling && mrp !== selling ? (
+    //           <Typography variant="body2" sx={{ textDecoration: 'line-through', color: 'text.secondary' }}>
+    //             ₹{Number(mrp).toFixed(2)}
+    //           </Typography>
+    //         ) : null}
+    //         <Typography variant="body2" fontWeight={600}>
+    //           ₹{Number(selling || mrp || 0).toFixed(2)}
+    //         </Typography>
+    //         {discount ? (
+    //           <Chip label={`${discount}% off`} size="small" color="secondary" sx={{ mt: 0.5 }} />
+    //         ) : null}
+    //       </Box>
+    //     );
+    //   },
+    // },
     {
       id: 'stock',
       label: 'Stock',

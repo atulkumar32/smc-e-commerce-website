@@ -84,6 +84,11 @@ export const URL_CATEGORIES_CREATE = `${BASE_URL}smc/admin/api/CreateCategory.ph
 export const URL_CATEGORIES_UPDATE = `${BASE_URL}smc/admin/api/UpdateCategory.php`;
 export const URL_CATEGORIES_DELETE = `${BASE_URL}smc/admin/api/DelteCategory.php`;
 
+
+// ---------------------------order------------------------------------------
+// http://localhost/smc/admin/api/GetOrderDetails.php
+export const URL_ADMIN_GET_ORDER_DETAILS = `${BASE_URL}smc/admin/api/GetOrderDetails.php`;
+
 // ── Media ─────────────────────────────────────────────────────────
 export const MEDIA_BASE = `${BASE_URL}smc/`;
 

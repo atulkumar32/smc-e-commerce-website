@@ -26,6 +26,7 @@ import PeopleIcon from '@mui/icons-material/People';
 import CategoryIcon from '@mui/icons-material/Category';
 import SchoolIcon from '@mui/icons-material/School';
 import LogoutIcon from '@mui/icons-material/Logout';
+import compnaylogoSMC from '../../assets/Logo/Companylogo.jpeg';
 
 const DRAWER_WIDTH = 260;
 
@@ -52,9 +53,12 @@ function Sidebar({ mobileOpen, onMobileClose }) {
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <Toolbar sx={{ gap: 1.5, px: 2.5 }}>
         <SchoolIcon color="primary" sx={{ fontSize: 32 }} />
+        {/* <img src={compnaylogoSMC} */}
+        {/* /> */}
         <Box>
           <Typography variant="subtitle1" fontWeight={700} lineHeight={1.2}>
-            SchoolBags
+            {/* Shree Mahaveer Collections  */}
+            SMC
           </Typography>
           <Typography variant="caption" color="text.secondary">
             Admin Panel
