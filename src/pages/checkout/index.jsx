@@ -32,7 +32,7 @@ function ShippingStep({ data, onChange, onNext }) {
 
   const f = (name) => ({
     value: data[name],
-    onChange: (e) => { onChange(name, e.target.value); setErrs((p) => { const n={...p}; delete n[name]; return n; }); },
+    onChange: (e) => { onChange(name, e.target.value); setErrs((p) => { const n = { ...p }; delete n[name]; return n; }); },
     className: `co-form__input${errs[name] ? ' co-form__input--error' : ''}`,
   });
 
@@ -59,6 +59,7 @@ function ShippingStep({ data, onChange, onNext }) {
         {errs.address && <span className="co-form__error-msg">{errs.address}</span>}
       </div>
 
+
       <div className="co-form__row co-form__row--3">
         <div className="co-form__field">
           <label className="co-form__label" htmlFor="co-city">City *</label>
@@ -76,7 +77,11 @@ function ShippingStep({ data, onChange, onNext }) {
           {errs.zip && <span className="co-form__error-msg">{errs.zip}</span>}
         </div>
       </div>
-
+      <div className="co-form__field">
+        <label className="co-form__label" htmlFor="co-addr">Email *</label>
+        <input id="co-email" type="email" placeholder="enter your email" {...f('email')} />
+        {errs.address && <span className="co-form__error-msg">{errs.email}</span>}
+      </div>
       <div className="co-form__field">
         <label className="co-form__label" htmlFor="co-phone">Phone *</label>
         <input id="co-phone" type="tel" placeholder="10-digit mobile number" maxLength={10} {...f('phone')} />
@@ -148,6 +153,11 @@ function PaymentStep({ paymentMethod, onMethodChange, onNext, onBack }) {
       {paymentMethod === 'ONLINE' && (
         <div className="co-form__note">
           After you place the order, you will be redirected to PhonePe to complete the payment.
+        </div>
+      )}
+      {paymentMethod === 'COD' && (
+        <div className="co-form__note">
+          <strong>Cash on Delivery (COD)</strong> is available for this order. Only the shipping charges are collected online to confirm your order. The balance amount for the products can be paid at the time of delivery.
         </div>
       )}
 
@@ -244,7 +254,7 @@ function ReviewStep({ shipping, paymentMethod, items, totals, onBack, onPlace, p
   );
 }
 
-// ── Success screen ────────────────────────────────────────────────────────────
+// ── Success screen order placed  ────────────────────────────────────────────────────────────
 function OrderSuccess() {
   return (
     <div className="co-success">
@@ -368,7 +378,7 @@ function CheckoutPage() {
       const result = await createOrderOnline(payload);
 
       // ── ONLINE payment: redirect_url comes back when status is true ──
-      if (paymentMethod === 'ONLINE') {
+      if (paymentMethod === 'ONLINE' || paymentMethod === "COD") {
         const redirectUrl = result.redirect_url || result.payment_url;
         if (result.status === true && redirectUrl) {
           toast.info('🔄 Redirecting to PhonePe payment gateway…', {

@@ -36,6 +36,7 @@ const menuItems = [
   { label: 'Categories', path: '/admin/categories', icon: <CategoryIcon /> },
   { label: 'Orders', path: '/admin/orders', icon: <ShoppingCartIcon /> },
   { label: 'Users', path: '/admin/users', icon: <PeopleIcon /> },
+  { label: 'Shipments', path: '/admin/shipments', icon: <PeopleIcon /> },
 ];
 
 function Sidebar({ mobileOpen, onMobileClose }) {

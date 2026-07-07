@@ -10,6 +10,7 @@ const pageTitles = {
   '/admin/categories': 'Categories',
   '/admin/orders': 'Orders',
   '/admin/users': 'Users',
+  '/admin/shipments': 'Shipments',
 };
 
 function AdminLayout() {

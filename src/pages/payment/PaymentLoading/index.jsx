@@ -24,6 +24,7 @@ export default function PaymentLoadingPage() {
     searchParams.get('merchantOrderId') ||
     sessionStorage.getItem('smc_pay_order_id') ||
     '';
+    const UserId = searchParams.get["UserId"];
 
   const addLog = (msg) => {
     const ts = new Date().toLocaleTimeString();
@@ -62,7 +63,7 @@ export default function PaymentLoadingPage() {
     addLog(`🔄 Poll #${n}/${MAX_ATTEMPTS} — orderId: ${merchantOrderId}`);
 
     try {
-      const result = await checkPaymentStatus(merchantOrderId);
+      const result = await checkPaymentStatus(merchantOrderId,UserId);
 
       addLog(`📨 Response: status=${result.status} state=${result.raw?.state || result.raw?.data?.state || '?'}`);
       setDebugLog((prev) => [...prev.slice(-30), `   raw: ${JSON.stringify(result.raw).slice(0, 200)}`]);

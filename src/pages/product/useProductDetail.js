@@ -93,19 +93,38 @@ export default function useProductDetail(productId) {
         setError('Missing product id');
         return;
       }
-
+      console.log("PRODUCTID :", productId)
       setLoading(true);
       setError('');
-// products/[object%20Object]smc/api/v1/data/GetProductDetails.php
+      // products/[object%20Object]smc/api/v1/data/GetProductDetails.php
       try {
-        const resp = await fetch(FetchProductDetailsActions(productId));
-        if (!resp.ok) throw new Error(`Server returned ${resp.status}`);
+        const resp = await fetch(FetchProductDetailsActions(productId), {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          // cache: 'no-store' // optional: if you want fresh data
+        });
+
+        if (!resp.ok) {
+          const errorText = await resp.text();
+          console.error('API Error Response:', errorText);
+          throw new Error(`Server error: ${resp.status} ${resp.statusText}`);
+        }
+
         const data = await resp.json();
+
+        if (!data || data.status === false) {
+          throw new Error(data.message || 'Failed to fetch product details');
+        }
+
         const payload = data.product || data;
-        if (!payload || data.status === false) throw new Error(data.message || 'Product not found');
         const normalized = mapProductResponse(payload);
+
         if (!active) return;
         setProduct(normalized);
+
       } catch (err) {
         if (!active) return;
         setError(err.message || 'Unable to fetch product');

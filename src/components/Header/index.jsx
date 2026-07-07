@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
+import companyy from '../../assets/Logo/company.png';
 import './style.scss';
 
 const NAV_LINKS = [
@@ -47,8 +48,10 @@ function Header() {
       <div className="site-header__container">
         {/* Logo */}
         <Link to="/" className="site-header__logo" onClick={handleNavClick}>
-          <span className="site-header__logo-icon">M</span>
-          <span className="site-header__logo-text">Shree Mahaveer</span>
+          {/* <span className="site-header__logo-icon">M</span>
+          <span className="site-header__logo-text">Shree Mahaveer</span> */}
+          {/* <img src={companyy}
+          /> */}
         </Link>
 
         {/* Desktop Nav */}

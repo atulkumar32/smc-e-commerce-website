@@ -1,0 +1,21 @@
+.shipment-container {
+    padding: 20px;
+    background: #f8f9fa;
+    min-height: 100vh;
+
+    .shipment-header {
+        margin-bottom: 24px;
+        
+        h2 {
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+        
+        p {
+            color: #6c757d;
+            font-size: 1.1rem;
+        }
+    }
+}
+
+// You can extend this later with cards, tables, etc.

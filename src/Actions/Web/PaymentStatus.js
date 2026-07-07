@@ -1,9 +1,13 @@
 import { WEB_URLS } from '../../Config/UrlsConfig';
 
-export async function checkPaymentStatus(merchantOrderId) {
-  const url = `${WEB_URLS.PAYMENT_STATUS}?merchantOrderId=${encodeURIComponent(merchantOrderId)}`;
+export async function checkPaymentStatus(merchantOrderId,UserId) {
+const params = new URLSearchParams({
+  merchantOrderId,
+  UserId: UserId,
+});
 
-  console.log('📡 Polling:', url);
+const url = `${WEB_URLS.PAYMENT_STATUS}?${params.toString()}`;
+  // console.log('📡 Polling:', url);
 
   try {
     const res = await fetch(url, { 
