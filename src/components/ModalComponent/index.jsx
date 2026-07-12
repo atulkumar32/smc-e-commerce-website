@@ -1,6 +1,13 @@
+// src/components/ModalComponent/index.jsx
+import React from 'react';
 import {
-  Dialog, DialogTitle, DialogContent,
-  IconButton, Typography, Box,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  IconButton,
+  Typography,
+  Box,
+  Paper,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 
@@ -9,8 +16,15 @@ function ModalComponent({
   onClose,
   title,
   children,
-  maxWidth = 'xl',   // full-width by default
+  maxWidth = 'lg',           // 'xs' | 'sm' | 'md' | 'lg' | 'xl' | false
   fullWidth = true,
+  scroll = 'paper',          // 'paper' or 'body'
+  hideCloseButton = false,
+  disableEscapeKeyDown = false,
+  PaperProps = {},
+  titleProps = {},
+  contentProps = {},
+  ...rest
 }) {
   return (
     <Dialog
@@ -18,41 +32,75 @@ function ModalComponent({
       onClose={onClose}
       maxWidth={maxWidth}
       fullWidth={fullWidth}
-      scroll="paper"
+      scroll={scroll}
+      disableEscapeKeyDown={disableEscapeKeyDown}
       PaperProps={{
+        component: Paper,
         sx: {
-          borderRadius: '10px',
-          maxHeight: '94vh',
-          m: { xs: 1, sm: 2 },
-          // xl = 1536px, but we cap so there's a little breathing room
-          width: maxWidth === 'xl' ? 'min(100% - 32px, 1400px)' : undefined,
+          borderRadius: '12px',
+          boxShadow: '0 20px 60px rgba(0,0,0,0.12)',
+          overflow: 'hidden',
+          maxHeight: '96vh',
+          ...PaperProps.sx,
         },
+        ...PaperProps,
       }}
+      {...rest}
     >
-      {/* ── Header ── */}
-      <DialogTitle
-        sx={{
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          px: 3, py: 1.75,
-          borderBottom: '1px solid', borderColor: 'divider',
-          bgcolor: '#fafafa', flexShrink: 0,
-        }}
-      >
-        <Typography variant="h6" fontWeight={700} fontSize="1rem">
-          {title}
-        </Typography>
-        <IconButton
-          aria-label="close" onClick={onClose} size="small"
-          sx={{ color: 'text.secondary', '&:hover': { bgcolor: 'action.hover' } }}
+      {/* Header */}
+      {title && (
+        <DialogTitle
+          sx={{
+            m: 0,
+            p: 3,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            borderBottom: '1px solid',
+            borderColor: 'divider',
+            bgcolor: '#f8f9fa',
+            ...titleProps.sx,
+          }}
+          {...titleProps}
         >
-          <CloseIcon fontSize="small" />
-        </IconButton>
-      </DialogTitle>
+          <Typography
+            variant="h6"
+            component="div"
+            fontWeight={700}
+            fontSize="1.05rem"
+          >
+            {title}
+          </Typography>
 
-      {/* ── Scrollable body ── */}
-      <Box sx={{ overflowY: 'auto', flex: 1, px: { xs: 2, sm: 3 }, py: 2.5 }}>
+          {!hideCloseButton && (
+            <IconButton
+              aria-label="close"
+              onClick={onClose}
+              size="small"
+              sx={{
+                color: 'text.secondary',
+                '&:hover': { bgcolor: 'action.hover' },
+              }}
+            >
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          )}
+        </DialogTitle>
+      )}
+
+      {/* Content */}
+      <DialogContent
+        dividers={scroll === 'paper'}
+        sx={{
+          p: { xs: 2, sm: 3 },
+          overflowY: 'auto',
+          maxHeight: 'calc(96vh - 80px)', // Adjust based on header height
+          ...contentProps.sx,
+        }}
+        {...contentProps}
+      >
         {children}
-      </Box>
+      </DialogContent>
     </Dialog>
   );
 }

@@ -381,85 +381,24 @@ export function buildProductPayload(
   };
 }
 
-const REQUIRED_PUBLISH_FIELDS = [
-  { key: 'productName', label: 'Product Name' },
-  { key: 'brand', label: 'Brand' },
-  { key: 'categoryId', label: 'Category' },
-  { key: 'images', label: 'Product Images' },
-  { key: 'mrpPrice', label: 'MRP Price' },
-  { key: 'sellingPrice', label: 'Selling Price' },
-  { key: 'stock', label: 'Stock Quantity' },
-  { key: 'fullDescription', label: 'Full Description' },
-];
-
-function validatePrice(form, errors) {
-  const raw = form.sellingPrice || form.price;
-  if (raw === '' || raw === null || raw === undefined) {
-    errors.sellingPrice = 'Selling price is required';
-    return;
-  }
-  const price = Number(raw);
-  if (Number.isNaN(price) || price <= 0) {
-    errors.sellingPrice = 'Enter a valid selling price greater than 0';
-  }
-}
-
 export function validateProductForm(form, mode = 'publish') {
   const errors = {};
 
-  const imageError = validateImageFiles(form.images);
-  if (imageError) {
-    errors.images = imageError;
+  // Only validate the bare minimum — product name, brand, category
+  if (!form.productName || !String(form.productName).trim()) {
+    errors.productName = 'Product Name is required';
   }
 
-  if (mode !== 'draft') {
-    validatePrice(form, errors);
+  if (!form.brand || !String(form.brand).trim()) {
+    errors.brand = 'Brand is required';
   }
 
-  if (mode === 'draft') {
-    return errors;
+  if (!form.categoryId || !String(form.categoryId).trim()) {
+    errors.categoryId = 'Category is required';
   }
 
-  REQUIRED_PUBLISH_FIELDS.forEach(({ key, label }) => {
-    const value = form[key];
-    if (value === undefined || value === null || String(value).trim() === '') {
-      errors[key] = `${label} is required`;
-    }
-  });
-
-  if (!form.selectedColors || form.selectedColors.length === 0) {
-    errors.selectedColors = 'Select at least one color to publish';
-  }
-
-  if (!form.fullDescription || !String(form.fullDescription).trim()) {
-    errors.fullDescription = 'Full Description is required to publish';
-  }
-
-  if (form.mrpPrice === '' || form.mrpPrice == null) {
-    errors.mrpPrice = 'MRP Price is required';
-  } else if (Number.isNaN(Number(form.mrpPrice)) || Number(form.mrpPrice) <= 0) {
-    errors.mrpPrice = 'Enter a valid MRP price';
-  }
-
-  if (form.stock === '' || form.stock == null) {
-    errors.stock = 'Stock quantity is required';
-  } else if (Number.isNaN(Number(form.stock)) || Number(form.stock) < 1) {
-    errors.stock = 'Enter a valid stock quantity (minimum 1)';
-  }
-
-  // if (form.netQuantity !== undefined && form.netQuantity !== '' && form.netQuantity != null) {
-  //   if (Number.isNaN(Number(form.netQuantity)) || Number(form.netQuantity) < 1) {
-  //     errors.netQuantity = 'Net quantity must be a positive number (minimum 1)';
-  //   }
-  // }
-
-  if (form.discountPercent !== '' && form.discountPercent != null) {
-    const pct = Number(form.discountPercent);
-    if (Number.isNaN(pct) || pct < 0 || pct > 100) {
-      errors.discountPercent = 'Discount percentage must be between 0 and 100';
-    }
-  }
-
+  // All other fields (mrp, selling price, stock, images, colors) are optional —
+  // variants handle pricing/stock, images can be added separately.
   return errors;
 }
 

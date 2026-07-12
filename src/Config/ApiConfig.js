@@ -129,7 +129,8 @@ const ENVIRONMENTS = {
 
   development: {
     FRONTEND_URL: "http://localhost:5173",
-    BASE_URL: "http://localhost/",
+    // Use same-origin paths so Vite proxy forwards /smc → http://localhost/smc (avoids CORS)
+    BASE_URL: "/",
   },
 };
 

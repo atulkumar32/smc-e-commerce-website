@@ -339,25 +339,24 @@ function buildFormData(payload) {
   });
 
 
-  // ── Image files ──────────────────────────────────────────────────────────────
-  const imgs = images || product_images || [];
-  imgs.forEach((img, index) => {
-    if (img.file instanceof File) {
-      fd.append(`images[${index}]`, img.file, img.name || img.file.name);
-    } else if (img.url && img.isExisting) {
-      fd.append(`existing_images[${index}]`, img.url);
-    }
-    // Attach color metadata alongside each image
-    if (img.color_label) {
-      fd.append(`image_color_label[${index}]`, img.color_label);
-    }
-    if (img.color_hex) {
-      fd.append(`image_color_hex[${index}]`, img.color_hex);
-    }
-    if (img.isPrimary) {
-      fd.append('primary_image_index', String(index));
-    }
-  });
+  // ── Image files — commented out: images handled separately via product variants ──
+  // const imgs = images || product_images || [];
+  // imgs.forEach((img, index) => {
+  //   if (img.file instanceof File) {
+  //     fd.append(`images[${index}]`, img.file, img.name || img.file.name);
+  //   } else if (img.url && img.isExisting) {
+  //     fd.append(`existing_images[${index}]`, img.url);
+  //   }
+  //   if (img.color_label) {
+  //     fd.append(`image_color_label[${index}]`, img.color_label);
+  //   }
+  //   if (img.color_hex) {
+  //     fd.append(`image_color_hex[${index}]`, img.color_hex);
+  //   }
+  //   if (img.isPrimary) {
+  //     fd.append('primary_image_index', String(index));
+  //   }
+  // });
 
   return fd;
 }

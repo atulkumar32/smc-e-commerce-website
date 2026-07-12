@@ -91,12 +91,21 @@ export const URL_ADMIN_GET_ORDER_DETAILS = `${BASE_URL}smc/admin/api/GetOrderDet
 export const URL_ADMIN_GET_SHIPMENT_DETAILS = `${BASE_URL}smc/admin/api/GetShipmentDetails.php`; // http://localhost/smc/admin/api/GetShipmentDetails.php
 
 
+// ── Variant APIs ──────────────────────────────────────────────────
+export const URL_VARIANTS_CREATE       = `${BASE_URL}smc/admin/api/CreateProductVariant.php`;
+export const URL_VARIANTS_CREATE_BULK  = `${BASE_URL}smc/admin/api/CreateProductVariant.php`; //http://localhost/smc/admin/api/CreateProductVariant.php
+export const URL_VARIANTS_UPDATE       = `${BASE_URL}smc/admin/api/UpdateProductVariant.php`;
+export const URL_VARIANTS_DELETE       = `${BASE_URL}smc/admin/api/DeleteProductVariant.php`;
+export const URL_VARIANTS_FETCH        = `${BASE_URL}smc/admin/api/GetProductVariants.php`;
+
 // ── Media ─────────────────────────────────────────────────────────
+// Images are stored at: {MEDIA_BASE}uploads/products/filename.png
 export const MEDIA_BASE = `${BASE_URL}smc/`;
 
 // ── Website APIs ──────────────────────────────────────────────────
 export const WEB_URLS = {
   PRODUCT_LIST: `${BASE_URL}smc/api/v1/data/GetProductList.php`,
+  PRODUCT__VAEIENT_CREATE: `${BASE_URL}smc/admin/api/CreateProductVariant.php`,
   PAYMENT_API:`${BASE_URL}smc/api/v1/data/CreateOrderOnline.php`, // http://localhost/smc/api/v1/data/CreateOrderOnline.php
   PAYMENT_STATUS: `${BASE_URL}smc/payments/paymentStatus.php`, // http://localhost/smc/payments/paymentStatus.php?merchantOrderId=ORD1783138445
 };
