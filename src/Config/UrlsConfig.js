@@ -88,6 +88,8 @@ export const URL_CATEGORIES_DELETE = `${BASE_URL}smc/admin/api/DelteCategory.php
 // ---------------------------order------------------------------------------
 // http://localhost/smc/admin/api/GetOrderDetails.php
 export const URL_ADMIN_GET_ORDER_DETAILS = `${BASE_URL}smc/admin/api/GetOrderDetails.php`;
+export const URL_ADMIN_GET_SHIPMENT_DETAILS = `${BASE_URL}smc/admin/api/GetShipmentDetails.php`; // http://localhost/smc/admin/api/GetShipmentDetails.php
+
 
 // ── Media ─────────────────────────────────────────────────────────
 export const MEDIA_BASE = `${BASE_URL}smc/`;
@@ -95,5 +97,6 @@ export const MEDIA_BASE = `${BASE_URL}smc/`;
 // ── Website APIs ──────────────────────────────────────────────────
 export const WEB_URLS = {
   PRODUCT_LIST: `${BASE_URL}smc/api/v1/data/GetProductList.php`,
+  PAYMENT_API:`${BASE_URL}smc/api/v1/data/CreateOrderOnline.php`, // http://localhost/smc/api/v1/data/CreateOrderOnline.php
   PAYMENT_STATUS: `${BASE_URL}smc/payments/paymentStatus.php`, // http://localhost/smc/payments/paymentStatus.php?merchantOrderId=ORD1783138445
 };

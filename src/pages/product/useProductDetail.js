@@ -93,7 +93,7 @@ export default function useProductDetail(productId) {
         setError('Missing product id');
         return;
       }
-      console.log("PRODUCTID :", productId)
+      // console.log("PRODUCTID :", productId)
       setLoading(true);
       setError('');
       // products/[object%20Object]smc/api/v1/data/GetProductDetails.php

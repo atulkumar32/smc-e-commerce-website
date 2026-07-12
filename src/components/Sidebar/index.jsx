@@ -24,7 +24,7 @@ import InventoryIcon from '@mui/icons-material/Inventory';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import PeopleIcon from '@mui/icons-material/People';
 import CategoryIcon from '@mui/icons-material/Category';
-import SchoolIcon from '@mui/icons-material/School';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import LogoutIcon from '@mui/icons-material/Logout';
 import compnaylogoSMC from '../../assets/Logo/Companylogo.jpeg';
 
@@ -36,7 +36,7 @@ const menuItems = [
   { label: 'Categories', path: '/admin/categories', icon: <CategoryIcon /> },
   { label: 'Orders', path: '/admin/orders', icon: <ShoppingCartIcon /> },
   { label: 'Users', path: '/admin/users', icon: <PeopleIcon /> },
-  { label: 'Shipments', path: '/admin/shipments', icon: <PeopleIcon /> },
+  { label: 'Shipments', path: '/admin/shipments', icon: <LocalShippingIcon /> },
 ];
 
 function Sidebar({ mobileOpen, onMobileClose }) {
@@ -53,7 +53,7 @@ function Sidebar({ mobileOpen, onMobileClose }) {
   const drawerContent = (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <Toolbar sx={{ gap: 1.5, px: 2.5 }}>
-        <SchoolIcon color="primary" sx={{ fontSize: 32 }} />
+        <LocalShippingIcon color="primary" sx={{ fontSize: 32 }} />
         {/* <img src={compnaylogoSMC} */}
         {/* /> */}
         <Box>

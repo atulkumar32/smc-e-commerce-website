@@ -21,7 +21,7 @@ import {
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import SchoolIcon from '@mui/icons-material/School';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { clearUserAuth } from '../../services/apiClients';
 
@@ -47,7 +47,7 @@ function UserSidebar({ mobileOpen, onMobileClose }) {
   const drawerContent = (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <Toolbar sx={{ gap: 1.5, px: 2.5 }}>
-        <SchoolIcon color="primary" sx={{ fontSize: 32 }} />
+        <LocalShippingIcon color="primary" sx={{ fontSize: 32 }} />
         <Box>
           <Typography variant="subtitle1" fontWeight={700} lineHeight={1.2}>
             SchoolBags

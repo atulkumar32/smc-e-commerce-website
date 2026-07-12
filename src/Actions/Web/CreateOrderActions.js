@@ -1,16 +1,15 @@
+import { WEB_URLS } from "../../Config/UrlsConfig";
+
 /**
  * Create an online order
  * @param {object} payload - Complete order data
  * @returns {Promise<object>}
  */
 export async function createOrderOnline(payload) {
-  const url = 'http://localhost/smc/api/v1/data/CreateOrderOnline.php';
 
-  console.log('🚀 Sending order to:', url);
-  console.log('📦 Payload:', payload);
-
+console.log("WEB_URLS.PAYMENT_API : ",WEB_URLS.PAYMENT_API);
   try {
-    const response = await fetch(url, {
+    const response = await fetch(WEB_URLS.PAYMENT_API, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
