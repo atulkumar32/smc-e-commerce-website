@@ -82,13 +82,14 @@ export const URL_USERS_FETCH = `${BASE_URL}smc/admin/api/GetResigerteduserList.p
 export const URL_CATEGORIES_FETCH = `${BASE_URL}smc/admin/api/GetCategory.php`;
 export const URL_CATEGORIES_CREATE = `${BASE_URL}smc/admin/api/CreateCategory.php`;
 export const URL_CATEGORIES_UPDATE = `${BASE_URL}smc/admin/api/UpdateCategory.php`;
-export const URL_CATEGORIES_DELETE = `${BASE_URL}smc/admin/api/DelteCategory.php`;
+export const URL_CATEGORIES_DELETE = `${BASE_URL}smc/admin/api/DeleteCategory.php`; //apis/v1/smc/admin/api/DeleteCategory.php
 
 
 // ---------------------------order------------------------------------------
 // http://localhost/smc/admin/api/GetOrderDetails.php
-export const URL_ADMIN_GET_ORDER_DETAILS = `${BASE_URL}smc/admin/api/GetOrderDetails.php`;
-export const URL_ADMIN_GET_SHIPMENT_DETAILS = `${BASE_URL}smc/admin/api/GetShipmentDetails.php`; // http://localhost/smc/admin/api/GetShipmentDetails.php
+export const URL_ADMIN_GET_ORDER_DETAILS  = `${BASE_URL}smc/admin/api/GetOrderDetails.php`;
+export const URL_ADMIN_GET_SHIPMENT_DETAILS = `${BASE_URL}smc/admin/api/GetShipmentDetails.php`;
+export const URL_ORDER_STATUS_ACTION      = `${BASE_URL}smc/admin/api/OrderStatusActions.php`;
 
 
 // ── Variant APIs ──────────────────────────────────────────────────
@@ -108,4 +109,14 @@ export const WEB_URLS = {
   PRODUCT__VAEIENT_CREATE: `${BASE_URL}smc/admin/api/CreateProductVariant.php`,
   PAYMENT_API:`${BASE_URL}smc/api/v1/data/CreateOrderOnline.php`, // http://localhost/smc/api/v1/data/CreateOrderOnline.php
   PAYMENT_STATUS: `${BASE_URL}smc/payments/paymentStatus.php`, // http://localhost/smc/payments/paymentStatus.php?merchantOrderId=ORD1783138445
+};
+
+
+
+export const USER_APIS = {
+  DASHBOARD_COUNT:  `${BASE_URL}smc/user/api/userDashboardTotalCount.php`,
+  ORDERS_LIST:      `${BASE_URL}smc/user/api/userOrderDetailsList.php`,
+  PROFILE_UPDATE:   `${BASE_URL}smc/user/api/userProfileUpdate.php`,
+  PROFILE_GET:      `${BASE_URL}smc/user/api/GetUserProfileDetails.php`,
+  PASSWORD_UPDATE:  `${BASE_URL}smc/user/api/userPasswordUpdate.php`,
 };

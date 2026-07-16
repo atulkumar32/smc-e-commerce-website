@@ -1,0 +1,89 @@
+// src/components/Card/index.scss
+
+.custom-card {
+  background: #ffffff;
+  border-radius: 12px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+
+  // Default Shadow
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 
+              0 4px 12px rgba(0, 0, 0, 0.08);
+
+  &:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+    transform: translateY(-4px);
+  }
+
+  // Variants
+  &--outlined {
+    box-shadow: none;
+    border: 1px solid #e5e7eb;
+  }
+
+  &--elevated {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  }
+
+  &--glass {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid #f1f3f5;
+  }
+
+  &__icon {
+    font-size: 1.4rem;
+    color: #1976d2;
+    display: flex;
+    align-items: center;
+  }
+
+  &__title-wrapper {
+    flex: 1;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1f2937;
+  }
+
+  &__subtitle {
+    margin: 2px 0 0 0;
+    font-size: 0.85rem;
+    color: #6b7280;
+  }
+
+  &__action {
+    margin-left: auto;
+  }
+
+  &__content {
+    color: #374151;
+  }
+
+  // Compact version
+  &--compact {
+    padding: 16px !important;
+  }
+}
+
+// Hover effect for interactive cards
+.custom-card--clickable {
+  cursor: pointer;
+
+  &:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+  }
+}

@@ -1,188 +1,195 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
-  Box,
-  Button,
-  CircularProgress,
-  Chip,
-  Grid,
-  Typography,
-} from "@mui/material";
-import { fetchUserOrders } from "../../../Actions/UserOrderDashboardAction";
-import { isUserAuthenticated } from "../../../services/apiClients";
-import { notifyError } from "../../../utils/toastNotify";
-import "./style.scss";
+  Box, Typography, Chip, Button, CircularProgress,
+  TextField, InputAdornment, Stack, Alert,
+  Pagination,
+} from '@mui/material';
+import SearchIcon      from '@mui/icons-material/Search';
+import ArrowBackIcon   from '@mui/icons-material/ArrowBack';
+import { isUserAuthenticated } from '../../../services/apiClients';
+import { fetchUserOrdersList }  from '../../../Actions/Users/FetchUserOrderAction';
 
-const getOrderValue = (order) => {
+// ── Helpers ───────────────────────────────────────────────────────────────────
+const statusColor = (s = '') => {
+  const v = String(s).toLowerCase();
+  if (v.includes('deliver') || v.includes('complet')) return 'success';
+  if (v.includes('ship')    || v.includes('transit')) return 'primary';
+  if (v.includes('cancel')  || v.includes('reject'))  return 'error';
+  if (v.includes('pending') || v.includes('process')) return 'warning';
+  return 'default';
+};
+const fmtDate = (d) => d
+  ? new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+  : '—';
+const fmtAmt = (v) => `₹${Number(v || 0).toLocaleString('en-IN')}`;
+
+// ── Order card ────────────────────────────────────────────────────────────────
+function OrderCard({ order }) {
+  const status     = order.order_status || order.status || 'pending';
+  const orderId    = order.order_id     || `#${order.id}`;
+  const amount     = order.total_amount || order.total || 0;
+  const payMethod  = order.payment_method;
+  const payStatus  = order.payment_status;
+
   return (
-    order.totalAmount ?? order.total_price ?? order.amount ?? order.total ?? 0
+    <Box sx={{ border: '1px solid', borderColor: 'divider',
+      borderRadius: '10px', overflow: 'hidden', mb: 2 }}>
+      {/* Header */}
+      <Box sx={{ px: 2.5, py: 1.5, bgcolor: 'grey.50',
+        display: 'flex', alignItems: 'center',
+        justifyContent: 'space-between', flexWrap: 'wrap', gap: 1 }}>
+        <Stack direction="row" alignItems="center" spacing={1.5}>
+          <Typography variant="body2" fontWeight={700} sx={{ fontFamily: 'monospace' }}>
+            {orderId}
+          </Typography>
+          <Chip label={status.toUpperCase()} size="small" color={statusColor(status)} />
+        </Stack>
+        <Typography variant="caption" color="text.secondary">
+          {fmtDate(order.created_at)}
+        </Typography>
+      </Box>
+
+      {/* Body */}
+      <Box sx={{ px: 2.5, py: 1.75 }}>
+        <Stack direction={{ xs: 'column', sm: 'row' }}
+          justifyContent="space-between" alignItems={{ sm: 'center' }} spacing={1.5}>
+          <Box>
+            <Typography variant="h6" fontWeight={700} color="primary">
+              {fmtAmt(amount)}
+            </Typography>
+            <Stack direction="row" spacing={1} flexWrap="wrap" mt={0.5}>
+              {payMethod && (
+                <Chip label={payMethod} size="small" variant="outlined"
+                  sx={{ fontSize: '0.65rem' }} />
+              )}
+              {payStatus && (
+                <Chip
+                  label={payStatus.toUpperCase()}
+                  size="small"
+                  color={payStatus === 'paid' || payStatus === 'completed' ? 'success' : 'warning'}
+                  sx={{ fontSize: '0.65rem' }}
+                />
+              )}
+            </Stack>
+          </Box>
+
+          {/* Shipping summary */}
+          {order.city && (
+            <Box sx={{ textAlign: { sm: 'right' } }}>
+              <Typography variant="body2" color="text.secondary">
+                {[order.city, order.state].filter(Boolean).join(', ')}
+              </Typography>
+              {order.pincode && (
+                <Typography variant="caption" color="text.disabled">
+                  PIN {order.pincode}
+                </Typography>
+              )}
+            </Box>
+          )}
+        </Stack>
+      </Box>
+    </Box>
   );
-};
+}
 
-const formatDate = (value) => {
-  if (!value) return "N/A";
-  return new Date(value).toLocaleDateString();
-};
-
-const getStatusLabel = (status) => {
-  const normalized = String(status || "").toLowerCase();
-  if (normalized.includes("delivered")) return "Delivered";
-  if (normalized.includes("shipped")) return "Shipped";
-  if (normalized.includes("pending")) return "Pending";
-  if (normalized.includes("cancel")) return "Canceled";
-  return status || "Processing";
-};
-
-const getStatusColor = (status) => {
-  const label = getStatusLabel(status).toLowerCase();
-  if (label === "delivered") return "success";
-  if (label === "shipped") return "primary";
-  if (label === "pending") return "warning";
-  if (label === "canceled") return "error";
-  return "info";
-};
-
+// ── Orders page ───────────────────────────────────────────────────────────────
 function UserOrders() {
   const navigate = useNavigate();
-  const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [orders,       setOrders]       = useState([]);
+  const [loading,      setLoading]      = useState(true);
+  const [error,        setError]        = useState('');
+  const [page,         setPage]         = useState(1);
+  const [totalRecords, setTotalRecords] = useState(0);
+  const [search,       setSearch]       = useState('');
+  const LIMIT = 10;
+
+  const load = useCallback(async (p = 1) => {
+    setLoading(true);
+    setError('');
+    try {
+      const { orders: list, total_records } = await fetchUserOrdersList({ page: p, limit: LIMIT });
+      setOrders(list);
+      setTotalRecords(total_records);
+    } catch (err) {
+      console.error('[UserOrders]', err.message);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    if (!isUserAuthenticated()) {
-      navigate("/login", { replace: true });
-      return;
-    }
+    if (!isUserAuthenticated()) { navigate('/login', { replace: true }); return; }
+    load(1);
+  }, [navigate, load]);
 
-    const User_id = localStorage.getItem("user_id") || localStorage.getItem("userId");
-    if (!User_id) {
-      notifyError("User ID not found. Please log in again.");
-      navigate("/login", { replace: true });
-      return;
-    }
-    const loadOrders = async () => {
-      try {
-        const data = await fetchUserOrders(user_id);
-        setOrders(Array.isArray(data) ? data : (data.orders ?? []));
-      } catch (err) {
-        console.error("[UserOrders] load error", err);
-        notifyError(err, "Unable to load your orders.");
-      } finally {
-        setLoading(false);
-      }
-    };
+  const handlePageChange = (_, p) => { setPage(p); load(p); };
 
-    loadOrders();
-  }, [navigate]);
+  // Client-side search filter
+  const filtered = search.trim()
+    ? orders.filter((o) =>
+        (o.order_id || '').toLowerCase().includes(search.toLowerCase()) ||
+        (o.status   || '').toLowerCase().includes(search.toLowerCase())
+      )
+    : orders;
 
-  const totalAmount = orders.reduce(
-    (sum, order) => sum + getOrderValue(order),
-    0,
-  );
-  const recentOrders = orders.slice(0, 5);
+  const totalPages = Math.ceil(totalRecords / LIMIT);
 
   return (
-    <Box className="user-orders">
-      <Box className="user-orders__header">
+    <Box sx={{ px: { xs: 2, sm: 3 }, py: { xs: 2.5, sm: 3 }, maxWidth: 760, mx: 'auto' }}>
+      {/* Header */}
+      <Box sx={{ display: 'flex', alignItems: 'center',
+        justifyContent: 'space-between', mb: 2.5, flexWrap: 'wrap', gap: 1.5 }}>
         <Box>
-          <Typography variant="h4" className="user-orders__title">
-            My Orders
-          </Typography>
-          <Typography color="text.secondary">
-            Track recent purchases and view order status in one place.
+          <Typography variant="h5" fontWeight={700}>My Orders</Typography>
+          <Typography variant="body2" color="text.secondary">
+            {totalRecords > 0 ? `${totalRecords} order${totalRecords !== 1 ? 's' : ''}` : 'Track your purchases'}
           </Typography>
         </Box>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => navigate("/user/dashboard")}
-        >
-          Back to dashboard
+        <Button size="small" startIcon={<ArrowBackIcon />}
+          onClick={() => navigate('/user/dashboard')}>
+          Dashboard
         </Button>
       </Box>
 
-      <Box className="user-orders__summary">
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={6} md={4}>
-            <Box className="summary-card">
-              <Typography variant="subtitle2" color="text.secondary">
-                Total Orders
-              </Typography>
-              <Typography variant="h5">{orders.length}</Typography>
-            </Box>
-          </Grid>
-          <Grid item xs={12} sm={6} md={4}>
-            <Box className="summary-card">
-              <Typography variant="subtitle2" color="text.secondary">
-                Order Total
-              </Typography>
-              <Typography variant="h5">₹{totalAmount.toFixed(2)}</Typography>
-            </Box>
-          </Grid>
-          <Grid item xs={12} sm={6} md={4}>
-            <Box className="summary-card">
-              <Typography variant="subtitle2" color="text.secondary">
-                Recent Order
-              </Typography>
-              <Typography variant="h5">
-                {recentOrders[0]?.order_number || recentOrders[0]?.id || "—"}
-              </Typography>
-            </Box>
-          </Grid>
-        </Grid>
-      </Box>
+      {/* Search */}
+      <TextField
+        fullWidth size="small" placeholder="Search by order ID or status…"
+        value={search} onChange={(e) => setSearch(e.target.value)}
+        sx={{ mb: 2.5 }}
+        InputProps={{ startAdornment: <InputAdornment position="start"><SearchIcon fontSize="small" /></InputAdornment> }}
+      />
+
+      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
       {loading ? (
-        <Box className="user-orders__loading">
-          <CircularProgress />
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
+          <CircularProgress size={28} />
         </Box>
-      ) : orders.length === 0 ? (
-        <Box className="user-orders__empty">
-          <Typography variant="body1">No orders found yet.</Typography>
+      ) : filtered.length === 0 ? (
+        <Box sx={{ textAlign: 'center', py: 6 }}>
           <Typography color="text.secondary">
-            Start shopping to see your orders here.
+            {search ? `No orders match "${search}"` : 'No orders yet.'}
           </Typography>
+          {!search && (
+            <Button variant="contained" size="small" sx={{ mt: 1.5 }}
+              onClick={() => navigate('/products')}>
+              Start Shopping
+            </Button>
+          )}
         </Box>
       ) : (
-        <Box className="user-orders__list">
-          {recentOrders.map((order, index) => (
-            <Box
-              key={order.id || order.order_number || index}
-              className="order-card"
-            >
-              <Box className="order-card__top">
-                <Box>
-                  <Typography variant="subtitle2" color="text.secondary">
-                    Order #
-                    {order.order_number || order.id || order.reference || "N/A"}
-                  </Typography>
-                  <Typography variant="h6">
-                    ₹{getOrderValue(order).toFixed(2)}
-                  </Typography>
-                </Box>
-                <Chip
-                  label={getStatusLabel(order.status)}
-                  color={getStatusColor(order.status)}
-                  size="small"
-                />
-              </Box>
-              <Box className="order-card__meta">
-                <Typography color="text.secondary">
-                  placed {formatDate(order.created_at || order.date)} ·{" "}
-                  {order.items?.length || order.quantity || 1} items
-                </Typography>
-                <Button
-                  size="small"
-                  variant="outlined"
-                  onClick={() =>
-                    window.scrollTo({ top: 0, behavior: "smooth" })
-                  }
-                >
-                  Track order
-                </Button>
-              </Box>
+        <>
+          {filtered.map((o, i) => <OrderCard key={o.order_id || o.id || i} order={o} />)}
+
+          {totalPages > 1 && !search && (
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+              <Pagination count={totalPages} page={page}
+                onChange={handlePageChange} color="primary" size="small" />
             </Box>
-          ))}
-        </Box>
+          )}
+        </>
       )}
     </Box>
   );

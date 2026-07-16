@@ -3,14 +3,15 @@ import {
   Box, Typography, Alert, Collapse, IconButton,
   Paper, CircularProgress, Chip, Tooltip,
   Dialog, DialogTitle, DialogContent, DialogActions,
-  Button, Divider, Grid, Stack,
+  Button, Divider, Grid, Stack, Snackbar,
 } from '@mui/material';
-import RefreshIcon   from '@mui/icons-material/Refresh';
-import BugReportIcon from '@mui/icons-material/BugReport';
+import RefreshIcon       from '@mui/icons-material/Refresh';
+import BugReportIcon     from '@mui/icons-material/BugReport';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
-import TableComponent  from '../../../components/TableComponent';
-import AdminPagination from '../../../components/Paginations';
-import AdminFilters    from '../../../components/AdminFilters';
+import TableComponent    from '../../../components/TableComponent';
+import AdminPagination   from '../../../components/Paginations';
+import AdminFilters      from '../../../components/AdminFilters';
+import OrderActionDialog from '../../../components/OrderActionDialog';
 import { useShipments, buildShipmentColumns, SHIPMENT_STATUS_COLOR } from './ShipmentData';
 
 // ── View detail row ───────────────────────────────────────────────────────────
@@ -115,35 +116,28 @@ function ShipmentPage() {
 
   const [showDebug,    setShowDebug]    = useState(false);
   const [viewModal,    setViewModal]    = useState({ open: false, shipment: null });
-  const [approveDialog, setApproveDialog] = useState({ open: false, shipment: null });
-  const [rejectDialog,  setRejectDialog]  = useState({ open: false, shipment: null });
+  const [actionDialog, setActionDialog] = useState({ open: false, row: null, actionType: 'approved' });
+  const [snackbar,     setSnackbar]     = useState({ open: false, message: '', severity: 'success' });
 
-  // ── Filter handler ────────────────────────────────────────────────────────
+  const showSnack = (msg, sev = 'success') => setSnackbar({ open: true, message: msg, severity: sev });
+
   const handleSearch = (search, startDate, endDate) => {
     setFilters({ search, startDate, endDate });
     setPage(0);
   };
 
-  // ── Action handlers ───────────────────────────────────────────────────────
-  const handleApproveConfirm = () => {
-    if (!approveDialog.shipment) return;
-    console.log('✅ Approved:', approveDialog.shipment.tracking_id);
-    // TODO: wire to approve API
-    setApproveDialog({ open: false, shipment: null });
+  const handleActionSuccess = (result, actionType) => {
+    showSnack(
+      `Shipment ${actionType === 'approved' ? 'approved' : 'rejected'} successfully`,
+      actionType === 'approved' ? 'success' : 'warning'
+    );
+    refetch();
   };
 
-  const handleRejectConfirm = () => {
-    if (!rejectDialog.shipment) return;
-    console.log('❌ Rejected:', rejectDialog.shipment.tracking_id);
-    // TODO: wire to reject/cancel API
-    setRejectDialog({ open: false, shipment: null });
-  };
-
-  // ── Build columns with action callbacks ──────────────────────────────────
   const columns = buildShipmentColumns({
     onView:    (row) => setViewModal({ open: true, shipment: row }),
-    onApprove: (row) => setApproveDialog({ open: true, shipment: row }),
-    onReject:  (row) => setRejectDialog({ open: true, shipment: row }),
+    onApprove: (row) => setActionDialog({ open: true, row, actionType: 'approved' }),
+    onReject:  (row) => setActionDialog({ open: true, row, actionType: 'rejected' }),
   });
 
   return (
@@ -299,27 +293,28 @@ function ShipmentPage() {
         onClose={() => setViewModal({ open: false, shipment: null })}
       />
 
-      {/* ── Approve Confirm ── */}
-      <ConfirmDialog
-        open={approveDialog.open}
-        onClose={() => setApproveDialog({ open: false, shipment: null })}
-        onConfirm={handleApproveConfirm}
-        title="Approve Shipment"
-        message={`Approve shipment ${approveDialog.shipment?.tracking_id || ''}? This will mark it as confirmed/approved.`}
-        confirmLabel="Approve"
-        confirmColor="success"
+      {/* ── Approve / Reject Dialog ── */}
+      <OrderActionDialog
+        open={actionDialog.open}
+        onClose={() => setActionDialog({ open: false, row: null, actionType: 'approved' })}
+        onSuccess={handleActionSuccess}
+        actionType={actionDialog.actionType}
+        row={actionDialog.row}
+        idField="order_id"
+        statusField="shipment_status"
+        source="shipment"
+        title={actionDialog.actionType === 'approved' ? 'Approve Shipment' : 'Reject Shipment'}
       />
 
-      {/* ── Reject Confirm ── */}
-      <ConfirmDialog
-        open={rejectDialog.open}
-        onClose={() => setRejectDialog({ open: false, shipment: null })}
-        onConfirm={handleRejectConfirm}
-        title="Reject / Cancel Shipment"
-        message={`Cancel shipment ${rejectDialog.shipment?.tracking_id || ''}? This action cannot be undone.`}
-        confirmLabel="Cancel Shipment"
-        confirmColor="error"
-      />
+      {/* ── Snackbar ── */}
+      <Snackbar open={snackbar.open} autoHideDuration={4000}
+        onClose={() => setSnackbar((s) => ({ ...s, open: false }))}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
+        <Alert severity={snackbar.severity}
+          onClose={() => setSnackbar((s) => ({ ...s, open: false }))}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }

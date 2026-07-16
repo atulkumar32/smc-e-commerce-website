@@ -25,8 +25,23 @@ export const useOrders = () => {
   const [rowsPerPage,  setRowsPerPage]  = useState(10);
   const [totalRecords, setTotalRecords] = useState(0);
 
-  // Filters
-  const [filters, setFilters] = useState({ search: '', startDate: '', endDate: '' });
+  // Summary counts (from API response)
+  const [summary, setSummary] = useState({
+    total_orders: 0,
+    to_accept:    0,
+    to_pack:      0,
+    in_transit:   0,
+    completed:    0,
+    upcoming:     0,
+  });
+
+  // Filters — includes status for card-click filtering
+  const [filters, setFilters] = useState({
+    search:    '',
+    startDate: '',
+    endDate:   '',
+    status:    '',
+  });
 
   const fetchOrders = useCallback(async () => {
     setLoading(true);
@@ -43,16 +58,29 @@ export const useOrders = () => {
         search:    filters.search    || undefined,
         startdate: filters.startDate || undefined,
         enddate:   filters.endDate   || undefined,
+        status:    filters.status    || undefined,
       });
 
       console.log('Response:', response);
       setRawResponse(response);
 
-      // Response shape: { status: true, data: { total_records, orders: [] } }
       if (response?.status === true && response?.data) {
         const d = response.data;
         setOrders(Array.isArray(d.orders) ? d.orders : []);
         setTotalRecords(Number(d.total_records ?? d.orders?.length ?? 0));
+
+        // Only update summary counts when fetching WITHOUT a status filter
+        // (so card counts never get wiped by a filtered response)
+        if (!filters.status) {
+          setSummary({
+            total_orders: Number(d.total_orders  || d.total_records || 0),
+            to_accept:    Number(d.to_accept     || 0),
+            to_pack:      Number(d.to_pack       || 0),
+            in_transit:   Number(d.in_transit    || 0),
+            completed:    Number(d.completed     || 0),
+            upcoming:     Number(d.upcoming      || 0),
+          });
+        }
       } else if (response?.status === true && Array.isArray(response.data)) {
         setOrders(response.data);
         setTotalRecords(response.data.length);
@@ -74,6 +102,27 @@ export const useOrders = () => {
     }
   }, [page, rowsPerPage, filters]);
 
+  // ── Fetch summary counts once on mount (unfiltered totals) ──────────────────
+  const fetchSummary = useCallback(async () => {
+    try {
+      const res = await GetAllOrderDetailsAction({ page: 1, limit: 1 }); // minimal payload
+      if (res?.status === true && res?.data) {
+        const d = res.data;
+        setSummary({
+          total_orders: Number(d.total_orders  || d.total_records || 0),
+          to_accept:    Number(d.to_accept     || 0),
+          to_pack:      Number(d.to_pack       || 0),
+          in_transit:   Number(d.in_transit    || 0),
+          completed:    Number(d.completed     || 0),
+          upcoming:     Number(d.upcoming      || 0),
+        });
+      }
+    } catch { /* silent — summary is cosmetic */ }
+  }, []);
+
+  // On mount: load summary once, then let fetchOrders handle filtered data
+  useEffect(() => { fetchSummary(); }, [fetchSummary]);
+
   useEffect(() => { fetchOrders(); }, [fetchOrders]);
 
   return {
@@ -81,6 +130,7 @@ export const useOrders = () => {
     page, setPage,
     rowsPerPage, setRowsPerPage,
     totalRecords,
+    summary,
     filters, setFilters,
     refetch: fetchOrders,
   };
@@ -89,7 +139,8 @@ export const useOrders = () => {
 // ── Table columns ─────────────────────────────────────────────────────────────
 export const ORDER_COLUMNS = [
   {
-    id: 'order_id', label: 'Order ID', minWidth: 150,
+    id: 'order_id',
+    label: 'Order ID',
     render: (row) => (
       <Typography variant="body2" fontWeight={600} sx={{ fontFamily: 'monospace' }}>
         {row.order_id || row.id || '—'}
@@ -97,7 +148,8 @@ export const ORDER_COLUMNS = [
     ),
   },
   {
-    id: 'customer_name', label: 'Customer',
+    id: 'customer_name',
+    label: 'Customer',
     render: (row) => (
       <Box>
         <Typography variant="body2" fontWeight={500}>{row.customer_name || '—'}</Typography>
@@ -110,14 +162,16 @@ export const ORDER_COLUMNS = [
     ),
   },
   {
-    id: 'payment_method', label: 'Payment',
+    id: 'payment_method',
+    label: 'Payment',
     render: (row) => (
       <Chip label={row.payment_method || '—'} size="small"
         variant="outlined" sx={{ fontSize: '0.7rem' }} />
     ),
   },
   {
-    id: 'total_amount', label: 'Total',
+    id: 'total_amount',
+    label: 'Total',
     render: (row) => (
       <Typography fontWeight={600} color="primary" variant="body2">
         ₹{parseFloat(row.total_amount || 0).toLocaleString('en-IN')}
@@ -125,14 +179,16 @@ export const ORDER_COLUMNS = [
     ),
   },
   {
-    id: 'status', label: 'Order Status',
+    id: 'status',
+    label: 'Order Status',
     render: (row) => {
-      const s = (row.order_status || row.status || 'pending').toLowerCase();
+      const s = (  row.status || 'pending').toLowerCase();
       return <Chip label={s.toUpperCase()} size="small" color={statusColor[s] || 'default'} />;
     },
   },
   {
-    id: 'payment_status', label: 'Payment Status',
+    id: 'payment_status',
+    label: 'Payment Status',
     render: (row) => {
       const s = (row.payment_status || 'pending').toLowerCase();
       return (
@@ -142,7 +198,8 @@ export const ORDER_COLUMNS = [
     },
   },
   {
-    id: 'created_at', label: 'Date',
+    id: 'created_at',
+    label: 'Date',
     render: (row) => {
       if (!row.created_at) return '—';
       try {
