@@ -18,6 +18,7 @@ import AdminPagination from '../../../components/Paginations';
 import AdminFilters from '../../../components/AdminFilters';
 import OrderActionDialog from '../../../components/OrderActionDialog';
 import { ORDER_COLUMNS, useOrders, statusColor } from './OrderData';
+import { generateInvoiceAction, readyToDispatchAction } from '../../../Actions/OrderStatusAction';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -167,26 +168,52 @@ function OrdersPage() {
               </MenuItem>
 
               {/* Print Invoice */}
-              <MenuItem onClick={() => {
+              <MenuItem onClick={async () => {
                 closeMenu();
-                console.log('Print Invoice for:', row.order_id);
-                // TODO: Implement print functionality
+                try {
+                  showSnack('Generating invoice…', 'info');
+                  const result = await generateInvoiceAction(row.order_id);
+                  if (result?.pdf_url) {
+                    // Auto-download the PDF
+                    const link = document.createElement('a');
+                    link.href    = result.pdf_url;
+                    link.target  = '_blank';
+                    link.download = result.filename || `invoice_${row.order_id}.pdf`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    showSnack(`Invoice downloaded: ${result.filename}`, 'success');
+                  }
+                } catch (err) {
+                  showSnack(err.message || 'Failed to generate invoice', 'error');
+                }
               }}>
                 <ListItemIcon>🖨</ListItemIcon>
                 <ListItemText>Print Invoice</ListItemText>
               </MenuItem>
 
-              {/* Mark as Shipped */}
+              {/* Ready To Dispatch */}
               <MenuItem
                 disabled={isShipped || isDelivered || isCompleted}
-                onClick={() => {
+                onClick={async () => {
                   closeMenu();
-                  // TODO: Call Mark as Shipped API
-                  console.log('Mark as Shipped:', row.order_id);
+                  try {
+                    showSnack('Marking as ready to dispatch…', 'info');
+                    await readyToDispatchAction({
+                      order_id:   row.order_id,
+                      id:         row.id,
+                      admin_id:   '',
+                      admin_name: '',
+                    });
+                    showSnack(`Order ${row.order_id} marked as ready to dispatch`, 'success');
+                    refetch();
+                  } catch (err) {
+                    showSnack(err.message || 'Failed to mark as dispatched', 'error');
+                  }
                 }}
               >
                 <ListItemIcon>📦</ListItemIcon>
-                <ListItemText>Mark as Shipped</ListItemText>
+                <ListItemText>Ready To Dispatch</ListItemText>
               </MenuItem>
 
               {/* Mark as Delivered */}

@@ -90,6 +90,8 @@ export const URL_CATEGORIES_DELETE = `${BASE_URL}smc/admin/api/DeleteCategory.ph
 export const URL_ADMIN_GET_ORDER_DETAILS  = `${BASE_URL}smc/admin/api/GetOrderDetails.php`;
 export const URL_ADMIN_GET_SHIPMENT_DETAILS = `${BASE_URL}smc/admin/api/GetShipmentDetails.php`;
 export const URL_ORDER_STATUS_ACTION      = `${BASE_URL}smc/admin/api/OrderStatusActions.php`;
+export const URL_GENERATE_INVOICE        = `${BASE_URL}smc/admin/api/GenerateAdminInvoice.php`;
+export const URL_READY_TO_DISPATCH       = `${BASE_URL}smc/admin/api/ReadyToDispatch.php`;
 
 
 // ── Variant APIs ──────────────────────────────────────────────────

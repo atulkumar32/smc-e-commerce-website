@@ -83,3 +83,75 @@ export const orderStatusAction = async ({
   console.log(`✅ [OrderStatus] ${actionType} success:`, data);
   return data;
 };
+
+// ── Generate Invoice ────────────────────────────────────────────────────────────
+// POST { order_id }
+// Response: { success, pdf_url, filename }
+// → auto-downloads the PDF
+export const generateInvoiceAction = async (orderId) => {
+  const { URL_GENERATE_INVOICE } = await import('../Config/UrlsConfig');
+
+  const body = { order_id: orderId };
+
+  console.group('🖨️ [Invoice] Generate');
+  console.log('URL      :', URL_GENERATE_INVOICE);
+  console.log('order_id :', orderId);
+  console.log('payload  :', JSON.stringify(body));
+  console.groupEnd();
+
+  const res  = await fetch(URL_GENERATE_INVOICE, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify(body),
+  });
+
+  let data = {};
+  try {
+    const text = await res.text();
+    console.log('[Invoice] Raw response:', text.slice(0, 400));
+    data = text ? JSON.parse(text) : {};
+  } catch (e) {
+    console.warn('[Invoice] JSON parse failed:', e.message);
+  }
+
+  if (!res.ok || data.success === false)
+    throw new Error(data.message || `HTTP ${res.status}`);
+
+  console.log('✅ [Invoice] Generated:', data);
+  return data; // { success, pdf_url, filename }
+};
+
+// ── Ready To Dispatch ───────────────────────────────────────────────────────────
+// POST { order_id, id, admin_id, admin_name }
+export const readyToDispatchAction = async ({ order_id, id, admin_id = '', admin_name = '' }) => {
+  const { URL_READY_TO_DISPATCH } = await import('../Config/UrlsConfig');
+
+  const body = { order_id, id: String(id), admin_id, admin_name };
+
+  console.group('📦 [Dispatch] Ready To Dispatch');
+  console.log('URL      :', URL_READY_TO_DISPATCH);
+  console.log('order_id :', order_id, '| id:', id);
+  console.log('payload  :', JSON.stringify(body));
+  console.groupEnd();
+
+  const res  = await fetch(URL_READY_TO_DISPATCH, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify(body),
+  });
+
+  let data = {};
+  try {
+    const text = await res.text();
+    console.log('[Dispatch] Raw response:', text.slice(0, 400));
+    data = text ? JSON.parse(text) : {};
+  } catch (e) {
+    console.warn('[Dispatch] JSON parse failed:', e.message);
+  }
+
+  if (!res.ok || data.status === false)
+    throw new Error(data.message || `HTTP ${res.status}`);
+
+  console.log('✅ [Dispatch] Success:', data);
+  return data;
+};
