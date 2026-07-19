@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 import { useCart } from '../../context/CartContext';
 import { isUserAuthenticated, getUserProfile } from '../../services/apiClients';
 import { createOrderOnline } from '../../Actions/Web/CreateOrderActions';
-import { validateShipping, hasErrors } from '../../utils/validators';
+import { validateShipping, hasErrors, email } from '../../utils/validators';
 import './style.scss';
 
 
@@ -78,8 +78,8 @@ function ShippingStep({ data, onChange, onNext }) {
         </div>
       </div>
       <div className="co-form__field">
-        <label className="co-form__label" htmlFor="co-addr">Email *</label>
-        <input id="co-email" type="email" placeholder="enter your email" {...f('email')} />
+        <label className="co-form__label" htmlFor="co-addr">Customer Email *</label>
+        <input id="co-email" type="email" name='email' placeholder="enter your email" {...f('email')} />
         {errs.address && <span className="co-form__error-msg">{errs.email}</span>}
       </div>
       <div className="co-form__field">
@@ -357,6 +357,7 @@ function CheckoutPage() {
       payment_status: 'pending',
       order_status: 'pending',
       customer_name: `${shipping.firstName} ${shipping.lastName}`,
+      email: shipping.email?.trim() || userProfile?.email || 'n/a',
       phone: shipping.phone,
       shipping_address: shipping.address,
       city: shipping.city,

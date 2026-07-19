@@ -28,11 +28,12 @@ export const useOrders = () => {
   // Summary counts (from API response)
   const [summary, setSummary] = useState({
     total_orders: 0,
-    to_accept:    0,
+    accepted:     0,
     to_pack:      0,
     in_transit:   0,
     completed:    0,
     upcoming:     0,
+    cancelled:    0,
   });
 
   // Filters — includes status for card-click filtering
@@ -73,12 +74,13 @@ export const useOrders = () => {
         // (so card counts never get wiped by a filtered response)
         if (!filters.status) {
           setSummary({
-            total_orders: Number(d.total_orders  || d.total_records || 0),
-            to_accept:    Number(d.to_accept     || 0),
-            to_pack:      Number(d.to_pack       || 0),
-            in_transit:   Number(d.in_transit    || 0),
-            completed:    Number(d.completed     || 0),
-            upcoming:     Number(d.upcoming      || 0),
+            total_orders: Number(d.total_records || 0),
+            accepted:     Number(d.accepted      || 0),
+            to_pack:      Number(d.to_pack        || 0),
+            in_transit:   Number(d.in_transit     || 0),
+            completed:    Number(d.completed      || 0),
+            upcoming:     Number(d.upcoming       || 0),
+            cancelled:    Number(d.cancelled      || 0),
           });
         }
       } else if (response?.status === true && Array.isArray(response.data)) {
@@ -109,12 +111,13 @@ export const useOrders = () => {
       if (res?.status === true && res?.data) {
         const d = res.data;
         setSummary({
-          total_orders: Number(d.total_orders  || d.total_records || 0),
-          to_accept:    Number(d.to_accept     || 0),
-          to_pack:      Number(d.to_pack       || 0),
-          in_transit:   Number(d.in_transit    || 0),
-          completed:    Number(d.completed     || 0),
-          upcoming:     Number(d.upcoming      || 0),
+          total_orders: Number(d.total_records || 0),
+          accepted:     Number(d.accepted      || 0),
+          to_pack:      Number(d.to_pack        || 0),
+          in_transit:   Number(d.in_transit     || 0),
+          completed:    Number(d.completed      || 0),
+          upcoming:     Number(d.upcoming       || 0),
+          cancelled:    Number(d.cancelled      || 0),
         });
       }
     } catch { /* silent — summary is cosmetic */ }
