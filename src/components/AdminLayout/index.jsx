@@ -11,6 +11,8 @@ const pageTitles = {
   '/admin/orders': 'Orders',
   '/admin/users': 'Users',
   '/admin/shipments': 'Shipments',
+  '/admin/add-pin-code': 'Add Pin Code',
+  '/admin/pincodes':     'Pincodes',
 };
 
 function AdminLayout() {

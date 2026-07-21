@@ -81,21 +81,42 @@ export const fetchVariantsAction = async (productId) => {
   const url = `${URL_VARIANTS_FETCH}?product_id=${encodeURIComponent(productId)}`;
   console.log('[Variants] 🔍 GET', url);
   try {
-    const res = await fetch(url);
-    const data = await handleResponse(res);
+    const res  = await fetch(url);
+    const text = await res.text();
+    console.log('[Variants] Raw response:', text.slice(0, 300));
+
+    // Guard against PHP fatal error HTML responses
+    if (!res.ok || text.trim().startsWith('<')) {
+      console.warn('[Variants] Server returned non-JSON (possible PHP error) — returning []');
+      return [];
+    }
+
+    let data = {};
+    try { data = JSON.parse(text); } catch {
+      console.warn('[Variants] JSON parse failed — returning []');
+      return [];
+    }
+
     const list = Array.isArray(data) ? data
       : Array.isArray(data?.variants) ? data.variants
       : Array.isArray(data?.data)     ? data.data : [];
+
     console.log(`[Variants] 🔍 Loaded ${list.length} variant(s)`);
     return list;
   } catch (err) {
-    console.warn('[Variants] Fetch failed:', err.message);
+    console.warn('[Variants] Fetch failed:', err.message, '— returning []');
     return [];
   }
 };
 
 // ── Bulk create ────────────────────────────────────────────────────────────────
 export const createVariantsBulkAction = async (productId, variants) => {
+  // Guard — ensure variants is a non-empty array
+  if (!Array.isArray(variants) || variants.length === 0) {
+    console.warn('[Variants Bulk] No variants to save — aborting');
+    throw new Error('No variants to save. Add at least one variant to the list first.');
+  }
+
   // Build clean variant objects — no material, no is_default
   const cleanVariants = variants.map((v) => ({
     color_name:     v.color_name,

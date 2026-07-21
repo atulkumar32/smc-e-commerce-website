@@ -5,35 +5,35 @@ import {
   Snackbar, Alert, Collapse, Table, TableHead, TableRow,
   TableCell, TableBody, Tooltip, Grid,
 } from '@mui/material';
-import AddIcon                from '@mui/icons-material/Add';
-import EditOutlinedIcon       from '@mui/icons-material/EditOutlined';
-import DeleteOutlinedIcon     from '@mui/icons-material/DeleteOutlined';
+import AddIcon from '@mui/icons-material/Add';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
-import RefreshIcon            from '@mui/icons-material/Refresh';
-import KeyboardArrowDownIcon  from '@mui/icons-material/KeyboardArrowDown';
-import KeyboardArrowUpIcon    from '@mui/icons-material/KeyboardArrowUp';
-import AddCircleOutlinedIcon  from '@mui/icons-material/AddCircleOutlined';
-import ModalComponent    from '../../../components/ModalComponent';
-import AdminPagination   from '../../../components/Paginations';
-import AdminFilters      from '../../../components/AdminFilters';
-import AddNewProduct     from './Components/AddNewProduct';
-import AddNewVariant     from './Components/AddNewVarient/index.jsx';
-import { useAdmin }      from '../../../context/AdminContext';
-import { deleteProductAction }  from '../../../Actions/ProductUploadAction';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import AddCircleOutlinedIcon from '@mui/icons-material/AddCircleOutlined';
+import ModalComponent from '../../../components/ModalComponent';
+import AdminPagination from '../../../components/Paginations';
+import AdminFilters from '../../../components/AdminFilters';
+import AddNewProduct from './Components/AddNewProduct';
+import AddNewVariant from './Components/AddNewVarient/index.jsx';
+import { useAdmin } from '../../../context/AdminContext';
+import { deleteProductAction } from '../../../Actions/ProductUploadAction';
 import { deleteVariantAction, fetchVariantsAction } from '../../../Actions/ProductVariantAction';
-import { resolveProductId }     from './AllProductuploadFields';
-import { MEDIA_BASE }           from '../../../Config/UrlsConfig';
+import { resolveProductId } from './AllProductuploadFields';
+import { MEDIA_BASE } from '../../../Config/UrlsConfig';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-const resolveImg    = (p) => !p ? '' : p.startsWith('http') ? p : `${MEDIA_BASE}${p}`;
-const getDisplayId  = (r) => r?.product_id || '—';
-const getDisplayName= (r) => r?.product_name || r?.productName || r?.name || '—';
-const getCategoryName=(r) => r?.category_name || r?.category || '—';
-const getBestPrice  = (r) => {
+const resolveImg = (p) => !p ? '' : p.startsWith('http') ? p : `${MEDIA_BASE}${p}`;
+const getDisplayId = (r) => r?.product_id || '—';
+const getDisplayName = (r) => r?.product_name || r?.productName || r?.name || '—';
+const getCategoryName = (r) => r?.category_name || r?.category || '—';
+const getBestPrice = (r) => {
   const v = Number(r?.selling_price) || Number(r?.price) || Number(r?.mrp) || 0;
   return v > 0 ? `₹${v.toLocaleString('en-IN')}` : '—';
 };
-const getMRP        = (r) => {
+const getMRP = (r) => {
   const v = Number(r?.mrp) || 0;
   return v > 0 ? `₹${v.toLocaleString('en-IN')}` : null;
 };
@@ -64,12 +64,12 @@ function DR({ label, value, xs = 6 }) {
 function ProductViewModal({ product: p, open, onClose }) {
   if (!p) return null;
 
-  const features     = parseJson(p.features);
-  const selColors    = parseJson(p.selected_colors);
-  const variants     = Array.isArray(p.variants) ? p.variants : [];
-  const mrp          = getMRP(p);
-  const selling      = getBestPrice(p);
-  const hasMrp       = mrp && mrp !== selling;
+  const features = parseJson(p.features);
+  const selColors = parseJson(p.selected_colors);
+  const variants = Array.isArray(p.variants) ? p.variants : [];
+  const mrp = getMRP(p);
+  const selling = getBestPrice(p);
+  const hasMrp = mrp && mrp !== selling;
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth scroll="paper"
@@ -93,9 +93,11 @@ function ProductViewModal({ product: p, open, onClose }) {
 
       <Box sx={{ overflowY: 'auto', px: 3, py: 2.5 }}>
         {/* Pricing strip */}
-        <Paper elevation={0} sx={{ bgcolor: '#f0f7ff', border: '1px solid #e3f2fd',
+        <Paper elevation={0} sx={{
+          bgcolor: '#f0f7ff', border: '1px solid #e3f2fd',
           borderRadius: '8px', px: 2.5, py: 1.5, mb: 2.5, display: 'flex',
-          flexWrap: 'wrap', gap: 3, alignItems: 'center' }}>
+          flexWrap: 'wrap', gap: 3, alignItems: 'center'
+        }}>
           <Box>
             <Typography variant="caption" color="text.secondary">Selling Price</Typography>
             <Typography variant="h6" fontWeight={700} color="primary">{selling}</Typography>
@@ -119,8 +121,10 @@ function ProductViewModal({ product: p, open, onClose }) {
           )}
           {selColors?.map((c) => (
             <Tooltip key={c.label} title={c.label}>
-              <Box sx={{ width: 20, height: 20, borderRadius: '50%',
-                bgcolor: c.hex, border: '2px solid #fff', boxShadow: '0 0 0 1px #ddd' }} />
+              <Box sx={{
+                width: 20, height: 20, borderRadius: '50%',
+                bgcolor: c.hex, border: '2px solid #fff', boxShadow: '0 0 0 1px #ddd'
+              }} />
             </Tooltip>
           ))}
         </Paper>
@@ -130,24 +134,24 @@ function ProductViewModal({ product: p, open, onClose }) {
           Product Details
         </Typography>
         <Grid container spacing={1.5} mb={2.5}>
-          <DR label="Product ID"        value={p.product_id} />
-          <DR label="Generic Name"      value={p.generic_name} />
-          <DR label="Brand"             value={p.brand} />
-          <DR label="Category"          value={getCategoryName(p)} />
-          <DR label="Material"          value={p.material} />
-          <DR label="Pattern"           value={p.pattern} />
-          <DR label="Character"         value={p.character_name} />
-          <DR label="Gender"            value={p.gender} />
-          <DR label="Class Type"        value={p.class_type} />
-          <DR label="Backpack Style"    value={p.backpack_style} />
-          <DR label="Capacity"          value={p.capacity} />
-          <DR label="Recommended Age"   value={p.recommended_age} />
-          <DR label="Size"              value={p.size} />
-          <DR label="Net Weight"        value={p.net_weight} />
+          <DR label="Product ID" value={p.product_id} />
+          <DR label="Generic Name" value={p.generic_name} />
+          <DR label="Brand" value={p.brand} />
+          <DR label="Category" value={getCategoryName(p)} />
+          <DR label="Material" value={p.material} />
+          <DR label="Pattern" value={p.pattern} />
+          <DR label="Character" value={p.character_name} />
+          <DR label="Gender" value={p.gender} />
+          <DR label="Class Type" value={p.class_type} />
+          <DR label="Backpack Style" value={p.backpack_style} />
+          <DR label="Capacity" value={p.capacity} />
+          <DR label="Recommended Age" value={p.recommended_age} />
+          <DR label="Size" value={p.size} />
+          <DR label="Net Weight" value={p.net_weight} />
           <DR label="Country of Origin" value={p.country_of_origin} />
           <DR label="Actual Cost Price" value={p.actual_cost_price ? `₹${Number(p.actual_cost_price).toLocaleString('en-IN')}` : null} />
-          <DR label="GST"               value={p.gst ? `${p.gst}%` : null} />
-          <DR label="Created At"        value={p.created_at} />
+          <DR label="GST" value={p.gst ? `${p.gst}%` : null} />
+          <DR label="Created At" value={p.created_at} />
         </Grid>
 
         {/* Visibility flags */}
@@ -155,12 +159,12 @@ function ProductViewModal({ product: p, open, onClose }) {
           <Typography variant="subtitle2" fontWeight={700} color="primary" mb={1}>Visibility</Typography>
           <Stack direction="row" flexWrap="wrap" gap={0.75}>
             {[
-              ['Live',             p.is_live === '1'],
-              ['New Arrival',      p.is_new_arrival === '1'],
-              ['Card Slider',      p.show_in_card_slider === '1'],
-              ['Published',        p.is_published === '1'],
-              ['Visible on Web',   p.is_visible_on_website === '1'],
-              ['Homepage Banner',  p.homepage_banner_enabled === '1'],
+              ['Live', p.is_live === '1'],
+              ['New Arrival', p.is_new_arrival === '1'],
+              ['Card Slider', p.show_in_card_slider === '1'],
+              ['Published', p.is_published === '1'],
+              ['Visible on Web', p.is_visible_on_website === '1'],
+              ['Homepage Banner', p.homepage_banner_enabled === '1'],
             ].map(([label, active]) => (
               <Chip key={label} label={label} size="small"
                 color={active ? 'success' : 'default'} variant={active ? 'filled' : 'outlined'}
@@ -207,7 +211,7 @@ function ProductViewModal({ product: p, open, onClose }) {
             <Table size="small">
               <TableHead>
                 <TableRow sx={{ bgcolor: '#e3f2fd' }}>
-                  {['Variant ID','Color','Size','MRP','Selling','Discount','Stock','SKU','Status'].map((h) => (
+                  {['Variant ID', 'Color', 'Size', 'MRP', 'Selling', 'Discount', 'Stock', 'SKU', 'Status'].map((h) => (
                     <TableCell key={h} sx={{ fontWeight: 700, fontSize: '0.72rem', color: 'primary.dark', py: 1 }}>
                       {h}
                     </TableCell>
@@ -223,8 +227,10 @@ function ProductViewModal({ product: p, open, onClose }) {
                     <TableCell>
                       <Stack direction="row" alignItems="center" gap={0.75}>
                         {v.color_hex && (
-                          <Box sx={{ width: 12, height: 12, borderRadius: '50%',
-                            bgcolor: v.color_hex, border: '1px solid #ddd', flexShrink: 0 }} />
+                          <Box sx={{
+                            width: 12, height: 12, borderRadius: '50%',
+                            bgcolor: v.color_hex, border: '1px solid #ddd', flexShrink: 0
+                          }} />
                         )}
                         <Typography sx={{ fontSize: '0.72rem' }}>{v.color_name || '—'}</Typography>
                       </Stack>
@@ -286,7 +292,7 @@ function VariantTable({ productId, variants, loading, onAdd, onEdit, onDelete })
           <Table size="small" sx={{ bgcolor: 'background.paper' }}>
             <TableHead>
               <TableRow sx={{ bgcolor: '#e3f2fd' }}>
-                {['Variant ID','Color','Size','MRP','Selling Price','Stock','SKU','Status','Actions'].map((h) => (
+                {['Variant ID', 'Color', 'Size', 'MRP', 'Selling Price', 'Stock', 'SKU', 'Status', 'Actions'].map((h) => (
                   <TableCell key={h} sx={{ fontWeight: 700, fontSize: '0.72rem', color: 'primary.dark', py: 1 }}>
                     {h}
                   </TableCell>
@@ -302,8 +308,10 @@ function VariantTable({ productId, variants, loading, onAdd, onEdit, onDelete })
                   <TableCell>
                     <Stack direction="row" alignItems="center" gap={0.75}>
                       {v.color_hex && (
-                        <Box sx={{ width: 13, height: 13, borderRadius: '50%',
-                          bgcolor: v.color_hex, border: '1px solid #ddd', flexShrink: 0 }} />
+                        <Box sx={{
+                          width: 13, height: 13, borderRadius: '50%',
+                          bgcolor: v.color_hex, border: '1px solid #ddd', flexShrink: 0
+                        }} />
                       )}
                       <Typography sx={{ fontSize: '0.75rem' }}>{v.color_name || '—'}</Typography>
                     </Stack>
@@ -402,7 +410,7 @@ function ProductRow({ row, index, expanded, onExpand, onView, onEdit, onDelete,
         <TableCell sx={{ fontSize: '0.72rem', color: 'text.secondary', whiteSpace: 'nowrap' }}>
           {row.created_at
             ? new Date(row.created_at).toLocaleDateString('en-IN',
-                { day: '2-digit', month: 'short', year: 'numeric' })
+              { day: '2-digit', month: 'short', year: 'numeric' })
             : '—'}
         </TableCell>
         <TableCell align="right">
@@ -449,23 +457,23 @@ function ProductRow({ row, index, expanded, onExpand, onView, onEdit, onDelete,
 function ProductsPage() {
   const { products, productsLoading, upsertProduct, deleteProduct, refreshProducts } = useAdmin();
 
-  const [page,        setPage]        = useState(0);
+  const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [search,      setSearch]      = useState('');
-  const [refreshing,  setRefreshing]  = useState(false);
+  const [search, setSearch] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
 
   // Expanded row — use inline variants from API, fallback to fetch
-  const [expandedId,       setExpandedId]       = useState(null);
-  const [variants,         setVariants]         = useState([]);
-  const [variantsLoading,  setVariantsLoading]  = useState(false);
+  const [expandedId, setExpandedId] = useState(null);
+  const [variants, setVariants] = useState([]);
+  const [variantsLoading, setVariantsLoading] = useState(false);
 
   // Modals
-  const [editModal,           setEditModal]           = useState({ open: false, product: null });
-  const [viewModal,           setViewModal]           = useState({ open: false, product: null });
-  const [deleteDialog,        setDeleteDialog]        = useState({ open: false, product: null });
-  const [variantModal,        setVariantModal]        = useState({ open: false, product: null, variant: null });
+  const [editModal, setEditModal] = useState({ open: false, product: null });
+  const [viewModal, setViewModal] = useState({ open: false, product: null });
+  const [deleteDialog, setDeleteDialog] = useState({ open: false, product: null });
+  const [variantModal, setVariantModal] = useState({ open: false, product: null, variant: null });
   const [deleteVariantDialog, setDeleteVariantDialog] = useState({ open: false, variant: null });
-  const [snackbar,            setSnackbar]            = useState({ open: false, message: '', severity: 'success' });
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
   const showSnack = (msg, sev = 'success') => setSnackbar({ open: true, message: msg, severity: sev });
 
@@ -475,8 +483,8 @@ function ProductsPage() {
     const q = search.trim().toLowerCase();
     return products.filter((p) =>
       getDisplayName(p).toLowerCase().includes(q) ||
-      getDisplayId(p).toLowerCase().includes(q)   ||
-      getCategoryName(p).toLowerCase().includes(q)||
+      getDisplayId(p).toLowerCase().includes(q) ||
+      getCategoryName(p).toLowerCase().includes(q) ||
       (p.brand || '').toLowerCase().includes(q)
     );
   }, [products, search]);
@@ -486,27 +494,28 @@ function ProductsPage() {
     [filteredProducts, page, rowsPerPage],
   );
 
-  // Expand — use inline variants first, fetch fresh if empty
+  // Expand — use inline variants from product data; only call API if inline is empty
   const handleExpand = useCallback(async (row) => {
     const id = getDisplayId(row);
     if (expandedId === id) { setExpandedId(null); setVariants([]); return; }
     setExpandedId(id);
 
-    // Use inline variants from API response immediately
+    // Products API already embeds variants[] — use them immediately
     const inline = Array.isArray(row.variants) ? row.variants : [];
     setVariants(inline);
+    console.log(`[Products] Expanded ${id} — ${inline.length} inline variant(s)`);
 
-    // Then fetch fresh in background
-    setVariantsLoading(true);
-    try {
-      const res = await fetchVariantsAction(id);
-      const list = Array.isArray(res) ? res
-        : Array.isArray(res.variants) ? res.variants
-        : Array.isArray(res.data)     ? res.data
-        : inline;
-      setVariants(list);
-    } catch { /* keep inline data */ }
-    finally { setVariantsLoading(false); }
+    // Only call GetProductVariants if inline is empty (and handle gracefully)
+    if (inline.length === 0) {
+      setVariantsLoading(true);
+      try {
+        const fresh = await fetchVariantsAction(id);
+        if (Array.isArray(fresh) && fresh.length > 0) {
+          setVariants(fresh);
+        }
+      } catch { /* keep empty — broken backend endpoint */ }
+      finally { setVariantsLoading(false); }
+    }
   }, [expandedId]);
 
   // Handlers
@@ -552,32 +561,20 @@ function ProductsPage() {
 
   const handleVariantSuccess = async (result) => {
     const apiOk = result?.success !== false;
-    console.log('✅ [Variant] Saved — keeping modal open for more variants');
+    console.log('✅ [Variant] Saved — refreshing product list');
     showSnack(
-      result?.message || (apiOk ? 'Variant saved successfully' : 'Variant saved locally (API unavailable)'),
+      result?.message || (apiOk ? 'Variant saved successfully' : 'Variant saved (API unavailable)'),
       apiOk ? 'success' : 'warning'
     );
 
-    // Stay in modal — reset edit mode so "+ Add New Variant" / new saves work
     setVariantModal((prev) => ({ ...prev, variant: null }));
 
-    const pid = variantModal.product
-      ? getDisplayId(variantModal.product)
-      : expandedId;
-
-    if (pid) {
-      setVariantsLoading(true);
-      try {
-        const res = await fetchVariantsAction(pid);
-        const list = Array.isArray(res) ? res : (res.variants ?? res.data ?? []);
-        setVariants(list);
-      } catch (err) {
-        console.error('❌ [Variant] Refresh failed:', err.message);
-      } finally {
-        setVariantsLoading(false);
-      }
-    }
-    try { await refreshProducts(); } catch { /* silent */ }
+    // Refresh products — variants are embedded in the product list response
+    try {
+      await refreshProducts();
+      // After refresh, update expanded row's variants from the fresh product data
+      // Products/index will re-render with updated row.variants automatically
+    } catch { /* silent */ }
   };
 
   const handleConfirmDeleteVariant = async () => {
@@ -603,8 +600,10 @@ function ProductsPage() {
   return (
     <Box>
       {/* Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        mb: 3, flexWrap: 'wrap', gap: 2 }}>
+      <Box sx={{
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        mb: 3, flexWrap: 'wrap', gap: 2
+      }}>
         <Box>
           <Typography variant="h5" fontWeight={700}>Products</Typography>
           <Typography variant="body2" color="text.secondary">
@@ -632,8 +631,10 @@ function ProductsPage() {
         searchPlaceholder="Search by name, ID, category, brand…" showDateFilter={false} />
 
       {/* Table */}
-      <Paper elevation={0} sx={{ border: '1px solid', borderColor: 'divider',
-        borderRadius: '8px', overflow: 'hidden' }}>
+      <Paper elevation={0} sx={{
+        border: '1px solid', borderColor: 'divider',
+        borderRadius: '8px', overflow: 'hidden'
+      }}>
         <Table>
           <TableHead>
             <TableRow sx={{ bgcolor: 'grey.50' }}>
@@ -655,7 +656,7 @@ function ProductsPage() {
                 <TableCell colSpan={10} align="center" sx={{ py: 6, color: 'text.secondary' }}>
                   {productsLoading ? 'Loading products…'
                     : search ? `No products match "${search}"`
-                    : 'No products yet. Click Add New Product to get started.'}
+                      : 'No products yet. Click Add New Product to get started.'}
                 </TableCell>
               </TableRow>
             ) : (
@@ -664,8 +665,8 @@ function ProductsPage() {
                   row={row} index={page * rowsPerPage + i}
                   expanded={expandedId === getDisplayId(row)}
                   onExpand={handleExpand}
-                  onView={(r)   => setViewModal({ open: true, product: r })}
-                  onEdit={(r)   => setEditModal({ open: true, product: r })}
+                  onView={(r) => setViewModal({ open: true, product: r })}
+                  onEdit={(r) => setEditModal({ open: true, product: r })}
                   onDelete={(r) => setDeleteDialog({ open: true, product: r })}
                   variants={expandedId === getDisplayId(row) ? variants : (row.variants || [])}
                   variantsLoading={expandedId === getDisplayId(row) && variantsLoading}

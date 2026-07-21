@@ -7,6 +7,7 @@ import CategoriesPage from '../pages/admin/Categories';
 import OrdersPage from '../pages/admin/Orders';
 import UsersPage from '../pages/admin/Users';
 import ShipmentPage from '../pages/admin/Shipment';
+import PincodePage  from '../pages/admin/AddNewPinCode';
 import AdminLoginPage from '../pages/admin/Login';
 import HomePage from '../pages/home';
 import AboutPage from '../pages/about';
@@ -58,6 +59,8 @@ function AppRoutes() {
         <Route path="orders" element={<OrdersPage />} />
         <Route path="users" element={<UsersPage />} />
         <Route path="shipments" element={<ShipmentPage />} />
+        <Route path="pincodes"    element={<PincodePage />} />
+        <Route path="add-pin-code" element={<PincodePage />} />
       </Route>
 
       {/* ── User routes — dedicated user pages under /user/* ── */}

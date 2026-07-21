@@ -1,0 +1,64 @@
+// ── Pincode Management Page ────────────────────────────────────────────────────
+
+// Stat cards
+.pc-stat {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  border-radius: 10px;
+  border: 1px solid;
+  flex: 1 1 180px;
+  min-width: 160px;
+
+  &__icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    svg { font-size: 22px; }
+  }
+}
+
+// Table
+.pc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+
+  thead tr {
+    background: #f9fafb;
+
+    th {
+      padding: 11px 14px;
+      text-align: left;
+      font-weight: 700;
+      font-size: 0.75rem;
+      color: #344054;
+      white-space: nowrap;
+      border-bottom: 1px solid #e4e7ec;
+    }
+  }
+
+  tbody tr {
+    border-bottom: 1px solid #f2f4f7;
+    transition: background 0.12s;
+
+    &:last-child { border-bottom: none; }
+    &:hover { background: #f8faff; }
+
+    td {
+      padding: 10px 14px;
+      color: #101828;
+      vertical-align: middle;
+    }
+  }
+
+  &__num  { color: #667085; width: 40px; }
+  &__pin  { font-family: monospace; font-weight: 600; }
+  &__date { color: #667085; font-size: 0.75rem; white-space: nowrap; }
+}

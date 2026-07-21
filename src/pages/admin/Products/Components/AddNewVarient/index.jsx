@@ -129,15 +129,30 @@ function AddNewVariant({ productId, onSuccess }) {
   };
 
   const handleSaveAll = async () => {
-    if (staged.length === 0) return;
+    if (!Array.isArray(staged) || staged.length === 0) {
+      setSubmitError('No variants to save. Add at least one variant to the list first.');
+      return;
+    }
 
     setSaving(true);
+    setSubmitError('');
+
+    console.group('📦 [Variants] Save All');
+    console.log('productId      :', productId);
+    console.log('variant count  :', staged.length);
+    staged.forEach((v, i) => {
+      console.log(`  [${i}] color=${v.color_name} size=${v.size} mrp=${v.mrp} selling=${v.selling_price} stock=${v.stock}`);
+    });
+    console.groupEnd();
+
     try {
-      // Send clean payload
-      await createVariantsBulkAction(productId, { variants: staged });
+      // Pass staged array directly — NOT wrapped in an object
+      const result = await createVariantsBulkAction(productId, staged);
+      console.log('✅ [Variants] Bulk save success:', result);
       onSuccess?.();
       setStaged([]);
     } catch (err) {
+      console.error('❌ [Variants] Bulk save failed:', err.message);
       setSubmitError(err.message || 'Failed to save variants');
     } finally {
       setSaving(false);
