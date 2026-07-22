@@ -19,23 +19,8 @@ import {
   usePincodes, lookupPincode, emptyPincodeForm,
   STATUS_OPTIONS, DELIVERY_TIME_OPTIONS,
 } from './PinCodeData';
+import StatsCard from '../../../components/StatsCard';
 import './index.scss';
-
-// ── Stat card ─────────────────────────────────────────────────────────────────
-function StatCard({ icon, label, value, sub, color }) {
-  return (
-    <Paper elevation={0} className="pc-stat" sx={{ borderColor: color + '33' }}>
-      <Box className="pc-stat__icon" sx={{ bgcolor: color + '18', color }}>
-        {icon}
-      </Box>
-      <Box>
-        <Typography variant="caption" color="text.secondary">{label}</Typography>
-        <Typography variant="h5" fontWeight={700} color={color}>{value}</Typography>
-        {sub && <Typography variant="caption" color="text.secondary">{sub}</Typography>}
-      </Box>
-    </Paper>
-  );
-}
 
 // ── Add / Edit Drawer ─────────────────────────────────────────────────────────
 function PincodeDrawer({ open, editing, onClose, onSave }) {
@@ -272,15 +257,15 @@ function AddNewPinCodePage() {
         </Button>
       </Box>
 
-      {/* ── Stat Cards ── */}
+      {/* ── Stat Cards — using shared StatsCard component ── */}
       <Stack direction="row" flexWrap="wrap" gap={2} mb={3}>
-        <StatCard icon={<LocationOnOutlinedIcon />} label="Total Pincodes"
+        <StatsCard icon={<LocationOnOutlinedIcon />} label="Total Pincodes"
           value={stats.total.toLocaleString('en-IN')} sub="All added pincodes" color="#1565c0" />
-        <StatCard icon={<CheckBoxOutlinedIcon />} label="Serviceable"
+        <StatsCard icon={<CheckBoxOutlinedIcon />} label="Serviceable"
           value={stats.serviceable.toLocaleString('en-IN')} sub="Pincodes we deliver to" color="#16a34a" />
-        <StatCard icon={<CancelOutlinedIcon />} label="Non-Serviceable"
+        <StatsCard icon={<CancelOutlinedIcon />} label="Non-Serviceable"
           value={stats.nonServiceable.toLocaleString('en-IN')} sub="Pincodes we don't deliver to" color="#dc2626" />
-        <StatCard icon={<AccessTimeIcon />} label="Last Updated"
+        <StatsCard icon={<AccessTimeIcon />} label="Last Updated"
           value={stats.lastUpdated} color="#7c3aed" />
       </Stack>
 

@@ -1,64 +1,190 @@
-// ── Pincode Management Page ────────────────────────────────────────────────────
+// ════════════════════════════════════════════════════════
+//  Pincode Management Page — index.scss
+//  White background, clean card shadows, styled table
+//  Drawer panel styles also here
+// ════════════════════════════════════════════════════════
 
-// Stat cards
-.pc-stat {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 16px 20px;
-  border-radius: 10px;
-  border: 1px solid;
-  flex: 1 1 180px;
-  min-width: 160px;
-
-  &__icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-
-    svg { font-size: 22px; }
-  }
-}
-
-// Table
+// ── Page table ────────────────────────────────────────────────────────────────
 .pc-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.82rem;
+  background: #ffffff;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  font-size: 0.83rem;
 
+  // ── Header row ──────────────────────────────────────────
   thead tr {
     background: #f9fafb;
+    border-bottom: 1.5px solid #e4e7ec;
 
     th {
-      padding: 11px 14px;
+      padding: 11px 16px;
       text-align: left;
       font-weight: 700;
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       color: #344054;
       white-space: nowrap;
-      border-bottom: 1px solid #e4e7ec;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
     }
   }
 
+  // ── Body rows ────────────────────────────────────────────
   tbody tr {
     border-bottom: 1px solid #f2f4f7;
     transition: background 0.12s;
 
     &:last-child { border-bottom: none; }
-    &:hover { background: #f8faff; }
+    &:hover      { background: #f8faff; }
 
     td {
-      padding: 10px 14px;
+      padding: 11px 16px;
       color: #101828;
       vertical-align: middle;
     }
   }
 
-  &__num  { color: #667085; width: 40px; }
-  &__pin  { font-family: monospace; font-weight: 600; }
-  &__date { color: #667085; font-size: 0.75rem; white-space: nowrap; }
+  // Column modifiers
+  &__num  { color: #98a2b3; width: 44px; font-size: 0.78rem; }
+  &__pin  { font-family: 'Courier New', monospace; font-weight: 700; color: #1565c0; }
+  &__date { color: #667085; font-size: 0.74rem; white-space: nowrap; }
+}
+
+// ── Add/Edit Drawer panel ─────────────────────────────────────────────────────
+// The MUI Drawer paper is styled via sx props, but we scope extra detail here.
+
+.pc-drawer {
+  // Section labels inside drawer
+  &__label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #344054;
+    margin-bottom: 6px;
+  }
+
+  // Status radio options
+  &__radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    .pc-drawer__radio-option {
+      border: 1.5px solid #e4e7ec;
+      border-radius: 8px;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+
+      &:hover { border-color: #1565c0; background: #f0f7ff; }
+
+      &--serviceable.selected {
+        border-color: #16a34a;
+        background: #f0fdf4;
+      }
+
+      &--non-serviceable.selected {
+        border-color: #dc2626;
+        background: #fff5f5;
+      }
+    }
+  }
+
+  // Drawer footer buttons
+  &__footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 20px;
+    margin-top: 8px;
+    border-top: 1px solid #e4e7ec;
+
+    button {
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.84rem;
+      padding: 8px 20px;
+      text-transform: none;
+    }
+  }
+}
+
+// ── Status chip colours ───────────────────────────────────────────────────────
+.pc-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+
+  &--serviceable {
+    background: #dcfce7;
+    color: #16a34a;
+    border: 1px solid #bbf7d0;
+  }
+
+  &--non-serviceable {
+    background: #fee2e2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+  }
+}
+
+// ── Filter bar ────────────────────────────────────────────────────────────────
+.pc-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 16px;
+  background: #ffffff;
+  border: 1px solid #e4e7ec;
+  border-radius: 10px;
+  margin-bottom: 20px;
+
+  .pc-filter__search {
+    flex: 1 1 180px;
+    min-width: 160px;
+
+    input {
+      font-size: 0.83rem;
+    }
+  }
+
+  .pc-filter__select {
+    min-width: 140px;
+    font-size: 0.83rem;
+  }
+
+  .pc-filter__reset {
+    color: #667085;
+    font-size: 0.82rem;
+    cursor: pointer;
+    border: none;
+    background: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+    transition: background 0.15s;
+
+    &:hover { background: #f2f4f7; }
+  }
+
+  .pc-filter__apply {
+    background: #1565c0;
+    color: #ffffff;
+    border: none;
+    padding: 7px 18px;
+    border-radius: 8px;
+    font-size: 0.83rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.15s;
+
+    &:hover { background: #0d47a1; }
+  }
 }

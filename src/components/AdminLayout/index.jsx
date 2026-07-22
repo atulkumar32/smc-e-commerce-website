@@ -21,7 +21,7 @@ function AdminLayout() {
   const title = pageTitles[location.pathname] || 'Admin';
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
+    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: '#ffffff' }}>
       <AdminHeader title={title} onMenuClick={() => setMobileOpen(true)} />
       <Sidebar mobileOpen={mobileOpen} onMobileClose={() => setMobileOpen(false)} />
       <Box
@@ -30,6 +30,7 @@ function AdminLayout() {
           flexGrow: 1,
           width: { md: `calc(100% - ${DRAWER_WIDTH}px)` },
           minHeight: '100vh',
+          bgcolor: '#ffffff',
         }}
       >
         <Toolbar />

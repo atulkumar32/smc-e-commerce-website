@@ -19,6 +19,7 @@ import AdminFilters from '../../../components/AdminFilters';
 import OrderActionDialog from '../../../components/OrderActionDialog';
 import { ORDER_COLUMNS, useOrders, statusColor } from './OrderData';
 import { generateInvoiceAction, readyToDispatchAction } from '../../../Actions/OrderStatusAction';
+import StatsCard from '../../../components/StatsCard';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -26,28 +27,6 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 
 // import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 // import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
-
-// ── Summary card ──────────────────────────────────────────────────────────────
-function SummaryCard({ label, value, color = 'primary', active, onClick }) {
-  return (
-    <Paper elevation={0} onClick={onClick} sx={{
-      p: 2, minWidth: 130, flex: '1 1 130px',
-      borderRadius: '10px', cursor: 'pointer',
-      border: '1.5px solid',
-      borderColor: active ? `${color}.main` : 'divider',
-      bgcolor: active ? `${color}.50` : 'background.paper',
-      transition: 'all 0.18s',
-      '&:hover': { transform: 'translateY(-3px)', boxShadow: 3 },
-    }}>
-      <Typography variant="caption" color="text.secondary" display="block" mb={0.25}>
-        {label}
-      </Typography>
-      <Typography variant="h5" fontWeight={700} color={`${color}.main`}>
-        {Number(value || 0).toLocaleString('en-IN')}
-      </Typography>
-    </Paper>
-  );
-}
 
 // ── Orders Page ───────────────────────────────────────────────────────────────
 function OrdersPage() {
@@ -252,22 +231,22 @@ function OrdersPage() {
 
   return (
     <Box>
-      {/* ── Summary Cards ── */}
+      {/* ── Summary Cards — using shared StatsCard component ── */}
       <Stack direction="row" flexWrap="wrap" gap={1.5} mb={3}>
-        <SummaryCard label="Total Orders" value={summary.total_orders}
-          color="primary"   active={activeStatus === ''} onClick={() => handleCardClick('')} />
-        <SummaryCard label="Accepted" value={summary.accepted}
-          color="success"   active={activeStatus === 'accepted'}   onClick={() => handleCardClick('accepted')} />
-        <SummaryCard label="To Pack" value={summary.to_pack}
-          color="info"      active={activeStatus === 'processing'} onClick={() => handleCardClick('processing')} />
-        <SummaryCard label="In Transit" value={summary.in_transit}
-          color="secondary" active={activeStatus === 'shipped'}    onClick={() => handleCardClick('shipped')} />
-        <SummaryCard label="Completed" value={summary.completed}
-          color="success"   active={activeStatus === 'completed'}  onClick={() => handleCardClick('completed')} />
-        <SummaryCard label="Upcoming" value={summary.upcoming}
-          color="warning"   active={activeStatus === 'upcoming'}   onClick={() => handleCardClick('upcoming')} />
-        <SummaryCard label="Cancelled" value={summary.cancelled}
-          color="error"     active={activeStatus === 'cancelled'}  onClick={() => handleCardClick('cancelled')} />
+        <StatsCard label="Total Orders" value={summary.total_orders}
+          color="#1565c0" icon="📦" onClick={() => handleCardClick('')} />
+        <StatsCard label="Accepted"     value={summary.accepted}
+          color="#16a34a" icon="✅" onClick={() => handleCardClick('accepted')} />
+        <StatsCard label="To Pack"      value={summary.to_pack}
+          color="#0891b2" icon="🗃️" onClick={() => handleCardClick('processing')} />
+        <StatsCard label="In Transit"   value={summary.in_transit}
+          color="#7c3aed" icon="🚚" onClick={() => handleCardClick('shipped')} />
+        <StatsCard label="Completed"    value={summary.completed}
+          color="#059669" icon="🏁" onClick={() => handleCardClick('completed')} />
+        <StatsCard label="Upcoming"     value={summary.upcoming}
+          color="#d97706" icon="🕐" onClick={() => handleCardClick('upcoming')} />
+        <StatsCard label="Cancelled"    value={summary.cancelled}
+          color="#dc2626" icon="❌" onClick={() => handleCardClick('cancelled')} />
       </Stack>
 
       {/* ── Page header ── */}

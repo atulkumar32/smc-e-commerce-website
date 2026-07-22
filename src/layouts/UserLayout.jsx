@@ -22,6 +22,7 @@ function UserLayout() {
           flexGrow: 1,
           width: { md: `calc(100% - ${DRAWER_WIDTH}px)` },
           minHeight: '100vh',
+          bgcolor: '#ffffff',
         }}
       >
         <Toolbar />

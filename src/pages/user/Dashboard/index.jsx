@@ -1,20 +1,21 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Box, Typography, Grid, Card, CardContent, Button, Chip,
-  CircularProgress, Stack, Avatar, Divider, Alert,
+  Box, Typography, Button, Chip, CircularProgress,
+  Stack, Divider, Alert, Grid, Paper,
 } from '@mui/material';
-import ShoppingBagOutlinedIcon  from '@mui/icons-material/ShoppingBagOutlined';
-import CurrencyRupeeIcon        from '@mui/icons-material/CurrencyRupee';
-import PendingActionsIcon       from '@mui/icons-material/PendingActions';
+import ShoppingBagOutlinedIcon   from '@mui/icons-material/ShoppingBagOutlined';
+import CurrencyRupeeIcon         from '@mui/icons-material/CurrencyRupee';
+import PendingActionsIcon        from '@mui/icons-material/PendingActions';
 import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
-import CheckCircleOutlinedIcon  from '@mui/icons-material/CheckCircleOutlined';
-import ArrowForwardIcon         from '@mui/icons-material/ArrowForward';
-import { isUserAuthenticated }  from '../../../services/apiClients';
-import { fetchDashboardCounts,  getDashboardCredentials }
-  from '../../../Actions/Users/DashboardCountActions';
+import CheckCircleOutlinedIcon   from '@mui/icons-material/CheckCircleOutlined';
+import ArrowForwardIcon          from '@mui/icons-material/ArrowForward';
+import { isUserAuthenticated }   from '../../../services/apiClients';
+import {
+  fetchDashboardCounts, fetchDashboardRecentOrders, getDashboardCredentials,
+} from '../../../Actions/Users/DashboardCountActions';
+import StatsCard from '../../../components/StatsCard';
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
 const statusColor = (s = '') => {
   const v = String(s).toLowerCase();
   if (v.includes('deliver') || v.includes('complet')) return 'success';
@@ -28,34 +29,6 @@ const fmtDate = (d) => d
   : '—';
 const fmtAmt = (v) => `₹${Number(v || 0).toLocaleString('en-IN')}`;
 
-// ── Stat card ─────────────────────────────────────────────────────────────────
-function StatCard({ icon, label, value, color, onClick }) {
-  return (
-    <Card elevation={0} onClick={onClick}
-      sx={{ border: '1px solid', borderColor: 'divider', borderRadius: '12px',
-        cursor: onClick ? 'pointer' : 'default',
-        transition: 'all 0.18s',
-        '&:hover': onClick ? { transform: 'translateY(-3px)', boxShadow: 3 } : {},
-      }}>
-      <CardContent sx={{ p: { xs: 2, sm: 2.5 } }}>
-        <Stack direction="row" alignItems="center" spacing={2}>
-          <Avatar sx={{ bgcolor: `${color}.lighter` || '#f5f5f5',
-            width: 48, height: 48, border: '1.5px solid', borderColor: `${color}.light` }}>
-            {icon}
-          </Avatar>
-          <Box>
-            <Typography variant="h5" fontWeight={700} color={`${color}.main`} lineHeight={1.1}>
-              {value}
-            </Typography>
-            <Typography variant="caption" color="text.secondary">{label}</Typography>
-          </Box>
-        </Stack>
-      </CardContent>
-    </Card>
-  );
-}
-
-// ── Dashboard ─────────────────────────────────────────────────────────────────
 function UserDashboard() {
   const navigate = useNavigate();
   const creds    = getDashboardCredentials();
@@ -70,12 +43,13 @@ function UserDashboard() {
     (async () => {
       try {
         const [c, o] = await Promise.all([
-          fetchDashboardCounts()
+          fetchDashboardCounts(),
+          fetchDashboardRecentOrders({ page: 1, limit: 5 }),
         ]);
         setCounts(c);
         setOrders(Array.isArray(o) ? o : []);
       } catch (err) {
-        console.error('[Dashboard] load error:', err.message);
+        console.error('[Dashboard]', err.message);
         setError(err.message);
       } finally {
         setLoading(false);
@@ -85,19 +59,18 @@ function UserDashboard() {
 
   const stats = useMemo(() => {
     if (counts) return {
-      total:    Number(counts.total_orders   || counts.totalOrders   || 0),
-      spent:    Number(counts.total_spent    || counts.totalSpent    || 0),
-      pending:  Number(counts.pending        || 0),
-      shipped:  Number(counts.shipped        || counts.in_transit    || 0),
-      delivered:Number(counts.delivered      || counts.completed     || 0),
+      total:     Number(counts.total_orders  || counts.totalOrders  || 0),
+      spent:     Number(counts.total_spent   || counts.totalSpent   || 0),
+      pending:   Number(counts.pending       || 0),
+      shipped:   Number(counts.shipped       || counts.in_transit   || 0),
+      delivered: Number(counts.delivered     || counts.completed    || 0),
     };
-    // fallback: compute from orders
     return {
-      total:    orders.length,
-      spent:    orders.reduce((s, o) => s + Number(o.total_amount || o.total || 0), 0),
-      pending:  orders.filter(o => String(o.status||'').toLowerCase().includes('pend')).length,
-      shipped:  orders.filter(o => String(o.status||'').toLowerCase().includes('ship')).length,
-      delivered:orders.filter(o => String(o.status||'').toLowerCase().includes('deliver')).length,
+      total:     orders.length,
+      spent:     orders.reduce((s, o) => s + Number(o.total_amount || o.total || 0), 0),
+      pending:   orders.filter(o => String(o.status||'').toLowerCase().includes('pend')).length,
+      shipped:   orders.filter(o => String(o.status||'').toLowerCase().includes('ship')).length,
+      delivered: orders.filter(o => String(o.status||'').toLowerCase().includes('deliver')).length,
     };
   }, [counts, orders]);
 
@@ -105,7 +78,7 @@ function UserDashboard() {
 
   return (
     <Box sx={{ px: { xs: 2, sm: 3 }, py: { xs: 2.5, sm: 3 }, maxWidth: 960, mx: 'auto' }}>
-      {/* ── Greeting ── */}
+      {/* Greeting */}
       <Box sx={{ display: 'flex', alignItems: { xs: 'flex-start', sm: 'center' },
         justifyContent: 'space-between', flexWrap: 'wrap', gap: 1.5, mb: 3 }}>
         <Box>
@@ -122,33 +95,32 @@ function UserDashboard() {
 
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
-      {/* ── Stat cards ── */}
+      {/* Stat cards — using shared StatsCard component */}
       <Grid container spacing={2} mb={3}>
         {[
-          { icon: <ShoppingBagOutlinedIcon sx={{ color: 'primary.main' }} />,
-            label: 'Total Orders', value: stats.total, color: 'primary',
-            onClick: () => navigate('/user/orders') },
-          { icon: <CurrencyRupeeIcon sx={{ color: 'success.main' }} />,
-            label: 'Total Spent',  value: fmtAmt(stats.spent), color: 'success' },
-          { icon: <PendingActionsIcon sx={{ color: 'warning.main' }} />,
-            label: 'Pending',     value: stats.pending, color: 'warning' },
-          { icon: <LocalShippingOutlinedIcon sx={{ color: 'info.main' }} />,
-            label: 'Shipped',     value: stats.shipped, color: 'info' },
-          { icon: <CheckCircleOutlinedIcon sx={{ color: 'success.main' }} />,
-            label: 'Delivered',   value: stats.delivered, color: 'success' },
+          { icon: <ShoppingBagOutlinedIcon />,   label: 'Total Orders', value: stats.total,
+            color: '#1565c0', onClick: () => navigate('/user/orders') },
+          { icon: <CurrencyRupeeIcon />,         label: 'Total Spent',  value: fmtAmt(stats.spent),
+            color: '#16a34a' },
+          { icon: <PendingActionsIcon />,         label: 'Pending',     value: stats.pending,
+            color: '#d97706' },
+          { icon: <LocalShippingOutlinedIcon />, label: 'Shipped',      value: stats.shipped,
+            color: '#0891b2' },
+          { icon: <CheckCircleOutlinedIcon />,   label: 'Delivered',    value: stats.delivered,
+            color: '#16a34a' },
         ].map((s) => (
           <Grid item xs={6} sm={4} md={2.4} key={s.label}>
-            <StatCard {...s} />
+            <StatsCard {...s} />
           </Grid>
         ))}
       </Grid>
 
-      {/* ── Recent Orders ── */}
-      <Box sx={{ border: '1px solid', borderColor: 'divider',
+      {/* Recent Orders */}
+      <Paper elevation={0} sx={{ border: '1px solid', borderColor: 'divider',
         borderRadius: '12px', overflow: 'hidden' }}>
-        <Box sx={{ px: 2.5, py: 1.75, display: 'flex',
-          alignItems: 'center', justifyContent: 'space-between',
-          borderBottom: '1px solid', borderColor: 'divider', bgcolor: 'grey.50' }}>
+        <Box sx={{ px: 2.5, py: 1.75, display: 'flex', alignItems: 'center',
+          justifyContent: 'space-between', borderBottom: '1px solid', borderColor: 'divider',
+          bgcolor: 'grey.50' }}>
           <Typography variant="subtitle1" fontWeight={700}>Recent Orders</Typography>
           <Button size="small" variant="text" onClick={() => navigate('/user/orders')}>
             See all →
@@ -163,9 +135,7 @@ function UserDashboard() {
           <Box sx={{ textAlign: 'center', py: 5 }}>
             <Typography color="text.secondary">No orders yet.</Typography>
             <Button variant="contained" size="small" sx={{ mt: 1.5 }}
-              onClick={() => navigate('/products')}>
-              Start Shopping
-            </Button>
+              onClick={() => navigate('/products')}>Start Shopping</Button>
           </Box>
         ) : (
           orders.map((o, i) => (
@@ -189,7 +159,7 @@ function UserDashboard() {
             </Box>
           ))
         )}
-      </Box>
+      </Paper>
     </Box>
   );
 }
