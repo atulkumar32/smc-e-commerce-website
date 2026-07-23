@@ -92,6 +92,8 @@ export const URL_ADMIN_GET_SHIPMENT_DETAILS = `${BASE_URL}smc/admin/api/GetShipm
 export const URL_ORDER_STATUS_ACTION      = `${BASE_URL}smc/admin/api/OrderStatusActions.php`;
 export const URL_GENERATE_INVOICE        = `${BASE_URL}smc/admin/api/GenerateAdminInvoice.php`;
 export const URL_READY_TO_DISPATCH       = `${BASE_URL}smc/admin/api/ReadyToDispatch.php`;
+export const URL_SAVE_PINCODE            = `${BASE_URL}smc/admin/api/savePincodes.php`;
+export const URL_GET_PINCODE_LIST        = `${BASE_URL}smc/admin/api/GetPincodeList.php`;
 
 
 // ── Variant APIs ──────────────────────────────────────────────────

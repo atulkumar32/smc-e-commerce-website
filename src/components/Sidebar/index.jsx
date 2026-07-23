@@ -15,6 +15,7 @@ import CategoryIcon        from '@mui/icons-material/Category';
 import LocalShippingIcon   from '@mui/icons-material/LocalShipping';
 import PinDropOutlinedIcon from '@mui/icons-material/PinDropOutlined';
 import LogoutIcon          from '@mui/icons-material/Logout';
+import './index.scss';
 
 export const DRAWER_WIDTH = 240;
 
@@ -87,7 +88,8 @@ function Sidebar({ mobileOpen, onMobileClose }) {
                 onClick={() => { navigate(path); onMobileClose?.(); }}
                 sx={{
                   borderRadius: '8px', py: 0.9, px: 1.5,
-                  color:   active ? ACTIVE_COLOR : IDLE_COLOR,
+                  // color:   active ? ACTIVE_COLOR : IDLE_COLOR,
+                  color:'#ffff!important',
                   bgcolor: active ? ACTIVE_BG    : 'transparent',
                   '&:hover': { bgcolor: active ? ACTIVE_BG : HOVER_BG, color: '#fff' },
                   '&.Mui-selected': { bgcolor: ACTIVE_BG },
@@ -99,17 +101,20 @@ function Sidebar({ mobileOpen, onMobileClose }) {
                   {icon}
                 </ListItemIcon>
                 <ListItemText
-                  primary={label}
+
+className='ListItemText-sidebar'
+primary={label}
                   primaryTypographyProps={{
                     fontSize: '0.82rem',
                     fontWeight: active ? 700 : 500,
-                    color: 'inherit',
+                    color: '#fff!important',
                   }}
                 />
                 {/* Active indicator bar */}
                 {active && (
                   <Box sx={{
                     width: 3, height: 20, borderRadius: 2,
+                    color:'#ffff',
                     bgcolor: ACTIVE_COLOR, flexShrink: 0,
                   }} />
                 )}

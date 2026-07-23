@@ -146,7 +146,7 @@
   // ── Info panel ────────────────────────────────────────────────
   &__info {
     @include flex-col;
-    gap: 1.25rem;
+    // gap: 1.25rem;
   }
 
   &__breadcrumb {
@@ -637,4 +637,114 @@
       padding-bottom: 2px;
     }
   }
+}
+
+// ── Pincode check widget ──────────────────────────────────────────────────────
+.pd__pincode {
+  margin-top: 1.5rem;
+  padding: 1rem 1.25rem;
+  background: #f8f9fa;
+  border: 1px solid #e4e7ec;
+  border-radius: 10px;
+
+  &-label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #344054;
+    margin: 0 0 0.6rem;
+  }
+
+  &-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  &-input {
+    flex: 1;
+    padding: 9px 12px;
+    font-size: 0.85rem;
+    border: 1px solid #d0d5dd;
+    border-radius: 8px;
+    outline: none;
+    letter-spacing: 0.1em;
+    font-family: monospace;
+    background: #fff;
+    transition: border-color 0.15s;
+
+    &::placeholder { color: #98a2b3; letter-spacing: 0; font-family: inherit; }
+    &:focus { border-color: #1565c0; box-shadow: 0 0 0 3px rgba(21,101,192,0.1); }
+  }
+
+  &-btn {
+    padding: 9px 18px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    background: #1565c0;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s;
+
+    &:hover:not(:disabled) { background: #0d47a1; }
+
+    &:disabled {
+      background: #b0bec5;
+      cursor: not-allowed;
+    }
+  }
+
+  &-hint {
+    margin: 0.5rem 0 0;
+    font-size: 0.75rem;
+    color: #98a2b3;
+  }
+
+  // ── Result box ──────────────────────────────────────────────────────────────
+  &-result {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-top: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-size: 0.82rem;
+
+    &__icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+
+    strong { display: block; font-size: 0.85rem; margin-bottom: 4px; }
+
+    &--success {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      color: #166534;
+    }
+
+    &--error {
+      background: #fff5f5;
+      border: 1px solid #fecaca;
+      color: #991b1b;
+    }
+  }
+
+  // delivery details list inside result
+  &-details {
+    list-style: none;
+    padding: 0;
+    margin: 4px 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    li { font-size: 0.78rem; }
+  }
+}
+
+// Buy Now disabled state visual cue
+.pd__btn--buy:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+  filter: grayscale(0.3);
 }

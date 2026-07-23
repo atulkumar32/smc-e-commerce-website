@@ -6,6 +6,7 @@ import { RECENTLY_VIEWED } from '../productData';
 import BASE_URL from '../../../Config/ApiConfig';
 import { MEDIA_BASE } from '../../../Config/UrlsConfig';
 import useProductDetail from '../useProductDetail';
+import { checkPincodeAction } from '../../../Actions/CheckPinCodeAction';
 import './style.scss';
 
 function resolveApiImage(path) {
@@ -161,6 +162,13 @@ function ProductDetail() {
   const [error, setError] = useState('');
   const [showBuyNowModal, setShowBuyNowModal] = useState(false);
 
+  // ── Pincode check state ───────────────────────────────────────────────────
+  const [pincode,       setPincode]       = useState('');
+  const [pincodeResult, setPincodeResult] = useState(null); // null = not checked yet
+  const [pincodeChecking, setPincodeChecking] = useState(false);
+  // Buy Now is only enabled after a successful pincode check
+  const canBuyNow = pincodeResult?.available === true;
+
   const productId = new URLSearchParams(search).get('product_id') || slug;
 
   // use shared hook to fetch and normalize product
@@ -244,6 +252,18 @@ function ProductDetail() {
     setShowBuyNowModal(false);
     navigate('/login', { state: { from: '/checkout', selectedProduct, checkoutMode: 'user' } });
   }, [product, selectedColor, selectedSize, navigate]);
+
+  const handleCheckPincode = useCallback(async () => {
+    if (!pincode || pincode.trim().length !== 6) {
+      setPincodeResult({ available: false, message: 'Please enter a valid 6-digit pincode' });
+      return;
+    }
+    setPincodeChecking(true);
+    setPincodeResult(null);
+    const result = await checkPincodeAction(pincode.trim());
+    setPincodeResult(result);
+    setPincodeChecking(false);
+  }, [pincode]);
 
   if (loading) {
     return (
@@ -395,7 +415,10 @@ function ProductDetail() {
                 </svg>
                 Add to Cart
               </button>
-              <button className="pd__btn pd__btn--buy" onClick={handleBuyNow}>
+              <button className="pd__btn pd__btn--buy" onClick={handleBuyNow}
+                disabled={!canBuyNow}
+                title={!canBuyNow ? 'Enter a serviceable pincode to enable Buy Now' : ''}
+                style={{ opacity: canBuyNow ? 1 : 0.45, cursor: canBuyNow ? 'pointer' : 'not-allowed' }}>
                 Buy Now
               </button>
               <button
@@ -449,7 +472,75 @@ function ProductDetail() {
                 ))}
               </div>
             )}
-          </div>
+         
+            {/* ── Pincode Availability Check ── */}
+            <div className="pd__pincode">
+              <p className="pd__pincode-label">
+                📦 Check delivery availability
+              </p>
+              <div className="pd__pincode-row">
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={6}
+                  value={pincode}
+                  onChange={(e) => {
+                    // Allow digits only, reset result on change
+                    const val = e.target.value.replace(/\D/g, '');
+                    setPincode(val);
+                    if (pincodeResult) setPincodeResult(null);
+                  }}
+                  onKeyDown={(e) => e.key === 'Enter' && handleCheckPincode()}
+                  placeholder="Enter 6-digit pincode"
+                  className="pd__pincode-input"
+                />
+                <button
+                  className="pd__pincode-btn"
+                  onClick={handleCheckPincode}
+                  disabled={pincodeChecking || pincode.length !== 6}
+                >
+                  {pincodeChecking ? 'Checking…' : 'Check'}
+                </button>
+              </div>
+
+              {/* Result */}
+              {pincodeResult && (
+                <div className={`pd__pincode-result pd__pincode-result--${pincodeResult.available ? 'success' : 'error'}`}>
+                  <span className="pd__pincode-result__icon">
+                    {pincodeResult.available ? '✅' : '❌'}
+                  </span>
+                  <div>
+                    <strong>{pincodeResult.message}</strong>
+                    {pincodeResult.available && pincodeResult.data && (
+                      <ul className="pd__pincode-details">
+                        <li>📍 {pincodeResult.city}, {pincodeResult.state}</li>
+                        {pincodeResult.estimatedDelivery && (
+                          <li>🚚 Delivery in {pincodeResult.estimatedDelivery}</li>
+                        )}
+                        <li>
+                          💰 {pincodeResult.deliveryCharge > 0
+                            ? `Delivery charge: ₹${pincodeResult.deliveryCharge}`
+                            : 'Free delivery'}
+                        </li>
+                        {pincodeResult.notes && <li>ℹ️ {pincodeResult.notes}</li>}
+                      </ul>
+                    )}
+                    {!pincodeResult.available && (
+                      <p className="pd__pincode-hint">
+                        Sorry, we don't deliver to this pincode yet.
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {!pincodeResult && (
+                <p className="pd__pincode-hint">
+                  Enter your pincode to check if delivery is available and enable Buy Now.
+                </p>
+              )}
+            </div>
+           </div>
         </div>
 
         {/* ── Recently Viewed ── */}
