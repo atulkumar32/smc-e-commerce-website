@@ -1,18 +1,19 @@
 /**
  * PinCodeData.jsx
  *
- * Config + hook for the Pincode Management page.
- * Real data comes from GetPincodeList.php API.
- * Response shape:
- *   { data: [{ id, pincode, state, city, status, delivery_charge,
- *              estimated_delivery_time, notes, created_at }],
- *     total_records, total_pages, current_page }
+ * Data layer for Pincode Management page.
+ *   - Constants  : DELIVERY_TIME_OPTIONS, STATUS_OPTIONS, emptyPincodeForm
+ *   - Utility    : lookupPincode  (India Post API — auto-fill state/city)
+ *   - Custom hook: usePincodes   (server-side paginated list)
+ *
+ * All API calls → UploadloadPinCodesActions.js
+ * All URLs      → Config/UrlsConfig.js
  */
 
 import { useState, useCallback } from 'react';
-import { fetchPincodeListAction } from '../../../Actions/SavePincodeAction';
+import { fetchPincodeListAction } from '../../../Actions/UploadloadPinCodesActions';
 
-// ── Options ───────────────────────────────────────────────────────────────────
+// ── Constants ─────────────────────────────────────────────────────────────────
 export const DELIVERY_TIME_OPTIONS = [
   '1-2 Days', '2-3 Days', '3-5 Days',
   '5-7 Days', 'Same Day Delivery', 'Next Day Delivery',
@@ -29,15 +30,15 @@ export const emptyPincodeForm = {
   city:                    '',
   status:                  'serviceable',
   delivery_charge:         '',
-  estimated_delivery_time: '',   // matches API field name
+  estimated_delivery_time: '',   // exact field name the backend expects
   notes:                   '',
 };
 
-// ── Lookup pincode from India Post API ────────────────────────────────────────
+// ── India Post pincode lookup (auto-fill state + city) ────────────────────────
 export async function lookupPincode(pincode) {
-  if (!pincode || pincode.length !== 6) return null;
+  if (!pincode || String(pincode).trim().length !== 6) return null;
   try {
-    const res  = await fetch(`https://api.postalpincode.in/pincode/${pincode}`);
+    const res  = await fetch(`https://api.postalpincode.in/pincode/${pincode.trim()}`);
     const data = await res.json();
     if (!Array.isArray(data) || data[0]?.Status !== 'Success') return null;
     const po = data[0]?.PostOffice?.[0];
@@ -49,7 +50,7 @@ export async function lookupPincode(pincode) {
   } catch { return null; }
 }
 
-// ── Hook — server-side paginated pincodes ─────────────────────────────────────
+// ── Custom hook: usePincodes ──────────────────────────────────────────────────
 export function usePincodes() {
   const [pincodes,     setPincodes]     = useState([]);
   const [loading,      setLoading]      = useState(false);
@@ -63,7 +64,6 @@ export function usePincodes() {
 
   const PER_PAGE = 10;
 
-  // ── Fetch from API ──────────────────────────────────────────────────────────
   const fetchPincodes = useCallback(async (opts = {}) => {
     setLoading(true);
     setError('');
@@ -75,23 +75,21 @@ export function usePincodes() {
         state:    opts.state    ?? filterState,
       });
 
-      // Normalize status: API uses 'non_serviceable', UI uses both
-      const normalized = result.pincodes.map((p) => ({
+      // Normalize status values
+      let list = result.pincodes.map((p) => ({
         ...p,
         status: p.status === 'non_serviceable' ? 'non_serviceable' : p.status,
       }));
 
-      // Client-side filter by status (API doesn't support it yet)
-      const statusFilter = opts.filterStatus ?? filterStatus;
-      const filtered = statusFilter
-        ? normalized.filter((p) => p.status === statusFilter)
-        : normalized;
+      // Client-side status filter (API doesn't filter by status yet)
+      const sf = opts.filterStatus ?? filterStatus;
+      if (sf) list = list.filter((p) => p.status === sf);
 
-      setPincodes(filtered);
+      setPincodes(list);
       setTotalRecords(result.total_records);
       setTotalPages(result.total_pages);
     } catch (err) {
-      console.error('[PinCodeData] fetch error:', err.message);
+      console.error('[usePincodes] fetch error:', err.message);
       setError(err.message || 'Failed to load pincodes');
       setPincodes([]);
     } finally {
@@ -99,16 +97,16 @@ export function usePincodes() {
     }
   }, [page, search, filterState, filterStatus]);
 
-  // ── Stats computed from current page data (not full list) ──────────────────
-  // For accurate totals, the API doesn't return breakdown — so we show total_records
+  // Computed stats from current page (API doesn't return full breakdown)
   const stats = {
     total:          totalRecords,
     serviceable:    pincodes.filter((p) => p.status === 'serviceable').length,
-    nonServiceable: pincodes.filter((p) => p.status === 'non_serviceable' || p.status === 'non-serviceable').length,
-    lastUpdated:    pincodes.length > 0
-      ? new Date(Math.max(...pincodes.map((p) => new Date(p.created_at || p.updated_at)))).toLocaleDateString('en-IN', {
-          day: '2-digit', month: 'short', year: 'numeric',
-        })
+    nonServiceable: pincodes.filter((p) =>
+      p.status === 'non_serviceable' || p.status === 'non-serviceable').length,
+    lastUpdated: pincodes.length > 0
+      ? new Date(Math.max(...pincodes.map((p) =>
+          new Date(p.updated_at || p.created_at))))
+          .toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
       : '—',
   };
 
@@ -122,5 +120,58 @@ export function usePincodes() {
     stats,
     fetchPincodes,
     PER_PAGE,
+  };
+}
+
+// ── Custom hook: useBulkUpload ────────────────────────────────────────────────
+import { bulkUploadPincodesAction } from '../../../Actions/UploadloadPinCodesActions';
+
+export function useBulkUpload(onSuccess) {
+  const [file,       setFile]       = useState(null);
+  const [uploading,  setUploading]  = useState(false);
+  const [uploadResult, setUploadResult] = useState(null); // { inserted, failed, errors }
+  const [uploadError,  setUploadError]  = useState('');
+
+  const handleFileChange = (e) => {
+    const selected = e.target.files?.[0] || null;
+    setFile(selected);
+    setUploadResult(null);
+    setUploadError('');
+  };
+
+  const handleUpload = async () => {
+    if (!file) { setUploadError('Please select a CSV or Excel file first.'); return; }
+    setUploading(true);
+    setUploadError('');
+    setUploadResult(null);
+
+    try {
+      const data = await bulkUploadPincodesAction(file);
+      setUploadResult({
+        inserted: Number(data.inserted ?? data.success_count ?? 0),
+        failed:   Number(data.failed   ?? data.fail_count    ?? 0),
+        errors:   Array.isArray(data.errors) ? data.errors : [],
+        message:  data.message || 'Upload complete',
+      });
+      setFile(null);
+      onSuccess?.();
+    } catch (err) {
+      setUploadError(err.message || 'Bulk upload failed');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const reset = () => {
+    setFile(null);
+    setUploadResult(null);
+    setUploadError('');
+  };
+
+  return {
+    file, handleFileChange,
+    uploading, handleUpload,
+    uploadResult, uploadError,
+    reset,
   };
 }
