@@ -37,6 +37,7 @@ export const userLoginAction = async ({ email, password }) => {
 
 // ── User register ─────────────────────────────────────────────────────────────
 export const registerAction = async (fields) => {
+  // console.log("ACTION DATA : ",fields)
   const response = await fetch(URL_REGISTER, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

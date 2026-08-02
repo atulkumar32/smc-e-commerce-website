@@ -21,7 +21,6 @@ import { ORDER_COLUMNS, useOrders, statusColor } from './OrderData';
 import { generateInvoiceAction, readyToDispatchAction } from '../../../Actions/OrderStatusAction';
 import StatsCard from '../../../components/StatsCard';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
-
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 
 
@@ -49,10 +48,11 @@ function OrdersPage() {
   const showSnack = (message, severity = 'success') =>
     setSnackbar({ open: true, message, severity });
 
-  const handleCardClick = (status) => {
+  const handleCardClick = (cardValue) => {
     setFilters((prev) => ({
       ...prev,
-      status: prev.status === status ? '' : status,
+      // toggle: clicking the same card again clears filter
+      card: prev.card === cardValue ? '' : cardValue,
     }));
     setPage(0);
   };
@@ -71,6 +71,7 @@ function OrdersPage() {
   };
 
   const activeStatus = filters.status || '';
+  const activeCard = filters.card || '';
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedRow, setSelectedRow] = useState(null);
 
@@ -92,7 +93,7 @@ function OrdersPage() {
       label: 'Actions',
       align: 'right',
       render: (row) => {
-        const status = ( row.status || '').toLowerCase();
+        const status = (row.status || '').toLowerCase();
         const isPending = status === 'pending';
         const isApproved = status === 'approved';
         const isShipped = status === 'shipped';
@@ -155,8 +156,8 @@ function OrdersPage() {
                   if (result?.pdf_url) {
                     // Auto-download the PDF
                     const link = document.createElement('a');
-                    link.href    = result.pdf_url;
-                    link.target  = '_blank';
+                    link.href = result.pdf_url;
+                    link.target = '_blank';
                     link.download = result.filename || `invoice_${row.order_id}.pdf`;
                     document.body.appendChild(link);
                     link.click();
@@ -179,9 +180,9 @@ function OrdersPage() {
                   try {
                     showSnack('Marking as ready to dispatch…', 'info');
                     await readyToDispatchAction({
-                      order_id:   row.order_id,
-                      id:         row.id,
-                      admin_id:   '',
+                      order_id: row.order_id,
+                      id: row.id,
+                      admin_id: '',
                       admin_name: '',
                     });
                     showSnack(`Order ${row.order_id} marked as ready to dispatch`, 'success');
@@ -232,21 +233,65 @@ function OrdersPage() {
   return (
     <Box>
       {/* ── Summary Cards — using shared StatsCard component ── */}
-      <Stack direction="row" flexWrap="wrap" gap={1.5} mb={3}>
-        <StatsCard label="Total Orders" value={summary.total_orders}
-          color="#1565c0" icon="📦" onClick={() => handleCardClick('')} />
-        <StatsCard label="Accepted"     value={summary.accepted}
-          color="#16a34a" icon="✅" onClick={() => handleCardClick('accepted')} />
-        <StatsCard label="To Pack"      value={summary.to_pack}
-          color="#0891b2" icon="🗃️" onClick={() => handleCardClick('processing')} />
-        <StatsCard label="In Transit"   value={summary.in_transit}
-          color="#7c3aed" icon="🚚" onClick={() => handleCardClick('shipped')} />
-        <StatsCard label="Completed"    value={summary.completed}
-          color="#059669" icon="🏁" onClick={() => handleCardClick('completed')} />
-        <StatsCard label="Upcoming"     value={summary.upcoming}
-          color="#d97706" icon="🕐" onClick={() => handleCardClick('upcoming')} />
-        <StatsCard label="Cancelled"    value={summary.cancelled}
-          color="#dc2626" icon="❌" onClick={() => handleCardClick('cancelled')} />
+      <Stack
+        direction="row"
+        flexWrap="wrap"
+        gap={1.5}
+        mb={3}
+        useFlexGap
+        sx={{
+          gap:'10px',
+        }}
+      >
+        <StatsCard
+          label="Total Orders"
+          value={summary.total_orders}
+          color="#1565c0"
+          icon="📦"
+          onClick={() => handleCardClick('')}
+        />
+        <StatsCard
+          label="Accepted"
+          value={summary.accepted}
+          color="#16a34a"
+          icon="✅"
+          onClick={() => handleCardClick('accepted')}
+        />
+        <StatsCard
+          label="To Pack"
+          value={summary.to_pack}
+          color="#0891b2"
+          icon="🗃️"
+          onClick={() => handleCardClick('to_pack')}
+        />
+        <StatsCard
+          label="In Transit"
+          value={summary.in_transit}
+          color="#7c3aed"
+          icon="🚚"
+          onClick={() => handleCardClick('in_transit')}
+        />
+        <StatsCard
+          label="Completed"
+          value={summary.completed}
+          color="#059669"
+          icon="🏁"
+          onClick={() => handleCardClick('completed')}
+        />
+        {/* <StatsCard
+          label="Upcoming"
+          value={summary.upcoming}
+          color="#d97706"
+          icon="🕐"
+          onClick={() => handleCardClick('upcoming')}
+        /> */}
+        <StatsCard
+          label="Cancelled"
+          value={summary.cancelled}
+          color="#dc2626"
+          icon="❌"
+          onClick={() => handleCardClick('cancelled')}
+        />
       </Stack>
 
       {/* ── Page header ── */}

@@ -681,7 +681,11 @@ function PincodeDrawer({ open, editing, onClose, onSave }) {
             </Box>
 
             {/* Body */}
-            <Box sx={{ flex: 1, overflowY: 'auto', px: 3, py: 2.5 }}>
+            <Box sx={{ flex: 1, overflowY: 'auto', px: 3, py: 2.5,
+                background:'white',
+             }}
+          
+            >
                 {lookupErr && <Alert severity="warning" sx={{ mb: 2 }}>{lookupErr}</Alert>}
                 {saveError && <Alert severity="error" sx={{ mb: 2 }}>{saveError}</Alert>}
 
@@ -1090,7 +1094,12 @@ function AddNewPinCodePage() {
             </Box>
 
             {/* Stat Cards */}
-            <Stack direction="row" flexWrap="wrap" gap={2} mb={3}>
+            {/* <Stack direction="row" flexWrap="wrap" gap={2} mb={3}
+            style={{
+                gap:"20px",
+                marginBottom:"12px",
+            }}
+            >
                 <StatsCard
                     icon={<LocationOnOutlinedIcon />}
                     label="Total Pincodes"
@@ -1105,20 +1114,20 @@ function AddNewPinCodePage() {
                     sub="Pincodes we deliver to"
                     color="#16a34a"
                 />
-                <StatsCard
+            </Stack> */}
+            {/* <StatsCard
                     icon={<CancelOutlinedIcon />}
                     label="Non-Serviceable"
                     value={stats.nonServiceable.toLocaleString('en-IN')}
                     sub="Can't deliver"
                     color="#dc2626"
-                />
-                <StatsCard
+                /> */}
+            {/* <StatsCard
                     icon={<AccessTimeIcon />}
                     label="Last Updated"
                     value={stats.lastUpdated}
                     color="#7c3aed"
-                />
-            </Stack>
+                /> */}
 
             {/* Filters */}
             <Paper

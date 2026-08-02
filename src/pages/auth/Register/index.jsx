@@ -422,6 +422,7 @@ function RegisterPage() {
     if (hasErrors(errs)) { setErrors(errs); return; }
     setLoading(true);
     setSubmitError('');
+    // console.log("PAYLOAD : ",payload);
     try {
       const { confirm_password, ...payload } = form;
       await registerAction(payload);

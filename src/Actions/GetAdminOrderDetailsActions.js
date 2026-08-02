@@ -1,41 +1,50 @@
+/**
+ * GetAdminOrderDetailsActions.js
+ *
+ * GET GetOrderDetails.php with these supported params:
+ *   page, limit, card, status, startdate, enddate, search
+ *
+ * card values: accepted | upcoming | cancelled | to_pack | in_transit | completed
+ * (omit card for all orders)
+ */
+
 import { URL_ADMIN_GET_ORDER_DETAILS } from '../Config/UrlsConfig';
 
 export const GetAllOrderDetailsAction = async ({
-  page = 1,
-  limit = 50,
-  status,
+  page      = 1,
+  limit     = 10,
+  card,        // ← card filter for summary cards (accepted, upcoming, etc.)
+  status,      // ← optional status filter
   startdate,
   enddate,
   search,
 } = {}) => {
-  try {
-    const queryParams = new URLSearchParams();
+  const params = new URLSearchParams();
 
-    queryParams.set('page', page);
-    queryParams.set('limit', limit);
+  params.set('page',  page);
+  params.set('limit', limit);
 
-    if (status) queryParams.set('status', status);
-    if (startdate) queryParams.set('startdate', startdate);
-    if (enddate) queryParams.set('enddate', enddate);
-    if (search) queryParams.set('search', search);
+  // card param maps to summary card clicks
+  if (card)      params.set('card',      card);
+  if (status)    params.set('status',    status);
+  if (startdate) params.set('startdate', startdate);
+  if (enddate)   params.set('enddate',   enddate);
+  if (search)    params.set('search',    search);
 
-    const response = await fetch(
-      `${URL_ADMIN_GET_ORDER_DETAILS}?${queryParams.toString()}`
-    );
+  const url = `${URL_ADMIN_GET_ORDER_DETAILS}?${params.toString()}`;
 
-    if (!response.ok) {
-      throw new Error(`Failed to fetch orders (${response.status})`);
-    }
+  console.group('📦 [Orders] GET');
+  console.log('URL:', url);
+  console.log('params:', { page, limit, card, status, startdate, enddate, search });
+  console.groupEnd();
 
-    const data = await response.json();
+  const response = await fetch(url, { method: 'GET' });
 
-    if (!data) {
-      throw new Error('Invalid response received from server.');
-    }
+  if (!response.ok) throw new Error(`Failed to fetch orders (${response.status})`);
 
-    return data;
-  } catch (error) {
-    console.error('GetAllOrderDetailsAction:', error);
-    throw error;
-  }
+  const data = await response.json();
+  if (!data) throw new Error('Invalid response from server');
+
+  console.log('📨 [Orders] Response:', data);
+  return data;
 };

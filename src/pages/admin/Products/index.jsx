@@ -274,7 +274,12 @@ function VariantTable({ productId, variants, loading, onAdd, onEdit, onDelete })
   );
   return (
     <Box sx={{ px: 3, py: 2, bgcolor: '#f0f7ff', borderTop: '1px solid #e3f2fd' }}>
-      <Stack direction="row" alignItems="center" justifyContent="space-between" mb={1.5}>
+      <Stack direction="row" alignItems="center" justifyContent="space-between" mb={1.5}
+      sx={{
+        display:'flex',
+        justifyContent:'space-between'
+      }}
+      >
         <Typography variant="body2" fontWeight={700} color="primary">
           Variants ({variants.length}) — {productId}
         </Typography>
@@ -284,7 +289,9 @@ function VariantTable({ productId, variants, loading, onAdd, onEdit, onDelete })
       </Stack>
 
       {variants.length === 0 ? (
-        <Typography variant="body2" color="text.secondary" sx={{ py: 1 }}>
+        <Typography variant="body2" color="text.secondary" sx={{ py: 1,
+          textAlign:'center'
+         }}>
           No variants yet. Click "Add Variant" to create one.
         </Typography>
       ) : (

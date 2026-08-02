@@ -36,80 +36,38 @@ export const useOrders = () => {
     cancelled:    0,
   });
 
-  // Filters — includes status for card-click filtering
+  // Filters — card for summary card clicks, status for status filter
   const [filters, setFilters] = useState({
     search:    '',
     startDate: '',
     endDate:   '',
-    status:    '',
+    card:      '',    // card param: accepted | upcoming | cancelled | to_pack | in_transit | completed
+    status:    '',    // status param: optional separate filter
   });
 
   const fetchOrders = useCallback(async () => {
     setLoading(true);
     setError('');
-    setRawResponse(null);
-
-    console.group('📦 [Orders] Fetching');
-    console.log('Params:', { page: page + 1, limit: rowsPerPage, ...filters });
-
     try {
-      const response = await GetAllOrderDetailsAction({
-        page:      page + 1,
+      const params = {
+        page:      page + 1,          // API is 1-indexed
         limit:     rowsPerPage,
-        search:    filters.search    || undefined,
+        card:      filters.card      || undefined,
+        status:    filters.status    || undefined,
         startdate: filters.startDate || undefined,
         enddate:   filters.endDate   || undefined,
-        status:    filters.status    || undefined,
-      });
+        search:    filters.search    || undefined,
+      };
 
-      console.log('Response:', response);
-      setRawResponse(response);
+      const res = await GetAllOrderDetailsAction(params);
+      setRawResponse(res);
 
-      if (response?.status === true && response?.data) {
-        const d = response.data;
-        setOrders(Array.isArray(d.orders) ? d.orders : []);
-        setTotalRecords(Number(d.total_records ?? d.orders?.length ?? 0));
-
-        // Only update summary counts when fetching WITHOUT a status filter
-        // (so card counts never get wiped by a filtered response)
-        if (!filters.status) {
-          setSummary({
-            total_orders: Number(d.total_records || 0),
-            accepted:     Number(d.accepted      || 0),
-            to_pack:      Number(d.to_pack        || 0),
-            in_transit:   Number(d.in_transit     || 0),
-            completed:    Number(d.completed      || 0),
-            upcoming:     Number(d.upcoming       || 0),
-            cancelled:    Number(d.cancelled      || 0),
-          });
-        }
-      } else if (response?.status === true && Array.isArray(response.data)) {
-        setOrders(response.data);
-        setTotalRecords(response.data.length);
-      } else if (Array.isArray(response)) {
-        setOrders(response);
-        setTotalRecords(response.length);
-      } else {
-        setOrders([]);
-        setTotalRecords(0);
-        setError(response?.message || 'No orders found or unexpected response format');
-      }
-    } catch (err) {
-      console.error('❌ Orders error:', err);
-      setError(err.message || 'Error fetching orders');
-      setOrders([]);
-    } finally {
-      setLoading(false);
-      console.groupEnd();
-    }
-  }, [page, rowsPerPage, filters]);
-
-  // ── Fetch summary counts once on mount (unfiltered totals) ──────────────────
-  const fetchSummary = useCallback(async () => {
-    try {
-      const res = await GetAllOrderDetailsAction({ page: 1, limit: 1 }); // minimal payload
       if (res?.status === true && res?.data) {
         const d = res.data;
+        setOrders(Array.isArray(d.orders) ? d.orders : []);
+        setTotalRecords(Number(d.total_records || 0));
+
+        // Update summary counts from every response (they are always returned)
         setSummary({
           total_orders: Number(d.total_records || 0),
           accepted:     Number(d.accepted      || 0),
@@ -119,12 +77,19 @@ export const useOrders = () => {
           upcoming:     Number(d.upcoming       || 0),
           cancelled:    Number(d.cancelled      || 0),
         });
+      } else {
+        setOrders([]);
+        setTotalRecords(0);
+        setError(res?.message || 'Unexpected response from server');
       }
-    } catch { /* silent — summary is cosmetic */ }
-  }, []);
-
-  // On mount: load summary once, then let fetchOrders handle filtered data
-  useEffect(() => { fetchSummary(); }, [fetchSummary]);
+    } catch (err) {
+      setError(err.message || 'Failed to load orders');
+      setOrders([]);
+      setTotalRecords(0);
+    } finally {
+      setLoading(false);
+    }
+  }, [page, rowsPerPage, filters]);
 
   useEffect(() => { fetchOrders(); }, [fetchOrders]);
 

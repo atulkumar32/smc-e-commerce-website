@@ -81,7 +81,7 @@ function AdminFilters({
           <TextField
             size="small"
             type="date"
-            label="Start Date"
+            // label="Start Date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
             InputLabelProps={{ shrink: true }}
@@ -91,7 +91,7 @@ function AdminFilters({
           <TextField
             size="small"
             type="date"
-            label="End Date"
+            // label="End Date"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
             InputLabelProps={{ shrink: true }}
