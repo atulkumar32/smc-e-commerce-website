@@ -2,7 +2,6 @@ import { useState, useMemo, useEffect } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { PRODUCTS } from './productData';
 import { fetchWebProductList } from '../../Actions/Web/GetProductListAction';
-import BASE_URL from '../../Config/ApiConfig';
 import { MEDIA_BASE } from '../../Config/UrlsConfig';
 
 const DEFAULT_PAGE_SIZE = 12;
@@ -18,34 +17,89 @@ function resolvePathCategory(pathname) {
 function resolveApiImage(path) {
   if (!path) return '';
   if (path.startsWith('http://') || path.startsWith('https://')) return path;
-
+  // Encode only the filename (last segment) — handles spaces and parens in filenames
+  // Target: https://shreemahaveercollections.com/apis/v1/uploads/products/WhatsApp%20Image...jpeg
   const normalized = path.replace(/^\/+/, '');
-  if (normalized.startsWith('smc/')) {
-    return `${BASE_URL}${normalized}`;
+  const segments   = normalized.split('/');
+  const filename   = segments[segments.length - 1];
+  const dirPart    = segments.slice(0, -1).join('/');
+  const encoded    = dirPart
+    ? `${dirPart}/${encodeURIComponent(filename)}`
+    : encodeURIComponent(filename);
+  const full = `${MEDIA_BASE}${encoded}`;
+  console.log(`%c[WEB IMG] raw: ${path}`, 'color:#7c3aed', '→ resolved:', full);
+  return full;
+}
+
+// Get the best image URL from a product — checks variants[].images[] first
+function getProductImage(product) {
+  // 1. top-level primary_image field
+  if (product.primary_image) return product.primary_image;
+
+  // 2. variants → find is_main image, fall back to first image of first variant
+  if (Array.isArray(product.variants)) {
+    for (const v of product.variants) {
+      const imgs = Array.isArray(v.images) ? v.images : [];
+      if (!imgs.length) continue;
+      const main = imgs.find((i) => i.is_main) || imgs[0];
+      if (main?.image_url) return main.image_url;
+    }
   }
 
-  return `${MEDIA_BASE}${normalized}`;
+  // 3. legacy top-level fields
+  if (product.image_url) return product.image_url;
+  if (product.imageUrl)  return product.imageUrl;
+  if (product.image)     return product.image;
+
+  // 4. top-level images array
+  const topImgs = Array.isArray(product.images) ? product.images : [];
+  if (topImgs.length) return topImgs[0]?.image_url || topImgs[0]?.url || topImgs[0] || '';
+
+  return '';
 }
 
 function mapApiProduct(product) {
-  const price = Number(product.selling_price ?? product.price ?? product.mrp ?? 0);
-  const mrp = Number(product.mrp ?? product.price ?? price);
+  // Price: product-level first, fall back to first variant
+  const firstVariant = Array.isArray(product.variants) && product.variants[0];
+  const price = Number(
+    product.selling_price ??
+    product.price ??
+    product.mrp ??
+    firstVariant?.selling_price ??
+    firstVariant?.mrp ??
+    0
+  );
+  const mrp = Number(
+    product.mrp ??
+    product.price ??
+    firstVariant?.mrp ??
+    price
+  );
+
+  // Resolve image — walks variants.images[] if no top-level image
+  const rawImagePath = getProductImage(product);
+  const image = resolveApiImage(rawImagePath);
+
+  console.log(
+    `%c[ProductCard IMG] ${product.product_id || product.id} · ${product.product_name || product.name}`,
+    'color:#059669;font-weight:bold',
+    '\n  raw path :', rawImagePath || '(none)',
+    '\n  resolved :', image        || '(empty)',
+  );
 
   return {
-    id: product.product_id || product.productId || product.id,
-    name: product.product_name || product.productName || product.name || 'Product',
+    id:               product.product_id || product.productId || product.id,
+    name:             product.product_name || product.productName || product.name || 'Product',
     price,
-    originalPrice: mrp !== price ? mrp : null,
-    category: product.category || product.category_id || 'all',
-    badge: product.badge || null,
-    brand: product.brand || null,
+    originalPrice:    mrp !== price ? mrp : null,
+    category:         product.category || product.category_id || 'all',
+    badge:            product.badge || null,
+    brand:            product.brand || null,
     shortDescription: product.short_description || product.shortDescription || null,
-    colors: Array.isArray(product.colors)
-      ? product.colors
-      : product.colors
-        ? [product.colors]
-        : [],
-    image: resolveApiImage(product.primary_image || product.images?.[0] || product.image || ''),
+    colors:           Array.isArray(product.colors)
+                        ? product.colors
+                        : product.colors ? [product.colors] : [],
+    image,
   };
 }
 

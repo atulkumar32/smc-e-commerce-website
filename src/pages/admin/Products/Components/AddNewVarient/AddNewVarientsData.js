@@ -45,6 +45,7 @@ export const emptyVariantForm = {
   status:           'active',
   is_default:       false,
   images:           [],
+  selectedColors:   [],   // colors with per-color image arrays
 };
 
 /**

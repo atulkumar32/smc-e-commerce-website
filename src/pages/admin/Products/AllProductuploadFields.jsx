@@ -30,12 +30,11 @@ export const emptyProductForm = {
   brand: '',
   categoryId: '',
   categoryName: '',
-  selectedColors: [],
-  customColor: '#000000',
+  gst: '',
+  gender: '',
   material: '',
   pattern: '',
   character: '',
-  gender: '',
   productClass: '',
   backpackStyle: '',
   bagCapacity: '',
@@ -74,6 +73,8 @@ export const emptyProductForm = {
   isLive: false,
   isNewArrival: false,
   showInCardSlider: false,
+  isPublished: false,
+  isVisibleOnWebsite: false,
   images: [],
 };
 
@@ -244,141 +245,89 @@ export function resolveProductId(product) {
   );
 }
 
+/**
+ * buildProductPayload
+ *
+ * Builds the exact payload sent to the API from the AddNewProduct form.
+ * Only fields present in the form UI are included.
+ * Images are excluded here — handled separately via variants.
+ *
+ * Form fields covered:
+ *   Basic Info    : product_name, generic_name, brand, category_id, gst, gender
+ *   Attributes    : material, pattern, character_name, class_type, backpack_style,
+ *                   capacity, net_quantity, net_weight, recommended_age, country_of_origin
+ *   Features      : features (JSON array)
+ *   Description   : short_description, full_description
+ *   Visibility    : is_live, is_new_arrival, show_in_card_slider,
+ *                   is_published, is_visible_on_website, homepage_banner_enabled
+ *   Status        : status (draft | published)
+ */
 export function buildProductPayload(
   form,
   status,
-  preparedImages = [],
+  _preparedImages = [],   // ← images commented out for now
   productId,
   categoryOptions = []
 ) {
-  const id = productId || generateProductId();
-  const primaryImage = preparedImages[0]?.url || '';
+  const id          = productId || generateProductId();
   const isPublished = status === 'published';
-  const isLive = Boolean(form.isLive);
-  const mrp = Number(form.mrpPrice);
-  const sellingPrice = Number(form.sellingPrice || mrp || 0);
-  const stock = form.stock !== '' && form.stock != null ? Number(form.stock) : 0;
-  const category_id = form.categoryId ?? '';
+  const isLive      = Boolean(form.isLive);
+
+  const category_id   = form.categoryId ?? '';
   const category_name =
     form.categoryName ||
     getCategoryLabelById(categoryOptions, category_id) ||
     '';
 
-  const isDiscounted = Boolean(form.isDiscounted);
-  const discountPercent = isDiscounted && form.discountPercent !== ''
-    ? Number(form.discountPercent)
-    : null;
-
-  const selectedColors = form.selectedColors || [];
-  const colorLabels = selectedColors.map((color) => color.label).join(', ');
-  const colorHex = selectedColors[0]?.hex || form.colorHex || '';
-
-  return {
+  const payload = {
+    // ── Identifiers ──────────────────────────────────────────
     product_id: id,
-    productId: id,
-    price: sellingPrice,
-    selling_price: sellingPrice,
-    sellingPrice,
-    mrp: mrp || sellingPrice,
-    mrpPrice: mrp || sellingPrice,
-    product_price: sellingPrice,
-    stock,
-    product_name: form.productName.trim(),
-    productName: form.productName.trim(),
-    name: form.productName.trim(),
-    generic_name: form.genericName.trim(),
-    genericName: form.genericName.trim(),
-    brand: form.brand,
-    category: category_name,
-    category_name,
+
+    // ── Basic Information ────────────────────────────────────
+    product_name:    (form.productName  || '').trim(),
+    generic_name:    (form.genericName  || '').trim(),
+    brand:           form.brand         || '',
     category_id,
-    categoryId: category_id,
-    color: colorLabels,
-    color_hex: colorHex,
-    colorHex: colorHex,
-    selected_colors: JSON.stringify(selectedColors),
-    material: form.material,
-    pattern: form.pattern,
-    character: form.character,
-    character_name: form.character,   // PHP expects character_name
-    gender: form.gender,
-    class_type: form.productClass,    // PHP expects class_type
-    product_class: form.productClass,
-    productClass: form.productClass,
-    class: form.productClass,
-    backpack_style: form.backpackStyle,
-    backpackStyle: form.backpackStyle,
-    capacity: form.bagCapacity,       // PHP expects capacity
-    bag_capacity: form.bagCapacity,
-    bagCapacity: form.bagCapacity,
-    net_quantity: form.netQuantity,
-    netQuantity: form.netQuantity,
-    recommended_age: form.recommendedAge,
-    recommendedAge: form.recommendedAge,
-    size: form.size.trim() || DEFAULT_SIZE,
-    country_of_origin: form.countryOfOrigin.trim() || DEFAULT_COUNTRY_OF_ORIGIN,
-    countryOfOrigin: form.countryOfOrigin.trim() || DEFAULT_COUNTRY_OF_ORIGIN,
-    net_weight: form.netWeight,
-    netWeight: form.netWeight,
-    weight: form.netWeight,
-    actual_cost_price: form.actualCostPrice ? Number(form.actualCostPrice) : null,
-    actualCostPrice: form.actualCostPrice ? Number(form.actualCostPrice) : null,
-    // Features as JSON string
-    features: form.features?.length ? JSON.stringify(form.features) : null,
-    // Offers & Discount
-    is_on_offer: form.isOnOffer ? 1 : 0,
-    isOnOffer: Boolean(form.isOnOffer),
-    is_discounted: isDiscounted ? 1 : 0,
-    isDiscounted,
-    discount_percent: discountPercent,
-    discountPercent,
-    discount_type: form.discountType,
-    discountType: form.discountType,
-    discount_value: form.discountValue ? Number(form.discountValue) : null,
-    discountValue: form.discountValue ? Number(form.discountValue) : null,
-    offer_title: form.offerTitle,
-    offerTitle: form.offerTitle,
-    offer_description: form.offerDescription,
-    offerDescription: form.offerDescription,
-    offer_start_date: form.offerStartDate,
-    offerStartDate: form.offerStartDate,
-    offer_end_date: form.offerEndDate,
-    offerEndDate: form.offerEndDate,
-    offer_active: form.offerActive ? 1 : 0,
-    offerActive: Boolean(form.offerActive),
-    short_description: form.shortDescription,
-    shortDescription: form.shortDescription,
-    full_description: form.fullDescription,
-    fullDescription: form.fullDescription,
+    category_name,
+    gst:             form.gst           || '',
+    gender:          form.gender        || '',
+
+    // ── Product Attributes ───────────────────────────────────
+    material:           form.material       || '',
+    pattern:            form.pattern        || '',
+    character_name:     form.character      || '',   // PHP key
+    class_type:         form.productClass   || '',   // PHP key
+    backpack_style:     form.backpackStyle  || '',
+    capacity:           form.bagCapacity    || '',   // PHP key
+    net_quantity:       form.netQuantity    || '',
+    net_weight:         form.netWeight      || '',
+    recommended_age:    form.recommendedAge || '',
+    country_of_origin:  (form.countryOfOrigin || DEFAULT_COUNTRY_OF_ORIGIN).trim(),
+
+    // ── Features (JSON array string) ─────────────────────────
+    features: Array.isArray(form.features) && form.features.length
+      ? JSON.stringify(form.features)
+      : '',
+
+    // ── Descriptions ─────────────────────────────────────────
+    short_description: form.shortDescription || '',
+    full_description:  form.fullDescription  || '',
+
+    // ── Visibility & Status ───────────────────────────────────
+    is_live:               isLive      ? 1 : 0,
+    is_new_arrival:        form.isNewArrival        ? 1 : 0,
+    show_in_card_slider:   form.showInCardSlider     ? 1 : 0,
+    is_published:          isPublished  ? 1 : 0,
+    is_visible_on_website: form.isVisibleOnWebsite   ? 1 : 0,
     homepage_banner_enabled: form.homepageBannerEnabled ? 1 : 0,
-    homepageBannerEnabled: Boolean(form.homepageBannerEnabled),
-    hero_banner_title: form.heroBannerTitle,
-    heroBannerTitle: form.heroBannerTitle,
-    hero_banner_subtitle: form.heroBannerSubtitle,
-    heroBannerSubtitle: form.heroBannerSubtitle,
-    hero_banner_cta: form.heroBannerCTA,
-    heroBannerCTA: form.heroBannerCTA,
-    hero_banner_url: form.heroBannerUrl,
-    heroBannerUrl: form.heroBannerUrl,
-    heroBannerDesktop: form.heroBannerDesktop,
-    heroBannerMobile: form.heroBannerMobile,
-    // Visibility
-    is_live: isLive ? 1 : 0,
-    isLive,
-    is_new_arrival: form.isNewArrival ? 1 : 0,
-    isNewArrival: Boolean(form.isNewArrival),
-    show_in_card_slider: form.showInCardSlider ? 1 : 0,
-    showInCardSlider: Boolean(form.showInCardSlider),
-    images: preparedImages,
-    product_images: preparedImages,
-    image_url: primaryImage,
-    imageUrl: primaryImage,
     status,
-    is_published: isPublished ? 1 : 0,
-    isPublished,
-    is_visible_on_website: isLive ? 1 : 0,
-    isVisibleOnWebsite: isLive,
+
+    // ── Images — commented out: handled via product variants ─
+    // images: preparedImages,
+    // image_url: preparedImages[0]?.url || '',
   };
+
+  return payload;
 }
 
 export function validateProductForm(form, mode = 'publish') {

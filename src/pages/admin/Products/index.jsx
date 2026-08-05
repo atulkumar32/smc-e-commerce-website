@@ -25,26 +25,61 @@ import { resolveProductId } from './AllProductuploadFields';
 import { MEDIA_BASE } from '../../../Config/UrlsConfig';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-const resolveImg = (p) => !p ? '' : p.startsWith('http') ? p : `${MEDIA_BASE}${p}`;
-const getDisplayId = (r) => r?.product_id || '—';
+const resolveImg = (path) => {
+  if (!path) return '';
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+  // API returns e.g. "uploads/products/WhatsApp Image 2026-05-23 at 3.04.16 PM.jpeg"
+  // Encode only the filename (last segment) — spaces/parens must be percent-encoded.
+  // Target: https://shreemahaveercollections.com/apis/v1/uploads/products/WhatsApp%20Image...jpeg
+  const segments = path.split('/');
+  const filename  = segments[segments.length - 1];
+  const dirPart   = segments.slice(0, -1).join('/');
+  const encoded   = dirPart ? `${dirPart}/${encodeURIComponent(filename)}` : encodeURIComponent(filename);
+  return `${MEDIA_BASE}${encoded}`;
+};
+const getDisplayId   = (r) => r?.product_id || '—';
 const getDisplayName = (r) => r?.product_name || r?.productName || r?.name || '—';
 const getCategoryName = (r) => r?.category_name || r?.category || '—';
+
+// Price: prefer first variant's selling_price if product-level is null
 const getBestPrice = (r) => {
-  const v = Number(r?.selling_price) || Number(r?.price) || Number(r?.mrp) || 0;
-  return v > 0 ? `₹${v.toLocaleString('en-IN')}` : '—';
+  const productPrice = Number(r?.selling_price) || Number(r?.price) || Number(r?.mrp) || 0;
+  if (productPrice > 0) return `₹${productPrice.toLocaleString('en-IN')}`;
+  const firstVariant = Array.isArray(r?.variants) && r.variants[0];
+  const vPrice = firstVariant ? Number(firstVariant.selling_price) || Number(firstVariant.mrp) || 0 : 0;
+  return vPrice > 0 ? `₹${vPrice.toLocaleString('en-IN')}` : '—';
 };
 const getMRP = (r) => {
   const v = Number(r?.mrp) || 0;
   return v > 0 ? `₹${v.toLocaleString('en-IN')}` : null;
 };
 const getTotalStock = (r) => {
-  if (r?.variants?.length) return r.variants.reduce((s, v) => s + Number(v.stock || 0), 0);
+  if (Array.isArray(r?.variants) && r.variants.length)
+    return r.variants.reduce((s, v) => s + Number(v.stock || 0), 0);
   return Number(r?.stock ?? 0);
 };
 const parseJson = (val) => {
   if (!val) return null;
   if (Array.isArray(val)) return val;
   try { return JSON.parse(val); } catch { return null; }
+};
+
+// API returns integer 1/0 OR string "1"/"0" — normalise to boolean
+const flag = (v) => v === 1 || v === '1' || v === true;
+
+// Get the best display image for a product (from variants or product-level)
+const getProductThumb = (r) => {
+  if (Array.isArray(r?.variants)) {
+    for (const v of r.variants) {
+      if (Array.isArray(v.images) && v.images.length) {
+        const main = v.images.find((i) => i.is_main) || v.images[0];
+        if (main?.image_url) return resolveImg(main.image_url);
+      }
+    }
+  }
+  if (r?.image_url)  return resolveImg(r.image_url);
+  if (r?.imageUrl)   return resolveImg(r.imageUrl);
+  return '';
 };
 
 // ── Single detail row ─────────────────────────────────────────────────────────
@@ -159,12 +194,12 @@ function ProductViewModal({ product: p, open, onClose }) {
           <Typography variant="subtitle2" fontWeight={700} color="primary" mb={1}>Visibility</Typography>
           <Stack direction="row" flexWrap="wrap" gap={0.75}>
             {[
-              ['Live', p.is_live === '1'],
-              ['New Arrival', p.is_new_arrival === '1'],
-              ['Card Slider', p.show_in_card_slider === '1'],
-              ['Published', p.is_published === '1'],
-              ['Visible on Web', p.is_visible_on_website === '1'],
-              ['Homepage Banner', p.homepage_banner_enabled === '1'],
+              ['Live',            flag(p.is_live)],
+              ['New Arrival',     flag(p.is_new_arrival)],
+              ['Card Slider',     flag(p.show_in_card_slider)],
+              ['Published',       flag(p.is_published)],
+              ['Visible on Web',  flag(p.is_visible_on_website)],
+              ['Homepage Banner', flag(p.homepage_banner_enabled)],
             ].map(([label, active]) => (
               <Chip key={label} label={label} size="small"
                 color={active ? 'success' : 'default'} variant={active ? 'filled' : 'outlined'}
@@ -248,8 +283,8 @@ function ProductViewModal({ product: p, open, onClose }) {
                     <TableCell sx={{ fontSize: '0.72rem', fontWeight: 600 }}>{v.stock}</TableCell>
                     <TableCell sx={{ fontSize: '0.71rem', fontFamily: 'monospace' }}>{v.sku || '—'}</TableCell>
                     <TableCell>
-                      <Chip label={v.status === '1' || v.status === 'active' ? 'Active' : v.status || '—'}
-                        size="small" color={v.status === '1' || v.status === 'active' ? 'success' : 'default'}
+                      <Chip label={flag(v.status) || v.status === 'active' ? 'Active' : v.status || '—'}
+                        size="small" color={flag(v.status) || v.status === 'active' ? 'success' : 'default'}
                         sx={{ fontSize: '0.62rem' }} />
                     </TableCell>
                   </TableRow>
@@ -299,7 +334,7 @@ function VariantTable({ productId, variants, loading, onAdd, onEdit, onDelete })
           <Table size="small" sx={{ bgcolor: 'background.paper' }}>
             <TableHead>
               <TableRow sx={{ bgcolor: '#e3f2fd' }}>
-                {['Variant ID', 'Color', 'Size', 'MRP', 'Selling Price', 'Stock', 'SKU', 'Status', 'Actions'].map((h) => (
+                {['', 'Variant ID', 'Color', 'Size', 'MRP', 'Selling Price', 'Stock', 'SKU', 'Status', 'Actions'].map((h) => (
                   <TableCell key={h} sx={{ fontWeight: 700, fontSize: '0.72rem', color: 'primary.dark', py: 1 }}>
                     {h}
                   </TableCell>
@@ -307,52 +342,86 @@ function VariantTable({ productId, variants, loading, onAdd, onEdit, onDelete })
               </TableRow>
             </TableHead>
             <TableBody>
-              {variants.map((v) => (
-                <TableRow key={v.variant_id || v.id} hover>
-                  <TableCell sx={{ fontSize: '0.75rem', fontFamily: 'monospace', fontWeight: 600 }}>
-                    {v.variant_id || v.id || '—'}
-                  </TableCell>
-                  <TableCell>
-                    <Stack direction="row" alignItems="center" gap={0.75}>
-                      {v.color_hex && (
-                        <Box sx={{
-                          width: 13, height: 13, borderRadius: '50%',
-                          bgcolor: v.color_hex, border: '1px solid #ddd', flexShrink: 0
-                        }} />
+              {variants.map((v) => {
+                const imgs    = Array.isArray(v.images) ? v.images : [];
+                const mainImg = imgs.find((i) => i.is_main) || imgs[0];
+                const rawPath = mainImg?.image_url || '';
+                const thumb   = resolveImg(rawPath);
+
+                // ── Console: image path verification ─────────────────────────
+                console.log(
+                  `%c[IMG] ${v.variant_id} · ${v.color_name}`,
+                  'color:#1565c0;font-weight:bold',
+                  '\n  raw  :', rawPath   || '(none)',
+                  '\n  url  :', thumb     || '(empty)',
+                  '\n  show :', !!thumb,
+                );
+                return (
+                  <TableRow key={v.variant_id || v.id} hover>
+                    <TableCell sx={{ width: 46, px: 1 }}>
+                      {thumb ? (
+                        <Box component="img" src={thumb} alt={v.color_name}
+                          sx={{ width: 36, height: 36, borderRadius: '6px', objectFit: 'cover',
+                            border: '1px solid #e0e0e0', display: 'block' }}
+                          onError={(e) => {
+                            console.warn(`%c[Variant IMG] ❌ 404/failed: ${thumb}`, 'color:red');
+                            e.currentTarget.style.display = 'none';
+                            e.currentTarget.parentElement.innerHTML =
+                              `<div style="width:36px;height:36px;border-radius:6px;background:#fee2e2;border:1px solid #fca5a5;display:flex;align-items:center;justify-content:center;font-size:9px;color:#dc2626;text-align:center;padding:2px">404</div>`;
+                          }}
+                        />
+                      ) : (
+                        <Box sx={{ width: 36, height: 36, borderRadius: '6px',
+                          bgcolor: v.color_hex || '#f0f0f0', border: '1px solid #e0e0e0',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontSize: '0.6rem', color: '#888' }}>
+                          {imgs.length === 0 ? 'No img' : ''}
+                        </Box>
                       )}
-                      <Typography sx={{ fontSize: '0.75rem' }}>{v.color_name || '—'}</Typography>
-                    </Stack>
-                  </TableCell>
-                  <TableCell sx={{ fontSize: '0.75rem' }}>{v.size || '—'}</TableCell>
-                  <TableCell sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
-                    {Number(v.mrp) > 0 ? `₹${Number(v.mrp).toLocaleString('en-IN')}` : '—'}
-                  </TableCell>
-                  <TableCell sx={{ fontSize: '0.75rem', fontWeight: 700, color: 'primary.main' }}>
-                    ₹{Number(v.selling_price || 0).toLocaleString('en-IN')}
-                  </TableCell>
-                  <TableCell sx={{ fontSize: '0.75rem', fontWeight: 600 }}>{v.stock ?? '—'}</TableCell>
-                  <TableCell sx={{ fontSize: '0.72rem', fontFamily: 'monospace' }}>{v.sku || '—'}</TableCell>
-                  <TableCell>
-                    <Chip label={v.status === '1' || v.status === 'active' ? 'Active' : (v.status || '—')}
-                      size="small" color={v.status === '1' || v.status === 'active' ? 'success' : 'default'}
-                      sx={{ fontSize: '0.63rem' }} />
-                  </TableCell>
-                  <TableCell>
-                    <Stack direction="row" spacing={0.25}>
-                      <Tooltip title="Edit variant">
-                        <IconButton size="small" color="primary" onClick={() => onEdit(v)}>
-                          <EditOutlinedIcon sx={{ fontSize: 14 }} />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Delete variant">
-                        <IconButton size="small" color="error" onClick={() => onDelete(v)}>
-                          <DeleteOutlinedIcon sx={{ fontSize: 14 }} />
-                        </IconButton>
-                      </Tooltip>
-                    </Stack>
-                  </TableCell>
-                </TableRow>
-              ))}
+                    </TableCell>
+                    <TableCell sx={{ fontSize: '0.75rem', fontFamily: 'monospace', fontWeight: 600 }}>
+                      {v.variant_id || v.id || '—'}
+                    </TableCell>
+                    <TableCell>
+                      <Stack direction="row" alignItems="center" gap={0.75}>
+                        {v.color_hex && (
+                          <Box sx={{ width: 13, height: 13, borderRadius: '50%',
+                            bgcolor: v.color_hex, border: '1px solid #ddd', flexShrink: 0 }} />
+                        )}
+                        <Typography sx={{ fontSize: '0.75rem' }}>{v.color_name || '—'}</Typography>
+                      </Stack>
+                    </TableCell>
+                    <TableCell sx={{ fontSize: '0.75rem' }}>{v.size || '—'}</TableCell>
+                    <TableCell sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+                      {Number(v.mrp) > 0 ? `₹${Number(v.mrp).toLocaleString('en-IN')}` : '—'}
+                    </TableCell>
+                    <TableCell sx={{ fontSize: '0.75rem', fontWeight: 700, color: 'primary.main' }}>
+                      ₹{Number(v.selling_price || 0).toLocaleString('en-IN')}
+                    </TableCell>
+                    <TableCell sx={{ fontSize: '0.75rem', fontWeight: 600 }}>{v.stock ?? '—'}</TableCell>
+                    <TableCell sx={{ fontSize: '0.72rem', fontFamily: 'monospace' }}>{v.sku || '—'}</TableCell>
+                    <TableCell>
+                      <Chip label={v.status === '1' || v.status === 1 || v.status === 'active' ? 'Active' : (v.status || '—')}
+                        size="small" color={v.status === '1' || v.status === 1 || v.status === 'active' ? 'success' : 'default'}
+                        sx={{ fontSize: '0.63rem' }} />
+                    </TableCell>
+                    <TableCell>
+                      <Stack direction="row" spacing={0.25}>
+                        <Tooltip title="Edit variant">
+                          <IconButton size="small" color="primary" onClick={() => onEdit(v)}>
+                            <EditOutlinedIcon sx={{ fontSize: 14 }} />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Delete variant">
+                          <IconButton size="small" color="error" onClick={() => onDelete(v)}>
+                            <DeleteOutlinedIcon sx={{ fontSize: 14 }} />
+                          </IconButton>
+                        </Tooltip>
+                      </Stack>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </Box>
@@ -385,12 +454,40 @@ function ProductRow({ row, index, expanded, onExpand, onView, onEdit, onDelete,
           {getDisplayId(row)}
         </TableCell>
         <TableCell>
-          <Box>
-            <Typography variant="body2" fontWeight={500}>{getDisplayName(row)}</Typography>
-            {row.brand && (
-              <Typography variant="caption" color="text.secondary">{row.brand}</Typography>
-            )}
-          </Box>
+          <Stack direction="row" alignItems="center" spacing={1.5}>
+            {/* Thumbnail from first variant image */}
+            {(() => {
+              const thumb = getProductThumb(row);
+              console.log(
+                `%c[Product THUMB] ${getDisplayId(row)}`,
+                'color:#059669;font-weight:bold',
+                '→', thumb || '(no image)'
+              );
+              return thumb ? (
+                <Box component="img" src={thumb} alt={getDisplayName(row)}
+                  sx={{ width: 40, height: 40, borderRadius: '8px', objectFit: 'cover',
+                    border: '1px solid #e8eaed', flexShrink: 0 }}
+                  onError={(e) => {
+                    console.warn(`[Product THUMB] ❌ Failed to load: ${thumb}`);
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              ) : (
+                <Box sx={{ width: 40, height: 40, borderRadius: '8px',
+                  bgcolor: '#f0f4f8', border: '1px solid #e8eaed', flexShrink: 0,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '1rem' }}>
+                  🎒
+                </Box>
+              );
+            })()}
+            <Box>
+              <Typography variant="body2" fontWeight={500}>{getDisplayName(row)}</Typography>
+              {row.brand && (
+                <Typography variant="caption" color="text.secondary">{row.brand}</Typography>
+              )}
+            </Box>
+          </Stack>
         </TableCell>
         <TableCell sx={{ fontSize: '0.8rem' }}>{getCategoryName(row)}</TableCell>
         <TableCell>

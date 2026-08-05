@@ -105,9 +105,12 @@ export const URL_VARIANTS_UPDATE       = `${BASE_URL}smc/admin/api/UpdateProduct
 export const URL_VARIANTS_DELETE       = `${BASE_URL}smc/admin/api/DeleteProductVariant.php`;
 export const URL_VARIANTS_FETCH        = `${BASE_URL}smc/admin/api/GetProductVariants.php`;
 
-// ── Media ─────────────────────────────────────────────────────────
-// Images are stored at: {MEDIA_BASE}uploads/products/filename.png
-export const MEDIA_BASE = `${BASE_URL}smc/`;
+// ── Media / uploads base path ─────────────────────────────────────────────────
+// Confirmed working URL: https://shreemahaveercollections.com/apis/v1/uploads/products/file.jpeg
+// API returns:           "uploads/products/file.jpeg"
+// So MEDIA_BASE = BASE_URL (no extra "smc/" prefix for images)
+export const MEDIA_BASE   = `${BASE_URL}`;                       // https://...apis/v1/
+export const UPLOADS_BASE = `${BASE_URL}`;      // https://...apis/v1/uploads/products/
 
 // ── Website APIs ──────────────────────────────────────────────────
 export const WEB_URLS = {

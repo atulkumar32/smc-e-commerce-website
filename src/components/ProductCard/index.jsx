@@ -49,6 +49,11 @@ function ProductCard({ product, animate = false }) {
           alt={product.name}
           className="pcard__img"
           loading="lazy"
+          onError={(e) => {
+            console.warn(`%c[ProductCard IMG] ❌ failed to load`, 'color:red', product.image);
+            e.currentTarget.src = ''; // clear broken icon
+            e.currentTarget.style.background = '#f3f4f6';
+          }}
         />
 
         {/* Size badges */}

@@ -83,6 +83,7 @@ function buildFormData(payload) {
     'generic_name',
     'genericName',
     'brand',
+    'gst',
 
     // colors
     'color',
@@ -184,6 +185,7 @@ function buildFormData(payload) {
     'generic_name',
     'brand',
     'category_id',
+    'gst',
     // attributes
     'color',
     'color_hex',

@@ -104,25 +104,31 @@ function AddNewVariant({ productId, onSuccess }) {
 
   // ✅ Build Payload Exactly as Requested
   const handleAddToList = () => {
-    if (!form.selectedColors || form.selectedColors.length === 0) {
-      alert("Please add at least one color");
+    const colors = form.selectedColors || [];
+    if (colors.length === 0) {
+      alert("Please add at least one color with images");
       return;
     }
 
-    const newVariants = form.selectedColors.map((colorItem) => ({
-      color_name: colorItem.label,
-      color_hex: colorItem.hex,
-      size: form.size || 'Free Size',
-      mrp: Number(form.mrp || 0),
-      discount_percent: Math.max(0, Math.min(100, Number(form.discount_percent || 0))),
-      selling_price: Number(form.selling_price || 0),
-      stock: Number(form.stock || 0),
-      status: form.status || 'active',
-      is_default: Boolean(form.is_default),
-      images: colorItem.images || [],           // Images per color
-      _localId: `local-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      _source: 'staged',
-    }));
+    const newVariants = colors.map((colorItem) => {
+      const mrp          = Number(form.mrp || 0);
+      const sellingPrice = Number(form.selling_price || mrp);
+      return {
+        color_name:      colorItem.label,
+        color_hex:       colorItem.hex,
+        size:            form.size || 'Free Size',
+        mrp,
+        discount_percent: Math.max(0, Math.min(100, Number(form.discount_percent || 0))),
+        selling_price:   sellingPrice,
+        discount_price:  sellingPrice,   // API expects discount_price = selling_price
+        stock:           Number(form.stock || 0),
+        status:          form.status || 'active',
+        is_default:      Boolean(form.is_default),
+        images:          Array.isArray(colorItem.images) ? colorItem.images : [],
+        _localId:        `local-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        _source:         'staged',
+      };
+    });
 
     setStaged(prev => [...prev, ...newVariants]);
     setForm(emptyVariantForm); // Reset form after adding
@@ -170,10 +176,12 @@ function AddNewVariant({ productId, onSuccess }) {
           onChange={handleFieldChange} 
         />
 
-        <ColorsImagesSection 
-          selectedColors={form.selectedColors || []} 
-          onColorsChange={handleColorsChange} 
-        />
+        <Grid item xs={12} md={7}>
+          <ColorsImagesSection 
+            selectedColors={form.selectedColors || []} 
+            onColorsChange={handleColorsChange} 
+          />
+        </Grid>
       </Grid>
 
       <Box sx={{ textAlign: 'right', mt: 4 }}>

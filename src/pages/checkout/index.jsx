@@ -127,6 +127,8 @@ function PaymentStep({ paymentMethod, onMethodChange, onNext, onBack }) {
       <div className="co-form__field">
         <label className="co-form__label">Payment Method *</label>
         <div className="co-form__radio-group">
+          {/* COD — commented out, re-enable when needed */}
+          {/*
           <label className="co-form__radio">
             <input
               type="radio"
@@ -137,6 +139,9 @@ function PaymentStep({ paymentMethod, onMethodChange, onNext, onBack }) {
             />
             Cash on Delivery
           </label>
+          */}
+
+          {/* ONLINE — active */}
           <label className="co-form__radio">
             <input
               type="radio"
@@ -155,9 +160,19 @@ function PaymentStep({ paymentMethod, onMethodChange, onNext, onBack }) {
           After you place the order, you will be redirected to PhonePe to complete the payment.
         </div>
       )}
+
+      {/* COD note — commented out for now */}
+      {/*
       {paymentMethod === 'COD' && (
         <div className="co-form__note">
-          <strong>Cash on Delivery (COD)</strong> is available for this order. Only the shipping charges are collected online to confirm your order. The balance amount for the products can be paid at the time of delivery.
+          <strong>Cash on Delivery (COD)</strong> — pay when your order arrives. Only shipping charges are
+          collected online to confirm your order.
+        </div>
+      )}
+      */}      {paymentMethod === 'COD' && (
+        <div className="co-form__note">
+          <strong>Cash on Delivery (COD)</strong> — pay when your order arrives. Only shipping charges are
+          collected online to confirm your order.
         </div>
       )}
 
@@ -281,23 +296,32 @@ function CheckoutPage() {
   const { cartItems, clearCart } = useCart();
   const navigate = useNavigate();
   const location = useLocation();
-  const [step, setStep] = useState(0);
-  const [success, setSuccess] = useState(false);
-  const [orderPlacing, setOrderPlacing] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('COD');
 
-  const [shipping, setShipping] = useState({
-    firstName: '', lastName: '', address: '', city: '', state: '', zip: '', phone: '',
-  });
+  // ── Read location state first — used to initialise state below ───────────
+  const locationState       = location.state || {};
+  const selectedProduct     = locationState.selectedProduct || null;
+  const incomingPincode     = locationState.pincode      || '';
+  const incomingPincodeData = locationState.pincodeData  || null;
+  const isAuthenticated     = isUserAuthenticated();
+  const userProfile         = getUserProfile();
 
-  const locationState = location.state || {};
-  const selectedProduct = locationState.selectedProduct || null;
-  const isAuthenticated = isUserAuthenticated();
-  const userProfile = getUserProfile();
-  const [checkoutMode, setCheckoutMode] = useState(() =>
+  const [step,          setStep]          = useState(0);
+  const [success,       setSuccess]       = useState(false);
+  const [orderPlacing,  setOrderPlacing]  = useState(false);
+  const [errorMessage,  setErrorMessage]  = useState('');
+  // ONLINE only — COD commented out for now
+  const [paymentMethod, setPaymentMethod] = useState('ONLINE');
+  const [checkoutMode,  setCheckoutMode]  = useState(() =>
     locationState.checkoutMode ?? (isAuthenticated ? 'user' : 'prompt')
   );
+
+  // Pre-fill zip from pincode check done on product detail page
+  const [shipping, setShipping] = useState({
+    firstName: '', lastName: '', address: '',
+    city: '', state: '',
+    zip:   incomingPincode || '',
+    phone: '', email: '',
+  });
 
   const orderItems = useMemo(() => {
     if (selectedProduct) {
@@ -432,14 +456,16 @@ function CheckoutPage() {
     if (!isAuthenticated || !userProfile) return;
     setShipping((prev) => ({
       firstName: prev.firstName || userProfile.first_name || userProfile.name?.split(' ')[0] || '',
-      lastName: prev.lastName || userProfile.last_name || userProfile.name?.split(' ').slice(1).join(' ') || '',
-      address: prev.address || userProfile.address || userProfile.shipping_address || '',
-      city: prev.city || userProfile.city || '',
-      state: prev.state || userProfile.state || '',
-      zip: prev.zip || userProfile.zip || userProfile.pin_code || '',
-      phone: prev.phone || userProfile.phone || userProfile.mobile || userProfile.phone_number || '',
+      lastName:  prev.lastName  || userProfile.last_name  || userProfile.name?.split(' ').slice(1).join(' ') || '',
+      address:   prev.address   || userProfile.address    || userProfile.shipping_address || '',
+      city:      prev.city      || userProfile.city       || '',
+      state:     prev.state     || userProfile.state      || '',
+      // Prefer pincode passed from product detail over stored profile value
+      zip:       incomingPincode || prev.zip || userProfile.zip || userProfile.pin_code || '',
+      phone:     prev.phone     || userProfile.phone || userProfile.mobile || userProfile.phone_number || '',
+      email:     prev.email     || userProfile.email || '',
     }));
-  }, [isAuthenticated, userProfile]);
+  }, [isAuthenticated, userProfile, incomingPincode]);
 
   if (orderItems.length === 0 && !success) {
     return (
@@ -521,10 +547,30 @@ function CheckoutPage() {
               <>
                 {/* Step indicator */}
                 {errorMessage && (
-                  <div className="co-form__error" role="alert">
-                    {errorMessage}
+                  <div className="co-form__error" role="alert">{errorMessage}</div>
+                )}
+
+                {/* ── Pincode confirmation banner ─────────────────────────── */}
+                {incomingPincodeData?.available && incomingPincode && (
+                  <div style={{
+                    background: '#f0fdf4', border: '1px solid #86efac',
+                    borderRadius: '8px', padding: '10px 16px', marginBottom: 16,
+                    display: 'flex', alignItems: 'center', gap: 10, fontSize: '0.875rem',
+                  }}>
+                    <span>✅</span>
+                    <span>
+                      Delivery available to pincode <strong>{incomingPincode}</strong>
+                      {incomingPincodeData.city ? ` · ${incomingPincodeData.city}` : ''}
+                      {incomingPincodeData.state ? `, ${incomingPincodeData.state}` : ''}
+                      {incomingPincodeData.deliveryCharge === 0
+                        ? ' · Free delivery'
+                        : incomingPincodeData.deliveryCharge
+                          ? ` · Delivery charge: ₹${incomingPincodeData.deliveryCharge}`
+                          : ''}
+                    </span>
                   </div>
                 )}
+
                 <div className="co-steps" role="list" aria-label="Checkout steps">
                   {STEPS.map((label, i) => (
                     <div

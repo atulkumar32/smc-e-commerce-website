@@ -171,10 +171,10 @@
 
   &__title {
     font-family: $font-headline;
-    font-size: $fs-3xl;
+    font-size: $fs-2xl;
     font-weight: $fw-semibold;
     color: $color-primary;
-    line-height: $lh-snug;
+    line-height: 1.2;
     margin: 0;
 
     @include md { font-size: $fs-2xl; }

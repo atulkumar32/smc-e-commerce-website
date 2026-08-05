@@ -232,24 +232,7 @@ function AddNewProduct({ editingProduct = null, onSuccess, onCancel }) {
         </Grid>
 
         {/* ── RIGHT — images ── */}
-        <Grid item xs={12} lg={4}>
-          <Paper sx={{ p: 2.5, border: '1px solid #e8eaed', borderRadius: '10px',
-            position: { lg: 'sticky' }, top: { lg: 80 } }}>
-            <Typography variant="subtitle2" fontWeight={700} mb={1.5}>
-              Product Images
-            </Typography>
-            <ProductImageUpload
-              images={form.images || []}
-              onChange={handleImagesChange}
-              error={errors.images}
-              selectedColors={
-                COLOR_OPTIONS.filter((c) =>
-                  (form.images || []).some((img) => img.colorLabel === c.label)
-                )
-              }
-            />
-          </Paper>
-        </Grid>
+       
       </Grid>
 
       <Divider sx={{ my: 2 }} />

@@ -5,12 +5,10 @@ import {
   buildProductPayload,
   validateProductForm,
   hasValidationErrors,
-  prepareImagesForPayload,
   resolveProductId,
   generateProductId,
 } from '../../AllProductuploadFields';
 import { createProductAction, updateProductAction } from '../../../../../Actions/ProductUploadAction';
-import { apiDebug, apiDebugError, sanitizePayloadForLog } from '../../../../../utils/apiDebug';
 import useProductCategories from './useProductCategories';
 
 function useAddNewProduct({ editingProduct = null, onSuccess } = {}) {
@@ -30,13 +28,8 @@ function useAddNewProduct({ editingProduct = null, onSuccess } = {}) {
   useEffect(() => {
     if (editingProduct) {
       setForm(mapProductToForm(editingProduct));
-      apiDebug('Form loaded for edit', {
-        product_id: resolveProductId(editingProduct),
-        product: sanitizePayloadForLog(editingProduct),
-      });
     } else {
       setForm(emptyProductForm);
-      apiDebug('Form reset — new product');
     }
     setErrors({});
     setSubmitError('');
@@ -83,16 +76,6 @@ function useAddNewProduct({ editingProduct = null, onSuccess } = {}) {
 
   const handleImagesChange = (images, imageError = '') => {
     setForm((prev) => ({ ...prev, images }));
-    apiDebug('Images updated', {
-      count: images.length,
-      files: images.map((img) => ({
-        name: img.name,
-        type: img.type,
-        isExisting: img.isExisting,
-        hasFile: Boolean(img.file),
-      })),
-      imageError: imageError || null,
-    });
     setErrors((prev) => {
       const next = { ...prev };
       if (imageError) {
@@ -121,80 +104,50 @@ function useAddNewProduct({ editingProduct = null, onSuccess } = {}) {
   const submitProduct = async (status) => {
     const mode = status === 'draft' ? 'draft' : 'publish';
 
-    apiDebug('Step 1 — Submit started', {
-      mode,
-      status,
-      isEditing,
-      formSummary: {
-        productName: form.productName,
-        categoryId: form.categoryId,
-        categoryName: form.categoryName,
-        price: form.price,
-        stock: form.stock,
-        imageCount: form.images?.length ?? 0,
-        isPublished: form.isPublished,
-      },
-    });
-
     const validationErrors = validateProductForm(form, mode);
-
     if (hasValidationErrors(validationErrors)) {
-      apiDebug('Step 1b — Validation failed', { validationErrors });
       setErrors(validationErrors);
       return;
     }
 
-    apiDebug('Step 1b — Validation passed');
-
     setLoading(true);
     setSubmitError('');
 
-    let preparedImages;
-    try {
-      apiDebug('Step 1c — Preparing images…');
-      preparedImages = await prepareImagesForPayload(form.images);
-      apiDebug('Step 1c — Images prepared', {
-        count: preparedImages.length,
-      });
-    } catch (imgErr) {
-      apiDebugError('Step 1c — Image preparation failed', imgErr);
-      setSubmitError('Failed to process images. Please try again.');
-      setLoading(false);
-      return;
-    }
-
     const productId = isEditing
-      // resolveProductId returns product.product_id ?? product.productId ?? product.id
-      // This ensures the string "SMC-PROD-xxxx" from the API list is passed to UpdateProducts.php
       ? resolveProductId(editingProduct)
       : generateProductId();
 
-    apiDebug('Step 1d — Product ID resolved', {
-      isEditing,
-      productId,
-      editingProductId: editingProduct
-        ? (editingProduct.product_id ?? editingProduct.productId ?? editingProduct.id)
-        : null,
-    });
-
-    // For update: make absolutely sure product_id in the payload matches
-    // the original record's primary key (not a generated one).
+    // Build payload — images excluded (handled separately via variants)
+    // preparedImages is passed as [] until image upload is re-enabled
     const payload = buildProductPayload(
       form,
       status,
-      preparedImages,
+      [],          // ← images commented out
       productId,
       categories
     );
 
-    // Extra safety: explicitly overwrite product_id with the resolved ID
-    // so even if buildProductPayload did anything unexpected, the update goes to the right row.
+    // Extra safety for update: make sure product_id matches the original record
     if (isEditing && productId) {
       payload.product_id = productId;
-      payload.productId  = productId;
     }
 
-    apiDebug('Step 1e — Payload built', sanitizePayloadForLog(payload));
+    // ── Console log the exact payload being sent ─────────────────────────────
+    console.group(`📦 [Product API] ${isEditing ? 'UPDATE' : 'CREATE'} — payload`);
+    console.log('Mode     :', status);
+    console.log('ProductID:', productId);
+    console.log('Payload  :');
+    console.table(
+      Object.entries(payload).map(([key, value]) => ({
+        key,
+        value: typeof value === 'string' && value.length > 80
+          ? `${value.slice(0, 80)}…`
+          : value,
+        type: typeof value,
+      }))
+    );
+    console.log('Raw payload object:', payload);
+    console.groupEnd();
 
     try {
       let savedProduct;
@@ -204,10 +157,7 @@ function useAddNewProduct({ editingProduct = null, onSuccess } = {}) {
         savedProduct = await createProductAction(payload);
       }
 
-      apiDebug('Step 7 — Submit success', {
-        status,
-        savedProduct: sanitizePayloadForLog(savedProduct),
-      });
+      console.log('✅ [Product API] Success:', savedProduct);
 
       onSuccess?.(savedProduct, status);
       if (!isEditing) {
@@ -215,14 +165,8 @@ function useAddNewProduct({ editingProduct = null, onSuccess } = {}) {
       }
       setErrors({});
     } catch (err) {
-      apiDebugError('Step 7 — Submit failed', err, {
-        productId,
-        status,
-        isEditing,
-      });
-      setSubmitError(
-        err.message || 'Failed to save product. Please try again.'
-      );
+      console.error('❌ [Product API] Failed:', err.message, { productId, status, isEditing });
+      setSubmitError(err.message || 'Failed to save product. Please try again.');
     } finally {
       setLoading(false);
     }
