@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import ProductCard from '../../../components/ProductCard';
+import SkeletonCard from '../../../components/SkeletonCard';
 import NavDrawer from '../../../components/NavDrawer';
 import { useProductFilter } from '../useProductFilter';
 import { CATEGORIES, SORT_OPTIONS } from '../productData';
@@ -169,11 +170,12 @@ function ProductList() {
 
             {/* ── Product Grid ── */}
         {loading && products.length === 0 ? (
-          <div className="product-list__empty">
-            <p>Loading products…</p>
+          <div className="product-list__grid" role="list" aria-label="Loading products">
+            <SkeletonCard count={8} />
           </div>
         ) : products.length > 0 ? (
           <div className="product-list__grid" role="list" aria-label={`${pageTitle} products`}>
+          
             {products.map((product, i) => (
               <div key={product.id} role="listitem" style={{ animationDelay: `${i * 60}ms` }}>
                 <ProductCard product={product} animate />

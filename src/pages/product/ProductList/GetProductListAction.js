@@ -24,6 +24,7 @@ export async function fetchWebProductList(params = {}) {
   if (params === null) {
     const url = WEB_URLS.PRODUCT_LIST;
     const response = await fetch(url, { method: 'GET' });
+   
     const text = await response.text();
     let data = {};
 

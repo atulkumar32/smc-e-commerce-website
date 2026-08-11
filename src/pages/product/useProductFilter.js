@@ -58,49 +58,73 @@ function getProductImage(product) {
   return '';
 }
 
-function mapApiProduct(product) {
-  // Price: product-level first, fall back to first variant
-  const firstVariant = Array.isArray(product.variants) && product.variants[0];
-  const price = Number(
-    product.selling_price ??
-    product.price ??
-    product.mrp ??
-    firstVariant?.selling_price ??
-    firstVariant?.mrp ??
-    0
-  );
-  const mrp = Number(
-    product.mrp ??
-    product.price ??
-    firstVariant?.mrp ??
-    price
-  );
+// Get the image for a specific variant
+function getVariantImage(variant) {
+  const imgs = Array.isArray(variant.images) ? variant.images : [];
+  const main = imgs.find((i) => i.is_main) || imgs[0];
+  return main?.image_url || '';
+}
 
-  // Resolve image — walks variants.images[] if no top-level image
-  const rawImagePath = getProductImage(product);
-  const image = resolveApiImage(rawImagePath);
+// Expand one product into N cards — one per variant.
+// If the product has no variants, returns a single card for the product itself.
+function expandProductToVariantCards(product) {
+  const variants = Array.isArray(product.variants) ? product.variants : [];
 
-  console.log(
-    `%c[ProductCard IMG] ${product.product_id || product.id} · ${product.product_name || product.name}`,
-    'color:#059669;font-weight:bold',
-    '\n  raw path :', rawImagePath || '(none)',
-    '\n  resolved :', image        || '(empty)',
-  );
-
-  return {
-    id:               product.product_id || product.productId || product.id,
+  // Base product fields shared across all cards
+  const base = {
+    productId:        product.product_id || product.id,
     name:             product.product_name || product.productName || product.name || 'Product',
-    price,
-    originalPrice:    mrp !== price ? mrp : null,
-    category:         product.category || product.category_id || 'all',
-    badge:            product.badge || null,
+    category:         product.category_name || product.category || product.category_id || 'all',
+    badge:            product.badge || (product.is_new_arrival ? 'New' : null),
     brand:            product.brand || null,
     shortDescription: product.short_description || product.shortDescription || null,
-    colors:           Array.isArray(product.colors)
-                        ? product.colors
-                        : product.colors ? [product.colors] : [],
-    image,
   };
+
+  if (variants.length === 0) {
+    // No variants — single card from product-level data
+    const rawImg = getProductImage(product);
+    const image  = resolveApiImage(rawImg);
+    const price  = Number(product.selling_price ?? product.price ?? product.mrp ?? 0);
+    const mrp    = Number(product.mrp ?? product.price ?? price);
+    console.log(`%c[Card] ${base.productId} (no variants)`, 'color:#059669;font-weight:bold', '→', image || '(no img)');
+    return [{
+      ...base,
+      id:            `${base.productId}`,
+      variantId:     null,
+      price,
+      originalPrice: mrp !== price ? mrp : null,
+      colorName:     '',
+      colorHex:      '',
+      image,
+      colors:        [],
+    }];
+  }
+
+  // One card per variant
+  return variants.map((v) => {
+    const rawImg = getVariantImage(v);
+    const image  = resolveApiImage(rawImg);
+    const price  = Number(v.selling_price ?? v.discount_price ?? v.mrp ?? 0);
+    const mrp    = Number(v.mrp ?? price);
+    console.log(`%c[Card] ${base.productId} · ${v.color_name} (${v.variant_id})`, 'color:#1565c0;font-weight:bold',
+      '\n  raw :', rawImg || '(none)', '\n  url :', image || '(empty)');
+    return {
+      ...base,
+      // Unique card id = productId + variantId so React keys don't collide
+      id:            `${base.productId}__${v.variant_id || v.id}`,
+      variantId:     v.variant_id || v.id,
+      price,
+      originalPrice: mrp !== price ? mrp : null,
+      colorName:     v.color_name || '',
+      colorHex:      v.color_hex  || '',
+      stock:         Number(v.stock ?? 0),
+      image,
+      // Keep all sibling color swatches for the card UI
+      colors: variants
+        .filter((sv) => sv.color_hex)
+        .map((sv) => ({ hex: sv.color_hex, name: sv.color_name, variantId: sv.variant_id })),
+    };
+  });
 }
 
 function mapMockProduct(product) {
@@ -294,11 +318,18 @@ export function useProductFilter() {
         if (!isMounted) return;
 
         const apiProducts = Array.isArray(data.products) ? data.products : [];
-        const mapped = apiProducts.map(mapApiProduct);
+        // Expand each product into one card per variant
+        const expanded = apiProducts.flatMap(expandProductToVariantCards);
+        // Fisher-Yates shuffle — different order on every page load/refresh
+        const mapped = [...expanded];
+        for (let i = mapped.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [mapped[i], mapped[j]] = [mapped[j], mapped[i]];
+        }
 
         setProducts((prev) => (queryPage === 1 ? mapped : [...prev, ...mapped]));
-        setTotalCount(Number(data.total ?? apiProducts.length));
-        setHasMore(queryPage * queryLimit < (Number(data.total ?? apiProducts.length)));
+        setTotalCount(Number(data.totalVariants ?? data.total ?? expanded.length));
+        setHasMore(queryPage * queryLimit < (Number(data.totalVariants ?? data.total ?? expanded.length)));
       } catch {
         if (!isMounted) return;
 

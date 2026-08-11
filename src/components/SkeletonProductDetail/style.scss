@@ -1,0 +1,153 @@
+// ── SkeletonProductDetail — shimmer for product detail page ──────────────────
+
+@keyframes skel-pd-shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position:  600px 0; }
+}
+
+.skel-pd__pulse {
+  background: linear-gradient(
+    90deg,
+    #f0f0f0 25%,
+    #e0e0e0 50%,
+    #f0f0f0 75%
+  );
+  background-size: 1200px 100%;
+  animation: skel-pd-shimmer 1.5s ease-in-out infinite;
+  border-radius: 6px;
+}
+
+.skel-pd {
+  padding: 2rem 1.5rem;
+  max-width: 1280px;
+  margin: 0 auto;
+
+  &__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+  }
+
+  // ── Gallery ──────────────────────────────────────────────────
+  &__gallery {
+    display: flex;
+    gap: 12px;
+  }
+
+  &__thumbs {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+
+  &__thumb {
+    width: 72px;
+    height: 72px;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+
+  &__main-img {
+    flex: 1;
+    aspect-ratio: 4 / 5;
+    border-radius: 8px;
+    min-height: 300px;
+  }
+
+  // ── Info panel ───────────────────────────────────────────────
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding-top: 0.5rem;
+  }
+
+  &__line {
+    border-radius: 6px;
+
+    &--breadcrumb { height: 12px; width: 180px; }
+    &--title      { height: 28px; width: 100%; }
+    &--title-short{ height: 24px; width: 70%; }
+    &--price      { height: 32px; width: 140px; }
+    &--desc       { height: 13px; width: 100%; }
+    &--desc-short { height: 13px; width: 75%; }
+    &--label      { height: 12px; width: 90px; }
+  }
+
+  &__stars {
+    height: 18px;
+    width: 140px;
+    border-radius: 4px;
+  }
+
+  // ── Swatches ─────────────────────────────────────────────────
+  &__swatch-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__swatches {
+    display: flex;
+    gap: 10px;
+  }
+
+  &__swatch {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  // ── Buttons ──────────────────────────────────────────────────
+  &__btns {
+    display: flex;
+    gap: 10px;
+    margin-top: 4px;
+  }
+
+  &__btn {
+    flex: 1;
+    height: 44px;
+    border-radius: 4px;
+
+    &--wish {
+      flex: 0 0 44px;
+    }
+  }
+
+  // ── Pincode ──────────────────────────────────────────────────
+  &__pincode {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 8px;
+    padding: 16px;
+    border: 1px solid #f0f0f0;
+    border-radius: 8px;
+  }
+
+  &__pincode-row {
+    display: flex;
+    gap: 10px;
+  }
+
+  &__pincode-input {
+    flex: 1;
+    height: 40px;
+    border-radius: 6px;
+  }
+
+  &__pincode-btn {
+    width: 90px;
+    height: 40px;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+}

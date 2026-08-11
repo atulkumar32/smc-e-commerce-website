@@ -71,19 +71,24 @@ function OrdersPage() {
   };
 
   const activeStatus = filters.status || '';
-  const activeCard = filters.card || '';
-  const [anchorEl, setAnchorEl] = useState(null);
+  const activeCard   = filters.card   || '';
+  const [anchorEl,    setAnchorEl]    = useState(null);
   const [selectedRow, setSelectedRow] = useState(null);
+  // Track per-order label printed state (required before RTD on to_pack card)
+  const [labelPrinted, setLabelPrinted] = useState({});
 
-  const openMenu = (event, row) => {
-    setAnchorEl(event.currentTarget);
-    setSelectedRow(row);
-  };
+  const openMenu  = (event, row) => { setAnchorEl(event.currentTarget); setSelectedRow(row); };
+  const closeMenu = () => { setAnchorEl(null); setSelectedRow(null); };
 
-  const closeMenu = () => {
-    setAnchorEl(null);
-    setSelectedRow(null);
-  };
+  // ── Card config — label, filter value, colour, summary key ───────────────
+  const CARD_CONFIG = [
+    { label: 'Total Orders', value: '',           color: '#1565c0', icon: '📦', key: 'total_orders' },
+    { label: 'Accepted',     value: 'accepted',   color: '#16a34a', icon: '✅', key: 'accepted'     },
+    { label: 'To Pack',      value: 'to_pack',    color: '#0891b2', icon: '🗃️', key: 'to_pack'     },
+    { label: 'In Transit',   value: 'in_transit', color: '#7c3aed', icon: '🚚', key: 'in_transit'   },
+    { label: 'Completed',    value: 'completed',  color: '#059669', icon: '🏁', key: 'completed'    },
+    { label: 'Cancelled',    value: 'cancelled',  color: '#dc2626', icon: '❌', key: 'cancelled'    },
+  ];
 
   // ── Table columns + Actions column ───────────────────────────────────────
   const columns = [
@@ -93,12 +98,19 @@ function OrdersPage() {
       label: 'Actions',
       align: 'right',
       render: (row) => {
-        const status = (row.status || '').toLowerCase();
-        const isPending = status === 'pending';
+        const status     = (row.status || '').toLowerCase();
+        const isPending  = status === 'pending'  || status === 'confirmed';
         const isApproved = status === 'approved';
-        const isShipped = status === 'shipped';
+        const isRejected = status === 'rejected' || status === 'cancelled';
+        const isShipped  = status === 'shipped';
         const isDelivered = status === 'delivered';
         const isCompleted = status === 'completed';
+        const alreadyActioned = isApproved || isRejected || isCompleted || isDelivered;
+        const hasLabel   = Boolean(labelPrinted[row.order_id || row.id]);
+
+        // Which card context is active decides which actions are visible
+        const isAcceptedCard = activeCard === 'accepted' || activeCard === '';
+        const isToPackCard   = activeCard === 'to_pack';
 
         return (
           <>
@@ -113,116 +125,105 @@ function OrdersPage() {
               anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
               transformOrigin={{ vertical: 'top', horizontal: 'right' }}
             >
-              {/* View Details */}
+              {/* ── View Details — always visible ── */}
               <MenuItem onClick={() => {
                 closeMenu();
-                // TODO: Open View Order Details Modal
-                console.log('View Details clicked for order:', row.order_id);
+                console.log('View Details:', row.order_id);
               }}>
                 <ListItemIcon><VisibilityOutlinedIcon fontSize="small" /></ListItemIcon>
                 <ListItemText>👁 View Details</ListItemText>
               </MenuItem>
 
-              {/* Approve Order */}
-              <MenuItem
-                disabled={!isPending}
-                onClick={() => {
-                  closeMenu();
-                  setActionDialog({ open: true, row, actionType: 'approved' });
-                }}
-              >
-                <ListItemIcon><CheckCircleOutlinedIcon fontSize="small" color="success" /></ListItemIcon>
-                <ListItemText>✔ Approve Order</ListItemText>
-              </MenuItem>
+              {/* ── Accepted card context: Approve & Reject ── */}
+              {(activeCard === 'accepted' || activeCard === '') && !alreadyActioned && [
+                <MenuItem key="approve"
+                  disabled={!isPending}
+                  onClick={() => { closeMenu(); setActionDialog({ open: true, row, actionType: 'approved' }); }}>
+                  <ListItemIcon><CheckCircleOutlinedIcon fontSize="small" color="success" /></ListItemIcon>
+                  <ListItemText>✔ Approve Order</ListItemText>
+                </MenuItem>,
+                <MenuItem key="reject"
+                  disabled={!isPending}
+                  onClick={() => { closeMenu(); setActionDialog({ open: true, row, actionType: 'rejected' }); }}>
+                  <ListItemIcon><CancelOutlinedIcon fontSize="small" color="error" /></ListItemIcon>
+                  <ListItemText> Reject Order</ListItemText>
+                </MenuItem>,
+              ]}
 
-              {/* Reject Order */}
-              <MenuItem
-                disabled={!isPending}
-                onClick={() => {
-                  closeMenu();
-                  setActionDialog({ open: true, row, actionType: 'rejected' });
-                }}
-              >
-                <ListItemIcon><CancelOutlinedIcon fontSize="small" color="error" /></ListItemIcon>
-                <ListItemText>✖ Reject Order</ListItemText>
-              </MenuItem>
+              {/* ── To Pack card context: Print Label → then RTD ── */}
+              {activeCard === 'to_pack' && [
+                /* Step 1: Print Label */
+                <MenuItem key="print-label"
+                  onClick={async () => {
+                    closeMenu();
+                    try {
+                      showSnack('Generating label / invoice…', 'info');
+                      const result = await generateInvoiceAction(row.order_id);
+                      if (result?.pdf_url) {
+                        const link = document.createElement('a');
+                        link.href = result.pdf_url;
+                        link.target = '_blank';
+                        link.download = result.filename || `label_${row.order_id}.pdf`;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        // Mark label as printed for this order
+                        setLabelPrinted((prev) => ({ ...prev, [row.order_id || row.id]: true }));
+                        showSnack('Label printed — you can now mark Ready to Dispatch', 'success');
+                      }
+                    } catch (err) {
+                      showSnack(err.message || 'Failed to generate label', 'error');
+                    }
+                  }}>
+                  {/* <ListItemIcon>🖨</ListItemIcon> */}
+                  <ListItemText>Print Label</ListItemText>
+                </MenuItem>,
 
-              {/* Print Invoice */}
-              <MenuItem onClick={async () => {
-                closeMenu();
-                try {
-                  showSnack('Generating invoice…', 'info');
-                  const result = await generateInvoiceAction(row.order_id);
-                  if (result?.pdf_url) {
-                    // Auto-download the PDF
-                    const link = document.createElement('a');
-                    link.href = result.pdf_url;
-                    link.target = '_blank';
-                    link.download = result.filename || `invoice_${row.order_id}.pdf`;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    showSnack(`Invoice downloaded: ${result.filename}`, 'success');
-                  }
-                } catch (err) {
-                  showSnack(err.message || 'Failed to generate invoice', 'error');
-                }
-              }}>
-                <ListItemIcon>🖨</ListItemIcon>
-                <ListItemText>Print Invoice</ListItemText>
-              </MenuItem>
+                /* Step 2: RTD — only enabled after label is printed */
+                <MenuItem key="rtd"
+                  disabled={!hasLabel}
+                  title={!hasLabel ? 'Print label first to enable RTD' : ''}
+                  onClick={async () => {
+                    closeMenu();
+                    try {
+                      showSnack('Marking as ready to dispatch…', 'info');
+                      await readyToDispatchAction({ order_id: row.order_id, id: row.id, admin_id: '', admin_name: '' });
+                      showSnack(`Order ${row.order_id} marked as ready to dispatch`, 'success');
+                      refetch();
+                    } catch (err) {
+                      showSnack(err.message || 'Failed to mark as dispatched', 'error');
+                    }
+                  }}>
+                  <ListItemIcon>📦</ListItemIcon>
+                  <ListItemText
+                    primary="Ready to Dispatch (RTD)"
+                    secondary={!hasLabel ? 'Print label first' : undefined}
+                  />
+                </MenuItem>,
+              ]}
 
-              {/* Ready To Dispatch */}
-              <MenuItem
-                disabled={isShipped || isDelivered || isCompleted}
-                onClick={async () => {
-                  closeMenu();
-                  try {
-                    showSnack('Marking as ready to dispatch…', 'info');
-                    await readyToDispatchAction({
-                      order_id: row.order_id,
-                      id: row.id,
-                      admin_id: '',
-                      admin_name: '',
-                    });
-                    showSnack(`Order ${row.order_id} marked as ready to dispatch`, 'success');
-                    refetch();
-                  } catch (err) {
-                    showSnack(err.message || 'Failed to mark as dispatched', 'error');
-                  }
-                }}
-              >
-                <ListItemIcon>📦</ListItemIcon>
-                <ListItemText>Ready To Dispatch</ListItemText>
-              </MenuItem>
+              {/* ── In transit / general: Mark as Delivered ── */}
+              {(activeCard === 'in_transit' || activeCard === '') && (
+                <MenuItem
+                  disabled={!isShipped}
+                  onClick={() => { closeMenu(); console.log('Mark as Delivered:', row.order_id); }}>
+                  {/* <ListItem Icon>🚚</ListItemIcon> */}
+                  <ListItemText>Mark as Delivered</ListItemText>
+                </MenuItem>
+              )}
 
-              {/* Mark as Delivered */}
-              <MenuItem
-                disabled={!isShipped}
-                onClick={() => {
-                  closeMenu();
-                  // TODO: Call Mark as Delivered API
-                  console.log('Mark as Delivered:', row.order_id);
-                }}
-              >
-                <ListItemIcon>🚚</ListItemIcon>
-                <ListItemText>Mark as Delivered</ListItemText>
-              </MenuItem>
-
-              {/* Delete Order */}
-              <MenuItem
+              {/* ── Delete — always visible ── */}
+              {/* <MenuItem
+                sx={{ color: 'error.main' }}
                 onClick={() => {
                   closeMenu();
                   if (window.confirm(`Delete order ${row.order_id}?`)) {
-                    // TODO: Call Delete Order API
                     console.log('Delete Order:', row.order_id);
                   }
-                }}
-                sx={{ color: 'error.main' }}
-              >
+                }}>
                 <ListItemIcon><DeleteOutlinedIcon fontSize="small" color="error" /></ListItemIcon>
                 <ListItemText>🗑 Delete Order</ListItemText>
-              </MenuItem>
+              </MenuItem> */}
             </Menu>
           </>
         );
@@ -232,66 +233,33 @@ function OrdersPage() {
 
   return (
     <Box>
-      {/* ── Summary Cards — using shared StatsCard component ── */}
-      <Stack
-        direction="row"
-        flexWrap="wrap"
-        gap={1.5}
-        mb={3}
-        useFlexGap
-        sx={{
-          gap:'10px',
-        }}
+      {/* ── Summary Cards — active card gets coloured border ── */}
+      <Stack direction="row" flexWrap="wrap" gap={1.5} mb={3} useFlexGap
+      
+      sx={{
+        gap:"12px",
+      }}
       >
-        <StatsCard
-          label="Total Orders"
-          value={summary.total_orders}
-          color="#1565c0"
-          icon="📦"
-          onClick={() => handleCardClick('')}
-        />
-        <StatsCard
-          label="Accepted"
-          value={summary.accepted}
-          color="#16a34a"
-          icon="✅"
-          onClick={() => handleCardClick('accepted')}
-        />
-        <StatsCard
-          label="To Pack"
-          value={summary.to_pack}
-          color="#0891b2"
-          icon="🗃️"
-          onClick={() => handleCardClick('to_pack')}
-        />
-        <StatsCard
-          label="In Transit"
-          value={summary.in_transit}
-          color="#7c3aed"
-          icon="🚚"
-          onClick={() => handleCardClick('in_transit')}
-        />
-        <StatsCard
-          label="Completed"
-          value={summary.completed}
-          color="#059669"
-          icon="🏁"
-          onClick={() => handleCardClick('completed')}
-        />
-        {/* <StatsCard
-          label="Upcoming"
-          value={summary.upcoming}
-          color="#d97706"
-          icon="🕐"
-          onClick={() => handleCardClick('upcoming')}
-        /> */}
-        <StatsCard
-          label="Cancelled"
-          value={summary.cancelled}
-          color="#dc2626"
-          icon="❌"
-          onClick={() => handleCardClick('cancelled')}
-        />
+        {CARD_CONFIG.map(({ label, value, color, icon, key }) => {
+          const isActive = activeCard === value;
+          return (
+            <Box key={label} sx={{
+              flex: '1 1 140px', minWidth: 130,
+              outline: isActive ? `2.5px solid ${color}` : '2.5px solid transparent',
+              borderRadius: '14px',
+              boxShadow: isActive ? `0 0 0 4px ${color}22` : 'none',
+              transition: 'outline 0.15s, box-shadow 0.15s',
+            }}>
+              <StatsCard
+                label={label}
+                value={summary[key] ?? 0}
+                color={color}
+                icon={icon}
+                onClick={() => handleCardClick(value)}
+              />
+            </Box>
+          );
+        })}
       </Stack>
 
       {/* ── Page header ── */}
