@@ -251,9 +251,7 @@ function ProductDetail() {
                 {displayStock === 0 && <span className="pd__oos">Out of stock</span>}
               </div>
 
-              {product.shortDescription && (
-                <p className="pd__desc">{product.shortDescription}</p>
-              )}
+           
 
               {/* Colour swatches */}
               {product.variantColors?.length > 0 && (

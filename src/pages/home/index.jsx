@@ -10,7 +10,8 @@ import './style.scss';
 function HomePage() {
   return (
     <main className="home">
-      <HeroSection />
+      {/* <HeroSection /> commened on;ly for now domt reove to this */}
+      {/* //TODO: make the hero slider here now  */}
       <MahaveerLegacy />
       <Collections />
       <CollectionsShowcase />

@@ -1,16 +1,14 @@
 @import '../../../Styles/Mixins';
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  Product Detail — Flipkart-style layout
-//  Left  : 2×2 image mosaic (sticky on desktop)
-//  Right : product info panel
+//  Product Detail — 55/45 layout + 2×2 mosaic + brand-style right panel
 // ─────────────────────────────────────────────────────────────────────────────
 
-// ── Page shell ────────────────────────────────────────────────────────────────
 .pd {
-  // background: #f1f3f6;
+  background: #ffffff;
   min-height: 80vh;
 
+  // ── Wrapper ─────────────────────────────────────────────────
   &__inner {
     max-width: 1280px;
     margin: 0 auto;
@@ -19,38 +17,30 @@
     @include sm { padding: 0.75rem 0.5rem 3rem; }
   }
 
-  // ── Two-column layout — 55% left / 45% right ─────────────────
+  // ── 55% / 45% two-column grid ────────────────────────────────
   &__layout {
     display: grid;
     grid-template-columns: 55fr 45fr;
     gap: 1rem;
     align-items: start;
 
-    @media (max-width: 900px) {
-      grid-template-columns: 1fr;
-    }
+    @media (max-width: 900px) { grid-template-columns: 1fr; }
   }
 
-  // ── LEFT: image mosaic ────────────────────────────────────────
+  // ── LEFT: sticky 2×2 mosaic ──────────────────────────────────
   &__left {
     position: sticky;
-    top: 72px;                 // below fixed header
-    // background: #fff;
+    top: 72px;
     border-radius: 4px;
     overflow: hidden;
 
-    @media (max-width: 900px) {
-      position: static;
-    }
+    @media (max-width: 900px) { position: static; }
   }
 
-  // 2×2 grid — each cell square
   &__mosaic {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto auto;
     gap: 2px;
-    // background: #e0e0e0;      // gap colour
   }
 
   &__mosaic-cell {
@@ -61,7 +51,7 @@
     overflow: hidden;
     border: none;
     padding: 0;
-    // background: #fff;
+    background: $color-neutral-100;
     cursor: zoom-in;
 
     img {
@@ -72,17 +62,11 @@
       transition: transform 0.35s ease;
     }
 
-    &:hover img {
-      transform: scale(1.06);
-    }
+    &:hover img { transform: scale(1.06); }
 
-    &--empty {
-      cursor: default;
-      // background: #f5f5f5;
-    }
+    &--empty { cursor: default; }
   }
 
-  // "+N" overlay on the 4th cell when more images exist
   &__mosaic-more {
     position: absolute;
     inset: 0;
@@ -97,26 +81,24 @@
     pointer-events: none;
   }
 
-  // Badge (New / Sale)
   &__badge {
     display: inline-block;
     margin: 0.5rem;
     font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.06em;
+    font-weight: $fw-bold;
+    letter-spacing: $ls-wider;
     text-transform: uppercase;
     padding: 3px 10px;
     border-radius: 3px;
 
-    &--new     { background: #2874f0; color: #fff; }
-    &--sale    { background: #fb641b; color: #fff; }
-    &--limited { background: #212121; color: #ffd200; }
+    &--new     { background: $color-secondary; color: $color-primary; }
+    &--sale    { background: $color-error; color: #fff; }
+    &--limited { background: $color-primary; color: $color-secondary; }
   }
 
-  // ── RIGHT: info panel ─────────────────────────────────────────
+  // ── RIGHT: brand-styled info panel ───────────────────────────
   &__right {
-    // background: $color-neutral-50;   // brand light background
-    // border: 1px solid $color-neutral-200;
+    background: #ffffff;
     border-radius: 4px;
     padding: 1.75rem 2rem;
     display: flex;
@@ -132,19 +114,20 @@
     align-items: center;
     gap: 0.35rem;
     flex-wrap: wrap;
+  }
 
-    &-link {
-      @include label($fs-xs, $fw-medium);
-      color: $color-tertiary-500;
-      text-decoration: none;
-      @include transition(color);
-      &:hover { color: $color-primary; }
-    }
+  &__breadcrumb-link {
+    @include label($fs-xs, $fw-medium);
+    color: $color-tertiary-500;
+    text-decoration: none;
+    @include transition(color);
 
-    &-current {
-      @include label($fs-xs, $fw-semibold);
-      color: $color-primary;
-    }
+    &:hover { color: $color-primary; }
+  }
+
+  &__breadcrumb-current {
+    @include label($fs-xs, $fw-semibold);
+    color: $color-primary;
   }
 
   // Title
@@ -170,25 +153,25 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+  }
 
-    &-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      background: #388e3c;
-      color: #fff;
-      font-size: 0.75rem;
-      font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 3px;
-    }
+  &__rating-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #388e3c;
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: $fw-bold;
+    padding: 2px 8px;
+    border-radius: 3px;
+  }
 
-    &-sep { color: $color-neutral-400; }
+  &__rating-sep { color: $color-neutral-400; }
 
-    &-count {
-      @include label($fs-sm, $fw-medium);
-      color: $color-tertiary-500;
-    }
+  &__rating-count {
+    @include label($fs-sm, $fw-medium);
+    color: $color-tertiary-500;
   }
 
   &__divider {
@@ -233,7 +216,7 @@
     border-radius: 4px;
   }
 
-  // Description
+  // Short description
   &__desc {
     @include body-text($fs-base);
     color: $color-tertiary-600;
@@ -272,7 +255,7 @@
     @include transition(box-shadow);
     @include focus-ring($color-secondary);
 
-    &.is-active  { box-shadow: 0 0 0 2.5px $color-primary; }
+    &.is-active { box-shadow: 0 0 0 2.5px $color-primary; }
     &:hover:not(.is-active) { box-shadow: 0 0 0 2px $color-tertiary-300; }
   }
 
@@ -331,6 +314,7 @@
       gap: 0.4rem;
 
       &:hover { border-color: $color-error; color: $color-error; }
+
       &.is-wished {
         background-color: rgba($color-error, 0.06);
         border-color: $color-error;
@@ -339,17 +323,94 @@
     }
   }
 
-  // Highlights / spec grid
+  // Pincode widget
+  &__pincode {
+    margin-top: 0.25rem;
+    padding: 1rem 1.25rem;
+    background: #f8f9fa;
+    border: 1px solid #e4e7ec;
+    border-radius: 10px;
+  }
+
+  &__pincode-label {
+    font-size: $fs-sm;
+    font-weight: $fw-semibold;
+    color: #344054;
+    margin: 0 0 0.6rem;
+  }
+
+  &__pincode-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  &__pincode-input {
+    flex: 1;
+    padding: 9px 12px;
+    font-size: $fs-sm;
+    border: 1px solid #d0d5dd;
+    border-radius: 8px;
+    outline: none;
+    letter-spacing: 0.1em;
+    font-family: monospace;
+    background: #fff;
+    transition: border-color 0.15s;
+
+    &::placeholder { color: #98a2b3; letter-spacing: 0; font-family: inherit; }
+    &:focus { border-color: $color-primary; box-shadow: 0 0 0 3px rgba($color-primary, 0.1); }
+  }
+
+  &__pincode-btn {
+    padding: 9px 18px;
+    font-size: $fs-sm;
+    font-weight: $fw-bold;
+    background: $color-primary;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s;
+
+    &:hover:not(:disabled) { filter: brightness(1.12); }
+    &:disabled { background: #b0bec5; cursor: not-allowed; }
+  }
+
+  &__pincode-hint {
+    margin: 0.5rem 0 0;
+    font-size: 0.73rem;
+    color: #98a2b3;
+  }
+
+  &__pincode-result {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-top: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-size: $fs-sm;
+
+    strong { display: block; font-size: $fs-sm; margin-bottom: 4px; }
+
+    &--success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; }
+    &--error   { background: #fff5f5; border: 1px solid #fecaca; color: #991b1b; }
+  }
+
+  &__pincode-result__icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+
+  // Product highlights / spec
   &__highlights {
     border-top: 1px solid $color-neutral-200;
     padding-top: 1rem;
+  }
 
-    &-title {
-      font-size: $fs-base;
-      font-weight: $fw-semibold;
-      color: $color-primary;
-      margin: 0 0 0.75rem;
-    }
+  &__highlights-title {
+    font-size: $fs-base;
+    font-weight: $fw-semibold;
+    color: $color-primary;
+    margin: 0 0 0.75rem;
   }
 
   &__spec-grid {
@@ -379,95 +440,53 @@
     font-weight: $fw-medium;
   }
 
-  // Features
+  // Features list
   &__features {
     border-top: 1px solid $color-neutral-200;
     padding-top: 1rem;
-
-    &-list {
-      padding-left: 1.1rem;
-      margin: 0;
-      list-style: disc;
-      color: $color-tertiary-600;
-      font-size: $fs-sm;
-      line-height: 1.75;
-    }
   }
 
-  // Pincode widget
-  &__pincode {
-    margin-top: 0.25rem;
-    padding: 1rem 1.25rem;
-    background: #f8f9fa;
-    border: 1px solid #e4e7ec;
-    border-radius: 10px;
+  &__features-list {
+    padding-left: 1.1rem;
+    margin: 0;
+    list-style: disc;
+    color: $color-tertiary-600;
+    font-size: $fs-sm;
+    line-height: 1.75;
+  }
 
-    &-label {
-      font-size: $fs-sm;
-      font-weight: $fw-semibold;
-      color: #344054;
-      margin: 0 0 0.6rem;
-    }
+  // ── Full-width description — below both columns ───────────────
+  &__description {
+    margin-top: 1rem;
+    padding: 1.75rem 2rem;
+    background: #ffffff;
 
-    &-row {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
+    @include sm { padding: 1.25rem 1rem; }
+  }
 
-    &-input {
-      flex: 1;
-      padding: 9px 12px;
-      font-size: $fs-sm;
-      border: 1px solid #d0d5dd;
-      border-radius: 8px;
-      outline: none;
-      letter-spacing: 0.1em;
-      font-family: monospace;
-      background: #fff;
-      transition: border-color 0.15s;
+  &__description-title {
+    font-family: $font-headline;
+    font-size: $fs-xl;
+    font-weight: $fw-semibold;
+    color: $color-primary;
+    margin: 0 0 1rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 2px solid $color-secondary;
+    display: inline-block;
+  }
 
-      &::placeholder { color: #98a2b3; letter-spacing: 0; font-family: inherit; }
-      &:focus { border-color: $color-primary; box-shadow: 0 0 0 3px rgba($color-primary, 0.1); }
-    }
+  &__description-short {
+    font-size: $fs-base;
+    color: $color-tertiary-600;
+    line-height: $lh-relaxed;
+    margin: 0 0 0.75rem;
+    font-weight: $fw-medium;
+  }
 
-    &-btn {
-      padding: 9px 18px;
-      font-size: $fs-sm;
-      font-weight: $fw-bold;
-      background: $color-primary;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: background 0.15s;
-
-      &:hover:not(:disabled) { filter: brightness(1.12); }
-      &:disabled { background: #b0bec5; cursor: not-allowed; }
-    }
-
-    &-hint {
-      margin: 0.5rem 0 0;
-      font-size: 0.73rem;
-      color: #98a2b3;
-    }
-
-    &-result {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      margin-top: 0.75rem;
-      padding: 0.75rem 1rem;
-      border-radius: 8px;
-      font-size: $fs-sm;
-
-      &__icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
-      strong  { display: block; font-size: $fs-sm; margin-bottom: 4px; }
-
-      &--success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; }
-      &--error   { background: #fff5f5; border: 1px solid #fecaca; color: #991b1b; }
-    }
+  &__description-body {
+    font-size: $fs-base;
+    color: $color-tertiary-600;
+    line-height: $lh-relaxed;
   }
 
   // Modal
@@ -539,73 +558,35 @@
 
     &:hover { background: $color-neutral-200; }
   }
+}
 
-  // Not found
-  &-not-found {
-    @include flex-col;
-    align-items: center;
-    gap: 1rem;
-    padding: 6rem 1rem;
-    text-align: center;
+// ── Not found (outside .pd to avoid nesting suffix issue) ─────────────────────
+.pd-not-found {
+  @include flex-col;
+  align-items: center;
+  gap: 1rem;
+  padding: 6rem 1rem;
+  text-align: center;
 
-    h2 { @include headline($fs-2xl, $fw-semibold); color: $color-primary; }
+  h2 { @include headline($fs-2xl, $fw-semibold); color: $color-primary; }
 
-    &__link {
-      @include label($fs-sm, $fw-medium);
-      color: $color-secondary;
-      text-decoration: none;
-      border-bottom: 1px solid $color-secondary;
-      padding-bottom: 2px;
-    }
+  &__link {
+    @include label($fs-sm, $fw-medium);
+    color: $color-secondary;
+    text-decoration: none;
+    border-bottom: 1px solid $color-secondary;
+    padding-bottom: 2px;
   }
 }
 
-  // ── Full-width description — below the 55/45 layout grid ─────
-  &__description {
-    margin-top: 1rem;
-    padding: 1.75rem 2rem;
-    background: $color-neutral-50;
-    border: 1px solid $color-neutral-200;
-    border-radius: 4px;
-
-    @include sm { padding: 1.25rem 1rem; }
-  }
-
-  &__description-title {
-    font-family: $font-headline;
-    font-size: $fs-xl;
-    font-weight: $fw-semibold;
-    color: $color-primary;
-    margin: 0 0 1rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 2px solid $color-secondary;
-    display: inline-block;
-  }
-
-  &__description-short {
-    font-size: $fs-base;
-    color: $color-tertiary-600;
-    line-height: $lh-relaxed;
-    margin: 0 0 1rem;
-    font-weight: $fw-medium;
-  }
-
-  &__description-body {
-    font-size: $fs-base;
-    color: $color-tertiary-600;
-    line-height: $lh-relaxed;
-
-    br { display: block; content: ''; margin-bottom: 0.4rem; }
-  }
-
-  // ── Stars component ───────────────────────────────────────────
+// ── Star rating ───────────────────────────────────────────────────────────────
 .pd-stars {
   display: flex;
-  gap: 1px;
-  color: #fff;
+  gap: 2px;
+  color: $color-secondary;
 
   &__star {
-    &.is-half { opacity: 0.65; }
+    &.is-half { opacity: 0.5; }
   }
 }
 
@@ -643,7 +624,7 @@
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background: rgba(255,255,255,0.1);
+    background: rgba(255, 255, 255, 0.1);
     border: none;
     color: #fff;
     font-size: 2.5rem;
@@ -658,16 +639,11 @@
     transition: background 0.15s;
     z-index: 10;
 
-    &:hover { background: rgba(255,255,255,0.22); }
-
+    &:hover { background: rgba(255, 255, 255, 0.22); }
     &--prev { left: 1rem; }
     &--next { right: 1rem; }
 
-    @include sm {
-      width: 36px;
-      height: 36px;
-      font-size: 1.6rem;
-    }
+    @include sm { width: 36px; height: 36px; font-size: 1.6rem; }
   }
 
   &__img-wrap {
@@ -687,12 +663,11 @@
   }
 
   &__counter {
-    color: rgba(255,255,255,0.65);
+    color: rgba(255, 255, 255, 0.65);
     font-size: 0.8rem;
     margin-top: 0.5rem;
   }
 
-  // Bottom thumbnail strip
   &__thumbs {
     display: flex;
     gap: 8px;
@@ -701,10 +676,10 @@
     padding: 4px 0;
     max-width: min(860px, 90vw);
     scrollbar-width: thin;
-    scrollbar-color: rgba(255,255,255,0.3) transparent;
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
 
     &::-webkit-scrollbar { height: 4px; }
-    &::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 2px; }
+    &::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.3); border-radius: 2px; }
   }
 
   &__thumb {
@@ -727,11 +702,7 @@
       display: block;
     }
 
-    &--active {
-      border-color: #2874f0;
-      opacity: 1;
-    }
-
+    &--active { border-color: $color-secondary; opacity: 1; }
     &:hover { opacity: 1; }
   }
 }
