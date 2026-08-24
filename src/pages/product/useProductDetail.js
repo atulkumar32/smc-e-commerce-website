@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { MEDIA_BASE } from '../../Config/UrlsConfig';
 import { FetchProductDetailsActions } from '../../Actions/Web/GetProductDetailsActions';
+import { productIdFromSlug } from '../../utils/slug';
 
 // ── Image resolver ────────────────────────────────────────────────────────────
 // Encodes only the filename segment so spaces/parens in filenames work correctly.
@@ -136,11 +137,15 @@ export default function useProductDetail(productId) {
       return;
     }
 
+    // Support both plain product_id ("SMC-00004") and SEO slugs
+    // ("premium-girls-backpack-smc-00004") — extract the real ID from the slug
+    const resolvedId = productIdFromSlug(productId);
+
     async function fetchDetail() {
       setLoading(true);
       setError('');
       try {
-        const resp = await fetch(FetchProductDetailsActions(productId), {
+        const resp = await fetch(FetchProductDetailsActions(resolvedId), {
           method: 'GET',
           headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
         });

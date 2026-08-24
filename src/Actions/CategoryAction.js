@@ -10,6 +10,8 @@ import {
   URL_CATEGORIES_CREATE,
   URL_CATEGORIES_UPDATE,
   URL_CATEGORIES_DELETE,
+  URL_MAIN_CATEGORY_CREATE,
+  URL_MAIN_CATEGORIES_FETCH,
 } from '../Config/UrlsConfig';
 
 // ── Shared response handler ────────────────────────────────────────────────────
@@ -33,7 +35,8 @@ async function handleResponse(response) {
   return data;
 }
 
-// ── Fetch all categories from DB ───────────────────────────────────────────────
+// ── Fetch all sub-categories from DB ──────────────────────────────────────────
+// New API response: { status, page, limit, total_records, total_pages, data: [...] }
 export const fetchCategoriesAction = async () => {
   console.log('📡 [Category] GET', URL_CATEGORIES_FETCH);
 
@@ -42,42 +45,76 @@ export const fetchCategoriesAction = async () => {
 
   console.log('✅ [Category] FETCH response:', data);
 
+  // Support both old array response and new paginated { data: [...] } shape
   const list = Array.isArray(data)
     ? data
-    : Array.isArray(data.categories) ? data.categories
     : Array.isArray(data.data)       ? data.data
+    : Array.isArray(data.categories) ? data.categories
     : [];
 
   return list.map((cat) => ({
-    value:       cat.id,
-    label:       cat.name ?? cat.category_name ?? '',
-    id:          cat.id,
-    category_id: cat.category_id,
-    description: cat.description ?? '',
-    raw:         cat,
+    value:              cat.id,
+    label:              cat.name ?? cat.category_name ?? '',
+    id:                 cat.id,
+    category_id:        cat.category_id   || null,
+    name:               cat.name          || cat.category_name || '',
+    description:        cat.description   ?? '',
+    image:              cat.image         || null,
+    main_category_id:   cat.main_category_id   ?? null,
+    main_category_name: cat.main_category_name  || null,
+    raw:                cat,
   }));
 };
 
-// ── Create a new category ──────────────────────────────────────────────────────
-export const createCategoryAction = async (payloadOrName, description = '') => {
-  const body =
-    typeof payloadOrName === 'object' && payloadOrName !== null
-      ? payloadOrName
-      : { category_name: payloadOrName, description };
+// ── Fetch all main categories ──────────────────────────────────────────────────
+// GET getMainCategories.php → { status, count, data: [{id, name, image, description, status}] }
+export const fetchMainCategoriesAction = async () => {
+  const response = await fetch(URL_MAIN_CATEGORIES_FETCH, { method: 'GET' });
+  const data = await handleResponse(response);
+  const list = Array.isArray(data.data) ? data.data : [];
+  return list.map((c) => ({
+    id:          c.id,
+    name:        c.name || '',
+    image:       c.image || null,
+    description: c.description || '',
+    status:      c.status,
+  }));
+};
 
-  console.group('➕ [Category] CREATE');
-  console.log('URL    :', URL_CATEGORIES_CREATE);
-  console.log('payload:', JSON.stringify(body));
+// ── Create a new sub-category (multipart/form-data) ────────────────────────────
+// POST CreateCategory.php — category_name, main_category_id, main_category_name,
+//                           description, image (file, optional)
+export const createSubCategoryAction = async ({
+  category_name,
+  main_category_id,
+  main_category_name,
+  description = '',
+  image,           // File | null
+}) => {
+  const fd = new FormData();
+  fd.append('category_name',      (category_name || '').trim());
+  fd.append('main_category_id',   String(main_category_id));
+  fd.append('main_category_name', (main_category_name || '').trim());
+  fd.append('description',        description.trim());
+  if (image instanceof File) {
+    fd.append('image', image, image.name);
+  }
+
+  console.group('➕ [Sub Category] CREATE');
+  console.log('URL              :', URL_CATEGORIES_CREATE);
+  console.log('category_name    :', category_name);
+  console.log('main_category_id :', main_category_id);
+  console.log('main_category_name:', main_category_name);
+  console.log('image            :', image?.name || '(none)');
   console.groupEnd();
 
   const response = await fetch(URL_CATEGORIES_CREATE, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
+    body: fd,
   });
 
   const data = await handleResponse(response);
-  console.log('✅ [Category] CREATE response:', data);
+  console.log('✅ [Sub Category] CREATE response:', data);
   return data;
 };
 
@@ -133,5 +170,34 @@ export const deleteCategoryAction = async (categoryOrId) => {
 
   const data = await handleResponse(response);
   console.log('✅ [Category] DELETE response:', data);
+  return data;
+};
+
+// ── Create a main category (multipart/form-data with optional image) ──────────
+// POST createMainCategory.php  — name, description, status, image (file)
+export const createMainCategoryAction = async ({ name, description, status = 1, image }) => {
+  const fd = new FormData();
+  fd.append('name',        name.trim());
+  fd.append('description', (description || '').trim());
+  fd.append('status',      String(status));
+  if (image instanceof File) {
+    fd.append('image', image, image.name);
+  }
+
+  console.group('➕ [Main Category] CREATE');
+  console.log('URL    :', URL_MAIN_CATEGORY_CREATE);
+  console.log('name   :', name);
+  console.log('status :', status);
+  console.log('image  :', image?.name || '(none)');
+  console.groupEnd();
+
+  const response = await fetch(URL_MAIN_CATEGORY_CREATE, {
+    method: 'POST',
+    // Do NOT set Content-Type — browser sets multipart boundary automatically
+    body: fd,
+  });
+
+  const data = await handleResponse(response);
+  console.log('✅ [Main Category] CREATE response:', data);
   return data;
 };

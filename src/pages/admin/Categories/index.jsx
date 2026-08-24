@@ -10,6 +10,7 @@ import {
   DialogContentText,
   DialogActions,
   CircularProgress,
+  Chip,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
@@ -17,6 +18,7 @@ import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import ModalComponent from '../../../components/ModalComponent';
 import TableComponent from '../../../components/TableComponent';
 import AddCategory from './Components/AddCategory';
+import AddMainCategory from './Components/AddMainCategory';
 import {
   fetchCategoriesAction,
   deleteCategoryAction,
@@ -36,6 +38,8 @@ function CategoriesPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
   const [deleteDialog, setDeleteDialog] = useState({ open: false, category: null });
+  // ── Main category modal (separate from sub-category modal) ──────────────
+  const [mainCatModalOpen, setMainCatModalOpen] = useState(false);
 
   const loadCategories = useCallback(async () => {
     setLoading(true);
@@ -65,8 +69,13 @@ function CategoriesPage() {
     setModalOpen(true);
   };
 
-  const handleCategorySuccess = (result) => {
-    const saved = result?.saved || result;
+  const handleMainCategorySuccess = (result) => {
+    setMainCatModalOpen(false);
+    notifyFromApiResponse(result, 'Main category created successfully');
+    loadCategories(); // refresh the list
+  };
+
+  const handleCategorySuccess = (result) => {    const saved = result?.saved || result;
     const id = resolveCategoryId(saved);
 
     setCategories((prev) => {
@@ -116,22 +125,91 @@ function CategoriesPage() {
   const getCategoryName = (row) => row.label || row.name || row.category_name || '—';
 
   const columns = [
+    // {
+    //   id: 'image',
+    //   label: 'Image',
+    //   render: (row) => {
+    //     const imgPath = row.image || row.raw?.image || '';
+    //     if (!imgPath) return (
+    //       <Box sx={{ width: 40, height: 40, bgcolor: '#f0f4f8', borderRadius: '6px',
+    //         display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem' }}>
+    //         🗂️
+    //       </Box>
+    //     );
+    //     // Image paths come as "uploads/..." — prepend the API base
+    //     const src = imgPath.startsWith('http')
+    //       ? imgPath
+    //       : `https://shreemahaveercollections.com/apis/v1/smc/${imgPath}`;
+    //     return (
+    //       <Box component="img" src={src} alt={getCategoryName(row)}
+    //         sx={{ width: 40, height: 40, objectFit: 'cover', borderRadius: '6px',
+    //               border: '1px solid #e8eaed', display: 'block' }}
+    //         onError={(e) => { e.currentTarget.style.display = 'none'; }}
+    //       />
+    //     );
+    //   },
+    // },
+    {
+      id: 'category_id',
+      label: 'Category ID',
+      render: (row) => (
+        <Typography variant="body2" sx={{ fontFamily: 'monospace', fontSize: '0.78rem', color: 'text.secondary' }}>
+          {row.category_id || row.raw?.category_id || '—'}
+        </Typography>
+      ),
+    },
     {
       id: 'name',
-      label: 'Category Name',
+      label: 'Sub-Category Name',
       render: (row) => (
         <Typography fontWeight={500}>{getCategoryName(row)}</Typography>
       ),
     },
     {
+      id: 'main_category',
+      label: 'Main Category',
+      render: (row) => {
+        const name = row.main_category_name || row.raw?.main_category_name;
+        const id   = row.main_category_id   || row.raw?.main_category_id;
+        if (!name && !id) return <Typography variant="body2" color="text.disabled">—</Typography>;
+        return (
+          <Box>
+            <Typography variant="body2" fontWeight={500}>{name || '—'}</Typography>
+            {id && (
+              <Typography variant="caption" color="text.secondary">ID: {id}</Typography>
+            )}
+          </Box>
+        );
+      },
+    },
+    {
       id: 'description',
       label: 'Description',
-      render: (row) => row.description?.trim() || '—',
+      render: (row) => (
+        <Typography variant="body2" color="text.secondary"
+          sx={{ maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {row.description?.trim() || '—'}
+        </Typography>
+      ),
+    },
+    {
+      id: 'status',
+      label: 'Status',
+      render: (row) => {
+        const active = row.raw?.status === 1 || row.raw?.status === '1' || row.raw?.status === 'active';
+        return <Chip label={active ? 'Active' : 'Inactive'} size="small" color={active ? 'success' : 'default'} />;
+      },
     },
     {
       id: 'createdAt',
       label: 'Created',
-      render: (row) => row.raw?.created_at || row.created_at || row.createdAt || '—',
+      render: (row) => {
+        const dt = row.raw?.created_at || row.created_at || row.createdAt;
+        if (!dt) return '—';
+        try {
+          return new Date(dt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+        } catch { return dt; }
+      },
     },
     {
       id: 'actions',
@@ -139,20 +217,10 @@ function CategoriesPage() {
       align: 'right',
       render: (row) => (
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 0.5 }}>
-          <IconButton
-            size="small"
-            color="primary"
-            onClick={() => openEditModal(row)}
-            aria-label="Edit category"
-          >
+          <IconButton size="small" color="primary" onClick={() => openEditModal(row)} aria-label="Edit category">
             <EditOutlinedIcon fontSize="small" />
           </IconButton>
-          <IconButton
-            size="small"
-            color="error"
-            onClick={() => setDeleteDialog({ open: true, category: row })}
-            aria-label="Delete category"
-          >
+          <IconButton size="small" color="error" onClick={() => setDeleteDialog({ open: true, category: row })} aria-label="Delete category">
             <DeleteOutlinedIcon fontSize="small" />
           </IconButton>
         </Box>
@@ -180,12 +248,28 @@ function CategoriesPage() {
           gap: 2,
         }}
       >
-        <Typography variant="body2" color="text.secondary">
-          Manage product categories for your store
-        </Typography>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={openAddModal}>
-          Add New Category
-        </Button>
+        <Box>
+          <Typography variant="h5" fontWeight={700}>Categories</Typography>
+          <Typography variant="body2" color="text.secondary">
+            Manage product categories for your store
+          </Typography>
+        </Box>
+        <Box sx={{ display: 'flex', gap: 1.5 }}>
+          <Button
+            variant="outlined"
+            startIcon={<AddIcon />}
+            onClick={openAddModal}
+          >
+            Add Sub Category
+          </Button>
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => setMainCatModalOpen(true)}
+          >
+            Add Main Category
+          </Button>
+        </Box>
       </Box>
 
       <TableComponent
@@ -202,13 +286,14 @@ function CategoriesPage() {
         emptyMessage="No categories yet. Click Add New Category to create one."
       />
 
+      {/* ── Sub Category Modal ── */}
       <ModalComponent
         open={modalOpen}
         onClose={() => {
           setModalOpen(false);
           setEditingCategory(null);
         }}
-        title={editingCategory ? 'Edit Category' : 'Add New Category'}
+        title={editingCategory ? 'Edit Category' : 'Add Sub Category'}
         maxWidth="sm"
       >
         <AddCategory
@@ -218,6 +303,19 @@ function CategoriesPage() {
             setModalOpen(false);
             setEditingCategory(null);
           }}
+        />
+      </ModalComponent>
+
+      {/* ── Main Category Modal ── */}
+      <ModalComponent
+        open={mainCatModalOpen}
+        onClose={() => setMainCatModalOpen(false)}
+        title="Add Main Category"
+        maxWidth="sm"
+      >
+        <AddMainCategory
+          onSuccess={handleMainCategorySuccess}
+          onCancel={() => setMainCatModalOpen(false)}
         />
       </ModalComponent>
 

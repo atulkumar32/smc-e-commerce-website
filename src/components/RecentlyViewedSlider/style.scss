@@ -1,0 +1,234 @@
+@import '../../Styles/Mixins';
+
+@keyframes rvs-shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position:  600px 0; }
+}
+
+.rvs {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2.5rem 1rem 3rem;
+  border-top: 1px solid $color-neutral-200;
+
+  // ── Header ────────────────────────────────────────────────────
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  &__title {
+    font-family: $font-headline;
+    font-size: $fs-xl;
+    font-weight: $fw-semibold;
+    color: $color-primary;
+    margin: 0;
+  }
+
+  &__controls {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  &__ctrl {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1.5px solid $color-primary;
+    background: transparent;
+    color: $color-primary;
+    font-size: 1.3rem;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+
+    &:hover {
+      background: $color-primary;
+      color: #fff;
+    }
+  }
+
+  // ── 4-card track ─────────────────────────────────────────────
+  &__track {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+
+    @media (max-width: 900px) { grid-template-columns: repeat(3, 1fr); }
+    @media (max-width: 640px) { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  // ── Card ─────────────────────────────────────────────────────
+  &__card {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border: 1px solid $color-neutral-200;
+    border-radius: 8px;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    transition: box-shadow 0.2s, transform 0.2s;
+
+    &:hover {
+      box-shadow: 0 8px 24px rgba($color-primary, 0.1);
+      transform: translateY(-3px);
+    }
+
+    &--empty {
+      visibility: hidden;
+    }
+  }
+
+  &__card-img {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: $color-neutral-100;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.35s;
+    }
+
+    .rvs__card:hover & img { transform: scale(1.05); }
+  }
+
+  &__card-img-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    background: $color-neutral-100;
+  }
+
+  &__card-badge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 3px;
+
+    &--new     { background: $color-secondary; color: $color-primary; }
+    &--sale    { background: $color-error; color: #fff; }
+    &--limited { background: $color-primary; color: $color-secondary; }
+  }
+
+  &__card-body {
+    padding: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    flex: 1;
+  }
+
+  &__card-brand {
+    font-size: 0.7rem;
+    color: $color-tertiary-400;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 0;
+  }
+
+  &__card-name {
+    font-size: 0.82rem;
+    font-weight: $fw-medium;
+    color: $color-primary;
+    margin: 0;
+    line-height: 1.3;
+    // clamp to 2 lines
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  &__card-pricing {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    margin-top: 0.25rem;
+  }
+
+  &__card-price {
+    font-family: $font-headline;
+    font-size: $fs-base;
+    font-weight: $fw-semibold;
+    color: $color-primary;
+  }
+
+  &__card-mrp {
+    font-size: 0.75rem;
+    color: $color-tertiary-400;
+    text-decoration: line-through;
+  }
+
+  // ── Skeleton shimmer ──────────────────────────────────────────
+  &__skeleton {
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid $color-neutral-200;
+  }
+
+  &__skeleton-img {
+    aspect-ratio: 4 / 3;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e4e4e4 50%, #f0f0f0 75%);
+    background-size: 1200px 100%;
+    animation: rvs-shimmer 1.4s ease-in-out infinite;
+  }
+
+  &__skeleton-line {
+    margin: 0.5rem 0.75rem 0;
+    height: 12px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e4e4e4 50%, #f0f0f0 75%);
+    background-size: 1200px 100%;
+    animation: rvs-shimmer 1.4s ease-in-out infinite;
+
+    &--short { width: 55%; margin-bottom: 0.75rem; }
+  }
+
+  // ── Dot indicators ────────────────────────────────────────────
+  &__dots {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 1.25rem;
+  }
+
+  &__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: none;
+    background: $color-neutral-300;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+    padding: 0;
+
+    &--active {
+      background: $color-primary;
+      transform: scale(1.3);
+    }
+
+    &:hover:not(&--active) {
+      background: $color-tertiary-300;
+    }
+  }
+}

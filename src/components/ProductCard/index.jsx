@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
+import { toSlug, toTitleCase } from '../../utils/slug';
 import './style.scss';
 
 /**
@@ -12,23 +13,31 @@ import './style.scss';
  *  animate  – boolean, adds entrance animation class
  */
 function ProductCard({ product, animate = false }) {
-  const { addItem, toggleWishlist, isWishlisted } = useCart();
+  const { addItem, toggleWishlist, isWishlisted, isInCart } = useCart();
   const navigate = useNavigate();
 
-  // productId is the master product ID; id is unique per variant card
-  const productId = product.productId || product.id;
-  const wished    = isWishlisted(product.id);
+  const productId     = product.productId || product.id;
+  const wished        = isWishlisted(product.id);
+  const alreadyInCart = isInCart(product.id) || isInCart(productId);
 
-  const detailUrl = `/products/${encodeURIComponent(product.name)}?product_id=${encodeURIComponent(productId)}`;
+  // SEO slug: "premium-girls-backpack-smc-00004"
+  // Title-case display name: "Premium Girls Backpack"
+  const displayName = toTitleCase(product.name);
+  const slug        = toSlug(product.name, productId);
+  const detailUrl   = `/products/${slug}`;
 
   const handleAddToCart = (e) => {
     e.preventDefault();
     addItem({
       ...product,
-      id:            productId,
+      id:            productId,                        // master product id
+      price:         product.price,
+      image:         product.image,                    // fully-resolved variant image URL
       selectedColor: product.colorHex  || '',
       selectedSize:  product.size      || '',
       variantId:     product.variantId || null,
+      stock:         product.stock     ?? 999,         // variant stock; fallback if undefined
+      quantity:      1,
     });
   };
 
@@ -55,7 +64,7 @@ function ProductCard({ product, animate = false }) {
       <Link to={detailUrl} className="pcard__img-wrap">
         <img
           src={product.image}
-          alt={product.colorName ? `${product.name} – ${product.colorName}` : product.name}
+          alt={product.colorName ? `${displayName} – ${product.colorName}` : displayName}
           className="pcard__img"
           loading="lazy"
           onError={(e) => {
@@ -126,7 +135,7 @@ function ProductCard({ product, animate = false }) {
         )}
 
         <h3 className="pcard__name">
-          <Link to={detailUrl}>{product.name}</Link>
+          <Link to={detailUrl}>{displayName}</Link>
         </h3>
 
         {product.brand && <div className="pcard__brand">{product.brand}</div>}
@@ -141,8 +150,9 @@ function ProductCard({ product, animate = false }) {
         <div className="pcard__actions">
           <button className="pcard__btn pcard__btn--cart"
             onClick={handleAddToCart}
-            disabled={product.stock === 0 && product.stock !== undefined}>
-            Add to Cart
+            disabled={(product.stock === 0 && product.stock !== undefined) || alreadyInCart}
+            style={{ opacity: alreadyInCart ? 0.75 : 1 }}>
+            {alreadyInCart ? '✓ In Cart' : 'Add to Cart'}
           </button>
           <button className="pcard__btn pcard__btn--buy" onClick={handleBuyNow}>
             Buy Now

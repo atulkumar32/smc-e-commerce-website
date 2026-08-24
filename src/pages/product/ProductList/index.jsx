@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import ProductCard from '../../../components/ProductCard';
 import SkeletonCard from '../../../components/SkeletonCard';
 import NavDrawer from '../../../components/NavDrawer';
+import ProductListSeo from '../../../components/Seo/ProductListSeo';
 import { useProductFilter } from '../useProductFilter';
 import { CATEGORIES, SORT_OPTIONS } from '../productData';
 import './style.scss';
@@ -40,6 +41,13 @@ function ProductList() {
 
   return (
     <div className="product-list">
+      {/* ── Dynamic SEO: title, meta, canonical, OG, JSON-LD ── */}
+      <ProductListSeo
+        pageTitle={pageTitle}
+        category={activeCategory}
+        totalCount={totalCount}
+      />
+
       {/* ── Drawer ── */}
       <NavDrawer
         open={drawerOpen}

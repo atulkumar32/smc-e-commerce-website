@@ -79,10 +79,12 @@ export const URL_DASHBOARD_STATS = `${BASE_URL}smc/admin/api/DashboardGetTotalCo
 export const URL_USERS_FETCH = `${BASE_URL}smc/admin/api/GetResigerteduserList.php`;
 
 // ── Categories ────────────────────────────────────────────────────
-export const URL_CATEGORIES_FETCH = `${BASE_URL}smc/admin/api/GetCategory.php`;
-export const URL_CATEGORIES_CREATE = `${BASE_URL}smc/admin/api/CreateCategory.php`;
-export const URL_CATEGORIES_UPDATE = `${BASE_URL}smc/admin/api/UpdateCategory.php`;
-export const URL_CATEGORIES_DELETE = `${BASE_URL}smc/admin/api/DeleteCategory.php`; //apis/v1/smc/admin/api/DeleteCategory.php
+export const URL_CATEGORIES_FETCH      = `${BASE_URL}smc/admin/api/GetCategory.php`;
+export const URL_CATEGORIES_CREATE     = `${BASE_URL}smc/admin/api/CreateCategory.php`;
+export const URL_CATEGORIES_UPDATE     = `${BASE_URL}smc/admin/api/UpdateCategory.php`;
+export const URL_CATEGORIES_DELETE     = `${BASE_URL}smc/admin/api/DeleteCategory.php`;
+export const URL_MAIN_CATEGORY_CREATE  = `${BASE_URL}smc/admin/api/createMainCategory.php`;
+export const URL_MAIN_CATEGORIES_FETCH = `${BASE_URL}smc/admin/api/getMainCategories.php`;
 
 
 // ---------------------------order------------------------------------------

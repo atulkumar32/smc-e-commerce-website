@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, useMemo } from 'react';
+import { createContext, useContext, useState, useCallback, useMemo, useEffect } from 'react';
 import { toast } from 'react-toastify';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -15,9 +15,29 @@ const SHIPPING_THRESHOLD = 5000;  // free shipping above ₹5 000
 const TOAST_OPTS = { position: 'top-right', autoClose: 2800 };
 const TOAST_ERR  = { position: 'top-right', autoClose: 4000 };
 
+const CART_KEY     = 'smc_cart';
+const WISHLIST_KEY = 'smc_wishlist';
+
+function readStorage(key) {
+  try { return JSON.parse(localStorage.getItem(key)) || []; }
+  catch { return []; }
+}
+
 export function CartProvider({ children }) {
-  const [cartItems,     setCartItems]     = useState([]);
-  const [wishlistItems, setWishlistItems] = useState([]);
+  const [cartItems,     setCartItems]     = useState(() => readStorage(CART_KEY));
+  const [wishlistItems, setWishlistItems] = useState(() => readStorage(WISHLIST_KEY));
+
+  // Persist cart to localStorage on every change
+  useEffect(() => {
+    try { localStorage.setItem(CART_KEY, JSON.stringify(cartItems)); }
+    catch { /* quota exceeded — silent */ }
+  }, [cartItems]);
+
+  // Persist wishlist to localStorage on every change
+  useEffect(() => {
+    try { localStorage.setItem(WISHLIST_KEY, JSON.stringify(wishlistItems)); }
+    catch { /* quota exceeded — silent */ }
+  }, [wishlistItems]);
 
   // ── Cart ──────────────────────────────────────────────────────────────────
 
@@ -27,18 +47,28 @@ export function CartProvider({ children }) {
       toast.error(`❌ ${product.name} is out of stock`, TOAST_ERR);
       return;
     }
-    setCartItems((prev) => {
-      const existing = prev.find((i) => i.id === product.id);
-      if (existing) {
-        toast.success(`🛒 ${product.name} — quantity updated`, TOAST_OPTS);
-        return prev.map((i) =>
-          i.id === product.id ? { ...i, quantity: i.quantity + quantity } : i
-        );
-      }
-      toast.success(`🛒 Added to cart — ${product.name}`, TOAST_OPTS);
-      return [...prev, { ...product, quantity }];
+
+    // Check outside setCartItems to avoid double-fire in React 18 StrictMode
+    const alreadyInCart = cartItems.some((i) => i.id === product.id);
+    if (alreadyInCart) {
+      toast.info(`🛒 ${product.name} is already in your cart`, {
+        ...TOAST_OPTS,
+        toastId: `already-${product.id}`,  // dedupe: same id = no duplicate
+      });
+      return;
+    }
+
+    toast.success(`🛒 Added to cart — ${product.name}`, {
+      ...TOAST_OPTS,
+      toastId: `added-${product.id}`,
     });
-  }, []);
+    setCartItems((prev) => [...prev, { ...product, quantity }]);
+  }, [cartItems]);
+
+  const isInCart = useCallback(
+    (productId) => cartItems.some((i) => i.id === productId),
+    [cartItems]
+  );
 
   const removeItem = useCallback((productId, productName = 'Item') => {
     setCartItems((prev) => prev.filter((i) => i.id !== productId));
@@ -151,6 +181,7 @@ export function CartProvider({ children }) {
         // Cart
         cartItems,
         addItem,
+        isInCart,
         removeItem,
         updateQuantity,
         clearCart,
