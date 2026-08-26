@@ -1,4 +1,5 @@
 import HeroSection from './components/HeroSection';
+import HeroSlider from './components/HeroSlider/index.jsx';
 import MahaveerLegacy from './components/MahaveerLegacy';
 import Collections from './components/Collections';
 import CollectionsShowcase from './components/CollectionsShowcase';
@@ -10,8 +11,8 @@ import './style.scss';
 function HomePage() {
   return (
     <main className="home">
-      {/* <HeroSection /> commened on;ly for now domt reove to this */}
-      {/* //TODO: make the hero slider here now  */}
+      <HeroSlider />
+      {/* <HeroSection /> — kept for reference, not removed */}
       <MahaveerLegacy />
       <Collections />
       <CollectionsShowcase />

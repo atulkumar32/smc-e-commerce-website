@@ -153,7 +153,7 @@ function CartPage() {
   return (
     <div className="cart-page">
       <div className="cart-page__inner">
-        <h1 className="cart-page__title">Shopping Cart</h1>
+        {/* <h1 className="cart-page__title">Shopping Cart</h1> */}
 
         {cartItems.length === 0 ? (
           <div className="cart-page__empty">

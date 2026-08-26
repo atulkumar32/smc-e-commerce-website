@@ -85,6 +85,8 @@ export const URL_CATEGORIES_UPDATE     = `${BASE_URL}smc/admin/api/UpdateCategor
 export const URL_CATEGORIES_DELETE     = `${BASE_URL}smc/admin/api/DeleteCategory.php`;
 export const URL_MAIN_CATEGORY_CREATE  = `${BASE_URL}smc/admin/api/createMainCategory.php`;
 export const URL_MAIN_CATEGORIES_FETCH = `${BASE_URL}smc/admin/api/getMainCategories.php`;
+// Web-facing endpoint: main categories + embedded sub-categories
+export const URL_MAIN_CATEGORIES_WEB   = `${BASE_URL}smc/api/v1/data/getMainCategories.php`;
 
 
 // ---------------------------order------------------------------------------

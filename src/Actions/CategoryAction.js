@@ -12,6 +12,7 @@ import {
   URL_CATEGORIES_DELETE,
   URL_MAIN_CATEGORY_CREATE,
   URL_MAIN_CATEGORIES_FETCH,
+  URL_MAIN_CATEGORIES_WEB,
 } from '../Config/UrlsConfig';
 
 // ── Shared response handler ────────────────────────────────────────────────────
@@ -200,4 +201,20 @@ export const createMainCategoryAction = async ({ name, description, status = 1, 
   const data = await handleResponse(response);
   console.log('✅ [Main Category] CREATE response:', data);
   return data;
+};
+
+// ── Fetch main categories + embedded sub-categories (web API) ─────────────────
+// GET getMainCategories.php
+// Response: { status, data: [{ id, name, sub_categories: [{ id, name }] }] }
+export const fetchMainCategoriesWithSubsAction = async () => {
+  const response = await fetch(URL_MAIN_CATEGORIES_WEB, { method: 'GET' });
+  const data = await handleResponse(response);
+  const list = Array.isArray(data.data) ? data.data : [];
+  return list.map((cat) => ({
+    id:   cat.id,
+    name: cat.name || '',
+    subs: Array.isArray(cat.sub_categories)
+      ? cat.sub_categories.map((s) => ({ id: s.id, name: s.name || '' }))
+      : [],
+  }));
 };

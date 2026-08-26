@@ -69,7 +69,7 @@ function ProductList() {
               </svg>
               <span className="product-list__breadcrumb-current">{pageTitle}</span>
             </nav>
-            <h1 className="product-list__title">{pageTitle}</h1>
+            {/* <h1 className="product-list__title">{pageTitle}</h1> */}
             <p className="product-list__count">{totalCount} Premium Quality Products Found</p>
           </div>
         </section>

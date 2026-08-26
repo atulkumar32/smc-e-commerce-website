@@ -1,478 +1,400 @@
 @import '../../Styles/Mixins';
 
-// ── Extra breakpoints not in Mixins ──────────────────────────────────────────
-$bp-xxs:  360px;   // very small Android phones
-$bp-nav:  900px;   // switch to hamburger (between md and lg)
-
-@mixin xxs     { @media (max-width: #{$bp-xxs})  { @content; } }
-@mixin nav-bp  { @media (max-width: #{$bp-nav})  { @content; } }
-@mixin min-nav { @media (min-width: #{$bp-nav + 1}) { @content; } }
-
 // ─────────────────────────────────────────────────────────────────────────────
-//  BASE — applies to all sizes, overridden per breakpoint below
+//  Header — Logo left column + content right (row1 pills, row2 search) + tab row
+//  100% responsive across all breakpoints
 // ─────────────────────────────────────────────────────────────────────────────
-.site-header {
+
+.hdr {
   position: sticky;
   top: 0;
-  z-index: 1000;
-  background-color: $color-primary;
-  border-bottom: 1px solid $color-border;
+  z-index: 100;
+  background: #fff;
+  box-shadow: 0 1px 6px rgba(0, 31, 63, 0.09);
   width: 100%;
 
-  // ── Container ─────────────────────────────────────────────────
-  &__container {
-    width: 100%;
+  // ══ TOP BLOCK — logo col + content col ═══════════════════════
+  &__top {
+    border-bottom: 1px solid #eef0f4;
+  }
+
+  // Inner max-width wrapper for top block
+  &__top-inner {
+    display: flex;
+    align-items: stretch;
     max-width: 1280px;
     margin: 0 auto;
     padding: 0 1.5rem;
-    height: 68px;
-    display: flex;
-    align-items: center;
-    gap: 2rem;
+
+    @media (max-width: 860px) { padding: 0 1rem; }
+    @media (max-width: 480px) { padding: 0 0.5rem; }
   }
 
-  // ── Logo ──────────────────────────────────────────────────────
-  &__logo {
-    display: flex;
-    align-items: center;
-    gap: 0.55rem;
-    text-decoration: none;
-    flex-shrink: 0;
-    @include focus-ring($color-secondary);
-  }
-
-  &__logo-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background-color: $color-secondary;
-    color: $color-primary;
-    font-family: $font-headline;
-    font-weight: $fw-extrabold;
-    font-size: $fs-base;
+  // ── Logo column ─────────────────────────────────────────────
+  &__logo-col {
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-  }
-
-  &__logo-text {
-    color: $color-text-primary;
-    font-family: $font-headline;
-    font-size: $fs-md;
-    font-weight: $fw-bold;
-    letter-spacing: $ls-tight;
-    white-space: nowrap;
-  }
-
-  // ── Desktop Nav ───────────────────────────────────────────────
-  &__nav {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    margin-left: auto;
-  }
-
-  &__nav-item {
-    position: relative;
-
-    &--dropdown {
-      display: flex;
-      align-items: center;
-    }
-  }
-
-  &__nav-link {
-    @include nav-link;
-    color: $color-text-muted;
+    width: 140px;
+    padding: 0.5rem 1rem;
     text-decoration: none;
-    padding: 0.5rem 0.85rem;
-    border-radius: 4px;
-    @include transition(color);
-    white-space: nowrap;
-    @include focus-ring($color-secondary);
+    border-right: 1px solid #eef0f4;
 
-    &:hover { color: $color-text-primary; }
-
-    &.is-active {
-      color: $color-secondary;
-      border-bottom: 2px solid $color-secondary;
-    }
-
-    &--btn {
-      background: none;
-      border: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 0.35rem;
-      font-family: inherit;
-    }
+    @media (max-width: 860px) { width: 100px; padding: 0.4rem 0.6rem; }
+    @media (max-width: 480px) { width: 72px;  padding: 0.3rem 0.4rem; }
   }
 
-  &__chevron {
-    @include transition(transform);
-    &.is-rotated { transform: rotate(180deg); }
-  }
-
-  // ── Dropdown ──────────────────────────────────────────────────
-  &__dropdown {
-    position: absolute;
-    top: calc(100% + 10px);
-    left: 0;
-    min-width: 170px;
-    background-color: $color-bg-surface;
-    border: 1px solid $color-border;
-    border-radius: 6px;
-    list-style: none;
-    margin: 0;
-    padding: 0.5rem 0;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-    z-index: 100;
-
-    &::before {
-      content: '';
-      position: absolute;
-      top: -6px;
-      left: 18px;
-      width: 10px;
-      height: 10px;
-      background-color: $color-bg-surface;
-      border-left: 1px solid $color-border;
-      border-top: 1px solid $color-border;
-      transform: rotate(45deg);
-    }
-  }
-
-  &__dropdown-link {
+  &__logo-img {
+    width: 100%;
+    height: auto;
+    max-height: 90px;
+    object-fit: contain;
     display: block;
-    padding: 0.6rem 1.2rem;
-    color: $color-text-muted;
-    text-decoration: none;
-    font-family: $font-body;
-    font-size: $fs-sm;
-    font-weight: $fw-medium;
-    letter-spacing: $ls-wide;
-    @include transition(color, 0.2s);
-    @include focus-ring($color-secondary);
 
-    &:hover {
-      color: $color-text-primary;
-      background-color: rgba(255, 255, 255, 0.05);
-    }
+    @media (max-width: 860px) { max-height: 64px; }
+    @media (max-width: 480px) { max-height: 48px; }
   }
 
-  // ── Right Actions ─────────────────────────────────────────────
-  &__actions {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    flex-shrink: 0;
-  }
-
-  &__action-link {
-    @include nav-link;
-    color: $color-text-muted;
-    text-decoration: none;
-    @include transition(color);
-    @include focus-ring($color-secondary);
-
-    &:hover, &.is-active { color: $color-secondary; }
-  }
-
-  &__cart {
-    position: relative;
-    color: $color-text-muted;
-    display: flex;
-    align-items: center;
-    text-decoration: none;
-    @include transition(color);
-    @include focus-ring($color-secondary);
-
-    &:hover { color: $color-secondary; }
-  }
-
-  &__cart-badge {
-    position: absolute;
-    top: -7px;
-    right: -8px;
-    background-color: $color-secondary;
-    color: $color-primary;
-    font-family: $font-label;
-    font-size: 0.6rem;
-    font-weight: $fw-bold;
-    min-width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    line-height: 1;
-    padding: 0 2px;
-  }
-
-  // ── Hamburger ─────────────────────────────────────────────────
-  &__hamburger {
-    display: none;
-    flex-direction: column;
-    justify-content: center;
-    gap: 5px;
-    width: 36px;
-    height: 36px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 4px;
-    margin-left: auto;
-    flex-shrink: 0;
-    @include focus-ring($color-secondary);
-
-    span {
-      display: block;
-      height: 2px;
-      background-color: $color-text-primary;
-      border-radius: 2px;
-      @include transition(transform);
-      width: 100%;
-    }
-
-    &.is-open {
-      span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-      span:nth-child(2) { opacity: 0; width: 0; }
-      span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
-    }
-  }
-
-  // ── Mobile Nav panel ──────────────────────────────────────────
-  &__mobile-nav {
-    display: none;
-    flex-direction: column;
-    background-color: $color-primary;
-    border-top: 1px solid $color-border;
-    padding: 0;
-    gap: 0;
-    max-height: 0;
-    overflow: hidden;
-    @include transition(max-height, 0.35s);
-
-    &.is-open {
-      max-height: 100dvh;
-      padding: 0.75rem 1.5rem 1.5rem;
-    }
-  }
-
-  &__mobile-item {
+  // ── Content column ──────────────────────────────────────────
+  &__content {
+    flex: 1;
+    min-width: 0;
     display: flex;
     flex-direction: column;
   }
 
-  &__mobile-link {
-    @include nav-link;
-    color: $color-text-muted;
-    text-decoration: none;
-    padding: 0.85rem 0;
-    border-bottom: 1px solid $color-border;
-    @include transition(color);
+  // Row 1 — category pills + hamburger
+  &__row1 {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid #f0f2f6;
+    gap: 0.5rem;
+
+    @media (max-width: 480px) { padding: 0.4rem 0.6rem; }
+  }
+
+  // Row 2 — search + actions
+  &__row2 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+
+    @media (max-width: 480px) { padding: 0.4rem 0.6rem; }
+  }
+
+  // ── Category pills ──────────────────────────────────────────
+  &__pills {
     display: flex;
     align-items: center;
     gap: 0.4rem;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
 
-    &:hover, &.is-active { color: $color-secondary; }
+    &::-webkit-scrollbar { display: none; }
+  }
 
-    &--btn {
-      background: none;
-      border: none;
-      border-bottom: 1px solid $color-border;
-      cursor: pointer;
-      font-family: inherit;
-      width: 100%;
-      text-align: left;
+  &__pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 0.38rem 0.85rem;
+    border-radius: 6px;
+    border: 1.5px solid transparent;
+    background: transparent;
+    color: $color-primary;
+    font-size: 0.76rem;
+    font-weight: $fw-bold;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: all 0.15s;
+
+    &:hover { border-color: $color-primary; background: rgba($color-primary, 0.04); }
+
+    &--on {
+      background: $color-primary;
+      color: #fff;
+      border-color: $color-primary;
+    }
+
+    @media (max-width: 400px) {
+      padding: 0.3rem 0.6rem;
+      font-size: 0.7rem;
     }
   }
 
-  &__mobile-dropdown {
-    list-style: none;
-    margin: 0;
-    padding: 0.25rem 0 0.25rem 1rem;
-    border-bottom: 1px solid $color-border;
+  // ── Hamburger ───────────────────────────────────────────────
+  &__ham {
+    display: none;          // hidden on desktop — show on mobile as needed
+    flex-direction: column;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    flex-shrink: 0;
+
+    @media (max-width: 600px) { display: flex; }
+
+    span {
+      display: block;
+      width: 20px;
+      height: 2px;
+      background: $color-primary;
+      border-radius: 2px;
+      transition: all 0.24s;
+    }
+
+    &.is-open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    &.is-open span:nth-child(2) { opacity: 0; }
+    &.is-open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
   }
 
-  &__mobile-dropdown-link {
-    display: block;
-    color: $color-text-muted;
-    text-decoration: none;
-    font-family: $font-body;
-    font-size: $fs-sm;
-    font-weight: $fw-medium;
-    padding: 0.6rem 0;
-    @include transition(color);
-
-    &:hover { color: $color-text-primary; }
-  }
-
-  &__mobile-actions {
+  // ── Search bar ──────────────────────────────────────────────
+  &__srch {
+    flex: 1;
+    min-width: 0;
     display: flex;
-    gap: 1.5rem;
-    padding-top: 0.75rem;
-    flex-wrap: wrap;
+    align-items: center;
+    border: 1.5px solid #d4d9e6;
+    border-radius: 6px;
+    height: 40px;
+    overflow: hidden;
+    transition: border-color 0.15s;
+
+    &:focus-within { border-color: $color-primary; }
   }
-}
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  RESPONSIVE BREAKPOINTS
-// ─────────────────────────────────────────────────────────────────────────────
-
-// ── ≥1536px (4K / large desktop) — more breathing room ───────────────────────
-@media (min-width: 1536px) {
-  .site-header {
-    &__container { height: 72px; gap: 2.5rem; }
-    &__logo-text { font-size: $fs-lg; }
-    &__nav-link  { padding: 0.5rem 1rem; }
+  &__srch-ico {
+    display: flex;
+    align-items: center;
+    padding: 0 0.5rem;
+    color: #b8bece;
+    flex-shrink: 0;
   }
-}
 
-// ── 1280–1535px (standard desktop) — default above ───────────────────────────
+  &__srch-inp {
+    flex: 1;
+    height: 100%;
+    border: none;
+    outline: none;
+    font-size: 0.84rem;
+    font-family: $font-body;
+    color: $color-primary;
+    background: transparent;
+    min-width: 0;
 
-// ── 1024–1279px (small desktop / large tablet landscape) ─────────────────────
-@media (max-width: 1279px) and (min-width: #{$bp-nav + 1}) {
-  .site-header {
-    &__container  { gap: 1.5rem; padding: 0 1.25rem; }
-    &__nav-link   { padding: 0.5rem 0.65rem; font-size: 11px; }
-    &__action-link { font-size: 11px; }
-    &__logo-text  { font-size: $fs-base; }
+    &::placeholder { color: #b8bece; }
   }
-}
 
-// ── ≤900px — switch to hamburger menu ────────────────────────────────────────
-@include nav-bp {
-  .site-header {
-    &__nav,
-    &__actions {
-      display: none;
-    }
+  &__srch-btn {
+    flex-shrink: 0;
+    width: 44px;
+    height: 100%;
+    border: none;
+    background: $color-primary;
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: filter 0.15s;
 
-    &__hamburger {
-      display: flex;
-    }
-
-    &__mobile-nav {
-      display: flex;
-    }
-
-    &__container {
-      gap: 1rem;
-      padding: 0 1.25rem;
-    }
+    &:hover { filter: brightness(1.1); }
   }
-}
 
-// ── ≤768px (tablet portrait) ─────────────────────────────────────────────────
-@include md {
-  .site-header {
-    &__container {
-      height: 64px;
-      padding: 0 1.25rem;
-      gap: 0.75rem;
-    }
+  // ── Actions (login / more / cart) ───────────────────────────
+  &__acts {
+    display: flex;
+    align-items: center;
+    gap: 0.1rem;
+    flex-shrink: 0;
 
-    &__logo-icon { width: 32px; height: 32px; font-size: $fs-sm; }
-    &__logo-text { font-size: $fs-base; }
-
-    &__mobile-nav {
-      &.is-open { padding: 0.75rem 1.25rem 1.25rem; }
+    @media (max-width: 600px) {
+      // on mobile keep cart, hide Login/More text
+      .hdr__act span:not(:empty) { display: none; }
+      .hdr__act--cart span:last-child { display: none; }
     }
   }
-}
 
-// ── ≤640px (large phone) ─────────────────────────────────────────────────────
-@include sm {
-  .site-header {
-    &__container {
-      height: 60px;
-      padding: 0 1rem;
-      gap: 0.6rem;
-    }
+  &__act {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 0.38rem 0.6rem;
+    border-radius: 6px;
+    border: none;
+    background: transparent;
+    color: $color-primary;
+    font-size: 0.8rem;
+    font-weight: $fw-semibold;
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s;
 
-    &__logo-icon { width: 30px; height: 30px; }
-    &__logo-text { font-size: $fs-sm; letter-spacing: 0; }
-
-    &__hamburger {
-      width: 32px;
-      height: 32px;
-      gap: 4px;
-    }
-
-    &__mobile-nav {
-      &.is-open { padding: 0.6rem 1rem 1.25rem; }
-    }
-
-    &__mobile-link { padding: 0.75rem 0; font-size: 11px; }
-    &__mobile-actions { gap: 1.25rem; }
+    &:hover { background: rgba($color-primary, 0.05); }
+    &--on   { background: rgba($color-primary, 0.08); }
+    &--cart { font-weight: $fw-bold; }
   }
-}
 
-// ── ≤480px (standard phone) ──────────────────────────────────────────────────
-@include xs {
-  .site-header {
-    &__container {
-      height: 56px;
-      padding: 0 0.875rem;
-      gap: 0.5rem;
-    }
-
-    &__logo-icon { width: 28px; height: 28px; font-size: 12px; }
-    &__logo-text { font-size: 12px; }
-
-    &__hamburger {
-      width: 30px;
-      height: 30px;
-      gap: 4px;
-
-      span { height: 1.5px; }
-    }
-
-    &__cart-badge {
-      width: 14px;
-      height: 14px;
-      font-size: 8px;
-      top: -6px;
-      right: -6px;
-    }
-
-    &__mobile-nav {
-      &.is-open { padding: 0.5rem 0.875rem 1rem; }
-    }
-
-    &__mobile-link  { padding: 0.65rem 0; font-size: 10px; }
-    &__mobile-dropdown-link { font-size: 11px; padding: 0.5rem 0; }
-    &__mobile-actions { gap: 1rem; padding-top: 0.5rem; }
+  &__cart-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
   }
-}
 
-// ── ≤360px (very small phones — Galaxy A series, older iPhones) ──────────────
-@include xxs {
-  .site-header {
-    &__container {
-      height: 52px;
-      padding: 0 0.75rem;
-      gap: 0.4rem;
+  &__cbadge {
+    position: absolute;
+    top: -7px;
+    right: -8px;
+    min-width: 17px;
+    height: 17px;
+    background: $color-error;
+    color: #fff;
+    border-radius: 9px;
+    font-size: 0.58rem;
+    font-style: normal;
+    font-weight: $fw-bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 3px;
+    border: 2px solid #fff;
+  }
+
+  // ══ ROW 3 — sub-category icon tabs ════════════════════════════
+  &__r3 {
+    background: #fff;
+    border-bottom: 1px solid #eef0f4;
+  }
+
+  &__r3i {
+    display: flex;
+    align-items: stretch;
+    overflow-x: auto;
+    scrollbar-width: none;
+    height: 82px;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+
+    &::-webkit-scrollbar { display: none; }
+
+    @media (max-width: 860px) { padding: 0 1rem; }
+    @media (max-width: 480px) { height: 70px; padding: 0 0.5rem; }
+  }
+
+  &__tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 0 0.85rem;
+    min-width: 76px;
+    border: none;
+    border-bottom: 2.5px solid transparent;
+    background: transparent;
+    color: #5a6480;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: color 0.15s, border-color 0.15s;
+
+    &:hover { color: $color-primary; }
+
+    &--on {
+      color: $color-primary;
+      border-bottom-color: $color-primary;
     }
 
-    &__logo-icon { width: 26px; height: 26px; font-size: 11px; }
-    // Hide text on very small screens — icon alone is enough
-    &__logo-text { display: none; }
+    @media (max-width: 480px) { min-width: 64px; padding: 0 0.5rem; }
+  }
 
-    &__hamburger {
-      width: 28px;
-      height: 28px;
-      gap: 3px;
-    }
+  &__tab-ico {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-    &__mobile-nav {
-      &.is-open { padding: 0.5rem 0.75rem 1rem; }
-    }
+    svg { width: 100%; height: 100%; color: inherit; }
 
-    &__mobile-link  { font-size: 10px; padding: 0.6rem 0; }
-    &__mobile-actions { gap: 0.75rem; }
+    @media (max-width: 480px) { width: 26px; height: 26px; }
+  }
+
+  &__tab-lbl {
+    font-size: 0.69rem;
+    font-weight: $fw-medium;
+    white-space: nowrap;
+    color: inherit;
+
+    @media (max-width: 480px) { font-size: 0.6rem; }
+  }
+
+  // ══ Mobile drawer ══════════════════════════════════════════════
+  &__ov {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.32);
+    z-index: 99;
+  }
+
+  &__drw {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: min(290px, 85vw);
+    height: 100%;
+    background: #fff;
+    z-index: 200;
+    overflow-y: auto;
+    padding: 1.5rem 0 3rem;
+    transition: left 0.28s ease;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 4px 0 20px rgba($color-primary, 0.1);
+
+    &.is-open { left: 0; }
+  }
+
+  &__drw-sec {
+    font-size: 0.65rem;
+    font-weight: $fw-bold;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: $color-tertiary-400;
+    padding: 0.75rem 1.25rem 0.3rem;
+    margin: 0;
+  }
+
+  &__drw-lnk {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 0.62rem 1.25rem;
+    border: none;
+    background: none;
+    font-size: 0.86rem;
+    font-weight: $fw-medium;
+    color: $color-primary;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.12s;
+
+    &:hover { background: $color-neutral-100; }
+    &.is-on { background: rgba($color-primary, 0.07); font-weight: $fw-bold; }
+  }
+
+  &__drw-hr {
+    border: none;
+    border-top: 1px solid $color-neutral-200;
+    margin: 0.4rem 0;
   }
 }
