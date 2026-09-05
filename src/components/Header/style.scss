@@ -10,8 +10,49 @@
   top: 0;
   z-index: 100;
   background: #fff;
-  box-shadow: 0 1px 6px rgba(0, 31, 63, 0.09);
   width: 100%;
+  // The whole header translates up, Row 3 height stays at top
+  // We use a CSS variable set by JS for the top block height
+  transition: box-shadow 0.3s ease;
+
+  &:not(&--scrolled) {
+    box-shadow: 0 1px 6px rgba(0, 31, 63, 0.09);
+  }
+
+  &--scrolled {
+    box-shadow: 0 2px 12px rgba(0, 31, 63, 0.13);
+  }
+
+  // ── Top block wrapper — slides up smoothly ────────────────────
+  &__top {
+    border-bottom: 1px solid #eef0f4;
+    transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity   0.28s ease;
+    transform: translateY(0);
+    opacity: 1;
+    will-change: transform, opacity;
+  }
+
+  &--scrolled &__top {
+    // translateY(-100%) moves the block by its own height upward
+    transform: translateY(-100%);
+    opacity: 0;
+    // Remove from layout flow so Row 3 snaps to top
+    position: absolute;
+    width: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+  }
+
+  // Row 3 always visible — sits naturally below top when expanded,
+  // snaps to top edge when top block is out of flow
+  &__r3 {
+    background: #fff;
+    border-bottom: 1px solid #eef0f4;
+    position: relative;
+    z-index: 1;
+  }
 
   // ══ TOP BLOCK — logo col + content col ═══════════════════════
   &__top {

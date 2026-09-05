@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import logo from '../../assets/Logo/company.png';
@@ -92,9 +92,25 @@ export default function Header() {
 
   const [menuOpen,  setMenuOpen]  = useState(false);
   const [query,     setQuery]     = useState('');
-  const [cats,      setCats]      = useState([]);     // [{id, name, subs:[{id,name}]}]
+  const [cats,      setCats]      = useState([]);
   const [activeCat, setActiveCat] = useState(null);
   const [activeTab, setActiveTab] = useState('All Bags');
+  const [scrolled,  setScrolled]  = useState(false);
+  const lastY    = useRef(0);
+  const topRef   = useRef(null);   // ref to hdr__top — we measure its height
+
+  // Scroll: hide top rows on down, show on up — smooth via CSS transform
+  useEffect(() => {
+    const onScroll = () => {
+      const y = window.scrollY;
+      const going = y - lastY.current;
+      if (y > 80 && going > 2)       setScrolled(true);   // scrolling down
+      else if (going < -2)           setScrolled(false);  // scrolling up
+      lastY.current = y;
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   // Fetch main categories + embedded sub-categories from API
   useEffect(() => {
@@ -137,10 +153,10 @@ export default function Header() {
   };
 
   return (
-    <header className="hdr">
+    <header className={`hdr${scrolled ? ' hdr--scrolled' : ''}`}>
 
       {/* ── TOP BLOCK: logo column (left) + content column (right) ── */}
-      <div className="hdr__top">
+      <div className="hdr__top" ref={topRef}>
         <div className="hdr__top-inner">
 
           {/* Logo column */}
