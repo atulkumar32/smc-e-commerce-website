@@ -107,7 +107,8 @@ export default function Header() {
       if (y > 80 && going > 2)       setScrolled(true);   // scrolling down
       else if (going < -2)           setScrolled(false);  // scrolling up
       lastY.current = y;
-    };
+    };sdfsd 
+    
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
