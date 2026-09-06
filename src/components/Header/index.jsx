@@ -1,276 +1,272 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
-import logo from '../../assets/Logo/company.png';
+import { useCartDrawer } from '../../context/CartDrawerContext';
 import { fetchMainCategoriesWithSubsAction } from '../../Actions/CategoryAction';
 import './style.scss';
 
-// ── Icons ─────────────────────────────────────────────────────────────────────
-const BagIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-    stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="2" y="8" width="20" height="14" rx="2" /><path d="M16 8V6a4 4 0 00-8 0v2" />
-  </svg>
-);
-const GlobeIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-    stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" />
-    <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
-  </svg>
-);
-const DiamondIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-    stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <polygon points="12 2 22 12 12 22 2 12" />
-  </svg>
-);
-const UserIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-    stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" />
-  </svg>
-);
-const CartIcon = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
-    stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
-    <line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 01-8 0" />
-  </svg>
-);
-const ChevDown = () => (
-  <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
-    <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.6"
-      strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-);
-const SearchIcon = () => (
-  <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
-    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
-  </svg>
-);
+// ── Fallback tier data ────────────────────────────────────────────────────────
+const FALLBACK = [
+  { id: 1, name: 'Borono',   subs: [] },
+  { id: 2, name: 'Exported', subs: [] },
+  { id: 3, name: 'Generic',  subs: [] },
+];
 
-// ── Sub-tab bag icons ─────────────────────────────────────────────────────────
-const TI = {
-  all:      <svg viewBox="0 0 36 36" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="12" width="26" height="20" rx="3"/><path d="M11 12V9a7 7 0 0114 0v3"/><line x1="5" y1="20" x2="31" y2="20"/></svg>,
-  backpack: <svg viewBox="0 0 36 36" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="8" width="18" height="24" rx="4"/><path d="M13 8V6a5 5 0 0110 0v2"/><path d="M13 18h10M13 22h6"/></svg>,
-  laptop:   <svg viewBox="0 0 36 36" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><rect x="6" y="10" width="24" height="18" rx="2"/><path d="M12 10V8a6 6 0 0112 0v2"/><line x1="6" y1="28" x2="30" y2="28"/></svg>,
-  trolley:  <svg viewBox="0 0 36 36" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="6" width="18" height="22" rx="3"/><path d="M14 6V4a4 4 0 018 0v2"/><line x1="18" y1="28" x2="18" y2="33"/><line x1="11" y1="33" x2="25" y2="33"/></svg>,
-  duffle:   <svg viewBox="0 0 36 36" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="18" cy="21" rx="13" ry="9"/><path d="M12 21v-5a6 6 0 0112 0v5"/></svg>,
-  sling:    <svg viewBox="0 0 36 36" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><rect x="11" y="13" width="14" height="18" rx="3"/><path d="M14 13v-3a4 4 0 018 0v3"/><path d="M18 8 Q26 4 25 13"/></svg>,
-  tote:     <svg viewBox="0 0 36 36" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M7 13h22l-3 19H10L7 13z"/><path d="M13 13v-3a5 5 0 0110 0v3"/></svg>,
-  pouch:    <svg viewBox="0 0 36 36" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><rect x="8" y="15" width="20" height="16" rx="4"/><path d="M12 15v-2a6 6 0 0112 0v2"/><line x1="8" y1="22" x2="28" y2="22"/></svg>,
-  waist:    <svg viewBox="0 0 36 36" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><rect x="11" y="16" width="14" height="12" rx="3"/><path d="M4 20h7M25 20h7"/><line x1="18" y1="16" x2="18" y2="12"/></svg>,
+// ── Tier tab icons ────────────────────────────────────────────────────────────
+function TierSvg({ name }) {
+  const n = name.toLowerCase();
+  if (n.includes('export')) return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <circle cx="12" cy="12" r="9"/>
+      <path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>
+    </svg>
+  );
+  if (n.includes('generic')) return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <path d="M12 2l8 10-8 10-8-10z"/>
+    </svg>
+  );
+  // Borono / default — bag icon
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <path d="M6 8h12l-1 13H7L6 8z"/>
+      <path d="M9 8V6a3 3 0 0 1 6 0v2"/>
+    </svg>
+  );
+}
+
+// ── Category strip icons ──────────────────────────────────────────────────────
+const CAT_ICONS = {
+  'All Bags':    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M6 8h12l-1 13H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>,
+  'Backpacks':   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M7 9a5 5 0 0 1 10 0v10a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z"/><path d="M9 6a3 3 0 0 1 6 0"/><rect x="9" y="13" width="6" height="4" rx="0.5"/></svg>,
+  'Laptop Bags': <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><rect x="3" y="7" width="18" height="12" rx="1.5"/><path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7"/></svg>,
+  'Trolley Bags':<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><rect x="6" y="6" width="12" height="15" rx="1.5"/><path d="M10 6V4h4v2"/><circle cx="9" cy="22" r="0.8" fill="currentColor"/><circle cx="15" cy="22" r="0.8" fill="currentColor"/></svg>,
+  'Duffle Bags': <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><rect x="3" y="9" width="18" height="9" rx="4"/><path d="M8 9V7a1.5 1.5 0 0 1 1.5-1.5h5A1.5 1.5 0 0 1 16 7v2"/></svg>,
+  'Sling Bags':  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M8 10h8l1.5 9h-11z"/><path d="M6 4l6 6 6-6"/></svg>,
+  'Tote Bags':   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M5 9h14l-1 12H6z"/><path d="M8 9V7a4 4 0 0 1 8 0v2"/></svg>,
+  'Pouches':     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><rect x="5" y="8" width="14" height="11" rx="3"/><path d="M9 8V6.5A1.5 1.5 0 0 1 10.5 5h3A1.5 1.5 0 0 1 15 6.5V8"/></svg>,
+  'Waist Bags':  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M4 13c2-3 14-3 16 0-1 3-15 3-16 0z"/><path d="M2 13h2M20 13h2"/></svg>,
+  'School Bags': <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M7 9a5 5 0 0 1 10 0v10a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z"/><path d="M9 6a3 3 0 0 1 6 0"/><circle cx="12" cy="15" r="1.4"/></svg>,
+  'Gym Bags':    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><rect x="3" y="9" width="18" height="9" rx="4"/><path d="M8 9V7a1.5 1.5 0 0 1 1.5-1.5h5A1.5 1.5 0 0 1 16 7v2"/><path d="M12 12v3"/></svg>,
+  'Camera Bags': <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><rect x="3" y="8" width="18" height="11" rx="2"/><circle cx="12" cy="13.5" r="3.2"/><path d="M9 8l1-2h4l1 2"/></svg>,
 };
-
-function tabIcon(n = '') {
-  const s = n.toLowerCase();
-  if (s.includes('all'))                                              return TI.all;
-  if (s.includes('backpack') || s.includes('school') || s.includes('kids') || s.includes('gym')) return TI.backpack;
-  if (s.includes('laptop')   || s.includes('office'))                return TI.laptop;
-  if (s.includes('trolley')  || s.includes('travel'))                return TI.trolley;
-  if (s.includes('duffle')   || s.includes('duffel'))                return TI.duffle;
-  if (s.includes('sling'))                                           return TI.sling;
-  if (s.includes('tote') || s.includes('handbag') || s.includes('ladies') || s.includes('fancy') || s.includes('clutch')) return TI.tote;
-  if (s.includes('pouch') || s.includes('wallet'))                   return TI.pouch;
-  if (s.includes('waist'))                                           return TI.waist;
-  return TI.all;
-}
-
-function pillIcon(n = '') {
-  const s = n.toLowerCase();
-  if (s.includes('export'))  return <GlobeIcon />;
-  if (s.includes('generic')) return <DiamondIcon />;
-  return <BagIcon />;
-}
 
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function Header() {
-  const navigate = useNavigate();
+  const navigate  = useNavigate();
   const { totalItems } = useCart();
+  const { wishlistCount } = useCart();
+  const { openDrawer } = useCartDrawer();
+  const moreRef   = useRef(null);
 
-  const [menuOpen,  setMenuOpen]  = useState(false);
-  const [query,     setQuery]     = useState('');
-  const [cats,      setCats]      = useState([]);
-  const [activeCat, setActiveCat] = useState(null);
-  const [activeTab, setActiveTab] = useState('All Bags');
-  const [scrolled,  setScrolled]  = useState(false);
-  const lastY    = useRef(0);
-  const topRef   = useRef(null);   // ref to hdr__top — we measure its height
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [moreOpen,   setMoreOpen]   = useState(false);
+  const [query,      setQuery]      = useState('');
+  const [cats,       setCats]       = useState(FALLBACK);
+  const [activeCat,  setActiveCat]  = useState(FALLBACK[0]);
+  const [activeSub,  setActiveSub]  = useState('All Bags');
 
-  // Scroll: hide top rows on down, show on up — smooth via CSS transform
-  useEffect(() => {
-    const onScroll = () => {
-      const y = window.scrollY;
-      const going = y - lastY.current;
-      if (y > 80 && going > 2)       setScrolled(true);   // scrolling down
-      else if (going < -2)           setScrolled(false);  // scrolling up
-      lastY.current = y;
-    };sdfsd 
-    
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
-  // Fetch main categories + embedded sub-categories from API
+  // Load categories from API
   useEffect(() => {
     fetchMainCategoriesWithSubsAction()
       .then((list) => {
         if (!list.length) return;
-        // Prepend "All Bags" to every category's subs
-        const normalised = list.map((cat) => ({
-          ...cat,
-          subs: [{ id: 'all', name: 'All Bags' }, ...cat.subs],
+        const data = list.map((c) => ({
+          ...c,
+          subs: [{ id: 'all', name: 'All Bags' }, ...c.subs],
         }));
-        setCats(normalised);
-        setActiveCat(normalised[0]);
-        setActiveTab('All Bags');
+        setCats(data);
+        setActiveCat(data[0]);
       })
-      .catch(() => { /* silent — header shows empty pills if API fails */ });
+      .catch(() => {});
   }, []);
 
-  const close = () => setMenuOpen(false);
-  const subTabs = activeCat?.subs ?? [];
+  // Close More on outside click
+  useEffect(() => {
+    const fn = (e) => { if (moreRef.current && !moreRef.current.contains(e.target)) setMoreOpen(false); };
+    document.addEventListener('mousedown', fn);
+    return () => document.removeEventListener('mousedown', fn);
+  }, []);
+
+  const closeAll = () => { setMobileOpen(false); setMoreOpen(false); };
 
   const handleSearch = useCallback((e) => {
     e.preventDefault();
-    if (query.trim()) {
-      navigate(`/products?q=${encodeURIComponent(query.trim())}`);
-      setQuery('');
-    }
+    if (query.trim()) { navigate(`/products?q=${encodeURIComponent(query.trim())}`); setQuery(''); closeAll(); }
   }, [query, navigate]);
 
-  const handleTab = (sub) => {
-    setActiveTab(sub.name);
-    navigate(sub.name === 'All Bags' ? '/products' : `/products?category=${encodeURIComponent(sub.name)}`);
-    close();
+  const selectTier = (cat) => { setActiveCat(cat); setActiveSub('All Bags'); closeAll(); };
+  const selectSub  = (name) => {
+    setActiveSub(name);
+    navigate(name === 'All Bags' ? '/products' : `/products?category=${encodeURIComponent(name)}`);
+    closeAll();
   };
 
-  const handleCat = (cat) => {
-    setActiveCat(cat);
-    setActiveTab('All Bags');
-    close();
-  };
+  const subs = activeCat?.subs ?? [];
 
   return (
-    <header className={`hdr${scrolled ? ' hdr--scrolled' : ''}`}>
+    <>
+      {/* ═══ TOPBAR — single row ════════════════════════════════ */}
+      <header className="hdr-topbar">
+        <div className="hdr-inner">
 
-      {/* ── TOP BLOCK: logo column (left) + content column (right) ── */}
-      <div className="hdr__top" ref={topRef}>
-        <div className="hdr__top-inner">
-
-          {/* Logo column */}
-          <Link to="/" className="hdr__logo-col" onClick={close} aria-label="SMC Collections">
-            <img src={logo} alt="SMC Collections" className="hdr__logo-img" />
+          {/* 1. Brand */}
+          <Link to="/" className="hdr-brand" onClick={closeAll}>
+            <span className="hdr-brand__mark">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#F8F7F2" strokeWidth="1.8">
+                <path d="M6 8h12l-1 13H7L6 8z"/>
+                <path d="M9 8V6a3 3 0 0 1 6 0v2"/>
+              </svg>
+            </span>
+            <span>
+              <span className="hdr-brand__name">Shree Mahaveer</span>
+              <span className="hdr-brand__sub">Collections</span>
+            </span>
           </Link>
 
-          {/* Content column */}
-          <div className="hdr__content">
-
-            {/* Row 1: category pills + hamburger */}
-            <div className="hdr__row1">
-              <nav className="hdr__pills" aria-label="Main categories">
-                {cats.map((cat) => (
-                  <button key={cat.id}
-                    className={`hdr__pill${activeCat?.id === cat.id ? ' hdr__pill--on' : ''}`}
-                    onClick={() => handleCat(cat)}
-                    aria-pressed={activeCat?.id === cat.id}>
-                    {pillIcon(cat.name)}
-                    <span>{cat.name.toUpperCase()}</span>
-                  </button>
-                ))}
-              </nav>
-
-              <button className={`hdr__ham${menuOpen ? ' is-open' : ''}`}
-                onClick={() => setMenuOpen((p) => !p)}
-                aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-                aria-expanded={menuOpen}>
-                <span /><span /><span />
+          {/* 2. Tier tabs */}
+          <div className="hdr-tiers">
+            {cats.map((cat) => (
+              <button key={cat.id}
+                className={`hdr-tier${activeCat?.id === cat.id ? ' hdr-tier--on' : ''}`}
+                onClick={() => selectTier(cat)}>
+                <TierSvg name={cat.name} />
+                {cat.name}
               </button>
+            ))}
+          </div>
+
+          {/* 3. Search */}
+          <form className="hdr-search" onSubmit={handleSearch} role="search">
+            <input
+              className="hdr-search__inp"
+              type="text"
+              placeholder="Search for bags, brands and more…"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              aria-label="Search products"
+            />
+            <button type="submit" className="hdr-search__btn" aria-label="Search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="11" cy="11" r="7"/>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+            </button>
+          </form>
+
+          {/* 4. Actions */}
+          <div className="hdr-acts">
+
+            {/* Login */}
+            <NavLink to="/login" className="hdr-act" onClick={closeAll}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                <circle cx="12" cy="8" r="4"/>
+                <path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/>
+              </svg>
+              <span className="hdr-act__lbl">Login</span>
+              <span className="hdr-chev" />
+            </NavLink>
+
+            {/* More */}
+            <div className="hdr-more-wrap" ref={moreRef}>
+              <button className="hdr-act" onClick={() => setMoreOpen((p) => !p)}>
+                <span className="hdr-act__lbl">More</span>
+                <span className="hdr-chev" />
+              </button>
+              {moreOpen && (
+                <div className="hdr-more-menu">
+                  <Link to="/home"    onClick={closeAll}>Home</Link>
+                  <Link to="/about"   onClick={closeAll}>About Us</Link>
+                  <Link to="/contact" onClick={closeAll}>Contact Us</Link>
+                  <hr className="hdr-more-menu__hr" />
+                  <Link to="/wishlist" onClick={closeAll} className="hdr-more-menu__wishlist">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                      <path d="M12 21s-7.5-4.6-10-9.2C.4 8.4 2 4.5 6 4c2.3-.3 4.2 1 6 3 1.8-2 3.7-3.3 6-3 4 .5 5.6 4.4 4 7.8-2.5 4.6-10 9.2-10 9.2z"/>
+                    </svg>
+                    Wishlist
+                    {wishlistCount > 0 && (
+                      <span className="hdr-more-menu__badge">{wishlistCount}</span>
+                    )}
+                  </Link>
+                </div>
+              )}
             </div>
 
-            {/* Row 2: search + actions */}
-            <div className="hdr__row2">
-              <form className="hdr__srch" onSubmit={handleSearch} role="search">
-                <span className="hdr__srch-ico"><SearchIcon /></span>
-                <input className="hdr__srch-inp" type="search"
-                  placeholder="Search for bags, brands and more..."
-                  value={query} onChange={(e) => setQuery(e.target.value)}
-                  aria-label="Search products" />
-                <button type="submit" className="hdr__srch-btn" aria-label="Search">
-                  <SearchIcon />
-                </button>
-              </form>
+            {/* Cart — opens drawer */}
+            <button
+              className="hdr-act hdr-cart"
+              onClick={() => { closeAll(); openDrawer(); }}
+              aria-label={`Cart${totalItems > 0 ? `, ${totalItems} items` : ''}`}
+            >
+              <span className="hdr-cart__icon-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                  <path d="M6 8h12l-1 13H7L6 8z"/>
+                  <path d="M9 8V6a3 3 0 0 1 6 0v2"/>
+                </svg>
+                {totalItems > 0 && (
+                  <span className="hdr-cart__badge">{totalItems > 99 ? '99+' : totalItems}</span>
+                )}
+              </span>
+              <span className="hdr-act__lbl">Cart</span>
+            </button>
+          </div>
 
-              <div className="hdr__acts">
-                <NavLink to="/login"
-                  className={({ isActive }) => `hdr__act${isActive ? ' hdr__act--on' : ''}`}
-                  onClick={close}>
-                  <UserIcon /><span>Login</span><ChevDown />
-                </NavLink>
-                <button className="hdr__act">
-                  <span>More</span><ChevDown />
-                </button>
-                <Link to="/cart" className="hdr__act hdr__act--cart" onClick={close}
-                  aria-label={`Cart${totalItems > 0 ? `, ${totalItems} items` : ''}`}>
-                  <span className="hdr__cart-wrap">
-                    <CartIcon />
-                    {totalItems > 0 && <em className="hdr__cbadge">{totalItems > 99 ? '99+' : totalItems}</em>}
-                  </span>
-                  <span>Cart</span>
-                </Link>
-              </div>
-            </div>
+          {/* 5. Mobile hamburger */}
+          <button
+            className={`hdr-ham${mobileOpen ? ' hdr-ham--open' : ''}`}
+            onClick={() => setMobileOpen((p) => !p)}
+            aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={mobileOpen}
+          >
+            <span/><span/><span/>
+          </button>
+        </div>
+      </header>
 
-          </div>{/* end content */}
-        </div>{/* end top-inner */}
-      </div>{/* end top */}
-
-      {/* ── ROW 3: sub-category icon tabs ── */}
-      <div className="hdr__r3">
-        <div className="hdr__r3i">
-          {subTabs.map((sub) => (
-            <button key={sub.id}
-              className={`hdr__tab${activeTab === sub.name ? ' hdr__tab--on' : ''}`}
-              onClick={() => handleTab(sub)}
-              aria-pressed={activeTab === sub.name}>
-              <span className="hdr__tab-ico">{tabIcon(sub.name)}</span>
-              <span className="hdr__tab-lbl">{sub.name}</span>
+      {/* ═══ CATEGORY STRIP ════════════════════════════════════ */}
+      <div className="hdr-cats">
+        <div className="hdr-cats__inner">
+          {subs.map((sub) => (
+            <button
+              key={sub.id ?? sub.name}
+              className={`hdr-cat${activeSub === sub.name ? ' hdr-cat--on' : ''}`}
+              onClick={() => selectSub(sub.name)}
+            >
+              {CAT_ICONS[sub.name] ?? CAT_ICONS['All Bags']}
+              <span>{sub.name}</span>
             </button>
           ))}
         </div>
       </div>
 
-      {/* Mobile overlay */}
-      {menuOpen && <div className="hdr__ov" onClick={close} aria-hidden="true" />}
-
-      {/* Mobile drawer */}
-      <nav className={`hdr__drw${menuOpen ? ' is-open' : ''}`}
-        aria-label="Mobile navigation" aria-hidden={!menuOpen}>
-        <p className="hdr__drw-sec">Categories</p>
+      {/* ═══ MOBILE DRAWER ═════════════════════════════════════ */}
+      {mobileOpen && <div className="hdr-overlay" onClick={closeAll} aria-hidden="true" />}
+      <nav className={`hdr-drawer${mobileOpen ? ' hdr-drawer--open' : ''}`}
+        aria-label="Mobile navigation" aria-hidden={!mobileOpen}>
+        <p className="hdr-drawer__sec">Brand Tiers</p>
         {cats.map((c) => (
           <button key={c.id}
-            className={`hdr__drw-lnk${activeCat?.id === c.id ? ' is-on' : ''}`}
-            onClick={() => handleCat(c)}>
+            className={`hdr-drawer__link${activeCat?.id === c.id ? ' hdr-drawer__link--on' : ''}`}
+            onClick={() => selectTier(c)}>
+            <TierSvg name={c.name} />
             {c.name}
           </button>
         ))}
-        <hr className="hdr__drw-hr" />
-        <p className="hdr__drw-sec">Navigate</p>
+        <hr className="hdr-drawer__hr" />
+        <p className="hdr-drawer__sec">Navigation</p>
         {[
-          { to: '/home',    l: 'Home' },
-          { to: '/products',l: 'Products' },
-          { to: '/about',   l: 'About' },
-          { to: '/contact', l: 'Contact' },
+          { to: '/home',     l: 'Home' },
+          { to: '/products', l: 'All Products' },
+          { to: '/about',    l: 'About Us' },
+          { to: '/contact',  l: 'Contact' },
         ].map(({ to, l }) => (
           <NavLink key={to} to={to}
-            className={({ isActive }) => `hdr__drw-lnk${isActive ? ' is-on' : ''}`}
-            onClick={close}>{l}</NavLink>
+            className={({ isActive }) => `hdr-drawer__link${isActive ? ' hdr-drawer__link--on' : ''}`}
+            onClick={closeAll}>{l}</NavLink>
         ))}
-        <hr className="hdr__drw-hr" />
-        <NavLink to="/login" className="hdr__drw-lnk" onClick={close}>Login</NavLink>
+        <hr className="hdr-drawer__hr" />
+        <NavLink to="/login" className="hdr-drawer__link" onClick={closeAll}>Login</NavLink>
       </nav>
-    </header>
+    </>
   );
 }

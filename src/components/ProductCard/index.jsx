@@ -75,11 +75,11 @@ function ProductCard({ product, animate = false }) {
         />
 
         {/* Badge */}
-        {product.badge && (
+        {/* {product.badge && (
           <span className={`pcard__badge pcard__badge--${product.badge.toLowerCase()}`}>
             {product.badge}
           </span>
-        )}
+        )} */}
 
         {/* Out of stock overlay */}
         {product.stock === 0 && product.stock !== undefined && (
