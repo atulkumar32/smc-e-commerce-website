@@ -342,64 +342,166 @@ body {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  CATEGORY STRIP
+//  CATEGORY STRIP  — "All Bags" pinned left, rest scrollable
 // ─────────────────────────────────────────────────────────────────────────────
 .hdr-cats {
   background: var(--smc-paper);
   border-bottom: 1px solid var(--smc-12);
   position: sticky;
-  top: 58px;   // height of topbar
+  top: 58px;
   z-index: 40;
 
   &__inner {
     max-width: var(--smc-maxw);
     margin: 0 auto;
-    padding: 0 28px;
+    padding: 5px 2px;
     display: flex;
-    gap: 4px;
+    align-items: flex-start;
+    // No overflow on the outer wrapper — only the scroll child scrolls
+    overflow: hidden;
+  }
+
+  // Thin vertical divider between pinned and scrollable section
+  &__divider {
+    display: block;
+    width: 1px;
+    align-self: stretch;
+    background: var(--smc-12);
+    margin: 4px 4px;
+    flex-shrink: 0;
+  }
+
+  // ── Scrollable wrapper for all items after "All Bags" ──
+  &__scroll {
+    display: flex;
+    align-items: flex-start;
     overflow-x: auto;
     scrollbar-width: none;
+    flex: 1;
+    padding-right: 28px;          // breathing room at the end
 
     &::-webkit-scrollbar { display: none; }
 
-    @media (max-width: 900px) { padding: 0 16px; }
+    @media (max-width: 900px) { padding-right: 16px; }
   }
 }
 
+// ── Pinned "All Bags" — sits outside the scroll container ──────────────────
+.hdr-cat--pin {
+  flex-shrink: 0;
+  padding-left: 28px;
+  padding-right: 4px;
+  // Faint right-shadow to visually separate from scrolling items
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    right: -8px;
+    top: 0;
+    bottom: 0;
+    width: 16px;
+    background: linear-gradient(to right, var(--smc-paper) 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  @media (max-width: 900px) { padding-left: 16px; }
+}
+
+// ── Base category button ───────────────────────────────────────────────────
 .hdr-cat {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  padding: 12px 14px 10px;
+  gap: 5px;
+  padding: 4px 12px;
   border: none;
   background: none;
-  white-space: nowrap;
-  border-bottom: 2.5px solid transparent;
-  color: var(--smc-70);
   flex-shrink: 0;
   cursor: pointer;
-  transition: color 0.15s, border-color 0.15s;
   font-family: inherit;
 
-  svg { width: 22px; height: 22px; }
+  // ── Circle ──
+  &__circle {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: #F1F5F9;
+    border: 2.5px solid #CBD5E1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    transition: border-color 0.18s, background 0.18s, transform 0.18s;
+    flex-shrink: 0;
 
+    svg {
+      width: 26px;
+      height: 26px;
+      color: #64748B;
+      transition: color 0.15s;
+    }
+
+    @media (max-width: 480px) {
+      width: 48px;
+      height: 48px;
+      svg { width: 22px; height: 22px; }
+    }
+  }
+
+  // Real category image — fills circle
+  &__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: 50%;
+  }
+
+  // SVG icon fallback — fills circle when no image
+  &__icon-fallback {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  // ── Label ──
   span {
-    font-size: 11px;
+    font-size: 11.5px;
     font-weight: 500;
+    color: var(--smc-70);
+    white-space: nowrap;
+    transition: color 0.15s, font-weight 0.15s;
+    line-height: 1;
+
+    @media (max-width: 480px) { font-size: 10px; }
   }
 
+  // ── ACTIVE — amber border ring, warm bg, icon colour, bold label ──
   &--on {
-    color: var(--smc-navy);
-    border-bottom-color: var(--smc-amber);
+    .hdr-cat__circle {
+      border-color: var(--smc-amber);       // #C4841F amber ring
+      background: rgba(196,132,31,.08);     // very faint amber tint
+      transform: scale(1.07);
+      svg { color: var(--smc-amber); }
+    }
+    span {
+      color: var(--smc-amber);
+      font-weight: 700;
+    }
   }
 
-  &:hover:not(&--on) { color: var(--smc-ink); }
-
-  @media (max-width: 480px) {
-    padding: 10px 10px 8px;
-    svg { width: 20px; height: 20px; }
-    span { font-size: 10px; }
+  // ── HOVER (inactive) ──
+  &:hover:not(&--on) {
+    .hdr-cat__circle {
+      border-color: #94A3B8;
+      background: #E2E8F0;
+      svg { color: var(--smc-navy); }
+    }
+    span { color: var(--smc-ink); }
   }
 }
 

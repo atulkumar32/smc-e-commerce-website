@@ -205,7 +205,7 @@ export const createMainCategoryAction = async ({ name, description, status = 1, 
 
 // ── Fetch main categories + embedded sub-categories (web API) ─────────────────
 // GET getMainCategories.php
-// Response: { status, data: [{ id, name, sub_categories: [{ id, name }] }] }
+// Response: { status, data: [{ id, name, sub_categories: [{ id, name, image }] }] }
 export const fetchMainCategoriesWithSubsAction = async () => {
   const response = await fetch(URL_MAIN_CATEGORIES_WEB, { method: 'GET' });
   const data = await handleResponse(response);
@@ -214,7 +214,11 @@ export const fetchMainCategoriesWithSubsAction = async () => {
     id:   cat.id,
     name: cat.name || '',
     subs: Array.isArray(cat.sub_categories)
-      ? cat.sub_categories.map((s) => ({ id: s.id, name: s.name || '' }))
+      ? cat.sub_categories.map((s) => ({
+          id:    s.id,
+          name:  s.name || '',
+          image: s.image || null,   // e.g. "uploads/1788790009_xxx.jpeg" or null
+        }))
       : [],
   }));
 };

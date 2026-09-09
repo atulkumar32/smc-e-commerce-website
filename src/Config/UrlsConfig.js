@@ -116,7 +116,10 @@ export const URL_VARIANTS_FETCH        = `${BASE_URL}smc/admin/api/GetProductVar
 export const MEDIA_BASE   = `${BASE_URL}`;                       // https://...apis/v1/
 export const UPLOADS_BASE = `${BASE_URL}`;      // https://...apis/v1/uploads/products/
 
-// ── Website APIs ──────────────────────────────────────────────────
+// ── Category image uploads base ───────────────────────────────────────────────
+// API returns: "uploads/1788790009_xxx.jpeg"
+// Full URL:    https://...apis/v1/smc/admin/api/uploads/xxx.jpeg
+export const CAT_IMG_BASE = `${BASE_URL}smc/admin/api/`;
 export const WEB_URLS = {
   PRODUCT_LIST: `${BASE_URL}smc/api/v1/data/GetProductList.php`,
   PRODUCT__VAEIENT_CREATE: `${BASE_URL}smc/admin/api/CreateProductVariant.php`,

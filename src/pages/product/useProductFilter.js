@@ -78,6 +78,12 @@ function expandProductToVariantCards(product) {
     badge:            product.badge || (product.is_new_arrival ? 'New' : null),
     brand:            product.brand || null,
     shortDescription: product.short_description || product.shortDescription || null,
+    // Extra descriptive fields for enriched product name
+    bagCapacity:      product.capacity || product.bag_capacity || product.bagCapacity || null,
+    material:         product.material || null,
+    pattern:          product.pattern || null,
+    gender:           product.gender || null,
+    genericName:      product.generic_name || product.genericName || null,
   };
 
   if (variants.length === 0) {
@@ -195,21 +201,22 @@ export function useProductFilter() {
   const { pathname } = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const queryCategory = getQueryValue(searchParams, 'category', null);
-  const queryTerm = getQueryValue(searchParams, 'q', '');
-  const querySort = getQueryValue(searchParams, 'sort', 'recommended');
-  const queryPage = Number(getQueryValue(searchParams, 'page', '1')) || 1;
-  const queryLimit = Number(getQueryValue(searchParams, 'limit', String(DEFAULT_PAGE_SIZE))) || DEFAULT_PAGE_SIZE;
-  const queryMinPrice = searchParams.has('min_price')
-    ? Number(getQueryValue(searchParams, 'min_price', ''))
-    : null;
-  const queryMaxPrice = searchParams.has('max_price')
-    ? Number(getQueryValue(searchParams, 'max_price', ''))
-    : null;
-  const queryBadge = getQueryValue(searchParams, 'badge', '');
+  // category_id = numeric sub-category ID from header click (e.g. 2140)
+  // category    = legacy name-based filter (kept for backward compat)
+  const queryCategoryId   = getQueryValue(searchParams, 'category_id', null);
+  const queryCategoryName = getQueryValue(searchParams, 'category_name', '');  // display name
+  const queryCategory     = getQueryValue(searchParams, 'category', null);
+  const queryTerm       = getQueryValue(searchParams, 'q', '');
+  const querySort       = getQueryValue(searchParams, 'sort', 'recommended');
+  const queryPage       = Number(getQueryValue(searchParams, 'page', '1')) || 1;
+  const queryLimit      = Number(getQueryValue(searchParams, 'limit', String(DEFAULT_PAGE_SIZE))) || DEFAULT_PAGE_SIZE;
+  const queryMinPrice   = searchParams.has('min_price') ? Number(getQueryValue(searchParams, 'min_price', '')) : null;
+  const queryMaxPrice   = searchParams.has('max_price') ? Number(getQueryValue(searchParams, 'max_price', '')) : null;
+  const queryBadge      = getQueryValue(searchParams, 'badge', '');
 
-  const pathCategory = useMemo(() => resolvePathCategory(pathname), [pathname]);
-  const activeCategory = queryCategory || pathCategory;
+  const pathCategory   = useMemo(() => resolvePathCategory(pathname), [pathname]);
+  // activeCategory: numeric ID takes priority, then name-based, then path
+  const activeCategory = queryCategoryId || queryCategory || pathCategory;
 
   const [products, setProducts] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
@@ -224,7 +231,30 @@ export function useProductFilter() {
 
   const changeCategory = (key) => {
     updateParams((next) => {
-      next.set('category', key);
+      if (key === 'all' || !key) {
+        next.delete('category');
+        next.delete('category_id');
+        next.delete('category_name');
+      } else {
+        next.set('category', key);
+        next.delete('category_id');
+        next.delete('category_name');
+      }
+      next.set('page', '1');
+    });
+  };
+
+  const changeCategoryById = (id) => {
+    updateParams((next) => {
+      if (!id || id === 'all') {
+        next.delete('category_id');
+        next.delete('category_name');
+        next.delete('category');
+      } else {
+        next.set('category_id', String(id));
+        next.delete('category');
+        // category_name would need to be passed separately; leave as-is if already set
+      }
       next.set('page', '1');
     });
   };
@@ -265,6 +295,8 @@ export function useProductFilter() {
   const clearAllFilters = () => {
     updateParams((next) => {
       next.delete('category');
+      next.delete('category_id');
+      next.delete('category_name');
       next.delete('sort');
       next.delete('q');
       next.delete('min_price');
@@ -281,39 +313,28 @@ export function useProductFilter() {
     async function loadProducts() {
       setLoading(true);
 
+      // Determine whether we have a numeric category_id or a name-based category
+      const numericCategoryId = queryCategoryId ? Number(queryCategoryId) : null;
+
+      // Build API params — use category_id when available (numeric sub-cat from header)
       const params = {
-        category: activeCategory,
-        q: queryTerm,
-        sort: querySort,
-        page: queryPage,
-        limit: queryLimit,
-        min_price: queryMinPrice || undefined,
-        max_price: queryMaxPrice || undefined,
-        badge: queryBadge || undefined,
+        ...(numericCategoryId   ? { category_id: numericCategoryId }
+            : (queryCategory && queryCategory !== 'all') ? { category: queryCategory }
+            : {}),
+        ...(queryTerm           ? { search: queryTerm }   : {}),
+        ...(querySort && querySort !== 'recommended' ? { sort: querySort } : {}),
+        ...(queryPage > 1       ? { page: queryPage }     : {}),
+        ...(queryLimit !== DEFAULT_PAGE_SIZE ? { per_page: queryLimit } : {}),
+        ...(queryMinPrice != null ? { min_price: queryMinPrice } : {}),
+        ...(queryMaxPrice != null ? { max_price: queryMaxPrice } : {}),
+        ...(queryBadge          ? { badge: queryBadge }   : {}),
       };
 
-      // Remove category param when it's the default 'all' to avoid sending it
-      if (params.category === 'all' || params.category === null) {
-        delete params.category;
-      }
-
-      // If only default values remain (no meaningful filters), call API with null
-      // so the request is sent without a query string.
-      const onlyDefaults =
-        !params.category &&
-        (!params.q || params.q === '') &&
-        (!params.min_price && !params.max_price && !params.badge) &&
-        (params.sort === 'recommended' || typeof params.sort === 'undefined') &&
-        (params.page === 1 || typeof params.page === 'undefined') &&
-        (params.limit === DEFAULT_PAGE_SIZE || typeof params.limit === 'undefined');
+      // Pass null (no query string) only when there are genuinely no filters
+      const hasFilters = Object.keys(params).length > 0;
 
       try {
-        // Temporarily call the API with no query string for all requests
-        // (params === null causes GetProductList.php to be requested without any query values)
-        const data = await fetchWebProductList(null);
-        // Debug: expose raw API response in browser console to help verify mapping
-        // Remove this in production once verified.
-        // eslint-disable-next-line no-console
+        const data = await fetchWebProductList(hasFilters ? params : null);
         console.debug('[useProductFilter] fetchWebProductList response:', data);
         if (!isMounted) return;
 
@@ -360,7 +381,7 @@ export function useProductFilter() {
       isMounted = false;
       controller.abort();
     };
-  }, [activeCategory, queryTerm, querySort, queryPage, queryLimit, queryMinPrice, queryMaxPrice, queryBadge]);
+  }, [queryCategoryId, activeCategory, queryTerm, querySort, queryPage, queryLimit, queryMinPrice, queryMaxPrice, queryBadge]);
 
   const visibleCount = products.length;
   const loadMore = () => {
@@ -370,15 +391,17 @@ export function useProductFilter() {
   };
 
   const pageTitle = useMemo(() => {
+    // If a category name was passed via URL (from header sub-category click), use it
+    if (queryCategoryName) return queryCategoryName;
     const map = {
-      'school-bags': 'School Bags',
-      purses: 'Luxury Purses',
-      wallets: 'Wallets',
+      'school-bags':  'School Bags',
+      purses:         'Luxury Purses',
+      wallets:        'Wallets',
       'new-arrivals': 'New Arrivals',
-      all: 'All Products',
+      all:            'All Products',
     };
     return map[activeCategory] || 'All Products';
-  }, [activeCategory]);
+  }, [activeCategory, queryCategoryName]);
 
   return {
     products,
@@ -387,7 +410,10 @@ export function useProductFilter() {
     hasMore,
     loadMore,
     activeCategory,
+    activeCategoryId:   queryCategoryId ? Number(queryCategoryId) : null,
+    activeCategoryName: queryCategoryName || '',
     changeCategory,
+    changeCategoryById,
     sortBy: querySort,
     changeSort,
     pageTitle,

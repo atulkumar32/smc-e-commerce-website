@@ -18,13 +18,13 @@ function Lightbox({ images, startIndex, onClose }) {
 
   useEffect(() => {
     const onKey = (e) => {
-      if (e.key === 'ArrowLeft')  prev();
+      if (e.key === 'ArrowLeft') prev();
       if (e.key === 'ArrowRight') next();
-      if (e.key === 'Escape')     onClose();
+      if (e.key === 'Escape') onClose();
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [images.length]);
 
   return (
@@ -49,13 +49,63 @@ function Lightbox({ images, startIndex, onClose }) {
   );
 }
 
+// ── Image Zoom constants ──────────────────────────────────────────────────────
+const ZOOM = 3;      // magnification factor
+const LENS_SIZE = 100;    // lens square in px (on the source thumb)
+
+// ── Single mosaic thumb with lens tracking ────────────────────────────────────
+// Reports mouse position (0-1 fractions) up to parent via onHover / onLeave
+function ZoomThumb({ src, alt, onHover, onLeave, onOpenLightbox }) {
+  const imgRef = useRef(null);
+
+  const handleMouseMove = (e) => {
+    const el = imgRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+
+    const rawX = e.clientX - rect.left;
+    const rawY = e.clientY - rect.top;
+
+    // Clamp lens so it stays fully inside the image
+    const half = LENS_SIZE / 2;
+    const lx = Math.max(0, Math.min(rect.width - LENS_SIZE, rawX - half));
+    const ly = Math.max(0, Math.min(rect.height - LENS_SIZE, rawY - half));
+
+    // Percentage position for the big portal
+    const bgX = Math.max(0, Math.min(100, (rawX / rect.width) * 100));
+    const bgY = Math.max(0, Math.min(100, (rawY / rect.height) * 100));
+
+    onHover({ src, lx, ly, bgX, bgY });
+  };
+
+  const handleMouseLeave = () => onLeave();
+
+  return (
+    <div
+      className="pd__thumb"
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+    >
+      <img
+        ref={imgRef}
+        src={src}
+        alt={alt}
+        className="pd__thumb-img"
+        draggable="false"
+        onClick={onOpenLightbox}
+      />
+      {/* Lens indicator rendered inside the thumb */}
+    </div>
+  );
+}
+
 // ── Star rating ───────────────────────────────────────────────────────────────
 function StarRating({ rating }) {
   return (
     <div className="pd-stars" aria-label={`Rating: ${rating} out of 5`}>
       {[1, 2, 3, 4, 5].map((n) => {
         const filled = rating >= n;
-        const half   = !filled && rating >= n - 0.5;
+        const half = !filled && rating >= n - 0.5;
         return (
           <svg key={n} width="14" height="14" viewBox="0 0 24 24"
             fill={filled ? 'currentColor' : 'none'}
@@ -83,21 +133,23 @@ function SpecRow({ label, value }) {
 
 // ── Main component ────────────────────────────────────────────────────────────
 function ProductDetail() {
-  const { slug }   = useParams();
+  const { slug } = useParams();
   const { search } = useLocation();
-  const navigate   = useNavigate();
+  const navigate = useNavigate();
   const { addItem, toggleWishlist, isWishlisted, isInCart } = useCart();
 
-  const [product,         setProduct]         = useState(null);
-  const [selectedVariant, setSelectedVariant]  = useState(null);
-  const [openAcc,         setOpenAcc]          = useState(null);
-  const [loading,         setLoading]          = useState(true);
-  const [error,           setError]            = useState('');
-  const [showBuyNowModal, setShowBuyNowModal]  = useState(false);
-  const [lightbox,        setLightbox]         = useState(null); // null | { index }
-  const [pincode,         setPincode]          = useState('');
-  const [pincodeResult,   setPincodeResult]    = useState(null);
-  const [pincodeChecking, setPincodeChecking]  = useState(false);
+  const [product, setProduct] = useState(null);
+  const [selectedVariant, setSelectedVariant] = useState(null);
+  const [openAcc, setOpenAcc] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [showBuyNowModal, setShowBuyNowModal] = useState(false);
+  const [lightbox, setLightbox] = useState(null);
+  const [pincode, setPincode] = useState('');
+  const [pincodeResult, setPincodeResult] = useState(null);
+  const [pincodeChecking, setPincodeChecking] = useState(false);
+  // Zoom state — lifted up so portal can cover the right panel
+  const [zoomData, setZoomData] = useState(null); // { src, lx, ly, bgX, bgY }
 
   const canBuyNow = pincodeResult?.available === true;
   const productId = slug || new URLSearchParams(search).get('product_id') || '';
@@ -109,18 +161,18 @@ function ProductDetail() {
   useEffect(() => { if (rawError) setError(rawError); }, [rawError]);
   useEffect(() => { setLoading(rawLoading); }, [rawLoading]);
 
-  const displayGallery   = selectedVariant?.gallery?.length > 0 ? selectedVariant.gallery : (product?.gallery ?? []);
-  const displayPrice     = selectedVariant?.sellingPrice  ?? product?.price        ?? 0;
-  const displayMRP       = selectedVariant?.mrp           ?? product?.originalPrice ?? null;
-  const displayStock     = selectedVariant?.stock         ?? product?.stock         ?? 0;
+  const displayGallery = selectedVariant?.gallery?.length > 0 ? selectedVariant.gallery : (product?.gallery ?? []);
+  const displayPrice = selectedVariant?.sellingPrice ?? product?.price ?? 0;
+  const displayMRP = selectedVariant?.mrp ?? product?.originalPrice ?? null;
+  const displayStock = selectedVariant?.stock ?? product?.stock ?? 0;
   const displayColorName = selectedVariant?.colorName ?? '';
-  const displayColorHex  = selectedVariant?.colorHex  ?? '';
-  const displaySize      = selectedVariant?.size       ?? '';
-  const showMRP          = displayMRP && displayMRP > displayPrice;
-  const discountPct      = showMRP ? Math.round((1 - displayPrice / displayMRP) * 100) : 0;
+  const displayColorHex = selectedVariant?.colorHex ?? '';
+  const displaySize = selectedVariant?.size ?? '';
+  const showMRP = displayMRP && displayMRP > displayPrice;
+  const discountPct = showMRP ? Math.round((1 - displayPrice / displayMRP) * 100) : 0;
 
-  const wished        = product ? isWishlisted(product.id) : false;
-  const cartItemId    = selectedVariant ? `${product?.id}__${selectedVariant.variantId}` : (product?.id || '');
+  const wished = product ? isWishlisted(product.id) : false;
+  const cartItemId = selectedVariant ? `${product?.id}__${selectedVariant.variantId}` : (product?.id || '');
   const alreadyInCart = isInCart(cartItemId) || isInCart(product?.id || '');
 
   const fmt = (n) =>
@@ -130,14 +182,14 @@ function ProductDetail() {
 
   const buildCartItem = useCallback(() => ({
     ...product,
-    id:            product.id || product.productId,
-    price:         displayPrice,
-    image:         displayGallery[0] ?? '',
+    id: product.id || product.productId,
+    price: displayPrice,
+    image: displayGallery[0] ?? '',
     selectedColor: displayColorHex,
-    selectedSize:  displaySize,
-    variantId:     selectedVariant?.variantId,
-    stock:         displayStock,
-    quantity:      1,
+    selectedSize: displaySize,
+    variantId: selectedVariant?.variantId,
+    stock: displayStock,
+    quantity: 1,
   }), [product, displayPrice, displayGallery, displayColorHex, displaySize, selectedVariant, displayStock]);
 
   const buildNavState = useCallback((mode) => ({
@@ -145,16 +197,16 @@ function ProductDetail() {
     pincode: pincode || '', pincodeData: pincodeResult ?? null,
   }), [buildCartItem, pincode, pincodeResult]);
 
-  const handleAddToCart  = useCallback(() => { if (!product || displayStock === 0) return; addItem(buildCartItem()); },
+  const handleAddToCart = useCallback(() => { if (!product || displayStock === 0) return; addItem(buildCartItem()); },
     [product, displayStock, addItem, buildCartItem]);
-  const handleWishlist   = useCallback(() => { if (!product) return; toggleWishlist(product); }, [product, toggleWishlist]);
+  const handleWishlist = useCallback(() => { if (!product) return; toggleWishlist(product); }, [product, toggleWishlist]);
   const closeBuyNowModal = useCallback(() => setShowBuyNowModal(false), []);
-  const handleBuyNow     = useCallback(() => {
+  const handleBuyNow = useCallback(() => {
     if (!product) return;
     if (!isUserAuthenticated()) { setShowBuyNowModal(true); return; }
     navigate('/checkout', { state: buildNavState('user') });
   }, [product, buildNavState, navigate]);
-  const goCheckoutAsGuest  = useCallback(() => { setShowBuyNowModal(false); navigate('/checkout', { state: buildNavState('guest') }); }, [buildNavState, navigate]);
+  const goCheckoutAsGuest = useCallback(() => { setShowBuyNowModal(false); navigate('/checkout', { state: buildNavState('guest') }); }, [buildNavState, navigate]);
   const goLoginForCheckout = useCallback(() => { setShowBuyNowModal(false); navigate('/login', { state: { from: '/checkout', ...buildNavState('user') } }); }, [buildNavState, navigate]);
   const handleCheckPincode = useCallback(async () => {
     if (!pincode || pincode.trim().length !== 6) { setPincodeResult({ available: false, message: 'Please enter a valid 6-digit pincode' }); return; }
@@ -185,130 +237,312 @@ function ProductDetail() {
 
       <div className="pd">
         <div className="pd__inner">
+          {/* pd__layout is position:relative so the zoom portal can anchor to it */}
           <div className="pd__layout">
 
             {/* ── LEFT: sticky image mosaic ── */}
             <div className="pd__left">
               <div className="pd__mosaic">
                 {gridImages.map((src, i) => (
-                  <button key={`${selectedVariant?.variantId ?? 'base'}-${i}`}
+                  <div key={`${selectedVariant?.variantId ?? 'base'}-${i}`}
                     className="pd__mosaic-cell"
-                    onClick={() => setLightbox({ index: i })}
-                    aria-label={`View image ${i + 1}`}
                   >
-                    <img src={src} alt={`${toTitleCase(product.name)} ${i + 1}`} loading={i === 0 ? 'eager' : 'lazy'} />
-                    {/* +N overlay on last cell if more images exist */}
+                    <ZoomThumb
+                      src={src}
+                      alt={`${toTitleCase(product.name)} ${i + 1}`}
+                      onHover={setZoomData}
+                      onLeave={() => setZoomData(null)}
+                      onOpenLightbox={() => setLightbox({ index: i })}
+                    />
+                    {/* Lens square on the hovered thumb */}
+                    {zoomData?.src === src && (
+                      <div
+                        className="pd__lens"
+                        style={{
+                          width: LENS_SIZE,
+                          height: LENS_SIZE,
+                          left: zoomData.lx,
+                          top: zoomData.ly,
+                        }}
+                        aria-hidden="true"
+                      />
+                    )}
                     {i === 3 && extraCount > 0 && (
                       <div className="pd__mosaic-more">+{extraCount}</div>
                     )}
-                  </button>
+                  </div>
                 ))}
-                {/* Fill empty cells if fewer than 4 images */}
                 {gridImages.length < 4 && Array.from({ length: 4 - gridImages.length }).map((_, i) => (
                   <div key={`empty-${i}`} className="pd__mosaic-cell pd__mosaic-cell--empty" />
                 ))}
               </div>
-
               {product.badge && (
                 <span className={`pd__badge pd__badge--${product.badge.toLowerCase()}`}>{product.badge}</span>
               )}
             </div>
 
-            {/* ── RIGHT: sticky info panel ── */}
+            {/* ── ZOOM PORTAL — absolute sibling, covers the right column ── */}
+            {zoomData && (
+              <div
+                className="pd__zoom-portal"
+                style={{
+                  backgroundImage: `url(${zoomData.src})`,
+                  backgroundSize: `${ZOOM * 100}%`,
+                  backgroundPosition: `${zoomData.bgX}% ${zoomData.bgY}%`,
+                  backgroundRepeat: 'no-repeat',
+                }}
+                aria-hidden="true"
+              />
+            )}
+
+            {/* ── RIGHT: info panel — matches reference screenshot ── */}
             <div className="pd__right">
 
-              {/* Breadcrumb */}
-              <nav className="pd__breadcrumb" aria-label="Breadcrumb">
-                <Link to="/products" className="pd__breadcrumb-link">Bags</Link>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                  strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <polyline points="9 18 15 12 9 6" />
-                </svg>
-                <span className="pd__breadcrumb-current">{toTitleCase(product.name)}</span>
-              </nav>
+              {/* Title: Brand bold + enriched product name (same pattern as PLP) */}
+              {(() => {
+                const baseName = toTitleCase(product.name);
+                const parts = [
+                  product.bagCapacity,
+                  product.material,
+                  product.pattern,
+                  product.gender,
+                ].filter(Boolean);
+                const enriched = parts.length > 0 ? `${baseName} – ${parts.join(', ')}` : baseName;
+                return (
+                  <h1 className="pd__title">
+                    {product.brand && <strong className="pd__title-brand">
+                      {product.brand} </strong>}
+                    {enriched}
+                  </h1>
+                );
+              })()}
+              {product.brand && <p className="pd__brand-sub">{product.brand}</p>}
 
-              {/* H1 */}
-              <h1 className="pd__title">{toTitleCase(product.name)}</h1>
-              {product.brand && <p className="pd__brand">{product.brand}</p>}
-
-              {/* Rating */}
-              <div className="pd__rating">
+              {/* Rating row */}
+              <div className="pd__rating-row">
                 <div className="pd__rating-badge">
-                  <StarRating rating={product.rating} />
-                  <span>{product.rating}</span>
+                  {[1, 2, 3, 4, 5].map((n) => (
+                    <svg key={n} width="13" height="13" viewBox="0 0 24 24"
+                      fill={product.rating >= n ? 'currentColor' : 'none'}
+                      stroke="currentColor" strokeWidth="1.5">
+                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                    </svg>
+                  ))}
                 </div>
                 <span className="pd__rating-sep">|</span>
-                <span className="pd__rating-count">{product.reviewCount} Reviews</span>
+                <span className="pd__rating-count">{product.reviewCount || 0} Reviews</span>
               </div>
 
               <hr className="pd__divider" />
 
-              {/* Price */}
-              <div className="pd__pricing">
-                {discountPct > 0 && <span className="pd__discount">↓{discountPct}% off</span>}
+              {/* Pricing: discount% + MRP + big price */}
+              <div className="pd__price-row">
+                {discountPct > 0 && <span className="pd__off">{discountPct}% off</span>}
                 {showMRP && <span className="pd__mrp">{fmt(displayMRP)}</span>}
                 <span className="pd__price">{fmt(displayPrice)}</span>
                 {displayStock === 0 && <span className="pd__oos">Out of stock</span>}
               </div>
 
-           
-
-              {/* Colour swatches */}
+              {/* COLOR selector — variant image thumbnails, active border */}
               {product.variantColors?.length > 0 && (
-                <div className="pd__variant-group">
-                  <span className="pd__variant-label">
-                    COLOR: <strong>{displayColorName}</strong>
-                  </span>
-                  <div className="pd__colors">
+                <div className="pd__section">
+                  <p className="pd__section-label">
+                    Selected Color: <strong>{displayColorName || displayColorHex}</strong>
+                  </p>
+                  <div className="pd__variant-thumbs">
                     {product.variantColors.map((vc) => {
-                      const mv = product.variants.find((v) => v.colorHex === vc.hex);
+                      const mv = product.variants?.find((v) => v.colorHex === vc.hex);
                       const isActive = selectedVariant?.colorHex === vc.hex;
+                      // Get the primary image for this variant
+                      const varImg = mv?.gallery?.[0] || mv?.image || '';
                       return (
-                        <button key={vc.hex}
-                          className={`pd__color-btn${isActive ? ' is-active' : ''}`}
-                          style={{ backgroundColor: vc.hex }}
-                          onClick={() => mv && handleColorSelect(mv)}
-                          aria-label={vc.name} aria-pressed={isActive} title={vc.name} />
+                        <button
+                          key={vc.hex}
+                          className={`pd__variant-thumb${isActive ? ' pd__variant-thumb--on' : ''}`}
+                          onClick={(e) => { e.stopPropagation(); mv && handleColorSelect(mv); }}
+                          aria-label={vc.name}
+                          aria-pressed={isActive}
+                          title={vc.name}
+                        >
+                          {varImg ? (
+                            <img src={varImg} alt={vc.name} loading="lazy"
+                              onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+                          ) : (
+                            // Fallback: solid colour swatch if no image
+                            <span className="pd__variant-thumb-color" style={{ background: vc.hex }} />
+                          )}
+                        </button>
                       );
                     })}
                   </div>
-                  {displaySize && (
-                    <span className="pd__variant-label" style={{ marginTop: 4 }}>
-                      SIZE: <strong>{displaySize}</strong>
-                    </span>
-                  )}
                 </div>
               )}
 
-              {/* CTA buttons */}
-              <div className="pd__cta">
-                <button className="pd__btn pd__btn--cart" onClick={handleAddToCart}
-                  disabled={displayStock === 0 || alreadyInCart}
-                  style={{ opacity: alreadyInCart ? 0.75 : 1 }}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                    strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" />
-                    <path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.61L23 6H6" />
+              {/* SIZE selector */}
+              {displaySize && (
+                <div className="pd__section">
+                  <p className="pd__section-label">SIZE: <strong>{displaySize.toUpperCase()}</strong></p>
+                  <div className="pd__size-row">
+                    {product.variants?.map((v) => v.size).filter(Boolean).filter((s, i, a) => a.indexOf(s) === i).map((sz) => (
+                      <button key={sz}
+                        className={`pd__size-chip${displaySize === sz ? ' pd__size-chip--on' : ''}`}
+                        onClick={(e) => { e.stopPropagation(); const mv = product.variants?.find((v) => v.size === sz); mv && handleColorSelect(mv); }}
+                      >
+                        {sz.toUpperCase()}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <div className="pd__qty">
+                <span className="pd__qty-label">QUANTITY</span>
+                <div className="pd__qty-stepper">
+                  <button className="pd__qty-btn" aria-label="Decrease">−</button>
+                  <span className="pd__qty-val">1</span>
+                  <button className="pd__qty-btn" aria-label="Increase">+</button>
+                </div>
+              </div>
+
+              {/* Feature icon tiles: capacity, material, design, build */}
+              {/* {(product.bagCapacity || product.material || product.backpackStyle || product.pattern) && (
+                <div className="pd__features">
+                  {[
+                    product.bagCapacity && { icon: 'bag',      label: product.bagCapacity,   sub: 'Capacity'  },
+                    product.material    && { icon: 'drop',     label: product.material,      sub: 'Material'  },
+                    product.backpackStyle && { icon: 'check',  label: product.backpackStyle, sub: 'Design'    },
+                    product.pattern     && { icon: 'shield',   label: product.pattern,       sub: 'Build'     },
+                  ].filter(Boolean).slice(0, 4).map((ft, i) => (
+                    <div key={i} className="pd__feature-tile">
+                      <span className="pd__feature-icon">
+                        {ft.icon === 'bag'    && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M6 8h12l-1 13H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>}
+                        {ft.icon === 'drop'   && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>}
+                        {ft.icon === 'check'  && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M20 6L9 17l-5-5"/></svg>}
+                        {ft.icon === 'shield' && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>}
+                      </span>
+                      <span className="pd__feature-label">{ft.label}</span>
+                      <span className="pd__feature-sub">{ft.sub}</span>
+                    </div>
+                  ))}
+                </div>
+              )} */}
+
+              {/* ── Pincode delivery check — ABOVE buy buttons ── */}
+
+              {/* <div className="pd__pincode">
+                <p className="pd__pincode-label">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" width="15" height="15">
+                    <path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0z"/>
+                    <circle cx="12" cy="10" r="3"/>
                   </svg>
-                  {displayStock === 0 ? 'Out of Stock' : alreadyInCart ? '✓ Already in Cart' : 'Add to Cart'}
-                </button>
-                <button className="pd__btn pd__btn--buy" onClick={handleBuyNow}
-                  disabled={!canBuyNow || displayStock === 0}
-                  title={!canBuyNow ? 'Enter a serviceable pincode to enable Buy Now' : ''}
-                  style={{ opacity: canBuyNow && displayStock > 0 ? 1 : 0.45,
-                           cursor:  canBuyNow && displayStock > 0 ? 'pointer' : 'not-allowed' }}>
-                  Buy Now
-                </button>
-                <button className={`pd__btn pd__btn--wish${wished ? ' is-wished' : ''}`}
-                  onClick={handleWishlist} aria-pressed={wished}
-                  aria-label={wished ? 'Remove from wishlist' : 'Save to wishlist'}>
-                  <svg width="18" height="18" viewBox="0 0 24 24"
-                    fill={wished ? 'currentColor' : 'none'} stroke="currentColor"
-                    strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
+                  Check Delivery Availability
+                </p>
+                <div className="pd__pincode-row">
+                  <input
+                    type="text" inputMode="numeric" maxLength={6}
+                    value={pincode}
+                    onChange={(e) => { setPincode(e.target.value.replace(/\D/g, '')); if (pincodeResult) setPincodeResult(null); }}
+                    onKeyDown={(e) => e.key === 'Enter' && handleCheckPincode()}
+                    placeholder="Enter 6-digit pincode"
+                    className="pd__pincode-input"
+                  />
+                  <button className="pd__pincode-btn" onClick={handleCheckPincode}
+                    disabled={pincodeChecking || pincode.length !== 6}>
+                    {pincodeChecking ? 'Checking…' : 'Check'}
+                  </button>
+                </div>
+                {pincodeResult ? (
+                  <div className={`pd__pincode-result pd__pincode-result--${pincodeResult.available ? 'ok' : 'err'}`}>
+                    {pincodeResult.available
+                      ? '✅ Delivery available — you can Buy Now!'
+                      : `❌ ${pincodeResult.message} — delivery not available here.`}
+                  </div>
+                ) : (
+                  <p className="pd__pincode-hint">Check pincode to verify delivery &amp; unlock Buy Now</p>
+                )}
+              </div> */}
+
+              {/* Quantity + CTA */}
+              <div className="pd__buy-row">
+
+
+                <div className="pd__cta-row">
+                  <button className="pd__cta pd__cta--cart" onClick={handleAddToCart}
+                    disabled={displayStock === 0 || alreadyInCart}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" />
+                      <path d="M16 10a4 4 0 01-8 0" />
+                    </svg>
+                    {displayStock === 0 ? 'OUT OF STOCK' : alreadyInCart ? '✓ IN CART' : 'ADD TO CART'}
+                  </button>
+                  <button className="pd__cta pd__cta--buy" onClick={handleBuyNow}
+                    disabled={!canBuyNow || displayStock === 0}
+                    title={!canBuyNow ? 'Enter a serviceable pincode to enable Buy Now' : undefined}
+                    style={{
+                      opacity: canBuyNow && displayStock > 0 ? 1 : 0.45,
+                      cursor: canBuyNow && displayStock > 0 ? 'pointer' : 'not-allowed'
+                    }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                      <path d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    BUY NOW
+                  </button>
+                </div>
+              </div>
+              {/* ── Pincode delivery check ── */}
+              <div className="pd__pincode">
+                <p className="pd__pincode-label">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" width="15" height="15">
+                    <path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0z" />
+                    <circle cx="12" cy="10" r="3" />
                   </svg>
-                  {wished ? 'Wishlisted' : 'Save to Wishlist'}
-                </button>
+                  Check Delivery Availability
+                </p>
+                <div className="pd__pincode-row">
+                  <input
+                    type="text" inputMode="numeric" maxLength={6}
+                    value={pincode}
+                    onChange={(e) => { setPincode(e.target.value.replace(/\D/g, '')); if (pincodeResult) setPincodeResult(null); }}
+                    onKeyDown={(e) => e.key === 'Enter' && handleCheckPincode()}
+                    placeholder="Enter 6-digit pincode"
+                    className="pd__pincode-input"
+                  />
+                  <button className="pd__pincode-btn" onClick={handleCheckPincode}
+                    disabled={pincodeChecking || pincode.length !== 6}>
+                    {pincodeChecking ? 'Checking…' : 'Check'}
+                  </button>
+                </div>
+                {pincodeResult ? (
+                  <div className={`pd__pincode-result pd__pincode-result--${pincodeResult.available ? 'ok' : 'err'}`}>
+                    {pincodeResult.available ? '✅' : '❌'}&nbsp;{pincodeResult.message}
+                    {!pincodeResult.available && (
+                      <span> — Sorry, delivery not available to this pincode.</span>
+                    )}
+                  </div>
+                ) : (
+                  <p className="pd__pincode-hint">Enter pincode to check delivery &amp; enable Buy Now</p>
+                )}
+              </div>
+              {/* Trust strip */}
+              <div className="pd__trust">
+                {[
+                  { icon: 'truck', title: 'Free Delivery', sub: 'On orders above ₹499' },
+                  { icon: 'return', title: '7 Days Return', sub: 'Easy returns & refunds' },
+                  { icon: 'verify', title: '100% Authentic', sub: 'Genuine products' },
+                  { icon: 'support', title: 'Customer Support', sub: '24x7 support' },
+                ].map((t) => (
+                  <div key={t.title} className="pd__trust-item">
+                    <span className="pd__trust-icon">
+                      {t.icon === 'truck' && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><rect x="1" y="3" width="15" height="13" rx="1" /><path d="M16 8h4l3 5v3h-7V8z" /><circle cx="5.5" cy="18.5" r="2.5" /><circle cx="18.5" cy="18.5" r="2.5" /></svg>}
+                      {t.icon === 'return' && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><polyline points="9 12 11 14 15 10" /></svg>}
+                      {t.icon === 'verify' && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><circle cx="12" cy="12" r="10" /><polyline points="9 12 11 14 15 10" /></svg>}
+                      {t.icon === 'support' && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8a19.79 19.79 0 01-3.07-8.67A2 2 0 012 1h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z" /></svg>}
+                    </span>
+                    <div>
+                      <p className="pd__trust-title">{t.title}</p>
+                      <p className="pd__trust-sub">{t.sub}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
 
               {/* Buy Now modal */}
@@ -326,62 +560,40 @@ function ProductDetail() {
                 </div>
               )}
 
-              {/* Pincode check — before highlights */}
-              <div className="pd__pincode">
-                <p className="pd__pincode-label">📦 Check delivery availability</p>
-                <div className="pd__pincode-row">
-                  <input type="text" inputMode="numeric" maxLength={6} value={pincode}
-                    onChange={(e) => { setPincode(e.target.value.replace(/\D/g, '')); if (pincodeResult) setPincodeResult(null); }}
-                    onKeyDown={(e) => e.key === 'Enter' && handleCheckPincode()}
-                    placeholder="Enter 6-digit pincode" className="pd__pincode-input" />
-                  <button className="pd__pincode-btn" onClick={handleCheckPincode}
-                    disabled={pincodeChecking || pincode.length !== 6}>
-                    {pincodeChecking ? 'Checking…' : 'Check'}
-                  </button>
-                </div>
-                {pincodeResult && (
-                  <div className={`pd__pincode-result pd__pincode-result--${pincodeResult.available ? 'success' : 'error'}`}>
-                    <span className="pd__pincode-result__icon">{pincodeResult.available ? '✅' : '❌'}</span>
-                    <div>
-                      <strong>{pincodeResult.message}</strong>
-                      {!pincodeResult.available && (
-                        <p className="pd__pincode-hint">Sorry, we don't deliver to this pincode yet.</p>
-                      )}
+
+              {(product.material || product.bagCapacity || product.gender || product.characterName
+                || product.classType || product.netWeight || product.recommendedAge
+                || product.countryOfOrigin || product.gst || product.pattern || product.backpackStyle) && (
+                  <div className="pd__spec-block">
+                    <p className="pd__spec-block-title">Product Highlights</p>
+                    <div className="pd__spec-table">
+                      {[
+                        ['Material', product.material],
+                        ['Capacity', product.bagCapacity],
+                        ['Gender', product.gender],
+                        ['Pattern', product.pattern],
+                        ['Backpack Style', product.backpackStyle],
+                        ['Character', product.characterName],
+                        ['Class / Grade', product.classType],
+                        ['Net Weight', product.netWeight],
+                        ['Recommended Age', product.recommendedAge],
+                        ['Country', product.countryOfOrigin],
+                        ['GST', product.gst ? `${product.gst}%` : null],
+                      ].filter(([, v]) => v).map(([label, value]) => (
+                        <div key={label} className="pd__spec-row">
+                          <span className="pd__spec-key">{label}</span>
+                          <span className="pd__spec-val">{value}</span>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 )}
-                {!pincodeResult && (
-                  <p className="pd__pincode-hint">Enter your pincode to check delivery and enable Buy Now.</p>
-                )}
-              </div>
 
-              {/* Product highlights */}
-              {(product.material || product.bagCapacity || product.gender || product.characterName
-                || product.classType || product.netWeight || product.recommendedAge
-                || product.countryOfOrigin || product.gst) && (
-                <div className="pd__highlights">
-                  <p className="pd__highlights-title">Product highlights</p>
-                  <div className="pd__spec-grid">
-                    <SpecRow label="Material"        value={product.material} />
-                    <SpecRow label="Capacity"         value={product.bagCapacity} />
-                    <SpecRow label="Gender"           value={product.gender} />
-                    <SpecRow label="Character"        value={product.characterName} />
-                    <SpecRow label="Class / Grade"    value={product.classType} />
-                    <SpecRow label="Net Weight"       value={product.netWeight} />
-                    <SpecRow label="Recommended Age"  value={product.recommendedAge} />
-                    <SpecRow label="Backpack Style"   value={product.backpackStyle} />
-                    <SpecRow label="Pattern"          value={product.pattern} />
-                    <SpecRow label="Country"          value={product.countryOfOrigin} />
-                    {product.gst && <SpecRow label="GST" value={`${product.gst}%`} />}
-                  </div>
-                </div>
-              )}
-
-              {/* Features */}
+              {/* ── Features list ── */}
               {product.features?.length > 0 && (
-                <div className="pd__features">
-                  <p className="pd__highlights-title">Features</p>
-                  <ul className="pd__features-list">
+                <div className="pd__spec-block">
+                  <p className="pd__spec-block-title">Key Features</p>
+                  <ul className="pd__feat-list">
                     {product.features.map((f, i) => (
                       <li key={i}>
                         {typeof f === 'string' ? f
@@ -391,7 +603,6 @@ function ProductDetail() {
                   </ul>
                 </div>
               )}
-
             </div>
           </div>
 

@@ -90,7 +90,7 @@ export default function CartDrawer() {
         </div>
 
         {/* ── Free shipping progress ── */}
-        {cartItems.length > 0 && (
+        {/* {cartItems.length > 0 && (
           <div className="cdr__shipping-bar">
             {shippingLeft > 0 ? (
               <p>
@@ -106,7 +106,7 @@ export default function CartDrawer() {
               <div className="cdr__shipping-fill" style={{ width: `${shippingPct}%` }} />
             </div>
           </div>
-        )}
+        )} */}
 
         {/* ── Body / item list ── */}
         <div className="cdr__body">

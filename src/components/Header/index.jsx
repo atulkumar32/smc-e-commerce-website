@@ -3,6 +3,7 @@ import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { useCartDrawer } from '../../context/CartDrawerContext';
 import { fetchMainCategoriesWithSubsAction } from '../../Actions/CategoryAction';
+import { CAT_IMG_BASE } from '../../Config/UrlsConfig';
 import './style.scss';
 
 // ── Fallback tier data ────────────────────────────────────────────────────────
@@ -96,9 +97,16 @@ export default function Header() {
   }, [query, navigate]);
 
   const selectTier = (cat) => { setActiveCat(cat); setActiveSub('All Bags'); closeAll(); };
-  const selectSub  = (name) => {
-    setActiveSub(name);
-    navigate(name === 'All Bags' ? '/products' : `/products?category=${encodeURIComponent(name)}`);
+  const selectSub  = (sub) => {
+    // sub is { id, name } — navigate with numeric ID so API can filter by category_id
+    if (sub.id === 'all' || sub.name === 'All Bags') {
+      setActiveSub('All Bags');
+      navigate('/products');
+    } else {
+      setActiveSub(sub.name);
+      // Pass both id (for API) and name (for UI display)
+      navigate(`/products?category_id=${sub.id}&category_name=${encodeURIComponent(sub.name)}`);
+    }
     closeAll();
   };
 
@@ -226,16 +234,63 @@ export default function Header() {
       {/* ═══ CATEGORY STRIP ════════════════════════════════════ */}
       <div className="hdr-cats">
         <div className="hdr-cats__inner">
-          {subs.map((sub) => (
+
+          {/* "All Bags" — PINNED, never scrolls */}
+          {subs[0] && (
             <button
-              key={sub.id ?? sub.name}
-              className={`hdr-cat${activeSub === sub.name ? ' hdr-cat--on' : ''}`}
-              onClick={() => selectSub(sub.name)}
+              className={`hdr-cat hdr-cat--pin${activeSub === subs[0].name ? ' hdr-cat--on' : ''}`}
+              onClick={() => selectSub(subs[0])}
             >
-              {CAT_ICONS[sub.name] ?? CAT_ICONS['All Bags']}
-              <span>{sub.name}</span>
+              <span className="hdr-cat__circle">
+                {CAT_ICONS['All Bags']}
+              </span>
+              <span>{subs[0].name}</span>
             </button>
-          ))}
+          )}
+
+          {/* Divider */}
+          {subs.length > 1 && <span className="hdr-cats__divider" aria-hidden="true" />}
+
+          {/* Scrollable sub-categories */}
+          <div className="hdr-cats__scroll">
+            {subs.slice(1).map((sub) => {
+              // Build full image URL if image path exists
+              const imgUrl = sub.image
+                ? `${CAT_IMG_BASE}${sub.image.replace(/^\/+/, '')}`
+                : null;
+
+              return (
+                <button
+                  key={sub.id ?? sub.name}
+                  className={`hdr-cat${activeSub === sub.name ? ' hdr-cat--on' : ''}`}
+                  onClick={() => selectSub(sub)}
+                >
+                  <span className="hdr-cat__circle">
+                    {imgUrl ? (
+                      <img
+                        src={imgUrl}
+                        alt={sub.name}
+                        className="hdr-cat__img"
+                        loading="lazy"
+                        onError={(e) => {
+                          // Fall back to SVG icon if image fails to load
+                          e.currentTarget.style.display = 'none';
+                          e.currentTarget.nextSibling.style.display = 'flex';
+                        }}
+                      />
+                    ) : null}
+                    <span
+                      className="hdr-cat__icon-fallback"
+                      style={{ display: imgUrl ? 'none' : 'flex' }}
+                    >
+                      {CAT_ICONS[sub.name] ?? CAT_ICONS['All Bags']}
+                    </span>
+                  </span>
+                  <span>{sub.name}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
