@@ -276,9 +276,9 @@ function ProductDetail() {
                   <div key={`empty-${i}`} className="pd__mosaic-cell pd__mosaic-cell--empty" />
                 ))}
               </div>
-              {product.badge && (
+              {/* {product.badge && (
                 <span className={`pd__badge pd__badge--${product.badge.toLowerCase()}`}>{product.badge}</span>
-              )}
+              )} */}
             </div>
 
             {/* ── ZOOM PORTAL — absolute sibling, covers the right column ── */}
@@ -404,19 +404,19 @@ function ProductDetail() {
               </div>
 
               {/* Feature icon tiles: capacity, material, design, build */}
-              {/* {(product.bagCapacity || product.material || product.backpackStyle || product.pattern) && (
+              {(product.bagCapacity || product.material || product.backpackStyle || product.pattern) && (
                 <div className="pd__features">
                   {[
-                    product.bagCapacity && { icon: 'bag',      label: product.bagCapacity,   sub: 'Capacity'  },
-                    product.material    && { icon: 'drop',     label: product.material,      sub: 'Material'  },
-                    product.backpackStyle && { icon: 'check',  label: product.backpackStyle, sub: 'Design'    },
-                    product.pattern     && { icon: 'shield',   label: product.pattern,       sub: 'Build'     },
+                    product.bagCapacity && { icon: 'bag', label: product.bagCapacity, sub: 'Capacity' },
+                    product.material && { icon: 'drop', label: product.material, sub: 'Material' },
+                    product.backpackStyle && { icon: 'check', label: product.backpackStyle, sub: 'Design' },
+                    product.pattern && { icon: 'shield', label: product.pattern, sub: 'Build' },
                   ].filter(Boolean).slice(0, 4).map((ft, i) => (
                     <div key={i} className="pd__feature-tile">
                       <span className="pd__feature-icon">
-                        {ft.icon === 'bag'    && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M6 8h12l-1 13H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>}
-                        {ft.icon === 'drop'   && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>}
-                        {ft.icon === 'check'  && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M20 6L9 17l-5-5"/></svg>}
+                        {ft.icon === 'bag' && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M6 8h12l-1 13H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>}
+                        {ft.icon === 'drop' && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>}
+                        {ft.icon === 'check' && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M20 6L9 17l-5-5"/></svg>}
                         {ft.icon === 'shield' && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>}
                       </span>
                       <span className="pd__feature-label">{ft.label}</span>
@@ -424,42 +424,7 @@ function ProductDetail() {
                     </div>
                   ))}
                 </div>
-              )} */}
-
-              {/* ── Pincode delivery check — ABOVE buy buttons ── */}
-
-              {/* <div className="pd__pincode">
-                <p className="pd__pincode-label">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" width="15" height="15">
-                    <path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0z"/>
-                    <circle cx="12" cy="10" r="3"/>
-                  </svg>
-                  Check Delivery Availability
-                </p>
-                <div className="pd__pincode-row">
-                  <input
-                    type="text" inputMode="numeric" maxLength={6}
-                    value={pincode}
-                    onChange={(e) => { setPincode(e.target.value.replace(/\D/g, '')); if (pincodeResult) setPincodeResult(null); }}
-                    onKeyDown={(e) => e.key === 'Enter' && handleCheckPincode()}
-                    placeholder="Enter 6-digit pincode"
-                    className="pd__pincode-input"
-                  />
-                  <button className="pd__pincode-btn" onClick={handleCheckPincode}
-                    disabled={pincodeChecking || pincode.length !== 6}>
-                    {pincodeChecking ? 'Checking…' : 'Check'}
-                  </button>
-                </div>
-                {pincodeResult ? (
-                  <div className={`pd__pincode-result pd__pincode-result--${pincodeResult.available ? 'ok' : 'err'}`}>
-                    {pincodeResult.available
-                      ? '✅ Delivery available — you can Buy Now!'
-                      : `❌ ${pincodeResult.message} — delivery not available here.`}
-                  </div>
-                ) : (
-                  <p className="pd__pincode-hint">Check pincode to verify delivery &amp; unlock Buy Now</p>
-                )}
-              </div> */}
+              )}
 
               {/* Quantity + CTA */}
               <div className="pd__buy-row">

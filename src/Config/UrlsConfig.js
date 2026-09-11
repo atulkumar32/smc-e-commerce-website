@@ -100,6 +100,8 @@ export const URL_SAVE_PINCODE            = `${BASE_URL}smc/admin/api/savePincode
 export const URL_GET_PINCODE_LIST        = `${BASE_URL}smc/admin/api/GetPincodeList.php`;
 export const URL_CHECK_PINCODE           = `${BASE_URL}smc/api/v1/data/checkPincode.php`;
 export const URL_BULK_UPLOAD_PINCODES    = `${BASE_URL}smc/admin/api/BulkUploadPincodes.php`;
+export const URL_BULK_UPLOAD_COLORS      = `${BASE_URL}smc/admin/api/BulkUploadColors.php`;
+export const URL_GET_UPLOADED_COLORS     = `${BASE_URL}smc/admin/api/getColorsList.php`;
 
 
 // ── Variant APIs ──────────────────────────────────────────────────

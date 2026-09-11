@@ -14,12 +14,13 @@ import PeopleIcon          from '@mui/icons-material/People';
 import CategoryIcon        from '@mui/icons-material/Category';
 import LocalShippingIcon   from '@mui/icons-material/LocalShipping';
 import PinDropOutlinedIcon from '@mui/icons-material/PinDropOutlined';
+import PaletteIcon         from '@mui/icons-material/Palette';
 import LogoutIcon          from '@mui/icons-material/Logout';
 import './index.scss';
 
 export const DRAWER_WIDTH = 240;
 
-// ── Nav items ─────────────────────────────────────────────────────────────────
+// ── Nav items ─── ──────────────────────────────────────────────────────────────
 const menuItems = [
   { label: 'Dashboard',  path: '/admin/dashboard',  icon: <DashboardIcon /> },
   { label: 'Products',   path: '/admin/products',   icon: <InventoryIcon /> },
@@ -27,7 +28,8 @@ const menuItems = [
   { label: 'Orders',     path: '/admin/orders',     icon: <ShoppingCartIcon /> },
   { label: 'Users',      path: '/admin/users',      icon: <PeopleIcon /> },
   { label: 'Shipments',  path: '/admin/shipments',  icon: <LocalShippingIcon /> },
-  { label: 'Pincodes',   path: '/admin/pincodes',   icon: <PinDropOutlinedIcon /> },
+  { label: 'Pincodes',    path: '/admin/pincodes',     icon: <PinDropOutlinedIcon /> },
+  { label: 'Color Codes', path: '/admin/bulk-upload-colors', icon: <PaletteIcon /> },
 ];
 
 // ── Design tokens for dark sidebar ───────────────────────────────────────────

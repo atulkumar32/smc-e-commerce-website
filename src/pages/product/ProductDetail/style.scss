@@ -114,7 +114,14 @@
     @media (max-width: 480px) { width: 62px; height: 62px; font-size: 13px; }
   }
 
-  // (old mosaic kept for fallback reference — no longer rendered)
+  // ── 2×2 mosaic grid ────────────────────────────────────────────
+  &__mosaic {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+    width: 100%;
+  }
+
   &__mosaic-cell {
     position: relative;
     width: 100%;
@@ -600,6 +607,225 @@
     color: #9CA3AF;
     margin: 0;
     line-height: 1.3;
+  }
+
+  // ── Pincode delivery check ─────────────────────────────────────
+  &__pincode {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 4px;
+    padding: 16px 18px;
+    background: #F9FAFB;
+    border: 1px solid #E5E7EB;
+    border-radius: 10px;
+  }
+
+  &__pincode-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #1A202C;
+    margin: 0;
+    letter-spacing: 0.02em;
+
+    svg {
+      color: #4B6CB7;
+      flex-shrink: 0;
+    }
+  }
+
+  &__pincode-row {
+    display: flex;
+    gap: 10px;
+    align-items: stretch;
+
+    @include sm {
+      flex-direction: column;
+    }
+  }
+
+  &__pincode-input {
+    flex: 1;
+    min-width: 0;
+    height: 44px;
+    padding: 0 14px;
+    border: 1.5px solid #D1D5DB;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-family: inherit;
+    color: #1A202C;
+    background: #fff;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+
+    &::placeholder {
+      color: #9CA3AF;
+    }
+
+    &:focus {
+      border-color: #4B9EFF;
+      box-shadow: 0 0 0 3px rgba(75, 158, 255, 0.15);
+    }
+  }
+
+  &__pincode-btn {
+    flex-shrink: 0;
+    min-width: 100px;
+    height: 44px;
+    padding: 0 20px;
+    border: none;
+    border-radius: 8px;
+    background: #1B2B4B;
+    color: #fff;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    font-family: inherit;
+    transition: filter 0.14s, opacity 0.14s;
+
+    &:hover:not(:disabled) {
+      filter: brightness(1.1);
+    }
+
+    &:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    @include sm {
+      width: 100%;
+    }
+  }
+
+  &__pincode-result {
+    font-size: 0.82rem;
+    font-weight: 500;
+    line-height: 1.45;
+    padding: 10px 12px;
+    border-radius: 8px;
+    margin: 0;
+
+    &--ok {
+      background: #ECFDF5;
+      color: #065F46;
+      border: 1px solid #A7F3D0;
+    }
+
+    &--err {
+      background: #FEF2F2;
+      color: #991B1B;
+      border: 1px solid #FECACA;
+    }
+  }
+
+  &__pincode-hint {
+    font-size: 0.78rem;
+    color: #6B7280;
+    margin: 0;
+    line-height: 1.4;
+  }
+
+  // ── Product Highlights + Key Features blocks ───────────────────
+  &__spec-block {
+    padding-top: 0.75rem;
+    border-top: 1px solid #E5E7EB;
+    margin-top: 0.25rem;
+  }
+
+  &__spec-block-title {
+    font-family: 'Space Grotesk', $font-headline;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #1A202C;
+    margin: 0 0 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  &__spec-table {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  &__spec-row {
+    display: grid;
+    grid-template-columns: 42% 58%;
+    gap: 12px;
+    padding: 10px 14px;
+    font-size: 0.84rem;
+    border-bottom: 1px solid #F3F4F6;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &:nth-child(odd) {
+      background: #F9FAFB;
+    }
+
+    &:nth-child(even) {
+      background: #fff;
+    }
+
+    @include sm {
+      grid-template-columns: 1fr;
+      gap: 2px;
+    }
+  }
+
+  &__spec-key {
+    font-weight: 600;
+    color: #6B7280;
+  }
+
+  &__spec-val {
+    font-weight: 500;
+    color: #1A202C;
+  }
+
+  &__feat-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    li {
+      position: relative;
+      padding: 10px 12px 10px 36px;
+      font-size: 0.84rem;
+      line-height: 1.45;
+      color: #374151;
+      background: #F9FAFB;
+      border: 1px solid #E5E7EB;
+      border-radius: 8px;
+
+      &::before {
+        content: '✓';
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 16px;
+        height: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-weight: 800;
+        color: #fff;
+        background: #2E7D4F;
+        border-radius: 50%;
+      }
+    }
   }
 
   // ── Full-width description — below both columns ───────────────

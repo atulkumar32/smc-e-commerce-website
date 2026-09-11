@@ -1,0 +1,99 @@
+// ─────────────────────────────────────────────────────────────────────────────
+//  Bulk Colors Upload page
+// ─────────────────────────────────────────────────────────────────────────────
+
+.bcu {
+  // ── Page header ─────────────────────────────────────────────────────────────
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+}
+
+// ── Drop zone (inside modal) ──────────────────────────────────────────────────
+.bcu-dropzone {
+  border: 2px dashed #d0d5dd !important;
+  border-radius: 12px !important;
+  background: #fafafa !important;
+  box-shadow: none !important;
+  padding: 2rem 1.5rem !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  cursor: pointer !important;
+  transition: border-color 0.2s, background 0.2s !important;
+  min-height: 170px !important;
+
+  &--drag {
+    border-color: #1565c0 !important;
+    background: #f0f7ff !important;
+  }
+
+  &--filled {
+    border-color: #16a34a !important;
+    background: #f0fdf4 !important;
+    cursor: default !important;
+  }
+
+  &__icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &--empty { background: #eff6ff; }
+    &--ok    { background: #dcfce7; }
+  }
+}
+
+// ── Colours table ─────────────────────────────────────────────────────────────
+.bcu-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.83rem;
+
+  thead tr {
+    background: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  th {
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 700;
+    font-size: 0.75rem;
+    color: #6b7280;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid #f3f4f6;
+    transition: background 0.12s;
+
+    &:last-child { border-bottom: none; }
+    &:hover      { background: #f9fafb; }
+  }
+
+  td {
+    padding: 10px 14px;
+    color: #374151;
+    vertical-align: middle;
+  }
+
+  &__num {
+    color: #9ca3af;
+    font-weight: 600;
+    font-size: 0.75rem;
+    width: 40px;
+  }
+}
