@@ -12,6 +12,7 @@
 
 import { useState, useRef, useCallback, useEffect } from 'react';
 import * as XLSX from 'xlsx';
+import { toast } from 'react-toastify';
 import {
   bulkUploadColorsAction,
   fetchUploadedColorsAction,
@@ -98,39 +99,75 @@ export function normaliseErrors(raw) {
 
 // ── Utility: Normalise API upload response ────────────────────────────────────
 export function normaliseUploadResult(data) {
+  // `inserted` can be an array of { name, code } objects OR a plain count number
+  const insertedList = Array.isArray(data.inserted) ? data.inserted : [];
+  const insertedCount = insertedList.length > 0
+    ? insertedList.length
+    : Number(data.inserted ?? data.success_count ?? data.success ?? 0);
+
   return {
-    inserted: Number(data.inserted      ?? data.success_count ?? data.success ?? 0),
-    failed:   Number(data.failed        ?? data.fail_count    ?? 0),
-    errors:   normaliseErrors(data.errors),
-    message:  data.message || 'Upload complete',
-    // treat as visual success only when HTTP was ok AND inserted > 0
-    status:   data.status !== false && Number(data.inserted ?? data.success_count ?? data.success ?? 0) > 0,
+    inserted:     insertedCount,
+    insertedList,                          // array of { name, code } for preview
+    failed:       Number(data.failed ?? data.fail_count ?? 0),
+    errors:       normaliseErrors(data.errors),
+    message:      data.message || 'Upload complete',
+    // success when the API says ok AND at least one row was inserted
+    status:       data.success === true && insertedCount > 0,
   };
 }
 
-// ── Custom hook: useUploadedColors ────────────────────────────────────────────
-export function useUploadedColors() {
-  const [colors,  setColors]  = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error,   setError]   = useState('');
+// ── Custom hook: useUploadedColors (paginated + search) ───────────────────────
+export const COLORS_PER_PAGE = 10;
 
-  const fetch = useCallback(async () => {
+export function useUploadedColors() {
+  const [colors,      setColors]      = useState([]);
+  const [loading,     setLoading]     = useState(false);
+  const [error,       setError]       = useState('');
+  const [search,      setSearch]      = useState('');
+  const [page,        setPage]        = useState(1);
+  const [totalPages,  setTotalPages]  = useState(1);
+  const [total,       setTotal]       = useState(0);
+
+  // debounced search — reset to page 1 when search changes
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  useEffect(() => {
+    const t = setTimeout(() => { setDebouncedSearch(search); setPage(1); }, 400);
+    return () => clearTimeout(t);
+  }, [search]);
+
+  const doFetch = useCallback(async (pg, srch) => {
     setLoading(true);
     setError('');
     try {
-      const list = await fetchUploadedColorsAction();
-      setColors(list);
+      const result = await fetchUploadedColorsAction({
+        search: srch,
+        page:   pg,
+        limit:  COLORS_PER_PAGE,
+      });
+      setColors(result.colors);
+      setTotal(result.total);
+      setTotalPages(result.total_pages);
     } catch (err) {
       console.error('[useUploadedColors]', err.message);
       setError(err.message || 'Failed to load colours');
+      setColors([]);
     } finally {
       setLoading(false);
     }
   }, []);
 
-  useEffect(() => { fetch(); }, [fetch]);
+  useEffect(() => { doFetch(page, debouncedSearch); }, [page, debouncedSearch, doFetch]);
 
-  return { colors, loading, error, refetch: fetch };
+  const refetch = useCallback(() => doFetch(page, debouncedSearch), [page, debouncedSearch, doFetch]);
+
+  return {
+    colors, loading, error,
+    search, setSearch,
+    page, setPage,
+    total, totalPages,
+    refetch,
+    PER_PAGE: COLORS_PER_PAGE,
+  };
 }
 
 // ── Custom hook: useBulkColorsUpload ─────────────────────────────────────────
@@ -179,9 +216,22 @@ export function useBulkColorsUpload({ onSuccess } = {}) {
       const raw  = await bulkUploadColorsAction(uploadFile);
       const norm = normaliseUploadResult(raw);
       setResult(norm);
-      if (norm.status) onSuccess?.();
+      if (norm.status) {
+        toast.success(
+          `✅ ${norm.inserted} colour${norm.inserted !== 1 ? 's' : ''} uploaded successfully!`,
+          { autoClose: 3500 }
+        );
+        onSuccess?.();
+      } else {
+        toast.error(
+          norm.message || 'Upload failed — check the errors below.',
+          { autoClose: 5000 }
+        );
+      }
     } catch (err) {
-      setError(err.message || 'Upload failed. Please try again.');
+      const msg = err.message || 'Upload failed. Please try again.';
+      setError(msg);
+      toast.error(`❌ ${msg}`, { autoClose: 5000 });
     } finally {
       setLoading(false);
     }

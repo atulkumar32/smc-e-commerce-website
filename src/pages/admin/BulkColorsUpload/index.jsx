@@ -4,10 +4,10 @@
  * UI only — all logic in BulkUploadColorsData.jsx
  *
  * Layout:
- *   ┌─ Page header (title + "Upload Colors" button) ─┐
- *   │  Uploaded Colors table                          │
- *   │  Upload Modal (drag-drop + result card)         │
- *   └─────────────────────────────────────────────────┘
+ *   ┌─ Page header (title + "Upload Colors" button) ──┐
+ *   │  Colour List table (search + pagination)         │
+ *   │  Upload Modal (drop-zone → result → re-upload)   │
+ *   └──────────────────────────────────────────────────┘
  */
 
 import { useState } from 'react';
@@ -15,7 +15,7 @@ import {
   Box, Typography, Button, Paper, Stack,
   CircularProgress, Alert, Chip, Divider,
   Dialog, DialogTitle, DialogContent, DialogActions,
-  IconButton, Tooltip,
+  IconButton, Tooltip, TextField, InputAdornment, Pagination,
 } from '@mui/material';
 import UploadFileIcon    from '@mui/icons-material/UploadFile';
 import CheckCircleIcon   from '@mui/icons-material/CheckCircle';
@@ -23,8 +23,9 @@ import ErrorOutlinedIcon from '@mui/icons-material/ErrorOutlined';
 import DownloadIcon      from '@mui/icons-material/Download';
 import PaletteIcon       from '@mui/icons-material/Palette';
 import RefreshIcon       from '@mui/icons-material/Refresh';
-import CloseIcon         from '@mui/icons-material/Close';
+import SearchIcon        from '@mui/icons-material/Search';
 import AddIcon           from '@mui/icons-material/Add';
+import CloseIcon         from '@mui/icons-material/Close';
 
 import {
   ACCEPTED_EXTENSIONS,
@@ -38,7 +39,7 @@ import {
 import './index.scss';
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  Drop-zone (used inside modal)
+//  Drop-zone
 // ─────────────────────────────────────────────────────────────────────────────
 function DropZone({
   file, dragging, fileInputRef,
@@ -56,7 +57,7 @@ function DropZone({
         'bcu-dropzone',
         dragging ? 'bcu-dropzone--drag'   : '',
         file      ? 'bcu-dropzone--filled' : '',
-      ].join(' ')}
+      ].filter(Boolean).join(' ')}
     >
       <input
         ref={fileInputRef}
@@ -77,11 +78,9 @@ function DropZone({
           <Typography variant="caption" color="text.secondary">
             {(file.size / 1024).toFixed(1)} KB
           </Typography>
-          <Button
-            size="small" color="error" variant="text"
+          <Button size="small" color="error" variant="text"
             onClick={(e) => { e.stopPropagation(); handleRemove(); }}
-            sx={{ textTransform: 'none', mt: 0.5 }}
-          >
+            sx={{ textTransform: 'none', mt: 0.5 }}>
             Remove file
           </Button>
         </>
@@ -102,11 +101,8 @@ function DropZone({
               </Typography>
             </Typography>
           </Box>
-          <Chip
-            label=".xlsx  •  .xls  •  .csv"
-            size="small"
-            sx={{ bgcolor: '#e0e7ff', color: '#3730a3', fontWeight: 600, fontSize: '0.7rem' }}
-          />
+          <Chip label=".xlsx  •  .xls  •  .csv" size="small"
+            sx={{ bgcolor: '#e0e7ff', color: '#3730a3', fontWeight: 600, fontSize: '0.7rem' }} />
         </>
       )}
     </Paper>
@@ -114,38 +110,51 @@ function DropZone({
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  Result card (inside modal — crash-safe: errors are always strings)
+//  Result card (shown inside modal after upload)
 // ─────────────────────────────────────────────────────────────────────────────
-function ResultCard({ result, isSuccess }) {
-  const { inserted, failed, errors: errList, message } = result;
+function ResultCard({ result, isSuccess, onUploadAnother }) {
+  const { inserted, insertedList = [], failed, errors: errList, message } = result;
 
   return (
     <Paper elevation={0} sx={{
       border: `1px solid ${isSuccess ? '#a7f3d0' : '#fecaca'}`,
-      borderRadius: '12px',
-      overflow: 'hidden',
-      mt: 2,
+      borderRadius: '12px', overflow: 'hidden',
     }}>
       {/* Header */}
       <Box sx={{
         px: 2.5, py: 1.75,
         bgcolor: isSuccess ? '#f0fdf4' : '#fef2f2',
-        display: 'flex', alignItems: 'center', gap: 1.5,
+        display: 'flex', alignItems: 'center',
+        justifyContent: 'space-between', gap: 1.5, flexWrap: 'wrap',
       }}>
-        {isSuccess
-          ? <CheckCircleIcon sx={{ color: '#16a34a', fontSize: 22 }} />
-          : <ErrorOutlinedIcon sx={{ color: '#dc2626', fontSize: 22 }} />}
-        <Box>
-          <Typography variant="subtitle2" fontWeight={700}
-            color={isSuccess ? '#14532d' : '#7f1d1d'}>
-            {message}
-          </Typography>
-          <Typography variant="caption" color="text.secondary">
-            {isSuccess
-              ? `${inserted} colour${inserted !== 1 ? 's' : ''} inserted${failed > 0 ? `, ${failed} skipped` : ''}`
-              : 'Fix the errors below and re-upload'}
-          </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          {isSuccess
+            ? <CheckCircleIcon sx={{ color: '#16a34a', fontSize: 22 }} />
+            : <ErrorOutlinedIcon sx={{ color: '#dc2626', fontSize: 22 }} />}
+          <Box>
+            <Typography variant="subtitle2" fontWeight={700}
+              color={isSuccess ? '#14532d' : '#7f1d1d'}>
+              {message}
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              {isSuccess
+                ? `${inserted} colour${inserted !== 1 ? 's' : ''} inserted${failed > 0 ? `, ${failed} skipped` : ''}`
+                : 'Fix the errors below and re-upload your file'}
+            </Typography>
+          </Box>
         </Box>
+
+        {/* Re-upload — clears state so drop-zone reappears */}
+        <Button size="small" variant="outlined"
+          startIcon={<UploadFileIcon fontSize="small" />}
+          onClick={onUploadAnother}
+          sx={{
+            borderColor: '#d0d5dd', color: '#344054',
+            borderRadius: '8px', fontWeight: 600, textTransform: 'none',
+            '&:hover': { borderColor: '#1565c0', color: '#1565c0', bgcolor: '#f0f7ff' },
+          }}>
+          Upload Another File
+        </Button>
       </Box>
 
       {/* Summary chips */}
@@ -154,28 +163,65 @@ function ResultCard({ result, isSuccess }) {
           <Divider />
           <Stack direction="row" gap={1.5} sx={{ px: 2.5, py: 1.5 }}>
             {inserted > 0 && (
-              <Chip
-                icon={<CheckCircleIcon sx={{ fontSize: '14px !important' }} />}
+              <Chip icon={<CheckCircleIcon sx={{ fontSize: '14px !important' }} />}
                 label={`${inserted} Inserted`} size="small"
-                sx={{ bgcolor: '#dcfce7', color: '#15803d', fontWeight: 700, border: '1px solid #86efac' }}
-              />
+                sx={{ bgcolor: '#dcfce7', color: '#15803d', fontWeight: 700, border: '1px solid #86efac' }} />
             )}
             {failed > 0 && (
-              <Chip
-                icon={<ErrorOutlinedIcon sx={{ fontSize: '14px !important' }} />}
+              <Chip icon={<ErrorOutlinedIcon sx={{ fontSize: '14px !important' }} />}
                 label={`${failed} Failed`} size="small"
-                sx={{ bgcolor: '#fee2e2', color: '#b91c1c', fontWeight: 700, border: '1px solid #fca5a5' }}
-              />
+                sx={{ bgcolor: '#fee2e2', color: '#b91c1c', fontWeight: 700, border: '1px solid #fca5a5' }} />
             )}
           </Stack>
         </>
       )}
 
-      {/* Row-level errors — errList is always string[] thanks to normaliseErrors */}
+      {/* Inserted colours mini-grid */}
+      {isSuccess && insertedList.length > 0 && (
+        <>
+          <Divider />
+          <Box sx={{ px: 2.5, py: 1.75 }}>
+            <Typography variant="caption" fontWeight={700} color="#374151"
+              sx={{ display: 'block', mb: 1.25, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              Colours Added
+            </Typography>
+            <Box sx={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(155px, 1fr))',
+              gap: 0.85,
+            }}>
+              {insertedList.map((c, i) => (
+                <Box key={i} sx={{
+                  display: 'flex', alignItems: 'center', gap: 1,
+                  px: 1.25, py: 0.8,
+                  border: '1px solid #e5e7eb', borderRadius: '8px', bgcolor: '#fff',
+                }}>
+                  <Box sx={{
+                    width: 20, height: 20, borderRadius: '4px',
+                    bgcolor: c.code, border: '1px solid rgba(0,0,0,0.1)', flexShrink: 0,
+                  }} />
+                  <Box sx={{ minWidth: 0 }}>
+                    <Typography variant="caption" fontWeight={600} color="#101828"
+                      sx={{ display: 'block', lineHeight: 1.3 }}>
+                      {c.name}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary"
+                      sx={{ fontFamily: 'monospace', fontSize: '0.68rem' }}>
+                      {c.code}
+                    </Typography>
+                  </Box>
+                </Box>
+              ))}
+            </Box>
+          </Box>
+        </>
+      )}
+
+      {/* Row-level errors */}
       {errList.length > 0 && (
         <>
           <Divider />
-          <Box sx={{ px: 2.5, py: 1.5 }}>
+          <Box sx={{ px: 2.5, py: 1.75 }}>
             <Typography variant="caption" fontWeight={700} color="#7f1d1d"
               sx={{ display: 'block', mb: 1, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
               Row errors ({errList.length})
@@ -188,7 +234,6 @@ function ResultCard({ result, isSuccess }) {
                   bgcolor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px',
                 }}>
                   <ErrorOutlinedIcon sx={{ fontSize: 13, mt: '2px', flexShrink: 0, color: '#b91c1c' }} />
-                  {/* msg is always a string here — no object-in-JSX crash */}
                   <Typography variant="caption" color="#7f1d1d">{String(msg)}</Typography>
                 </Box>
               ))}
@@ -216,37 +261,27 @@ function UploadModal({ open, onClose, onUploaded }) {
     onInputChange, onDrop, onDragOver, onDragLeave,
     handleBrowseClick, handleRemove,
     handleUpload, handleReset,
-  } = useBulkColorsUpload({
-    onSuccess: () => { onUploaded(); },
-  });
+  } = useBulkColorsUpload({ onSuccess: onUploaded });
 
-  const handleClose = () => {
-    handleReset();
-    onClose();
-  };
+  const handleClose = () => { handleReset(); onClose(); };
 
   return (
-    <Dialog
-      open={open}
-      onClose={handleClose}
-      maxWidth="sm"
-      fullWidth
-      PaperProps={{ sx: { borderRadius: '16px' } }}
-    >
-      {/* Dialog header */}
+    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth
+      PaperProps={{ sx: { borderRadius: '16px' } }}>
+
+      {/* Header */}
       <DialogTitle sx={{
         display: 'flex', alignItems: 'center',
         justifyContent: 'space-between',
         px: 3, py: 2,
-        borderBottom: '1px solid #e4e7ec',
-        bgcolor: '#fafafa',
+        borderBottom: '1px solid #e4e7ec', bgcolor: '#fafafa',
       }}>
         <Box>
           <Typography variant="subtitle1" fontWeight={700} color="#101828">
             Bulk Upload Colours
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            Upload an Excel or CSV file to add multiple colours at once.
+            Excel or CSV — columns: color_name, hex_code
           </Typography>
         </Box>
         <IconButton size="small" onClick={handleClose}
@@ -258,143 +293,146 @@ function UploadModal({ open, onClose, onUploaded }) {
       <DialogContent sx={{ px: 3, py: 2.5, bgcolor: '#fff' }}>
 
         {/* Column guide */}
-        <Paper elevation={0} sx={{
-          p: 1.5, mb: 2,
-          border: '1px solid #e4e7ec', borderRadius: '10px', bgcolor: '#f8faff',
-        }}>
-          <Typography variant="caption" fontWeight={700} color="#1565c0"
-            sx={{ display: 'block', mb: 1 }}>
-            📋 Required Columns
-          </Typography>
-          <Stack direction="row" flexWrap="wrap" gap={0.75}>
-            {COLUMN_DEFINITIONS.map((col) => (
-              <Box key={col.label} sx={{
-                display: 'flex', alignItems: 'center', gap: 0.75,
-                px: 1.25, py: 0.6,
-                bgcolor: '#fff', border: '1px solid #e4e7ec', borderRadius: '7px',
-              }}>
-                <PaletteIcon sx={{ fontSize: 12, color: '#1565c0' }} />
-                <Box>
-                  <Typography variant="caption" fontWeight={700} color="#101828"
-                    sx={{ display: 'block', fontFamily: 'monospace', fontSize: '0.74rem' }}>
-                    {col.label}
-                    {col.required && (
-                      <Typography component="span" sx={{ color: '#dc2626', ml: 0.25 }}>*</Typography>
-                    )}
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.68rem' }}>
-                    {col.desc}
-                  </Typography>
-                </Box>
-              </Box>
-            ))}
-          </Stack>
-        </Paper>
+        <Stack direction="row" flexWrap="wrap" gap={0.75} mb={2}>
+          {COLUMN_DEFINITIONS.map((col) => (
+            <Box key={col.label} sx={{
+              display: 'flex', alignItems: 'center', gap: 0.65,
+              px: 1.25, py: 0.55,
+              bgcolor: '#f8faff', border: '1px solid #e4e7ec', borderRadius: '7px',
+            }}>
+              <PaletteIcon sx={{ fontSize: 12, color: '#1565c0' }} />
+              <Typography variant="caption" fontWeight={700} color="#101828"
+                sx={{ fontFamily: 'monospace', fontSize: '0.74rem' }}>
+                {col.label}
+                {col.required && (
+                  <Typography component="span" sx={{ color: '#dc2626', ml: 0.25 }}>*</Typography>
+                )}
+              </Typography>
+            </Box>
+          ))}
+        </Stack>
 
-        {/* Drop zone */}
-        <DropZone
-          file={file} dragging={dragging} fileInputRef={fileInputRef}
-          onInputChange={onInputChange} onDrop={onDrop}
-          onDragOver={onDragOver} onDragLeave={onDragLeave}
-          handleBrowseClick={handleBrowseClick} handleRemove={handleRemove}
-        />
-
-        {/* Pre-flight error */}
-        {error && (
-          <Alert severity="error" sx={{ mt: 1.5, borderRadius: '8px' }}
-            onClose={() => setError('')}>
-            {error}
-          </Alert>
+        {/* Drop-zone — hidden when result is shown */}
+        {!hasResult && (
+          <>
+            <DropZone
+              file={file} dragging={dragging} fileInputRef={fileInputRef}
+              onInputChange={onInputChange} onDrop={onDrop}
+              onDragOver={onDragOver} onDragLeave={onDragLeave}
+              handleBrowseClick={handleBrowseClick} handleRemove={handleRemove}
+            />
+            {error && (
+              <Alert severity="error" sx={{ mt: 1.5, borderRadius: '8px' }}
+                onClose={() => setError('')}>
+                {error}
+              </Alert>
+            )}
+          </>
         )}
 
-        {/* Result card */}
-        {hasResult && <ResultCard result={result} isSuccess={isSuccess} />}
+        {/* Result card replaces drop-zone */}
+        {hasResult && (
+          <ResultCard result={result} isSuccess={isSuccess} onUploadAnother={handleReset} />
+        )}
 
       </DialogContent>
 
       <DialogActions sx={{
-        px: 3, py: 2,
-        borderTop: '1px solid #e4e7ec',
-        bgcolor: '#fafafa',
-        gap: 1,
+        px: 3, py: 1.75,
+        borderTop: '1px solid #e4e7ec', bgcolor: '#fafafa', gap: 1,
       }}>
-        <Button
-          variant="outlined" size="small"
-          startIcon={<DownloadIcon />}
+        {/* Template download — always visible */}
+        <Button size="small" variant="outlined"
+          startIcon={<DownloadIcon fontSize="small" />}
           onClick={downloadColorsTemplate}
           sx={{
             mr: 'auto',
             borderColor: '#d0d5dd', color: '#344054',
             borderRadius: '8px', fontWeight: 600, textTransform: 'none',
             '&:hover': { borderColor: '#1565c0', color: '#1565c0', bgcolor: '#f0f7ff' },
-          }}
-        >
+          }}>
           Template
         </Button>
 
-        {hasResult && (
-          <Button variant="text" size="small" onClick={handleReset}
-            startIcon={<RefreshIcon />}
-            sx={{ textTransform: 'none', fontWeight: 600, color: '#374151' }}>
-            Upload Another
-          </Button>
-        )}
-
         <Button onClick={handleClose} variant="outlined" size="small"
-          sx={{ borderColor: '#d0d5dd', color: '#344054', borderRadius: '8px',
-            fontWeight: 600, textTransform: 'none' }}>
+          sx={{
+            borderColor: '#d0d5dd', color: '#344054',
+            borderRadius: '8px', fontWeight: 600, textTransform: 'none',
+          }}>
           {isSuccess ? 'Done' : 'Cancel'}
         </Button>
 
-        <Button
-          variant="contained" size="small"
-          onClick={handleUpload}
-          disabled={!file || loading}
-          startIcon={loading
-            ? <CircularProgress size={14} color="inherit" />
-            : <UploadFileIcon />}
-          sx={{
-            bgcolor: '#1565c0', '&:hover': { bgcolor: '#0d47a1' },
-            borderRadius: '8px', fontWeight: 700, textTransform: 'none',
-            boxShadow: 'none', px: 2.5,
-          }}
-        >
-          {loading ? 'Uploading…' : 'Upload'}
-        </Button>
+        {/* Upload button — hidden when result card is showing */}
+        {!hasResult && (
+          <Button variant="contained" size="small"
+            onClick={handleUpload}
+            disabled={!file || loading}
+            startIcon={loading
+              ? <CircularProgress size={14} color="inherit" />
+              : <UploadFileIcon />}
+            sx={{
+              bgcolor: '#1565c0', '&:hover': { bgcolor: '#0d47a1' },
+              borderRadius: '8px', fontWeight: 700, textTransform: 'none',
+              boxShadow: 'none', px: 2.5,
+            }}>
+            {loading ? 'Uploading…' : 'Upload'}
+          </Button>
+        )}
       </DialogActions>
     </Dialog>
   );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  Colours table
+//  Colours table (search + pagination)
 // ─────────────────────────────────────────────────────────────────────────────
-function ColorsTable({ colors, loading, error, onRefresh }) {
+function ColorsTable({
+  colors, loading, error,
+  search, onSearchChange,
+  page, totalPages, total, PER_PAGE,
+  onPageChange, onRefresh,
+}) {
+  const from = colors.length === 0 ? 0 : (page - 1) * PER_PAGE + 1;
+  const to   = Math.min(page * PER_PAGE, total);
+
   return (
     <Paper elevation={0} sx={{
       border: '1px solid #e4e7ec', borderRadius: '12px', overflow: 'hidden',
     }}>
-      {/* Table header bar */}
+      {/* Header */}
       <Box sx={{
         px: 2.5, py: 1.75,
         display: 'flex', alignItems: 'center',
-        justifyContent: 'space-between',
-        borderBottom: '1px solid #e4e7ec',
-        bgcolor: '#fafafa',
+        justifyContent: 'space-between', flexWrap: 'wrap', gap: 1.5,
+        borderBottom: '1px solid #e4e7ec', bgcolor: '#fafafa',
       }}>
         <Typography variant="subtitle2" fontWeight={700} color="#101828">
-          Uploaded Colours
+          Colour List
           {!loading && (
             <Typography component="span" variant="caption" color="text.secondary" ml={1}>
-              ({colors.length} total)
+              ({total} total)
             </Typography>
           )}
         </Typography>
-        <Tooltip title="Refresh">
-          <IconButton size="small" onClick={onRefresh} disabled={loading}>
-            <RefreshIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
+
+        <Stack direction="row" gap={1} alignItems="center">
+          <TextField size="small" placeholder="Search colours…"
+            value={search} onChange={(e) => onSearchChange(e.target.value)}
+            sx={{ width: 220 }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon fontSize="small" sx={{ color: '#9ca3af' }} />
+                </InputAdornment>
+              ),
+              sx: { borderRadius: '8px', fontSize: '0.83rem' },
+            }} />
+          <Tooltip title="Refresh">
+            <IconButton size="small" onClick={onRefresh} disabled={loading}>
+              <RefreshIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        </Stack>
       </Box>
 
       {/* Loading */}
@@ -416,7 +454,9 @@ function ColorsTable({ colors, loading, error, onRefresh }) {
         <Box sx={{ py: 6, textAlign: 'center' }}>
           <PaletteIcon sx={{ fontSize: 38, color: '#d1d5db', mb: 1 }} />
           <Typography variant="body2" color="text.secondary">
-            No colours uploaded yet. Click "Upload Colors" to get started.
+            {search
+              ? `No colours found for "${search}".`
+              : 'No colours yet. Click "Upload Colors" to get started.'}
           </Typography>
         </Box>
       )}
@@ -435,17 +475,15 @@ function ColorsTable({ colors, loading, error, onRefresh }) {
             <tbody>
               {colors.map((row, i) => (
                 <tr key={row.id ?? i}>
-                  <td className="bcu-table__num">{i + 1}</td>
+                  <td className="bcu-table__num">{(page - 1) * PER_PAGE + i + 1}</td>
 
-                  {/* Color Name with swatch */}
                   <td>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       {row.code && (
                         <Box sx={{
                           width: 18, height: 18, borderRadius: '4px',
                           bgcolor: row.code,
-                          border: '1px solid rgba(0,0,0,0.12)',
-                          flexShrink: 0,
+                          border: '1px solid rgba(0,0,0,0.12)', flexShrink: 0,
                         }} />
                       )}
                       <Typography variant="body2" fontWeight={500}>
@@ -454,15 +492,12 @@ function ColorsTable({ colors, loading, error, onRefresh }) {
                     </Box>
                   </td>
 
-                  {/* Hex code as monospace chip */}
                   <td>
-                    <Typography variant="caption"
-                      sx={{
-                        fontFamily: 'monospace', fontWeight: 700,
-                        bgcolor: '#f3f4f6', px: 1, py: 0.4,
-                        borderRadius: '5px', color: '#374151',
-                        fontSize: '0.78rem',
-                      }}>
+                    <Typography variant="caption" sx={{
+                      fontFamily: 'monospace', fontWeight: 700,
+                      bgcolor: '#f3f4f6', px: 1, py: 0.4,
+                      borderRadius: '5px', color: '#374151', fontSize: '0.78rem',
+                    }}>
                       {row.code || '—'}
                     </Typography>
                   </td>
@@ -482,6 +517,25 @@ function ColorsTable({ colors, loading, error, onRefresh }) {
           </table>
         </Box>
       )}
+
+      {/* Pagination footer */}
+      {!loading && totalPages > 0 && (
+        <Box sx={{
+          px: 2.5, py: 1.5,
+          display: 'flex', alignItems: 'center',
+          justifyContent: 'space-between', flexWrap: 'wrap', gap: 1,
+          borderTop: '1px solid #e4e7ec', bgcolor: '#fafafa',
+        }}>
+          <Typography variant="caption" color="text.secondary">
+            {colors.length === 0 ? 'No results' : `Showing ${from}–${to} of ${total}`}
+          </Typography>
+          {totalPages > 1 && (
+            <Pagination count={totalPages} page={page}
+              onChange={(_, p) => onPageChange(p)}
+              size="small" color="primary" showFirstButton showLastButton />
+          )}
+        </Box>
+      )}
     </Paper>
   );
 }
@@ -491,11 +545,18 @@ function ColorsTable({ colors, loading, error, onRefresh }) {
 // ─────────────────────────────────────────────────────────────────────────────
 function BulkColorsUploadPage() {
   const [modalOpen, setModalOpen] = useState(false);
-  const { colors, loading, error, refetch } = useUploadedColors();
+
+  const {
+    colors, loading, error,
+    search, setSearch,
+    page, setPage,
+    total, totalPages,
+    refetch, PER_PAGE,
+  } = useUploadedColors();
 
   const handleUploaded = () => {
-    setModalOpen(false);
-    refetch();          // refresh table after successful upload
+    // keep modal open so user can see result card — modal closes via Done/Cancel
+    refetch();
   };
 
   return (
@@ -519,20 +580,18 @@ function BulkColorsUploadPage() {
           sx={{
             bgcolor: '#1565c0', '&:hover': { bgcolor: '#0d47a1' },
             borderRadius: '8px', fontWeight: 700,
-            textTransform: 'none', px: 2.5,
-            boxShadow: 'none',
-          }}
-        >
+            textTransform: 'none', px: 2.5, boxShadow: 'none',
+          }}>
           Upload Colors
         </Button>
       </Box>
 
-      {/* ── Colours table ── */}
+      {/* ── Colour list table ── */}
       <ColorsTable
-        colors={colors}
-        loading={loading}
-        error={error}
-        onRefresh={refetch}
+        colors={colors} loading={loading} error={error}
+        search={search} onSearchChange={setSearch}
+        page={page} totalPages={totalPages} total={total} PER_PAGE={PER_PAGE}
+        onPageChange={setPage} onRefresh={refetch}
       />
 
       {/* ── Upload modal ── */}

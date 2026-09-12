@@ -9,21 +9,8 @@ export const MATERIAL_OPTIONS = [
   'Cotton Blend', 'Recycled Fabric',
 ];
 
-export const COLOR_OPTIONS = [
-  { label: 'Black',      hex: '#000000' },
-  { label: 'Navy Blue',  hex: '#1a237e' },
-  { label: 'Royal Blue', hex: '#1565c0' },
-  { label: 'Red',        hex: '#c62828' },
-  { label: 'Pink',       hex: '#ec407a' },
-  { label: 'Purple',     hex: '#7b1fa2' },
-  { label: 'Green',      hex: '#2e7d32' },
-  { label: 'Yellow',     hex: '#f9a825' },
-  { label: 'Orange',     hex: '#ef6c00' },
-  { label: 'Grey',       hex: '#757575' },
-  { label: 'White',      hex: '#ffffff' },
-  { label: 'Brown',      hex: '#5d4037' },
-  { label: 'Blue',       hex: '#1976d2' },
-];
+// COLOR_OPTIONS removed — colours are now fetched live from
+// GetColorToProductsVarients.php via useVariantColors() in ColorsImagesSection.jsx
 
 export const STATUS_OPTIONS = ['active', 'inactive', 'draft'];
 
