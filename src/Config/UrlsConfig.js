@@ -104,6 +104,16 @@ export const URL_BULK_UPLOAD_COLORS      = `${BASE_URL}smc/admin/api/BulkUploadC
 export const URL_GET_UPLOADED_COLORS     = `${BASE_URL}smc/admin/api/getColorsList.php`;
 export const URL_GET_VARIANT_COLORS      = `${BASE_URL}smc/admin/api/GetColorToProductsVarients.php`;
 
+// ── Reviews & Ratings ─────────────────────────────────────────────────────────
+export const URL_GET_PRODUCTS_FOR_REVIEWS = `${BASE_URL}smc/admin/api/getProductDataToReviews.php`;
+export const URL_SAVE_REVIEW              = `${BASE_URL}smc/admin/api/saveReviewsAndRating.php`;
+export const URL_GET_REVIEWS_LIST         = `${BASE_URL}smc/admin/api/GetAllReviews.php`;
+export const URL_UPDATE_REVIEW            = `${BASE_URL}smc/admin/api/UpdateReview.php`;
+export const URL_DELETE_REVIEW            = `${BASE_URL}smc/admin/api/DeleteReview.php`;
+
+// ── Public product reviews (web-facing) ───────────────────────────────────────
+export const URL_GET_PRODUCT_REVIEWS      = `${BASE_URL}smc/api/v1/data/GetReviewAndRatings.php`;
+
 
 // ── Variant APIs ──────────────────────────────────────────────────
 export const URL_VARIANTS_CREATE       = `${BASE_URL}smc/admin/api/CreateProductVariant.php`;

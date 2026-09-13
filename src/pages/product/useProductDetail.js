@@ -115,8 +115,8 @@ function mapProductResponse(product) {
     variants,
     variantColors,   // [{ name, hex }] deduplicated
 
-    rating:      Number(product.rating ?? 4),
-    reviewCount: Number(product.reviewCount ?? product.review_count ?? 0),
+    rating:      Number(product.average_rating ?? product.rating ?? 4),
+    reviewCount: Number(product.total_reviews  ?? product.reviewCount ?? product.review_count ?? 0),
     accordion:   product.accordion || [],
     raw:         product,
   };

@@ -15,6 +15,7 @@ import CategoryIcon        from '@mui/icons-material/Category';
 import LocalShippingIcon   from '@mui/icons-material/LocalShipping';
 import PinDropOutlinedIcon from '@mui/icons-material/PinDropOutlined';
 import PaletteIcon         from '@mui/icons-material/Palette';
+import RateReviewIcon      from '@mui/icons-material/RateReview';
 import LogoutIcon          from '@mui/icons-material/Logout';
 import './index.scss';
 
@@ -30,6 +31,7 @@ const menuItems = [
   { label: 'Shipments',  path: '/admin/shipments',  icon: <LocalShippingIcon /> },
   { label: 'Pincodes',    path: '/admin/pincodes',     icon: <PinDropOutlinedIcon /> },
   { label: 'Color Codes', path: '/admin/bulk-upload-colors', icon: <PaletteIcon /> },
+  { label: 'Reviews & Ratings',     path: '/admin/reviews',            icon: <RateReviewIcon /> },
 ];
 
 // ── Design tokens for dark sidebar ───────────────────────────────────────────

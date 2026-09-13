@@ -8,6 +8,7 @@ import SkeletonProductDetail from '../../../components/SkeletonProductDetail';
 import ProductDetailSeo from '../../../components/Seo/ProductDetailSeo';
 import RecentlyViewedSlider from '../../../components/RecentlyViewedSlider';
 import { toTitleCase } from '../../../utils/slug';
+import ReviewsModal           from './Components/ReviewsModal';
 import './style.scss';
 
 // ── Lightbox ──────────────────────────────────────────────────────────────────
@@ -131,6 +132,7 @@ function SpecRow({ label, value }) {
   );
 }
 
+
 // ── Main component ────────────────────────────────────────────────────────────
 function ProductDetail() {
   const { slug } = useParams();
@@ -150,6 +152,7 @@ function ProductDetail() {
   const [pincodeChecking, setPincodeChecking] = useState(false);
   // Zoom state — lifted up so portal can cover the right panel
   const [zoomData, setZoomData] = useState(null); // { src, lx, ly, bgX, bgY }
+  const [showReviews, setShowReviews] = useState(false);
 
   const canBuyNow = pincodeResult?.available === true;
   const productId = slug || new URLSearchParams(search).get('product_id') || '';
@@ -318,7 +321,7 @@ function ProductDetail() {
               })()}
               {product.brand && <p className="pd__brand-sub">{product.brand}</p>}
 
-              {/* Rating row */}
+              {/* Rating row — click count to open reviews modal */}
               <div className="pd__rating-row">
                 <div className="pd__rating-badge">
                   {[1, 2, 3, 4, 5].map((n) => (
@@ -330,7 +333,13 @@ function ProductDetail() {
                   ))}
                 </div>
                 <span className="pd__rating-sep">|</span>
-                <span className="pd__rating-count">{product.reviewCount || 0} Reviews</span>
+                <button
+                  className="pd__rating-count pd__rating-count--btn"
+                  onClick={() => setShowReviews(true)}
+                  aria-label={`View all ${product.reviewCount || 0} reviews`}
+                >
+                  {product.reviewCount || 0} Reviews
+                </button>
               </div>
 
               <hr className="pd__divider" />
@@ -594,6 +603,16 @@ function ProductDetail() {
           />
         </div>
       </div>
+
+      {/* ── Reviews modal — lazy: API only called when opened ── */}
+      {showReviews && (
+        <ReviewsModal
+          productId={product.id}
+          totalReviews={product.reviewCount || 0}
+          avgRating={product.rating || 0}
+          onClose={() => setShowReviews(false)}
+        />
+      )}
     </>
   );
 }
