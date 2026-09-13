@@ -12,10 +12,13 @@ import {
   updateReviewAction,
 } from '../../../Actions/GetProductIdToReviewsActions';
 
-// ── Rating options 4.0 → 5.0 step 0.1 ───────────────────────────────────────
-export const RATING_OPTIONS = Array.from({ length: 11 }, (_, i) =>
-  parseFloat((4 + i * 0.1).toFixed(1))
-);
+// ── Rating options ────────────────────────────────────────────────────────────
+// Full range 1.0 → 5.0 in 0.5 steps so any API value can be pre-selected in edit
+export const RATING_OPTIONS = [
+  1.0, 1.5, 2.0, 2.5, 3.0, 3.5,
+  4.0, 4.1, 4.2, 4.3, 4.4, 4.5,
+  4.6, 4.7, 4.8, 4.9, 5.0,
+];
 
 // ── Status options ────────────────────────────────────────────────────────────
 export const STATUS_OPTIONS = [
@@ -25,14 +28,15 @@ export const STATUS_OPTIONS = [
 
 // ── Empty form ────────────────────────────────────────────────────────────────
 export const EMPTY_RATING_FORM = {
-  id:          null,    // null = create, number = edit
-  product:     null,    // { product_id, product_name, variants[] }
-  variant:     null,    // { id, variant_id } | null
+  id:          null,
+  product:     null,
+  variant:     null,
   rating:      '',
   review_text: '',
   user_name:   '',
   user_email:  '',
-  status:      1,       // 1 = active (default)
+  user_mobile: '',
+  status:      1,
 };
 
 // ── Validation ────────────────────────────────────────────────────────────────
@@ -67,14 +71,21 @@ export function useRatingForm({ onSuccess } = {}) {
 
   /** Pre-fill form for edit mode from a reviews table row */
   const prefill = (row) => {
+    // Normalise rating: find closest RATING_OPTIONS value so the select shows it
+    const rawRating = parseFloat(row.rating) || 0;
+    const closest   = RATING_OPTIONS.reduce((prev, cur) =>
+      Math.abs(cur - rawRating) < Math.abs(prev - rawRating) ? cur : prev
+    );
+
     setForm({
       id:          row.id,
       product:     { product_id: row.product_id, product_name: row.product_name ?? '', variants: [] },
       variant:     row.variant_id ? { id: null, variant_id: row.variant_id } : null,
-      rating:      String(row.rating),
+      rating:      String(closest),
       review_text: row.review_text ?? '',
       user_name:   row.user_name   ?? '',
       user_email:  row.user_email  ?? '',
+      user_mobile: row.user_mobile ?? '',
       status:      Number(row.status ?? 1),
     });
     setErrors({});
@@ -90,12 +101,10 @@ export function useRatingForm({ onSuccess } = {}) {
       if (form.id) {
         // ── EDIT ──
         await updateReviewAction({
-          id:          form.id,
-          rating:      Number(form.rating),
-          review_text: form.review_text.trim(),
-          user_name:   form.user_name.trim(),
-          user_email:  form.user_email?.trim() || null,
-          status:      form.status,
+          id:                  form.id,
+          updated_rating:      Number(form.rating),
+          updated_text_review: form.review_text.trim(),
+          status:              form.status,
         });
         toast.success('✅ Review updated successfully!', { autoClose: 3000 });
       } else {
@@ -108,7 +117,9 @@ export function useRatingForm({ onSuccess } = {}) {
           review_text:  form.review_text.trim(),
           user_name:    form.user_name.trim(),
           user_email:   form.user_email?.trim() || null,
+          user_mobile:  form.user_mobile?.trim() || null,
           status:       form.status,
+          review_from:  1,
         });
         toast.success('✅ Review saved successfully!', { autoClose: 3000 });
       }

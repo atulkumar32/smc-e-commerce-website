@@ -153,6 +153,10 @@ function ProductDetail() {
   // Zoom state — lifted up so portal can cover the right panel
   const [zoomData, setZoomData] = useState(null); // { src, lx, ly, bgX, bgY }
   const [showReviews, setShowReviews] = useState(false);
+  const [reviewMode,  setReviewMode]  = useState('reviews'); // 'reviews' | 'write'
+
+  const openReviews = () => { setReviewMode('reviews'); setShowReviews(true); };
+  const openWrite   = () => { setReviewMode('write');   setShowReviews(true); };
 
   const canBuyNow = pincodeResult?.available === true;
   const productId = slug || new URLSearchParams(search).get('product_id') || '';
@@ -313,13 +317,12 @@ function ProductDetail() {
                 const enriched = parts.length > 0 ? `${baseName} – ${parts.join(', ')}` : baseName;
                 return (
                   <h1 className="pd__title">
-                    {product.brand && <strong className="pd__title-brand">
-                      {product.brand} </strong>}
+                  
                     {enriched}
                   </h1>
                 );
               })()}
-              {product.brand && <p className="pd__brand-sub">{product.brand}</p>}
+              {/* {product.brand && <p className="pd__brand-sub">{product.brand}</p>} */}
 
               {/* Rating row — click count to open reviews modal */}
               <div className="pd__rating-row">
@@ -335,10 +338,18 @@ function ProductDetail() {
                 <span className="pd__rating-sep">|</span>
                 <button
                   className="pd__rating-count pd__rating-count--btn"
-                  onClick={() => setShowReviews(true)}
-                  aria-label={`View all ${product.reviewCount || 0} reviews`}
+                  onClick={openReviews}
+                  aria-label={`View all ${product.reviewCount || 5} reviews`}
                 >
                   {product.reviewCount || 0} Reviews
+                </button>
+                <span className="pd__rating-sep">|</span>
+                <button
+                  className="pd__rating-count pd__rating-count--btn pd__rating-count--write"
+                  onClick={openWrite}
+                  aria-label="Write a review"
+                >
+                  Write a Review
                 </button>
               </div>
 
@@ -610,6 +621,7 @@ function ProductDetail() {
           productId={product.id}
           totalReviews={product.reviewCount || 0}
           avgRating={product.rating || 0}
+          mode={reviewMode}
           onClose={() => setShowReviews(false)}
         />
       )}

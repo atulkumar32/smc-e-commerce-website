@@ -23,6 +23,28 @@ import { TABLE_COLUMNS, REVIEWS_PER_PAGE } from '../../AddReviewData';
 import { STATUS_OPTIONS }                   from '../../AddRatingData';
 import { deleteReviewAction }               from '../../../../../Actions/GetProductIdToReviewsActions';
 
+// ── Truncate to first N words, show full text on hover ────────────────────────
+function TruncatedText({ text, words = 3 }) {
+  if (!text) return <Typography variant="caption" color="text.secondary">—</Typography>;
+  const parts    = text.trim().split(/\s+/);
+  const short    = parts.slice(0, words).join(' ');
+  const truncated = parts.length > words;
+  if (!truncated) return <Typography variant="body2" color="#374151">{text}</Typography>;
+  return (
+    <Tooltip title={text} arrow placement="top"
+      componentsProps={{ tooltip: { sx: {
+        maxWidth: 320, fontSize: '0.78rem',
+        bgcolor: '#1A202C', color: '#fff',
+        lineHeight: 1.5, p: '8px 12px',
+      }}}}>
+      <Typography variant="body2" color="#374151"
+        sx={{ cursor: 'default', display: 'inline' }}>
+        {short}…
+      </Typography>
+    </Tooltip>
+  );
+}
+
 // ── Star badge ────────────────────────────────────────────────────────────────
 function StarBadge({ value }) {
   return (
@@ -225,6 +247,13 @@ export default function ReviewsTable({
                     {/* Rating */}
                     <td><StarBadge value={row.rating} /></td>
 
+                    {/* Updated Rating — only if present */}
+                    <td>
+                      {row.updated_rating
+                        ? <StarBadge value={row.updated_rating} />
+                        : <Typography variant="caption" color="text.secondary">—</Typography>}
+                    </td>
+
                     {/* Reviewer */}
                     <td>
                       <Typography variant="body2" fontWeight={500}>
@@ -238,14 +267,14 @@ export default function ReviewsTable({
                       )}
                     </td>
 
-                    {/* Review text */}
+                    {/* Review text — 3 words + tooltip */}
+                    <td><TruncatedText text={row.review_text} /></td>
+
+                    {/* Updated review text — 3 words + tooltip */}
                     <td>
-                      <Typography variant="body2" color="#374151" sx={{
-                        maxWidth: 220, overflow: 'hidden',
-                        textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                      }}>
-                        {row.review_text || '—'}
-                      </Typography>
+                      {row.updated_text_review
+                        ? <TruncatedText text={row.updated_text_review} />
+                        : <Typography variant="caption" color="text.secondary">—</Typography>}
                     </td>
 
                     {/* Status */}

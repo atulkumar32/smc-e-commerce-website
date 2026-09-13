@@ -14,16 +14,18 @@ import {
 export const REVIEWS_PER_PAGE = 10;
 
 export const TABLE_COLUMNS = [
-  { key: 'id',           label: '#'          },
-  { key: 'product_id',   label: 'Product ID' },
-  { key: 'product_name', label: 'Product Name'    },
-  { key: 'variant_id',   label: 'Variant'    },
-  { key: 'rating',       label: 'Rating'     },
-  { key: 'user_name',    label: 'Reviewer'   },
-  { key: 'review_text',  label: 'Review'     },
-  { key: 'status',       label: 'Status'     },
-//   { key: 'created_at',   label: 'Date'       },
-  { key: 'actions',      label: 'Actions'    },
+  { key: 'id',                  label: '#'               },
+  { key: 'product_id',          label: 'Product ID'      },
+  { key: 'product_name',        label: 'Product Name'    },
+  { key: 'variant_id',          label: 'Variant'         },
+  { key: 'rating',              label: 'Rating'          },
+  { key: 'updated_rating',      label: 'Updated Rating'  },
+  { key: 'user_name',           label: 'Reviewer'        },
+  { key: 'review_text',         label: 'Review'          },
+  { key: 'updated_text_review', label: 'Updated Review'  },
+  { key: 'status',              label: 'Status'          },
+  { key: 'created_at',          label: 'Date'            },
+  { key: 'actions',             label: 'Actions'         },
 ];
 
 // ── Hook: useProductsForReviews ───────────────────────────────────────────────

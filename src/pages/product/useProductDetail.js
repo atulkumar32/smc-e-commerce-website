@@ -115,7 +115,7 @@ function mapProductResponse(product) {
     variants,
     variantColors,   // [{ name, hex }] deduplicated
 
-    rating:      Number(product.average_rating ?? product.rating ?? 4),
+    rating:      Number(product.average_rating ?? product.rating ?? 4) || 4, // if rating value getting the in the api respsoen then same avlue showing i the UI otherwise default 4.5 star rating showing 
     reviewCount: Number(product.total_reviews  ?? product.reviewCount ?? product.review_count ?? 0),
     accordion:   product.accordion || [],
     raw:         product,

@@ -110,11 +110,15 @@ export default function AddReviewModal({ open, onClose, onSaved, editRow = null 
               />
             </Box>
           ) : (
-            /* In edit mode show product ID as read-only */
+            /* In edit mode show product ID + name as read-only */
             <Box>
               <Typography className="arr-field-label">Product</Typography>
               <TextField size="small" fullWidth
-                value={form.product?.product_id ?? ''}
+                value={
+                  form.product?.product_name
+                    ? `${form.product.product_id} — ${form.product.product_name}`
+                    : form.product?.product_id ?? ''
+                }
                 disabled
                 sx={{ '& .MuiInputBase-input.Mui-disabled': { WebkitTextFillColor: '#374151' } }}
               />
@@ -194,32 +198,52 @@ export default function AddReviewModal({ open, onClose, onSaved, editRow = null 
             />
           </Box>
 
-          {/* 5. Reviewer name + email */}
+          {/* 5. Reviewer name + email + mobile — read-only in edit, editable in create */}
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
             <Box flex={1}>
               <Typography className="arr-field-label">
-                Reviewer Name <span style={{ color: '#dc2626' }}>*</span>
+                Reviewer Name {!isEditMode && <span style={{ color: '#dc2626' }}>*</span>}
               </Typography>
               <TextField fullWidth size="small" placeholder="e.g. Rahul Sharma"
                 value={form.user_name}
                 onChange={(e) => set('user_name')(e.target.value)}
                 error={!!errors.user_name} helperText={errors.user_name}
+                disabled={isEditMode}
+                sx={isEditMode ? { '& .MuiInputBase-input.Mui-disabled': { WebkitTextFillColor: '#374151' } } : {}}
               />
             </Box>
             <Box flex={1}>
               <Typography className="arr-field-label">
                 Email
-                <Typography component="span" variant="caption"
-                  color="text.secondary" ml={1}>(optional)</Typography>
+                <Typography component="span" variant="caption" color="text.secondary" ml={1}>(optional)</Typography>
               </Typography>
               <TextField fullWidth size="small" type="email"
                 placeholder="e.g. rahul@example.com"
                 value={form.user_email}
                 onChange={(e) => set('user_email')(e.target.value)}
                 error={!!errors.user_email} helperText={errors.user_email}
+                disabled={isEditMode}
+                sx={isEditMode ? { '& .MuiInputBase-input.Mui-disabled': { WebkitTextFillColor: '#374151' } } : {}}
               />
             </Box>
           </Stack>
+
+          {/* Mobile */}
+          <Box>
+            <Typography className="arr-field-label">
+              Mobile Number
+              <Typography component="span" variant="caption" color="text.secondary" ml={1}>(optional)</Typography>
+            </Typography>
+            <TextField
+              fullWidth size="small"
+              placeholder="e.g. 9876543210"
+              value={form.user_mobile}
+              onChange={(e) => set('user_mobile')(e.target.value.replace(/\D/g, '').slice(0, 10))}
+              inputProps={{ inputMode: 'numeric', maxLength: 10 }}
+              disabled={isEditMode}
+              sx={isEditMode ? { '& .MuiInputBase-input.Mui-disabled': { WebkitTextFillColor: '#374151' } } : {}}
+            />
+          </Box>
 
           {/* 6. Status toggle — Switch, default Active */}
           <Box>
