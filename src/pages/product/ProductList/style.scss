@@ -31,9 +31,9 @@
   &__head {
     max-width: 1440px;
     margin: 0 auto;
-    padding: 20px 24px 0;
+    padding: 20px 28px 0;
 
-    @media (max-width: 640px) { padding: 14px 14px 0; }
+    @media (max-width: 900px) { padding: 14px 16px 0; }
   }
 
   // Breadcrumb
@@ -198,9 +198,9 @@
   &__grid-wrap {
     max-width: 1440px;
     margin: 0 auto;
-    padding: 18px 24px 80px;
+    padding: 18px 28px 80px;
 
-    @media (max-width: 640px) { padding: 14px 14px 60px; }
+    @media (max-width: 900px) { padding: 14px 16px 60px; }
   }
 
   &__grid {

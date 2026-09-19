@@ -1,7 +1,9 @@
 .featured-products {
-  max-width: 1200px;
+  max-width: 1440px;
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: 2rem 1.75rem;
+
+  @media (max-width: 900px) { padding: 2rem 1rem; }
 
   &__title {
     margin-bottom: 1.5rem;

@@ -3,11 +3,13 @@
 .about-page {
   &__hero {
     background-color: $color-primary;
-    padding: 5rem 1.5rem 4rem;
+    padding: 5rem 1.75rem 4rem;
     text-align: center;
     @include flex-col;
     align-items: center;
     gap: 1rem;
+
+    @media (max-width: 900px) { padding: 4rem 1rem 3rem; }
   }
 
   &__eyebrow {

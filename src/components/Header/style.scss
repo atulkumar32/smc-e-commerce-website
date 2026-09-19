@@ -354,11 +354,13 @@ body {
   &__inner {
     max-width: var(--smc-maxw);
     margin: 0 auto;
-    padding: 5px 2px;
+    padding: 5px 28px;
     display: flex;
     align-items: flex-start;
     // No overflow on the outer wrapper — only the scroll child scrolls
     overflow: hidden;
+
+    @media (max-width: 900px) { padding-left: 16px; padding-right: 16px; }
   }
 
   // Thin vertical divider between pinned and scrollable section
