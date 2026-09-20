@@ -10,6 +10,7 @@ import ShipmentPage from '../pages/admin/Shipment';
 import PincodePage  from '../pages/admin/AddNewPinCode';
 import BulkColorsUploadPage from '../pages/admin/BulkColorsUpload';
 import AddReviewRatingsPage  from '../pages/admin/AddReviewRatings';
+import AddVarientsPage       from '../pages/admin/Products/Components/AddVarients';
 import AdminLoginPage from '../pages/admin/Login';
 import HomePage from '../pages/home';
 import AboutPage from '../pages/about';
@@ -56,7 +57,8 @@ function AppRoutes() {
       >
         <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<DashboardPage />} />
-        <Route path="products" element={<ProductsPage />} />
+        <Route path="products"    element={<ProductsPage />} />
+        <Route path="add-variant" element={<AddVarientsPage />} />
         <Route path="categories" element={<CategoriesPage />} />
         <Route path="orders" element={<OrdersPage />} />
         <Route path="users" element={<UsersPage />} />

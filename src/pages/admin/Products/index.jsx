@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box, Button, IconButton, Chip, Stack, Paper, Typography,
   Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions,
@@ -319,7 +320,7 @@ function VariantTable({ productId, variants, loading, onAdd, onEdit, onDelete })
           Variants ({variants.length}) — {productId}
         </Typography>
         <Button size="small" startIcon={<AddCircleOutlinedIcon />} variant="outlined" onClick={onAdd}>
-          Add Variant
+          Add / Manage Variants
         </Button>
       </Stack>
 
@@ -559,6 +560,7 @@ function ProductRow({ row, index, expanded, onExpand, onView, onEdit, onDelete,
 
 // ── Main Products Page ─────────────────────────────────────────────────────────
 function ProductsPage() {
+  const navigate = useNavigate();
   const { products, productsLoading, upsertProduct, deleteProduct, refreshProducts } = useAdmin();
 
   const [page, setPage] = useState(0);
@@ -575,7 +577,7 @@ function ProductsPage() {
   const [editModal, setEditModal] = useState({ open: false, product: null });
   const [viewModal, setViewModal] = useState({ open: false, product: null });
   const [deleteDialog, setDeleteDialog] = useState({ open: false, product: null });
-  const [variantModal, setVariantModal] = useState({ open: false, product: null, variant: null });
+  const [variantModal, setVariantModal] = useState({ open: false, product: null, variant: null });  // kept for edit-variant only
   const [deleteVariantDialog, setDeleteVariantDialog] = useState({ open: false, variant: null });
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
@@ -774,7 +776,7 @@ function ProductsPage() {
                   onDelete={(r) => setDeleteDialog({ open: true, product: r })}
                   variants={expandedId === getDisplayId(row) ? variants : (row.variants || [])}
                   variantsLoading={expandedId === getDisplayId(row) && variantsLoading}
-                  onAddVariant={(r) => setVariantModal({ open: true, product: r, variant: null })}
+                  onAddVariant={(r) => navigate(`/admin/add-variant?product_id=${encodeURIComponent(getDisplayId(r))}`)}
                   onEditVariant={(v) => setVariantModal({ open: true, product: null, variant: v })}
                   onDeleteVariant={(v) => setDeleteVariantDialog({ open: true, variant: v })}
                 />
@@ -800,16 +802,18 @@ function ProductsPage() {
         onClose={() => setViewModal({ open: false, product: null })}
       />
 
-      {/* Add/Edit Variant */}
-      <ModalComponent open={variantModal.open}
-        onClose={() => setVariantModal({ open: false, product: null, variant: null })}
-        title={variantModal.variant ? 'Edit Product Variant' : 'Add Product Variant'} maxWidth="lg">
-        <AddNewVariant
-          productId={variantModal.product ? getDisplayId(variantModal.product) : expandedId}
-          editingVariant={variantModal.variant}
-          onSuccess={handleVariantSuccess}
-          onCancel={() => setVariantModal({ open: false, product: null, variant: null })} />
-      </ModalComponent>
+      {/* Edit Variant (edit existing only — adding goes to /admin/add-variant) */}
+      {variantModal.variant && (
+        <ModalComponent open={Boolean(variantModal.variant)}
+          onClose={() => setVariantModal({ open: false, product: null, variant: null })}
+          title="Edit Product Variant" maxWidth="lg">
+          <AddNewVariant
+            productId={expandedId}
+            editingVariant={variantModal.variant}
+            onSuccess={handleVariantSuccess}
+            onCancel={() => setVariantModal({ open: false, product: null, variant: null })} />
+        </ModalComponent>
+      )}
 
       {/* Delete Product */}
       <Dialog open={deleteDialog.open} onClose={() => setDeleteDialog({ open: false, product: null })}>
