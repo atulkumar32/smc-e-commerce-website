@@ -72,3 +72,29 @@ $color-success:          #28a745;
 $color-warning:          #ffc107;
 $color-error:            #dc3545;
 $color-info:             #17a2b8;
+
+// ============================================================
+//  VORANO DESIGN TOKENS  (new UI redesign)
+//  Reference: VORANO INDIA reference HTML
+// ============================================================
+
+// Core brand
+$v-black:      #151515;
+$v-dark:       #171717;
+$v-text:       #2a2a2a;
+$v-gray:       #747474;
+$v-cream:      #f7f1eb;
+$v-soft:       #f7f6f4;
+$v-border:     #e5e2de;
+$v-gold:       #c8a477;
+$v-white:      #ffffff;
+$v-red:        #d94c4c;
+$v-green:      #27834a;
+
+// Typography
+$v-font-serif: 'Playfair Display', serif;
+$v-font-sans:  'DM Sans', sans-serif;
+
+// Page container
+$v-container-max: 1450px;
+$v-container-pad: 4%;

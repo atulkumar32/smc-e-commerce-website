@@ -10,6 +10,7 @@ import RecentlyViewedSlider from '../../../components/RecentlyViewedSlider';
 import { toTitleCase } from '../../../utils/slug';
 import ReviewsModal           from './Components/ReviewsModal';
 import './style.scss';
+import './vorano.scss'; // VORANO redesign overrides
 
 // ── Lightbox ──────────────────────────────────────────────────────────────────
 function Lightbox({ images, startIndex, onClose }) {
@@ -357,9 +358,9 @@ function ProductDetail() {
 
               {/* Pricing: discount% + MRP + big price */}
               <div className="pd__price-row">
+                <span className="pd__price">{fmt(displayPrice)}</span>
                 {discountPct > 0 && <span className="pd__off">{discountPct}% off</span>}
                 {showMRP && <span className="pd__mrp">{fmt(displayMRP)}</span>}
-                <span className="pd__price">{fmt(displayPrice)}</span>
                 {displayStock === 0 && <span className="pd__oos">Out of stock</span>}
               </div>
 
@@ -383,6 +384,10 @@ function ProductDetail() {
                           aria-label={vc.name}
                           aria-pressed={isActive}
                           title={vc.name}
+                          style={isActive ? {
+                            borderColor: vc.hex,
+                            boxShadow: `0 0 0 1px ${vc.hex}`,
+                          } : undefined}
                         >
                           {varImg ? (
                             <img src={varImg} alt={vc.name} loading="lazy"

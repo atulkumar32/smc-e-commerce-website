@@ -398,15 +398,14 @@
       border-radius: 7px;
     }
 
-    // Active — blue border exactly like reference
+    // Active — border uses the variant's own hex color (set via inline style in JSX)
     &--on {
-      border-color: #4B9EFF;
-      box-shadow: 0 0 0 1px #4B9EFF;
+      box-shadow: 0 0 0 1px currentColor;
       transform: scale(1.04);
     }
 
     &:hover:not(&--on) {
-      border-color: rgba(75,158,255,.5);
+      border-color: rgba(0,0,0,.25);
     }
   }
 

@@ -114,6 +114,17 @@ export const URL_DELETE_REVIEW            = `${BASE_URL}smc/admin/api/DeleteRevi
 // ── Public product reviews (web-facing) ───────────────────────────────────────
 export const URL_GET_PRODUCT_REVIEWS      = `${BASE_URL}smc/api/v1/data/GetReviewAndRatings.php`;
 
+// ── Coupons ───────────────────────────────────────────────────────────────────
+export const URL_COUPONS_CREATE = `${BASE_URL}smc/admin/api/AddNewCoupans.php`;
+export const URL_COUPONS_LIST   = `${BASE_URL}smc/admin/api/GetCoupanLists.php`;
+export const URL_COUPONS_DELETE = `${BASE_URL}smc/admin/api/DeleteCoupon.php`;
+export const URL_COUPONS_UPDATE = `${BASE_URL}smc/admin/api/UpdateCoupon.php`;
+export const URL_ADMIN_USERS    = `${BASE_URL}smc/admin/api/GetUsers.php`;
+
+// ── Send Mail ─────────────────────────────────────────────────────────────────
+export const URL_SEND_MAIL      = `${BASE_URL}smc/admin/api/CreateEmailCampaign.php`;
+export const URL_MAIL_LIST      = `${BASE_URL}smc/admin/api/GetEmailCampaigns.php`;
+
 
 // ── Variant APIs ──────────────────────────────────────────────────
 export const URL_VARIANTS_CREATE       = `${BASE_URL}smc/admin/api/CreateProductVariant.php`;

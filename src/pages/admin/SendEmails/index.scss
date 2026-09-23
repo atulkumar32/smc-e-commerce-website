@@ -1,0 +1,231 @@
+// ─────────────────────────────────────────────────────────────
+//  Email Campaigns — premium layout
+// ─────────────────────────────────────────────────────────────
+
+.se {
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.75rem;
+  }
+
+  // ── Stats ───────────────────────────────────────────────────
+  &__stats {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 14px;
+    margin-bottom: 1.5rem;
+
+    @media (max-width: 1100px) { grid-template-columns: repeat(3, 1fr); }
+    @media (max-width: 650px)  { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  &__stat {
+    border-radius: 14px;
+    padding: 16px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: box-shadow 0.2s;
+    &:hover { box-shadow: 0 4px 18px rgba(0,0,0,.07); }
+
+    &-icon {
+      width: 40px; height: 40px;
+      border-radius: 11px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      svg { width: 20px; height: 20px; }
+    }
+
+    &-val {
+      font-size: 1.55rem;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 2px;
+    }
+
+    &-lbl {
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+  }
+
+  // ── Filter bar ──────────────────────────────────────────────
+  &__filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding: 14px 18px;
+    background: #fff;
+    border: 1px solid #e4e7ec;
+    border-radius: 12px;
+  }
+
+  // ── Campaign cards grid ─────────────────────────────────────
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+
+    @media (max-width: 1100px) { grid-template-columns: repeat(2, 1fr); }
+    @media (max-width: 650px)  { grid-template-columns: 1fr; }
+  }
+
+  // ── Campaign card ───────────────────────────────────────────
+  &__card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    overflow: hidden;
+    transition: box-shadow 0.2s, transform 0.2s;
+
+    &:hover {
+      box-shadow: 0 8px 28px rgba(0,0,0,.09);
+      transform: translateY(-2px);
+    }
+
+    &-banner {
+      width: 100%;
+      height: 130px;
+      overflow: hidden;
+      background: #f3f4f6;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        transition: transform 0.3s;
+      }
+
+      &:hover img { transform: scale(1.03); }
+    }
+
+    &-body { padding: 16px 18px 18px; }
+
+    &-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+  }
+
+  // ── Empty state ─────────────────────────────────────────────
+  &__empty {
+    text-align: center;
+    padding: 60px 20px;
+    background: #fff;
+    border: 1px solid #e4e7ec;
+    border-radius: 16px;
+  }
+
+  // ── Skeleton ────────────────────────────────────────────────
+  &__skeleton {
+    background: linear-gradient(90deg, #f3f4f6 25%, #e9eaec 50%, #f3f4f6 75%);
+    background-size: 200% 100%;
+    animation: se-shimmer 1.4s infinite;
+    border-radius: 16px;
+    height: 240px;
+  }
+
+  @keyframes se-shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+//  Rich Text Editor
+// ─────────────────────────────────────────────────────────────
+.rte {
+  border: 1.5px solid #d1d5db;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
+  transition: border-color 0.15s;
+
+  &:focus-within { border-color: #1565c0; box-shadow: 0 0 0 3px rgba(21,101,192,.1); }
+  &--error { border-color: #dc2626; }
+
+  &__toolbar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 2px;
+    padding: 6px 10px;
+    border-bottom: 1px solid #e5e7eb;
+    background: #f9fafb;
+  }
+
+  &__btn {
+    width: 30px; height: 30px;
+    border: none; background: none; border-radius: 5px;
+    font-size: 13px; color: #374151;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: background 0.12s;
+    font-family: inherit; padding: 0;
+    svg { width: 15px; height: 15px; }
+    &:hover { background: #e5e7eb; }
+  }
+
+  &__select {
+    height: 28px; padding: 0 6px;
+    border: 1px solid #e5e7eb; border-radius: 5px;
+    font-size: 12px; color: #374151;
+    background: #fff; cursor: pointer; outline: none;
+    font-family: inherit;
+    &:focus { border-color: #1565c0; }
+  }
+
+  &__divider {
+    width: 1px; height: 20px;
+    background: #e5e7eb; margin: 0 4px; flex-shrink: 0;
+  }
+
+  &__colours {
+    display: flex; gap: 3px; align-items: center;
+  }
+
+  &__colour {
+    width: 18px; height: 18px;
+    border-radius: 50%; border: 1.5px solid rgba(0,0,0,.15);
+    cursor: pointer; padding: 0; flex-shrink: 0;
+    transition: transform 0.12s;
+    &:hover { transform: scale(1.2); border-color: #000; }
+  }
+
+  &__body {
+    min-height: 180px;
+    max-height: 320px;
+    overflow-y: auto;
+    padding: 12px 14px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #111827;
+    outline: none;
+    font-family: 'DM Sans', sans-serif;
+
+    &:empty::before {
+      content: attr(data-placeholder);
+      color: #9ca3af;
+      pointer-events: none;
+    }
+
+    a { color: #1565c0; }
+    ul, ol { padding-left: 20px; }
+  }
+
+  &__error {
+    font-size: 0.74rem; color: #dc2626;
+    padding: 4px 14px 8px; margin: 0;
+  }
+}

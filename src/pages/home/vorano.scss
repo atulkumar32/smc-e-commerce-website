@@ -1,0 +1,556 @@
+@import '../../Styles/ColorCodes';
+@import '../../Styles/Mixins';
+
+// ============================================================
+//  VORANO HOME PAGE STYLES  (redesign 2026)
+//  Sections: Hero · Categories · Bestsellers · Promo · Benefits
+// ============================================================
+
+// ── Shared section layout ─────────────────────────────────────
+.v-section {
+  padding: 70px 0;
+
+  &__container {
+    width: 92%;
+    max-width: $v-container-max;
+    margin: 0 auto;
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  &__title {
+    font-family: $v-font-serif;
+    font-size: clamp(26px, 3vw, 36px);
+    font-weight: 700;
+    color: $v-black;
+    position: relative;
+    padding-bottom: 14px;
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 42px;
+      height: 3px;
+      background: $v-gold;
+    }
+  }
+
+  &__view-all {
+    font-family: $v-font-sans;
+    font-size: 13px;
+    font-weight: 600;
+    color: $v-text;
+    text-decoration: none;
+    transition: color 0.15s;
+    white-space: nowrap;
+
+    &:hover { color: $v-gold; }
+  }
+
+  @media (max-width: 650px) { padding: 48px 0; }
+}
+
+// ─────────────────────────────────────────────────────────────
+//  HERO
+// ─────────────────────────────────────────────────────────────
+.v-hero {
+  background: $v-cream;
+
+  &__content {
+    min-height: 560px;
+    display: grid;
+    grid-template-columns: 44% 56%;
+    align-items: center;
+
+    @media (max-width: 1000px) { grid-template-columns: 1fr; }
+    @media (max-width: 650px)  { display: block; }
+  }
+
+  &__text {
+    padding-left: 5%;
+    padding-right: 4%;
+    z-index: 2;
+
+    @media (max-width: 1000px) { padding: 70px 7%; }
+    @media (max-width: 650px)  { padding: 55px 6%; }
+  }
+
+  &__eyebrow {
+    font-family: $v-font-sans;
+    font-size: 11.5px;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: #666;
+    margin-bottom: 18px;
+  }
+
+  &__heading {
+    font-family: $v-font-serif;
+    font-size: clamp(46px, 5.5vw, 76px);
+    font-weight: 700;
+    line-height: 1.02;
+    color: $v-black;
+    margin-bottom: 22px;
+  }
+
+  &__sub {
+    font-family: $v-font-sans;
+    max-width: 480px;
+    font-size: 17px;
+    line-height: 1.65;
+    color: #555;
+    margin-bottom: 32px;
+
+    @media (max-width: 650px) { font-size: 15px; }
+  }
+
+  &__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    border: none;
+    background: $v-black;
+    color: $v-white;
+    padding: 16px 30px;
+    font-family: $v-font-sans;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.25s;
+
+    &:hover { background: $v-gold; }
+  }
+
+  &__features {
+    display: flex;
+    gap: 28px;
+    margin-top: 40px;
+    flex-wrap: wrap;
+
+    @media (max-width: 650px) { gap: 14px; }
+  }
+
+  &__feature {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: $v-font-sans;
+    font-size: 12px;
+    color: $v-text;
+    line-height: 1.4;
+
+    &-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #eadfd3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+
+      svg { width: 16px; height: 16px; color: $v-text; }
+    }
+  }
+
+  &__image {
+    height: 560px;
+    background-image: url('https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=1400&q=85');
+    background-size: cover;
+    background-position: center;
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(247,241,235,.65) 0%, transparent 40%);
+    }
+
+    @media (max-width: 1000px) { height: 450px; }
+    @media (max-width: 650px)  { height: 360px; }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+//  CATEGORY GRID
+// ─────────────────────────────────────────────────────────────
+.v-cats {
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 24px;
+
+    @media (max-width: 1000px) { grid-template-columns: repeat(3, 1fr); }
+    @media (max-width: 650px)  { grid-template-columns: repeat(2, 1fr); gap: 18px; }
+  }
+
+  &__card {
+    text-align: center;
+    cursor: pointer;
+    text-decoration: none;
+    display: block;
+
+    &:hover &__img { transform: scale(1.07); }
+    &:hover &__name { color: $v-gold; }
+  }
+
+  &__circle {
+    width: 100%;
+    aspect-ratio: 1/1;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #f4f1ee;
+    margin-bottom: 14px;
+  }
+
+  &__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease;
+  }
+
+  &__name {
+    font-family: $v-font-sans;
+    font-size: 14.5px;
+    font-weight: 600;
+    color: $v-black;
+    margin-bottom: 4px;
+    transition: color 0.2s;
+  }
+
+  &__sub {
+    font-family: $v-font-sans;
+    font-size: 11.5px;
+    color: $v-gray;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+//  PRODUCT CARD  (used in Bestsellers + PLP)
+// ─────────────────────────────────────────────────────────────
+.v-card {
+  border: 1px solid $v-border;
+  background: $v-white;
+  position: relative;
+  transition: transform 0.28s ease, box-shadow 0.28s ease;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 16px 36px rgba(0,0,0,.08);
+  }
+
+  &__img-wrap {
+    height: 330px;
+    background: #f6f6f6;
+    position: relative;
+    overflow: hidden;
+
+    @media (max-width: 650px) { height: 210px; }
+  }
+
+  &__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease;
+
+    .v-card:hover & { transform: scale(1.05); }
+  }
+
+  &__badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: #e8d1b3;
+    padding: 5px 9px;
+    font-family: $v-font-sans;
+    font-size: 9.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    z-index: 2;
+  }
+
+  &__wish {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: none;
+    background: $v-white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 3px 10px rgba(0,0,0,.1);
+    cursor: pointer;
+    z-index: 3;
+    transition: color 0.15s;
+
+    svg { width: 16px; height: 16px; }
+
+    &--on { color: #d94c4c; }
+  }
+
+  &__quick {
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    height: 38px;
+    border: none;
+    background: rgba(255,255,255,.96);
+    font-family: $v-font-sans;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.22s, transform 0.22s;
+    z-index: 3;
+
+    .v-card:hover & { opacity: 1; transform: translateY(0); }
+  }
+
+  &__body {
+    padding: 16px;
+  }
+
+  &__brand {
+    font-family: $v-font-sans;
+    font-size: 10px;
+    letter-spacing: 1.2px;
+    color: #999;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+  }
+
+  &__name {
+    font-family: $v-font-sans;
+    font-size: 14.5px;
+    font-weight: 600;
+    color: $v-black;
+    line-height: 1.35;
+    margin-bottom: 8px;
+    min-height: 38px;
+  }
+
+  &__rating {
+    color: #e2a634;
+    font-size: 12.5px;
+    margin-bottom: 10px;
+
+    span { color: #888; margin-left: 4px; font-size: 11.5px; }
+  }
+
+  &__price {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+
+  &__current {
+    font-family: $v-font-sans;
+    font-size: 20px;
+    font-weight: 700;
+    color: $v-black;
+  }
+
+  &__mrp {
+    font-size: 12.5px;
+    color: #aaa;
+    text-decoration: line-through;
+  }
+
+  &__off {
+    font-size: 11.5px;
+    color: #d55353;
+    font-weight: 700;
+  }
+
+  &__delivery {
+    font-family: $v-font-sans;
+    font-size: 10.5px;
+    color: $v-green;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+
+    svg { width: 12px; height: 12px; }
+  }
+
+  &__add {
+    width: 100%;
+    border: none;
+    background: $v-black;
+    color: $v-white;
+    padding: 13px;
+    font-family: $v-font-sans;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: background 0.25s;
+
+    &:hover { background: $v-gold; }
+    &:disabled { opacity: 0.45; cursor: not-allowed; }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+//  BESTSELLERS GRID
+// ─────────────────────────────────────────────────────────────
+.v-products {
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+
+    @media (max-width: 1000px) { grid-template-columns: repeat(2, 1fr); }
+    @media (max-width: 450px)  { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+//  PROMO BANNERS
+// ─────────────────────────────────────────────────────────────
+.v-promo {
+  &__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+
+    @media (max-width: 650px) { grid-template-columns: 1fr; }
+  }
+
+  &__banner {
+    min-height: 300px;
+    position: relative;
+    overflow: hidden;
+    background: $v-cream;
+
+    @media (max-width: 650px) { min-height: 250px; }
+  }
+
+  &__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  &__overlay {
+    position: absolute;
+    inset: 0;
+    padding: 45px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: linear-gradient(90deg, rgba(247,241,235,.96) 0%, rgba(247,241,235,.7) 48%, transparent 80%);
+
+    @media (max-width: 650px) { padding: 30px; }
+  }
+
+  &__heading {
+    font-family: $v-font-serif;
+    font-size: clamp(28px, 3vw, 40px);
+    font-weight: 700;
+    color: $v-black;
+    max-width: 340px;
+    margin-bottom: 10px;
+    line-height: 1.15;
+  }
+
+  &__sub {
+    font-family: $v-font-sans;
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 22px;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+//  BENEFITS STRIP
+// ─────────────────────────────────────────────────────────────
+.v-benefits {
+  background: #f5f2ee;
+  padding: 28px 0;
+
+  &__container {
+    width: 92%;
+    max-width: $v-container-max;
+    margin: 0 auto;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+
+    @media (max-width: 1000px) { grid-template-columns: repeat(2, 1fr); }
+    @media (max-width: 500px)  { grid-template-columns: 1fr; }
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px 24px;
+    border-right: 1px solid #ddd;
+
+    &:last-child { border-right: none; }
+
+    @media (max-width: 1000px) {
+      &:nth-child(2) { border-right: none; }
+      &:nth-child(3) { border-top: 1px solid #ddd; }
+    }
+
+    @media (max-width: 500px) {
+      border-right: none;
+      border-bottom: 1px solid #ddd;
+      &:last-child { border-bottom: none; }
+    }
+  }
+
+  &__icon {
+    font-size: 26px;
+    flex-shrink: 0;
+    color: $v-black;
+
+    svg { width: 26px; height: 26px; }
+  }
+
+  &__title {
+    font-family: $v-font-sans;
+    font-size: 14px;
+    font-weight: 700;
+    color: $v-black;
+    margin-bottom: 3px;
+  }
+
+  &__sub {
+    font-family: $v-font-sans;
+    font-size: 11.5px;
+    color: $v-gray;
+  }
+}

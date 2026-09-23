@@ -16,6 +16,8 @@ import LocalShippingIcon    from '@mui/icons-material/LocalShipping';
 import PinDropOutlinedIcon  from '@mui/icons-material/PinDropOutlined';
 import PaletteIcon          from '@mui/icons-material/Palette';
 import RateReviewIcon       from '@mui/icons-material/RateReview';
+import LocalOfferIcon        from '@mui/icons-material/LocalOffer';
+import MailOutlinedIcon      from '@mui/icons-material/MailOutlined';
 import LogoutIcon           from '@mui/icons-material/Logout';
 import LayersIcon           from '@mui/icons-material/Layers';
 import AddBoxIcon           from '@mui/icons-material/AddBox';
@@ -51,6 +53,8 @@ const menuItems = [
   { label: 'Pincodes',          path: '/admin/pincodes',           icon: <PinDropOutlinedIcon /> },
   { label: 'Color Codes',       path: '/admin/bulk-upload-colors', icon: <PaletteIcon /> },
   { label: 'Reviews & Ratings', path: '/admin/reviews',            icon: <RateReviewIcon /> },
+  { label: 'Coupons',           path: '/admin/coupons',            icon: <LocalOfferIcon /> },
+  { label: 'Send Mail',         path: '/admin/send-emails',        icon: <MailOutlinedIcon /> },
 ];
 
 // ── Flyout submenu (appears to the right of the sidebar) ──────────────────────
@@ -265,7 +269,7 @@ function Sidebar({ mobileOpen, onMobileClose }) {
           </ListItemIcon>
           <ListItemText
             primary="Logout"
-            primaryTypographyProps={{ fontSize: '0.82rem', fontWeight: 500, color: 'inherit' }}
+            sx={{ '& .MuiTypography-root': { fontSize: '0.82rem', fontWeight: 500, color: 'inherit' } }}
           />
         </ListItemButton>
       </Box>

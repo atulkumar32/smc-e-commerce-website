@@ -6,6 +6,7 @@ import { useCart } from '../../../context/CartContext';
 import { useCartDrawer } from '../../../context/CartDrawerContext';
 import { toSlug, toTitleCase } from '../../../utils/slug';
 import './style.scss';
+import './vorano.scss'; // VORANO redesign overrides
 
 // ── Scroll-reveal ─────────────────────────────────────────────────────────────
 function useScrollReveal(ref) {
@@ -520,7 +521,7 @@ export default function ProductList() {
     <div className="pl">
       <ProductListSeo pageTitle={pageTitle} category={activeCategory} totalCount={totalCount}/>
 
-      {/* ── Page head ── */}
+      {/* ── Page head — breadcrumb + title only ── */}
       <div className="pl__head">
         {/* Breadcrumb */}
         <nav className="pl__breadcrumb" aria-label="Breadcrumb">
@@ -534,26 +535,118 @@ export default function ProductList() {
             <h1 className="pl__title">{pageTitle}</h1>
             <p className="pl__subtitle">Stylish, Durable &amp; Comfortable Bags for Every School Day</p>
           </div>
-
-          {/* Toolbar */}
+          {/* Old toolbar commented out — toolbar now lives inside pl__shop-layout */}
+          {/*
           <div className="pl__toolbar">
-            <button
-              className={`pl__filter-btn${filterOpen ? ' pl__filter-btn--on' : ''}`}
-              onClick={() => setFilterOpen((v) => !v)}
-              aria-pressed={filterOpen}
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-                <line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/>
-                <line x1="4" y1="18" x2="20" y2="18"/>
-                <circle cx="9" cy="6" r="1.4" fill="currentColor"/><circle cx="15" cy="12" r="1.4" fill="currentColor"/>
-                <circle cx="9" cy="18" r="1.4" fill="currentColor"/>
-              </svg>
+            <button className={`pl__filter-btn${filterOpen ? ' pl__filter-btn--on' : ''}`} onClick={() => setFilterOpen((v) => !v)} aria-pressed={filterOpen}>
               Filters
               {activeFilterCount > 0 && <span className="pl__filter-badge">{activeFilterCount}</span>}
             </button>
-
             <div className="pl__sort-wrap">
               <span className="pl__sort-label">Sort by:</span>
+              <div className="pl__sort-select-wrap">
+                <select value={sortBy} onChange={(e) => changeSort(e.target.value)}>
+                  {SORT_OPTS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                </select>
+              </div>
+            </div>
+          </div>
+          */}
+        </div>
+
+        {/* Active filter chips — commented out (sidebar has Clear All instead) */}
+        {/*
+        {chips.length > 0 && (
+          <div className="pl__chips">
+            {chips.map((chip) => (
+              <button key={chip.key} className="pl__chip" onClick={chip.onRemove} type="button">
+                {chip.label}
+              </button>
+            ))}
+            <button className="pl__chip pl__chip--clear" onClick={handleReset} type="button">Clear all</button>
+          </div>
+        )}
+        */}
+      </div>
+
+      {/* ── Shop layout: sidebar + grid ── */}
+      <div className="pl__shop-layout">
+
+        {/* ── Left sidebar (desktop) ── */}
+        <aside className="pl__sidebar">
+          <div className="pl__sidebar-head">
+            <strong>FILTERS</strong>
+            {activeFilterCount > 0 && (
+              <button className="pl__sidebar-clear" onClick={handleReset} type="button">Clear All</button>
+            )}
+          </div>
+
+          {/* Category */}
+          <div className="pl__sidebar-group">
+            <p className="pl__sidebar-title">Category</p>
+            {['All Bags','Backpacks','Laptop Bags','School Bags','Ladies Bags','Sling Bags','Travel Bags'].map((c) => (
+              <label key={c} className="pl__sidebar-check">
+                <input type="checkbox"
+                  checked={c === 'All Bags' ? (!activeCategory || activeCategory === 'all') : activeCategory === c}
+                  onChange={() => handleCategoryChange(c === 'All Bags' ? 'all' : c)}/>
+                <span>{c}</span>
+              </label>
+            ))}
+          </div>
+
+          {/* Price Range */}
+          <div className="pl__sidebar-group">
+            <p className="pl__sidebar-title">Price Range</p>
+            <PriceSlider minVal={localFilters.minPrice} maxVal={localFilters.maxPrice}
+              onChange={(min, max) => { handleLocal('minPrice', min); handleLocal('maxPrice', max); }}/>
+          </div>
+
+          {/* Color */}
+          <div className="pl__sidebar-group">
+            <p className="pl__sidebar-title">Color</p>
+            <div className="fd__swatches">
+              {COLORS.map((col) => {
+                const on = (localFilters.colors||[]).includes(col.name);
+                return (
+                  <button key={col.name} type="button" className={`fd__swatch${on ? ' fd__swatch--on' : ''}`}
+                    onClick={() => {
+                      const arr = localFilters.colors || [];
+                      handleLocal('colors', arr.includes(col.name) ? arr.filter(x => x !== col.name) : [...arr, col.name]);
+                    }} aria-pressed={on}>
+                    <span className="fd__swatch-dot" style={{ background: col.hex }}/>
+                    <span>{col.name}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Material */}
+          <div className="pl__sidebar-group">
+            <p className="pl__sidebar-title">Material</p>
+            {MATERIALS.map((m) => (
+              <label key={m} className="pl__sidebar-check">
+                <input type="checkbox"
+                  checked={(localFilters.materials||[]).includes(m)}
+                  onChange={() => {
+                    const arr = localFilters.materials || [];
+                    handleLocal('materials', arr.includes(m) ? arr.filter(x => x !== m) : [...arr, m]);
+                  }}/>
+                <span>{m}</span>
+              </label>
+            ))}
+          </div>
+        </aside>
+
+        {/* ── Right: toolbar + grid ── */}
+        <div className="pl__main">
+          {/* Toolbar */}
+          <div className="pl__toolbar-bar">
+            <span className="pl__toolbar-count">
+              <strong>{filteredProducts.length}</strong> Products
+            </span>
+            <div className="pl__sort-wrap">
+              <span className="pl__sort-label">Sort By</span>
               <div className="pl__sort-select-wrap">
                 <select value={sortBy} onChange={(e) => changeSort(e.target.value)} aria-label="Sort products">
                   {SORT_OPTS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
@@ -564,56 +657,51 @@ export default function ProductList() {
               </div>
             </div>
           </div>
+
+          {/* Mobile filter + sort buttons */}
+          <div className="pl__mobile-controls">
+            <button className="pl__mobile-btn" onClick={() => setFilterOpen(v => !v)} type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+              Filters {activeFilterCount > 0 && `(${activeFilterCount})`}
+            </button>
+            <div className="pl__sort-select-wrap">
+              <select value={sortBy} onChange={(e) => changeSort(e.target.value)}>
+                {SORT_OPTS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </select>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+          </div>
+
+          {/* Products */}
+          {loading && filteredProducts.length === 0 ? (
+            <div className="pl__grid">
+              {Array.from({ length: 9 }).map((_, i) => <div key={i} className="pcard pcard--skeleton is-visible"/>)}
+            </div>
+          ) : filteredProducts.length === 0 ? (
+            <div className="pl__empty">
+              <h3>No products found</h3>
+              <p>Try adjusting your filters or browse all products.</p>
+              <button onClick={handleReset}>View All Products</button>
+            </div>
+          ) : (
+            <div className="pl__grid" ref={gridRef}>
+              {filteredProducts.map((product, i) => (
+                <ProductCard key={product.id} product={product} index={i}/>
+              ))}
+            </div>
+          )}
+
+          {filteredProducts.length > 0 && (
+            <div className="pl__load-more">
+              <p className="pl__load-text">Showing {Math.min(visibleCount, totalCount)} of {totalCount} products</p>
+              <div className="pl__progress"><div className="pl__progress-fill" style={{ width: `${progressPct}%` }}/></div>
+              {hasMore && <button className="pl__more-btn" onClick={loadMore}>Load more products</button>}
+            </div>
+          )}
         </div>
-
-        {/* Active chips */}
-        {chips.length > 0 && (
-          <div className="pl__chips">
-            {chips.map((chip) => (
-              <button key={chip.key} className="pl__chip" onClick={chip.onRemove} type="button">
-                {chip.label}
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-                </svg>
-              </button>
-            ))}
-            <button className="pl__chip pl__chip--clear" onClick={handleReset} type="button">Clear all</button>
-          </div>
-        )}
       </div>
 
-      {/* ── Grid ── */}
-      <div className="pl__grid-wrap">
-        {loading && filteredProducts.length === 0 ? (
-          <div className="pl__grid">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="pcard pcard--skeleton is-visible"/>
-            ))}
-          </div>
-        ) : filteredProducts.length === 0 ? (
-          <div className="pl__empty">
-            <h3>No products found</h3>
-            <p>Try adjusting your filters or browse all products.</p>
-            <button onClick={handleReset}>View All Products</button>
-          </div>
-        ) : (
-          <div className="pl__grid" ref={gridRef}>
-            {filteredProducts.map((product, i) => (
-              <ProductCard key={product.id} product={product} index={i}/>
-            ))}
-          </div>
-        )}
-
-        {filteredProducts.length > 0 && (
-          <div className="pl__load-more">
-            <p className="pl__load-text">Showing {Math.min(visibleCount, totalCount)} of {totalCount} products</p>
-            <div className="pl__progress"><div className="pl__progress-fill" style={{ width: `${progressPct}%` }}/></div>
-            {hasMore && <button className="pl__more-btn" onClick={loadMore}>Load more products</button>}
-          </div>
-        )}
-      </div>
-
-      {/* Filter drawer */}
+      {/* Mobile filter drawer */}
       <FilterDrawer
         open={filterOpen} onClose={() => setFilterOpen(false)}
         activeCategory={activeCategory} onCategory={handleCategoryChange}

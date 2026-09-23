@@ -1,237 +1,208 @@
+@import '../../Styles/ColorCodes';
 @import '../../Styles/Mixins';
 
-.site-footer {
-  background-color: $color-primary;
-  border-top: 1px solid $color-border;
+// ============================================================
+//  NEW VORANO FOOTER  (redesign 2026)
+//  Reference: VORANO INDIA HTML
+// ============================================================
 
-  &__container {
-    @include container;
-    padding-top: 4rem;
-    padding-bottom: 3rem;
+.v-footer {
+  background: $v-dark;
+  color: $v-white;
+  font-family: $v-font-sans;
+  padding-top: 60px;
+
+  // ── Main grid ──────────────────────────────────────────────
+  &__grid {
+    width: 92%;
+    max-width: $v-container-max;
+    margin: 0 auto;
     display: grid;
-    grid-template-columns: 1.6fr 1fr 1fr 1fr;
-    gap: 2.5rem;
+    grid-template-columns: 2fr 1fr 1fr 1fr 1.5fr;
+    gap: 40px;
+    padding-bottom: 50px;
+
+    @media (max-width: 1050px) { grid-template-columns: repeat(3, 1fr); }
+    @media (max-width: 650px)  {
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+    }
   }
 
+  // ── Brand column ───────────────────────────────────────────
   &__brand {
-    @include flex-col;
-    gap: 1rem;
+    @media (max-width: 650px) { grid-column: 1 / -1; }
   }
 
-  &__brand-name {
-    color: $color-secondary;
-    font-family: $font-headline;
-    font-size: $fs-xl;
-    font-weight: $fw-extrabold;
-    line-height: $lh-snug;
+  &__logo {
+    font-family: $v-font-serif;
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    line-height: 1.1;
+    color: $v-white;
     text-decoration: none;
     display: inline-block;
-    @include transition(opacity);
-    @include focus-ring($color-secondary);
-    &:hover { opacity: 0.85; }
+
+    small {
+      display: block;
+      font-family: $v-font-sans;
+      font-size: 9px;
+      letter-spacing: 5px;
+      font-weight: 400;
+      margin-top: 3px;
+      color: rgba(255,255,255,0.55);
+    }
   }
 
-  &__brand-tagline {
-    color: $color-text-muted;
-    font-family: $font-body;
-    font-size: $fs-sm;
-    line-height: $lh-relaxed;
-    max-width: 280px;
-    margin: 0;
+  &__tagline {
+    color: #aaa;
+    font-size: 13px;
+    line-height: 1.7;
+    max-width: 300px;
+    margin-top: 14px;
   }
 
-  &__brand-icons {
+  &__social {
     display: flex;
-    gap: 1rem;
-    margin-top: 0.25rem;
-  }
+    gap: 10px;
+    margin-top: 18px;
 
-  &__icon-link {
-    color: $color-text-muted;
-    display: flex;
-    align-items: center;
-    @include transition(color);
-    @include focus-ring($color-secondary);
-    &:hover { color: $color-secondary; }
-  }
-
-  &__col {
-    @include flex-col;
-    gap: 1rem;
-  }
-
-  &__col-title {
-    color: $color-text-primary;
-    font-family: $font-label;
-    font-size: $fs-xs;
-    font-weight: $fw-bold;
-    letter-spacing: $ls-widest;
-    margin: 0 0 0.25rem;
-  }
-
-  &__col-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    @include flex-col;
-    gap: 0.75rem;
-  }
-
-  &__col-link {
-    color: $color-text-muted;
-    text-decoration: none;
-    font-family: $font-body;
-    font-size: $fs-sm;
-    font-weight: $fw-regular;
-    @include transition(color);
-    @include focus-ring($color-secondary);
-    &:hover { color: $color-text-primary; }
-  }
-
-  &__bottom {
-    border-top: 1px solid $color-border;
-  }
-
-  &__bottom-inner {
-    @include container;
-    padding-top: 1.25rem;
-    padding-bottom: 1.25rem;
-    @include flex-center;
-  }
-
-  &__copyright {
-    color: $color-text-muted;
-    font-family: $font-body;
-    font-size: $fs-xs;
-    margin: 0;
-    text-align: center;
-  }
-
-  /* Mobile fixed action bar */
-  &__mobile-bar {
-    display: none;
-  }
-
-  // ── 4K ≥1536px ───────────────────────────────────────────────
-  @include min-2xl {
-    &__container {
-      padding-top: 6rem;
-      padding-bottom: 4rem;
-      gap: 3.5rem;
-    }
-    &__brand-name    { font-size: $fs-2xl; }
-    &__brand-tagline { font-size: $fs-base; max-width: 340px; }
-    &__col-link      { font-size: $fs-base; }
-  }
-
-  // ── Small desktop ≤1280px ─────────────────────────────────────
-  @include xl {
-    &__container { gap: 2rem; }
-  }
-
-  // ── Tablet landscape ≤1024px ──────────────────────────────────
-  @include lg {
-    &__container {
-      grid-template-columns: 1fr 1fr;
-      gap: 2rem;
-      padding-top: 3rem;
-      padding-bottom: 2.5rem;
-    }
-    &__brand { grid-column: 1 / -1; }
-  }
-
-  // ── Tablet portrait ≤768px ────────────────────────────────────
-  @include md {
-    &__container {
-      grid-template-columns: 1fr 1fr;
-      gap: 1.75rem;
-      padding-top: 2.5rem;
-      padding-bottom: 2rem;
-    }
-    &__brand { grid-column: 1 / -1; }
-    &__brand-tagline { max-width: 100%; }
-  }
-
-  // ── Large phone ≤640px ────────────────────────────────────────
-  @include sm {
-    &__container {
-      grid-template-columns: 1fr 1fr;
-      gap: 1.5rem;
-      padding-top: 2rem;
-      padding-bottom: 1.75rem;
-    }
-    &__brand-name { font-size: $fs-lg; }
-  }
-
-  // ── Standard phone ≤480px ─────────────────────────────────────
-  @include xs {
-    &__container {
-      grid-template-columns: 1fr;
-      gap: 1.5rem;
-      padding-top: 2rem;
-      padding-bottom: 1.5rem;
-    }
-    &__brand { grid-column: auto; }
-    &__col-list { gap: 0.6rem; }
-    &__bottom-inner { padding-top: 1rem; padding-bottom: 1rem; }
-    &__copyright { font-size: 11px; }
-    /* show mobile action bar under 480px */
-    &__mobile-bar {
+    a {
+      width: 32px;
+      height: 32px;
+      border: 1px solid #444;
+      border-radius: 50%;
       display: flex;
-      position: fixed;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      z-index: 1200;
-      background: #ffffff;
-      border-top: 1px solid $color-border;
-      padding: 0.5rem 1rem;
-      justify-content: space-evenly;
       align-items: center;
-      box-shadow: 0 -6px 18px rgba(0,0,0,0.08);
-      padding-bottom: env(safe-area-inset-bottom, 12px);
-      transition: transform 0.3s ease, opacity 0.25s ease;
-      transform: translateY(0);
-      opacity: 1;
+      justify-content: center;
+      color: #aaa;
+      transition: border-color 0.15s, color 0.15s;
+      text-decoration: none;
 
-      &.is-hidden {
-        transform: translateY(110%);
-        opacity: 0;
+      svg { width: 14px; height: 14px; }
+
+      &:hover {
+        border-color: $v-gold;
+        color: $v-gold;
       }
     }
+  }
 
-    &__mobile-action {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.25rem;
-      color: $color-primary;
+  // ── Nav columns ────────────────────────────────────────────
+  &__col {
+    h4 {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: $v-white;
+      margin-bottom: 18px;
+      letter-spacing: 0.02em;
+    }
+
+    a, address span {
+      display: block;
+      color: #999;
+      font-size: 12px;
+      margin-bottom: 10px;
       text-decoration: none;
-      font-size: $fs-xs;
-      background: transparent;
+      font-style: normal;
+      transition: color 0.15s;
+      line-height: 1.5;
+
+      &:hover { color: $v-white; }
+    }
+
+    .v-footer__contact-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      color: #999;
+      font-size: 12px;
+      margin-bottom: 10px;
+
+      svg {
+        width: 13px;
+        height: 13px;
+        flex-shrink: 0;
+        margin-top: 2px;
+        color: $v-gold;
+      }
+    }
+  }
+
+  // ── Newsletter ─────────────────────────────────────────────
+  &__newsletter {
+    display: flex;
+    height: 42px;
+    margin-top: 14px;
+
+    input {
+      flex: 1;
       border: none;
-      padding: 0.25rem 0.5rem;
-      min-width: 72px;
-    }
-    &__mobile-action svg { stroke: $color-primary; }
+      padding: 0 13px;
+      outline: none;
+      font-family: $v-font-sans;
+      font-size: 12px;
+      background: $v-white;
+      color: $v-text;
 
-    &__mobile-divider {
-      width: 1px;
-      height: 28px;
-      background: #d1d5db;
-      opacity: 0;
-      transform: scaleY(0);
-      transition: opacity 0.3s ease, transform 0.3s ease;
-      transform-origin: center;
+      &::placeholder { color: #aaa; }
+    }
+
+    button {
+      width: 48px;
+      border: none;
+      background: $v-gold;
+      color: $v-white;
+      font-size: 16px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: filter 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &:hover { filter: brightness(1.1); }
     }
   }
 
-  // ── Very small phone ≤360px ───────────────────────────────────
-  @include xxs {
-    &__container { padding-top: 1.75rem; padding-bottom: 1.25rem; gap: 1.25rem; }
-    &__brand-name { font-size: $fs-base; }
-    &__col-title  { font-size: 10px; }
-    &__col-link   { font-size: 11px; }
-    &__copyright  { font-size: 10px; }
+  &__nl-sub {
+    color: #aaa;
+    font-size: 12px;
+    line-height: 1.6;
+    margin-bottom: 0;
   }
+
+  // ── Copyright bar ──────────────────────────────────────────
+  &__bottom {
+    border-top: 1px solid #333;
+    padding: 18px $v-container-pad;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #666;
+    font-size: 11px;
+    gap: 12px;
+    flex-wrap: wrap;
+
+    @media (max-width: 650px) {
+      flex-direction: column;
+      text-align: center;
+      gap: 8px;
+    }
+  }
+
+  &__mobile-bar { display: none; }  // hide old mobile action bar
 }
+
+// ============================================================
+//  OLD FOOTER — commented out for reference
+// ============================================================
+/*
+.site-footer { ... }
+.site-footer__container { ... }
+.site-footer__brand { ... }
+.site-footer__col { ... }
+.site-footer__bottom { ... }
+.site-footer__mobile-bar { ... }
+*/

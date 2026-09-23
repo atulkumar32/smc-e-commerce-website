@@ -1,0 +1,86 @@
+.utopbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 64px;
+  background: rgba(255,255,255,0.97);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 24px;
+  z-index: 1100;
+  font-family: 'DM Sans', sans-serif;
+
+  @media (max-width: 900px) { height: 60px; padding: 0 16px; }
+
+  &__ham {
+    background: none; border: none; cursor: pointer;
+    width: 36px; height: 36px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: #374151; flex-shrink: 0;
+    transition: background 0.15s;
+    &:hover { background: #f3f4f6; }
+    svg { width: 20px; height: 20px; }
+  }
+
+  &__title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #111827;
+    white-space: nowrap;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  &__btn {
+    display: flex; align-items: center; gap: 6px;
+    padding: 7px 14px; border: 1px solid #e5e7eb;
+    border-radius: 8px; background: #fff;
+    font-size: 12.5px; font-weight: 600;
+    color: #374151; cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: background 0.15s, border-color 0.15s;
+
+    &:hover { background: #f9fafb; border-color: #d1d5db; }
+
+    svg { width: 16px; height: 16px; }
+
+    span { @media (max-width: 520px) { display: none; } }
+
+    &--cart {
+      position: relative;
+      padding: 7px 10px;
+    }
+  }
+
+  &__badge {
+    position: absolute; top: -5px; right: -5px;
+    background: #c8a477; color: #fff;
+    font-size: 9px; font-weight: 800;
+    width: 17px; height: 17px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    line-height: 1;
+    border: 2px solid #fff;
+  }
+
+  &__avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0f1c2e, #1565c0);
+    border: 2px solid #c8a477;
+    color: #F5D77F;
+    font-size: 12px; font-weight: 800;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer; border-style: solid;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: transform 0.15s;
+    &:hover { transform: scale(1.08); }
+  }
+}

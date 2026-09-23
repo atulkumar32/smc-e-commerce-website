@@ -10,6 +10,8 @@ import ShipmentPage from '../pages/admin/Shipment';
 import PincodePage  from '../pages/admin/AddNewPinCode';
 import BulkColorsUploadPage from '../pages/admin/BulkColorsUpload';
 import AddReviewRatingsPage  from '../pages/admin/AddReviewRatings';
+import CouponsPage           from '../pages/admin/Coupons';
+import SendEmailsPage        from '../pages/admin/SendEmails';
 import AddVarientsPage       from '../pages/admin/Products/Components/AddVarients';
 import AdminLoginPage from '../pages/admin/Login';
 import HomePage from '../pages/home';
@@ -67,6 +69,8 @@ function AppRoutes() {
         <Route path="add-pin-code"       element={<PincodePage />} />
         <Route path="bulk-upload-colors" element={<BulkColorsUploadPage />} />
         <Route path="reviews"            element={<AddReviewRatingsPage />} />
+        <Route path="coupons"            element={<CouponsPage />} />
+        <Route path="send-emails"        element={<SendEmailsPage />} />
       </Route>
 
       {/* ── User routes — dedicated user pages under /user/* ── */}

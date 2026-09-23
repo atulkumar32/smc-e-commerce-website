@@ -1,132 +1,64 @@
-import { useMemo } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import {
-  AppBar, Toolbar, Typography, IconButton, Box,
-  Badge, Tooltip, Avatar,
-} from '@mui/material';
-import MenuIcon     from '@mui/icons-material/Menu';
-import MenuOpenIcon from '@mui/icons-material/MenuOpen';
-import FavoriteBorderOutlinedIcon from '@mui/icons-material/FavoriteBorderOutlined';
-import ShoppingBagOutlinedIcon    from '@mui/icons-material/ShoppingBagOutlined';
-import VerifiedUserOutlinedIcon   from '@mui/icons-material/VerifiedUserOutlined';
-import { useCart } from '../../context/CartContext';
-import { getProfileCredentials } from '../../Actions/Users/FetchUserProfile';
+import { useMemo }                     from 'react';
+import { useLocation, useNavigate }    from 'react-router-dom';
+import { useCart }                     from '../../context/CartContext';
+import { getProfileCredentials }       from '../../Actions/Users/FetchUserProfile';
+import './index.scss';
 
-function getPageMeta(pathname) {
-  if (pathname.startsWith('/user/orders'))  return { title: 'My Orders',        breadcrumb: 'Orders History & Tracking' };
-  if (pathname.startsWith('/user/profile')) return { title: 'Account Settings', breadcrumb: 'Profile & Security' };
-  return { title: 'Dashboard', breadcrumb: 'Overview & Activity' };
-}
+const META = {
+  '/user/dashboard': { title: 'Dashboard',        icon: '⊞' },
+  '/user/orders':    { title: 'My Orders',         icon: '📦' },
+  '/user/profile':   { title: 'Account & Profile', icon: '👤' },
+};
 
-function UserTopbar({ onMenuClick, sidebarExpanded }) {
+export default function UserTopbar({ onMenuClick, sidebarExpanded }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const { cartCount = 0, wishlistCount = 0 } = useCart();
+  const { totalItems = 0 } = useCart();
   const creds = getProfileCredentials();
 
-  const meta        = useMemo(() => getPageMeta(location.pathname), [location.pathname]);
-  const displayName = creds?.name?.split(' ')[0] || 'Member';
-  const initials    = (creds?.name || 'U').split(' ').map((w) => w[0] || '').join('').slice(0, 2).toUpperCase();
+  const meta     = useMemo(() => META[location.pathname] || { title: 'Dashboard', icon: '⊞' }, [location.pathname]);
+  const initials = (creds?.name || 'U').split(' ').map(w => w[0] || '').join('').slice(0, 2).toUpperCase();
 
   return (
-    <AppBar
-      position="fixed"
-      elevation={0}
-      sx={{
-        bgcolor: 'rgba(255,255,255,0.97)',
-        backdropFilter: 'blur(16px)',
-        color: '#0f172a',
-        borderBottom: '1px solid rgba(226,232,240,0.85)',
-        zIndex: 1100,   // sidebar (1200) overlaps the topbar on the left
-        left: 0,
-        right: 0,
-        transition: 'all 0.25s cubic-bezier(0.4,0,0.2,1)',
-      }}
-    >
-      <Toolbar sx={{ px: { xs: 2, sm: 3 }, minHeight: { xs: 64, sm: 70 }, gap: 1 }}>
+    <header className="utopbar">
+      {/* Hamburger (mobile) / collapse toggle (desktop) */}
+      <button className="utopbar__ham" onClick={onMenuClick} aria-label="Toggle menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <line x1="3" y1="6"  x2="21" y2="6"/>
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
 
-        {/* Hamburger — always visible, switches icon with sidebar state */}
-        <IconButton
-          edge="start"
-          onClick={onMenuClick}
-          sx={{
-            color: '#1e293b',
-            bgcolor: '#f1f5f9',
-            borderRadius: '10px',
-            '&:hover': { bgcolor: '#e2e8f0' },
-          }}
-          aria-label="toggle sidebar"
-        >
-          {sidebarExpanded
-            ? <MenuOpenIcon sx={{ fontSize: 22 }} />
-            : <MenuIcon     sx={{ fontSize: 22 }} />}
-        </IconButton>
+      {/* Page title */}
+      <div className="utopbar__title">{meta.title}</div>
 
-        {/* Page title — simple, no breadcrumb */}
-        <Typography
-          variant="h6"
-          component="h1"
-          sx={{
-            flexGrow: 1,
-            fontWeight: 700,
-            fontSize: { xs: '1rem', sm: '1.1rem' },
-            color: '#0f172a',
-            lineHeight: 1.2,
-            letterSpacing: '-0.01em',
-            minWidth: 0,
-          }}
-        >
-          {meta.title}
-        </Typography>
+      {/* Spacer */}
+      <div style={{ flex: 1 }} />
 
-        {/* Right-side actions */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.5 } }}>
+      {/* Actions */}
+      <div className="utopbar__actions">
+        <button className="utopbar__btn" onClick={() => navigate('/products')} title="Go to shop">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+            <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <path d="M16 10a4 4 0 01-8 0"/>
+          </svg>
+          <span>Shop</span>
+        </button>
 
-          <Tooltip title="Wishlist">
-            <IconButton onClick={() => navigate('/wishlist')} sx={{ color: '#475569', bgcolor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', width: 40, height: 40, '&:hover': { bgcolor: '#f1f5f9', color: '#dc2626' } }}>
-              <Badge badgeContent={wishlistCount} color="error" max={99}>
-                <FavoriteBorderOutlinedIcon sx={{ fontSize: 20 }} />
-              </Badge>
-            </IconButton>
-          </Tooltip>
+        <button className="utopbar__btn utopbar__btn--cart" onClick={() => navigate('/cart')} title="Cart">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+            <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+            <path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.95-1.44L23 6H6"/>
+          </svg>
+          {totalItems > 0 && <span className="utopbar__badge">{totalItems}</span>}
+        </button>
 
-          <Tooltip title="Cart">
-            <IconButton onClick={() => navigate('/cart')} sx={{ color: '#475569', bgcolor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', width: 40, height: 40, '&:hover': { bgcolor: '#f1f5f9', color: '#001F3F' } }}>
-              <Badge badgeContent={cartCount} color="primary" max={99}>
-                <ShoppingBagOutlinedIcon sx={{ fontSize: 20 }} />
-              </Badge>
-            </IconButton>
-          </Tooltip>
-
-          {/* User capsule */}
-          <Box
-            onClick={() => navigate('/user/profile')}
-            sx={{
-              display: 'flex', alignItems: 'center', gap: 1.25,
-              py: 0.5, px: { xs: 0.75, sm: 1.25 },
-              borderRadius: '24px', border: '1px solid #e2e8f0',
-              bgcolor: '#fff', cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              '&:hover': { borderColor: '#cbd5e1', bgcolor: '#f8fafc', boxShadow: '0 2px 10px rgba(0,31,63,0.06)' },
-            }}
-          >
-            <Avatar sx={{ width: 32, height: 32, fontSize: '0.8rem', fontWeight: 700, bgcolor: '#001F3F', color: '#D4AF37', border: '1.5px solid #D4AF37' }}>
-              {initials}
-            </Avatar>
-            <Box sx={{ display: { xs: 'none', md: 'block' }, pr: 0.5 }}>
-              <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, color: '#0f172a', lineHeight: 1.1 }}>
-                {displayName}
-              </Typography>
-              <Typography sx={{ fontSize: '0.68rem', color: '#16a34a', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 0.3 }}>
-                <VerifiedUserOutlinedIcon sx={{ fontSize: 11 }} /> Active
-              </Typography>
-            </Box>
-          </Box>
-
-        </Box>
-      </Toolbar>
-    </AppBar>
+        <button className="utopbar__avatar" onClick={() => navigate('/user/profile')} title="Profile">
+          {initials}
+        </button>
+      </div>
+    </header>
   );
 }
-
-export default UserTopbar;

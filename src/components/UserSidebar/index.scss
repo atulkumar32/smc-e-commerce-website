@@ -1,0 +1,302 @@
+// ─────────────────────────────────────────────────────────────────────────────
+//  UserSidebar — premium collapsible dark sidebar
+// ─────────────────────────────────────────────────────────────────────────────
+
+$sb-bg:        #0f1c2e;
+$sb-border:    rgba(255,255,255,0.07);
+$sb-idle:      #94a3b8;
+$sb-active-bg: rgba(200,164,119,0.14);
+$sb-gold:      #c8a477;
+$sb-white:     #ffffff;
+$sb-hover:     rgba(255,255,255,0.06);
+$transition:   0.28s cubic-bezier(0.4,0,0.2,1);
+
+// Rail wrappers ────────────────────────────────────────────────
+.usb-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 1299;
+  display: none;
+  @media (max-width: 899px) { display: block; }
+}
+
+.usb-rail {
+  flex-shrink: 0;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  overflow: hidden;
+  transition: width $transition;
+  z-index: 1200;
+
+  &--desktop {
+    display: none;
+    @media (min-width: 900px) { display: block; }
+  }
+
+  &--mobile {
+    position: fixed;
+    top: 0; left: -260px; bottom: 0;
+    width: 240px;
+    transition: left $transition;
+    z-index: 1300;
+    @media (min-width: 900px) { display: none; }
+
+    &-open { left: 0; }
+  }
+}
+
+// Inner block ─────────────────────────────────────────────────
+.usb {
+  height: 100%;
+  background: $sb-bg;
+  display: flex;
+  flex-direction: column;
+  width: 240px;           // always full width; rail clips it
+  min-height: 100vh;
+  font-family: 'DM Sans', sans-serif;
+  overflow: hidden;
+
+  // ── Logo ──
+  &__logo {
+    height: 64px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 20px;
+    border-bottom: 1px solid $sb-border;
+    cursor: pointer;
+    text-decoration: none;
+    overflow: hidden;
+  }
+
+  &__logo-mark {
+    width: 34px; height: 34px;
+    border-radius: 9px;
+    background: linear-gradient(135deg, $sb-gold, #9a7a0a);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    svg { width: 18px; height: 18px; color: #0f1c2e; }
+  }
+
+  &__logo-text { overflow: hidden; }
+
+  &__logo-name {
+    display: block;
+    font-size: 13.5px;
+    font-weight: 800;
+    color: $sb-white;
+    white-space: nowrap;
+    line-height: 1.2;
+  }
+
+  &__logo-sub {
+    display: block;
+    font-size: 10px;
+    font-weight: 600;
+    color: $sb-gold;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+  }
+
+  // ── User chip ──
+  &__user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid $sb-border;
+    cursor: pointer;
+    transition: background $transition;
+    overflow: hidden;
+    &:hover { background: $sb-hover; }
+  }
+
+  &__avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1e3a5f, #1565c0);
+    border: 2px solid $sb-gold;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 800;
+    color: #F5D77F;
+    flex-shrink: 0;
+  }
+
+  &__user-info { overflow: hidden; }
+
+  &__user-name {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: $sb-white;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.3;
+  }
+
+  &__user-email {
+    display: block;
+    font-size: 11px;
+    color: $sb-idle;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  // ── Nav ──
+  &__nav {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 12px 10px;
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    &::-webkit-scrollbar { width: 3px; }
+    &::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+  }
+
+  &__link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    text-decoration: none;
+    color: $sb-idle;
+    font-size: 13.5px;
+    font-weight: 500;
+    transition: background $transition, color $transition;
+    white-space: nowrap;
+    overflow: hidden;
+
+    &:hover { background: $sb-hover; color: $sb-white; }
+
+    &--active {
+      background: $sb-active-bg;
+      color: $sb-gold;
+      font-weight: 700;
+      border-left: 3px solid $sb-gold;
+      padding-left: 9px;
+    }
+  }
+
+  &__link-icon {
+    flex-shrink: 0;
+    width: 20px; height: 20px;
+    display: flex; align-items: center; justify-content: center;
+    svg { width: 20px; height: 20px; }
+  }
+
+  &__link-label { overflow: hidden; text-overflow: ellipsis; }
+
+  // ── Logout ──
+  &__logout {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: calc(100% - 20px);
+    margin: 0 10px 8px;
+    padding: 10px 12px;
+    border: 1px solid rgba(239,68,68,0.2);
+    border-radius: 10px;
+    background: rgba(239,68,68,0.08);
+    color: #f87171;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background $transition;
+    white-space: nowrap;
+    overflow: hidden;
+
+    &:hover { background: rgba(239,68,68,0.16); }
+
+    svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+    &--icon { justify-content: center; }
+  }
+
+  // ── Toggle ──
+  &__toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: calc(100% - 20px);
+    margin: 0 10px 12px;
+    padding: 10px 12px;
+    border: 1px solid $sb-border;
+    border-radius: 10px;
+    background: none;
+    color: $sb-idle;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background $transition, color $transition;
+    white-space: nowrap;
+    overflow: hidden;
+
+    &:hover { background: $sb-hover; color: $sb-white; }
+
+    svg { width: 16px; height: 16px; flex-shrink: 0; }
+  }
+
+  // ── Logout confirm ──
+  &__confirm {
+    position: absolute; inset: 0;
+    background: rgba(15,28,46,0.9);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 10;
+  }
+
+  &__confirm-box {
+    background: #1e2d40;
+    border: 1px solid $sb-border;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    width: 180px;
+
+    p {
+      font-size: 13px;
+      color: $sb-white;
+      margin: 0 0 14px;
+      font-family: 'DM Sans', sans-serif;
+    }
+  }
+
+  &__confirm-btns {
+    display: flex; gap: 8px;
+
+    button {
+      flex: 1; padding: 8px; border-radius: 7px;
+      font-size: 12px; font-weight: 600; cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      background: rgba(255,255,255,0.08); border: 1px solid $sb-border; color: $sb-idle;
+      &:hover { background: rgba(255,255,255,0.14); color: $sb-white; }
+    }
+  }
+
+  &__confirm-yes {
+    background: rgba(239,68,68,0.15) !important;
+    border-color: rgba(239,68,68,0.3) !important;
+    color: #f87171 !important;
+    &:hover { background: rgba(239,68,68,0.28) !important; }
+  }
+
+  // ── Collapsed state ──
+  &--collapsed {
+    .usb__logo { padding: 0; justify-content: center; }
+    .usb__user  { padding: 14px 0; justify-content: center; }
+    .usb__nav   { padding: 12px 6px; }
+    .usb__link  { padding: 10px; justify-content: center; border-left: none;
+      &--active { padding-left: 10px; border-left: 3px solid $sb-gold; padding-left: 7px; } }
+    .usb__logout { width: calc(100% - 12px); margin: 0 6px 8px; padding: 10px; justify-content: center; }
+    .usb__toggle { width: calc(100% - 12px); margin: 0 6px 12px; padding: 10px; }
+  }
+}
