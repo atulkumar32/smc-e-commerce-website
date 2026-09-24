@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { Link, useLocation, useParams, useNavigate } from 'react-router-dom';
 import { useCart } from '../../../context/CartContext';
 import { isUserAuthenticated } from '../../../services/apiClients';
@@ -52,32 +52,68 @@ function Lightbox({ images, startIndex, onClose }) {
 }
 
 // ── Image Zoom constants ──────────────────────────────────────────────────────
-const ZOOM = 3;      // magnification factor
-const LENS_SIZE = 100;    // lens square in px (on the source thumb)
+const ZOOM = 2.6; // optical magnification factor
+
+/**
+ * Safely format background-image URL so filenames with spaces,
+ * quotes, and parentheses like "WhatsApp Image ... (1)_10.jpeg"
+ * parse validly in CSS without breaking or failing to display.
+ */
+function formatBgUrl(url) {
+  if (!url) return 'none';
+  const safe = String(url)
+    .replace(/"/g, '%22')
+    .replace(/'/g, '%27')
+    .replace(/\(/g, '%28')
+    .replace(/\)/g, '%29');
+  return `url("${safe}")`;
+}
 
 // ── Single mosaic thumb with lens tracking ────────────────────────────────────
-// Reports mouse position (0-1 fractions) up to parent via onHover / onLeave
-function ZoomThumb({ src, alt, onHover, onLeave, onOpenLightbox }) {
+function ZoomThumb({ src, alt, cellIndex, onHover, onLeave, onOpenLightbox }) {
   const imgRef = useRef(null);
 
   const handleMouseMove = (e) => {
     const el = imgRef.current;
     if (!el) return;
     const rect = el.getBoundingClientRect();
+    const thumbW = rect.width;
+    const thumbH = rect.height;
+
+    // Lens covers ~42% of thumbnail area for comfortable, distortion-free inspection
+    const lensW = Math.round(thumbW * 0.42);
+    const lensH = Math.round(thumbH * 0.42);
 
     const rawX = e.clientX - rect.left;
     const rawY = e.clientY - rect.top;
 
-    // Clamp lens so it stays fully inside the image
-    const half = LENS_SIZE / 2;
-    const lx = Math.max(0, Math.min(rect.width - LENS_SIZE, rawX - half));
-    const ly = Math.max(0, Math.min(rect.height - LENS_SIZE, rawY - half));
+    // Clamp lens within thumbnail bounds
+    const lx = Math.max(0, Math.min(thumbW - lensW, rawX - lensW / 2));
+    const ly = Math.max(0, Math.min(thumbH - lensH, rawY - lensH / 2));
 
-    // Percentage position for the big portal
-    const bgX = Math.max(0, Math.min(100, (rawX / rect.width) * 100));
-    const bgY = Math.max(0, Math.min(100, (rawY / rect.height) * 100));
+    // Calculate vertical position of this cell relative to .pd__layout
+    const layoutEl = el.closest('.pd__layout');
+    const cellEl = el.closest('.pd__mosaic-cell') || el;
+    let portalTop = 0;
+    if (layoutEl && cellEl) {
+      const layoutRect = layoutEl.getBoundingClientRect();
+      const cellRect = cellEl.getBoundingClientRect();
+      const maxPortalTop = Math.max(0, layoutRect.height - 540);
+      portalTop = Math.max(0, Math.min(maxPortalTop, cellRect.top - layoutRect.top));
+    }
 
-    onHover({ src, lx, ly, bgX, bgY });
+    onHover({
+      cellIndex,
+      src,
+      lx,
+      ly,
+      lensW,
+      lensH,
+      thumbW,
+      thumbH,
+      zoom: ZOOM,
+      portalTop,
+    });
   };
 
   const handleMouseLeave = () => onLeave();
@@ -85,6 +121,7 @@ function ZoomThumb({ src, alt, onHover, onLeave, onOpenLightbox }) {
   return (
     <div
       className="pd__thumb"
+      onMouseEnter={handleMouseMove}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
     >
@@ -96,7 +133,6 @@ function ZoomThumb({ src, alt, onHover, onLeave, onOpenLightbox }) {
         draggable="false"
         onClick={onOpenLightbox}
       />
-      {/* Lens indicator rendered inside the thumb */}
     </div>
   );
 }
@@ -152,12 +188,22 @@ function ProductDetail() {
   const [pincodeResult, setPincodeResult] = useState(null);
   const [pincodeChecking, setPincodeChecking] = useState(false);
   // Zoom state — lifted up so portal can cover the right panel
-  const [zoomData, setZoomData] = useState(null); // { src, lx, ly, bgX, bgY }
+  const [zoomData, setZoomData] = useState(null); // { src, lx, ly, lensW, lensH, thumbW, thumbH, zoom }
   const [showReviews, setShowReviews] = useState(false);
-  const [reviewMode,  setReviewMode]  = useState('reviews'); // 'reviews' | 'write'
+  const [quantity, setQuantity] = useState(1);
 
-  const openReviews = () => { setReviewMode('reviews'); setShowReviews(true); };
-  const openWrite   = () => { setReviewMode('write');   setShowReviews(true); };
+  const openReviews = () => setShowReviews(true);
+
+  const handleIncreaseQty = () => {
+    setQuantity((prev) => (displayStock > 0 ? Math.min(displayStock, prev + 1) : prev + 1));
+  };
+  const handleDecreaseQty = () => {
+    setQuantity((prev) => Math.max(1, prev - 1));
+  };
+
+  useEffect(() => {
+    setQuantity(1);
+  }, [selectedVariant]);
 
   const canBuyNow = pincodeResult?.available === true;
   const productId = slug || new URLSearchParams(search).get('product_id') || '';
@@ -169,7 +215,19 @@ function ProductDetail() {
   useEffect(() => { if (rawError) setError(rawError); }, [rawError]);
   useEffect(() => { setLoading(rawLoading); }, [rawLoading]);
 
-  const displayGallery = selectedVariant?.gallery?.length > 0 ? selectedVariant.gallery : (product?.gallery ?? []);
+  const displayGallery = useMemo(() => {
+    const variantImgs = Array.isArray(selectedVariant?.gallery) ? selectedVariant.gallery.filter(Boolean) : [];
+    const productImgs = Array.isArray(product?.gallery) ? product.gallery.filter(Boolean) : [];
+
+    // Prioritize variant images first, then append any remaining product images
+    const combined = [...variantImgs];
+    for (const img of productImgs) {
+      if (!combined.includes(img)) {
+        combined.push(img);
+      }
+    }
+    return combined.length > 0 ? combined : (productImgs.length > 0 ? productImgs : []);
+  }, [selectedVariant, product]);
   const displayPrice = selectedVariant?.sellingPrice ?? product?.price ?? 0;
   const displayMRP = selectedVariant?.mrp ?? product?.originalPrice ?? null;
   const displayStock = selectedVariant?.stock ?? product?.stock ?? 0;
@@ -197,8 +255,8 @@ function ProductDetail() {
     selectedSize: displaySize,
     variantId: selectedVariant?.variantId,
     stock: displayStock,
-    quantity: 1,
-  }), [product, displayPrice, displayGallery, displayColorHex, displaySize, selectedVariant, displayStock]);
+    quantity: quantity,
+  }), [product, displayPrice, displayGallery, displayColorHex, displaySize, selectedVariant, displayStock, quantity]);
 
   const buildNavState = useCallback((mode) => ({
     selectedProduct: buildCartItem(), checkoutMode: mode,
@@ -229,12 +287,6 @@ function ProductDetail() {
       <h2>{error || 'Product not found'}</h2>
       <Link to="/products" className="pd-not-found__link">← Back to Products</Link>
     </div>
-  );
-
-  // Build 2×2 mosaic grid (Flipkart style)
-  const gridImages = displayGallery.slice(0, 4);
-  const extraCount = displayGallery.length > 4 ? displayGallery.length - 4 : 0;
-
   return (
     <>
       <ProductDetailSeo product={product} selectedVariant={selectedVariant} path={`/products/${slug || ''}`} />
@@ -251,56 +303,66 @@ function ProductDetail() {
             {/* ── LEFT: sticky image mosaic ── */}
             <div className="pd__left">
               <div className="pd__mosaic">
-                {gridImages.map((src, i) => (
-                  <div key={`${selectedVariant?.variantId ?? 'base'}-${i}`}
-                    className="pd__mosaic-cell"
-                  >
-                    <ZoomThumb
-                      src={src}
-                      alt={`${toTitleCase(product.name)} ${i + 1}`}
-                      onHover={setZoomData}
-                      onLeave={() => setZoomData(null)}
-                      onOpenLightbox={() => setLightbox({ index: i })}
-                    />
-                    {/* Lens square on the hovered thumb */}
-                    {zoomData?.src === src && (
-                      <div
-                        className="pd__lens"
-                        style={{
-                          width: LENS_SIZE,
-                          height: LENS_SIZE,
-                          left: zoomData.lx,
-                          top: zoomData.ly,
-                        }}
-                        aria-hidden="true"
+                {displayGallery.map((src, i) => {
+                  const isSpan2 = displayGallery.length === 1 || (displayGallery.length === 3 && i === 0);
+                  return (
+                    <div
+                      key={`${selectedVariant?.variantId ?? 'base'}-${i}`}
+                      className={`pd__mosaic-cell${isSpan2 ? ' pd__mosaic-cell--span-2' : ''}`}
+                    >
+                      <ZoomThumb
+                        src={src}
+                        alt={`${toTitleCase(product.name)} ${i + 1}`}
+                        cellIndex={i}
+                        onHover={setZoomData}
+                        onLeave={() => setZoomData(null)}
+                        onOpenLightbox={() => setLightbox({ index: i })}
                       />
-                    )}
-                    {i === 3 && extraCount > 0 && (
-                      <div className="pd__mosaic-more">+{extraCount}</div>
-                    )}
-                  </div>
-                ))}
-                {gridImages.length < 4 && Array.from({ length: 4 - gridImages.length }).map((_, i) => (
-                  <div key={`empty-${i}`} className="pd__mosaic-cell pd__mosaic-cell--empty" />
-                ))}
+                      {/* Lens square on the hovered thumb */}
+                      {zoomData?.cellIndex === i && (
+                        <div
+                          className="pd__lens"
+                          style={{
+                            width: `${zoomData.lensW}px`,
+                            height: `${zoomData.lensH}px`,
+                            left: `${zoomData.lx}px`,
+                            top: `${zoomData.ly}px`,
+                          }}
+                          aria-hidden="true"
+                        />
+                      )}
+                    </div>
+                  );
+                })}
               </div>
-              {/* {product.badge && (
-                <span className={`pd__badge pd__badge--${product.badge.toLowerCase()}`}>{product.badge}</span>
-              )} */}
             </div>
 
-            {/* ── ZOOM PORTAL — absolute sibling, covers the right column ── */}
+            {/* ── ZOOM PORTAL — dedicated inspection box positioned in the right column ── */}
             {zoomData && (
               <div
                 className="pd__zoom-portal"
-                style={{
-                  backgroundImage: `url(${zoomData.src})`,
-                  backgroundSize: `${ZOOM * 100}%`,
-                  backgroundPosition: `${zoomData.bgX}% ${zoomData.bgY}%`,
-                  backgroundRepeat: 'no-repeat',
-                }}
+                style={{ top: `${zoomData.portalTop || 0}px` }}
                 aria-hidden="true"
-              />
+              >
+                <div className="pd__zoom-badge">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                    <circle cx="11" cy="11" r="8" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                    <line x1="11" y1="8" x2="11" y2="14" />
+                    <line x1="8" y1="11" x2="14" y2="11" />
+                  </svg>
+                  <span>HD Inspection • {ZOOM}×</span>
+                </div>
+                <div
+                  className="pd__zoom-view"
+                  style={{
+                    backgroundImage: formatBgUrl(zoomData.src),
+                    backgroundSize: `${zoomData.thumbW * zoomData.zoom}px ${zoomData.thumbH * zoomData.zoom}px`,
+                    backgroundPosition: `-${zoomData.lx * zoomData.zoom}px -${zoomData.ly * zoomData.zoom}px`,
+                    backgroundRepeat: 'no-repeat',
+                  }}
+                />
+              </div>
             )}
 
             {/* ── RIGHT: info panel — matches reference screenshot ── */}
@@ -343,14 +405,6 @@ function ProductDetail() {
                   aria-label={`View all ${product.reviewCount || 5} reviews`}
                 >
                   {product.reviewCount || 0} Reviews
-                </button>
-                <span className="pd__rating-sep">|</span>
-                <button
-                  className="pd__rating-count pd__rating-count--btn pd__rating-count--write"
-                  onClick={openWrite}
-                  aria-label="Write a review"
-                >
-                  Write a Review
                 </button>
               </div>
 
@@ -403,28 +457,48 @@ function ProductDetail() {
                 </div>
               )}
 
-              {/* SIZE selector */}
-              {displaySize && (
-                <div className="pd__section">
-                  <p className="pd__section-label">SIZE: <strong>{displaySize.toUpperCase()}</strong></p>
-                  <div className="pd__size-row">
-                    {product.variants?.map((v) => v.size).filter(Boolean).filter((s, i, a) => a.indexOf(s) === i).map((sz) => (
-                      <button key={sz}
-                        className={`pd__size-chip${displaySize === sz ? ' pd__size-chip--on' : ''}`}
-                        onClick={(e) => { e.stopPropagation(); const mv = product.variants?.find((v) => v.size === sz); mv && handleColorSelect(mv); }}
-                      >
-                        {sz.toUpperCase()}
-                      </button>
-                    ))}
+              {/* SIZE & QUANTITY in a single row */}
+              <div className="pd__size-qty-row">
+                {displaySize && (
+                  <div className="pd__size-col">
+                    <p className="pd__section-label">SIZE: <strong>{displaySize.toUpperCase()}</strong></p>
+                    <div className="pd__size-row">
+                      {product.variants?.map((v) => v.size).filter(Boolean).filter((s, i, a) => a.indexOf(s) === i).map((sz) => (
+                        <button key={sz}
+                          type="button"
+                          className={`pd__size-chip${displaySize === sz ? ' pd__size-chip--on' : ''}`}
+                          onClick={(e) => { e.stopPropagation(); const mv = product.variants?.find((v) => v.size === sz); mv && handleColorSelect(mv); }}
+                        >
+                          {sz.toUpperCase()}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
-              <div className="pd__qty">
-                <span className="pd__qty-label">QUANTITY</span>
-                <div className="pd__qty-stepper">
-                  <button className="pd__qty-btn" aria-label="Decrease">−</button>
-                  <span className="pd__qty-val">1</span>
-                  <button className="pd__qty-btn" aria-label="Increase">+</button>
+                )}
+
+                <div className="pd__qty-col">
+                  <p className="pd__section-label">QUANTITY</p>
+                  <div className="pd__qty-stepper">
+                    <button
+                      type="button"
+                      className="pd__qty-btn"
+                      onClick={handleDecreaseQty}
+                      disabled={quantity <= 1}
+                      aria-label="Decrease quantity"
+                    >
+                      −
+                    </button>
+                    <span className="pd__qty-val">{quantity}</span>
+                    <button
+                      type="button"
+                      className="pd__qty-btn"
+                      onClick={handleIncreaseQty}
+                      disabled={displayStock > 0 && quantity >= displayStock}
+                      aria-label="Increase quantity"
+                    >
+                      +
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -626,7 +700,8 @@ function ProductDetail() {
           productId={product.id}
           totalReviews={product.reviewCount || 0}
           avgRating={product.rating || 0}
-          mode={reviewMode}
+          mode="reviews"
+          allowWrite={false}
           onClose={() => setShowReviews(false)}
         />
       )}

@@ -1,302 +1,568 @@
 // ─────────────────────────────────────────────────────────────────────────────
-//  UserSidebar — premium collapsible dark sidebar
+//  UserSidebar — Premium Collapsible Navigation Menu Bar
+//  Design specification: Collapsed 60px | Expanded 200px
+//  Features rounded right edges, SMC gold bag logo, vibrant royal blue active pill,
+//  and smooth spring expansion animation.
 // ─────────────────────────────────────────────────────────────────────────────
 
-$sb-bg:        #0f1c2e;
-$sb-border:    rgba(255,255,255,0.07);
-$sb-idle:      #94a3b8;
-$sb-active-bg: rgba(200,164,119,0.14);
-$sb-gold:      #c8a477;
-$sb-white:     #ffffff;
-$sb-hover:     rgba(255,255,255,0.06);
-$transition:   0.28s cubic-bezier(0.4,0,0.2,1);
+$sb-bg:         #0d1527;
+$sb-surface:    #111d35;
+$sb-border:     rgba(255, 255, 255, 0.07);
+$sb-gold:       #D4AF37;
+$sb-blue-active:#2563eb;
+$sb-blue-glow:  rgba(37, 99, 235, 0.38);
+$sb-white:      #ffffff;
+$sb-text:       #cbd5e1;
+$sb-text-muted: #94a3b8;
+$sb-hover:      rgba(255, 255, 255, 0.08);
+$spring-ease:   cubic-bezier(0.22, 1, 0.36, 1);
+$duration:      0.3s;
 
-// Rail wrappers ────────────────────────────────────────────────
+// ── Mobile Overlay ───────────────────────────────────────────
 .usb-overlay {
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,0.5);
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 10, 20, 0.7);
+  backdrop-filter: blur(4px);
   z-index: 1299;
   display: none;
-  @media (max-width: 899px) { display: block; }
+  animation: usbFadeIn 0.25s ease-out;
+
+  @media (max-width: 899px) {
+    display: block;
+  }
 }
 
+@keyframes usbFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+// ── Rail Wrappers (Pinned strictly with rounded right edge) ──
 .usb-rail {
   flex-shrink: 0;
   height: 100vh;
+  max-height: 100vh;
   position: sticky;
   top: 0;
   overflow: hidden;
-  transition: width $transition;
+  border-radius: 0 24px 24px 0 !important; // Rounded right edges as in design spec
+  transition: width $duration $spring-ease, min-width $duration $spring-ease, max-width $duration $spring-ease;
   z-index: 1200;
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.28);
 
   &--desktop {
     display: none;
-    @media (min-width: 900px) { display: block; }
+    @media (min-width: 900px) {
+      display: block;
+    }
+  }
+
+  &--expanded {
+    width: 200px !important;
+    min-width: 200px !important;
+    max-width: 200px !important;
+    flex-basis: 200px !important;
+  }
+
+  &--collapsed {
+    width: 60px !important;
+    min-width: 60px !important;
+    max-width: 60px !important;
+    flex-basis: 60px !important;
   }
 
   &--mobile {
     position: fixed;
-    top: 0; left: -260px; bottom: 0;
-    width: 240px;
-    transition: left $transition;
+    top: 0;
+    left: -220px;
+    bottom: 0;
+    width: 200px;
+    min-width: 200px;
+    max-width: 200px;
+    transition: left $duration $spring-ease;
     z-index: 1300;
-    @media (min-width: 900px) { display: none; }
+    box-shadow: 8px 0 32px rgba(0, 0, 0, 0.5);
 
-    &-open { left: 0; }
+    @media (min-width: 900px) {
+      display: none;
+    }
+
+    &-open {
+      left: 0;
+    }
   }
 }
 
-// Inner block ─────────────────────────────────────────────────
+// ── Inner Container ───────────────────────────────────────────
 .usb {
   height: 100%;
+  max-height: 100vh;
   background: $sb-bg;
+  border-radius: 0 24px 24px 0;
   display: flex;
   flex-direction: column;
-  width: 240px;           // always full width; rail clips it
-  min-height: 100vh;
-  font-family: 'DM Sans', sans-serif;
+  width: 100%;
+  min-width: 100%;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  user-select: none;
+  box-sizing: border-box;
   overflow: hidden;
 
-  // ── Logo ──
+  // ── 1. Logo Section ──
   &__logo {
-    height: 64px;
+    height: 84px; // Matches 84px topbar height for horizontal continuity
     flex-shrink: 0;
     display: flex;
+    flex-direction: row;
     align-items: center;
-    gap: 12px;
-    padding: 0 20px;
-    border-bottom: 1px solid $sb-border;
+    justify-content: flex-start;
+    padding: 0 14px;
+    gap: 10px;
     cursor: pointer;
-    text-decoration: none;
     overflow: hidden;
+    transition: background 0.2s ease;
+
+    @media (max-width: 900px) {
+      height: 70px;
+    }
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
   }
 
-  &__logo-mark {
-    width: 34px; height: 34px;
-    border-radius: 9px;
-    background: linear-gradient(135deg, $sb-gold, #9a7a0a);
-    display: flex; align-items: center; justify-content: center;
+  &__logo-icon-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     flex-shrink: 0;
-    svg { width: 18px; height: 18px; color: #0f1c2e; }
+    width: 32px;
+    text-align: center;
   }
 
-  &__logo-text { overflow: hidden; }
+  &__logo-bag {
+    width: 24px;
+    height: 24px;
+    stroke: $sb-gold;
+    color: $sb-gold;
+    display: block;
+    transition: transform 0.25s $spring-ease;
+  }
+
+  &:hover &__logo-bag {
+    transform: scale(1.08);
+  }
+
+  &__logo-smc {
+    font-size: 10.5px;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: 0.06em;
+    line-height: 1.1;
+    margin-top: 2px;
+    display: block;
+  }
+
+  &__logo-text {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    white-space: nowrap;
+  }
 
   &__logo-name {
-    display: block;
-    font-size: 13.5px;
-    font-weight: 800;
-    color: $sb-white;
-    white-space: nowrap;
-    line-height: 1.2;
-  }
-
-  &__logo-sub {
-    display: block;
-    font-size: 10px;
-    font-weight: 600;
-    color: $sb-gold;
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
-  }
-
-  // ── User chip ──
-  &__user {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 14px 16px;
-    border-bottom: 1px solid $sb-border;
-    cursor: pointer;
-    transition: background $transition;
-    overflow: hidden;
-    &:hover { background: $sb-hover; }
-  }
-
-  &__avatar {
-    width: 36px; height: 36px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #1e3a5f, #1565c0);
-    border: 2px solid $sb-gold;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 13px; font-weight: 800;
-    color: #F5D77F;
-    flex-shrink: 0;
-  }
-
-  &__user-info { overflow: hidden; }
-
-  &__user-name {
-    display: block;
     font-size: 13px;
     font-weight: 700;
     color: $sb-white;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    line-height: 1.3;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
   }
 
-  &__user-email {
-    display: block;
-    font-size: 11px;
-    color: $sb-idle;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  &__logo-sub {
+    font-size: 9.5px;
+    font-weight: 600;
+    color: $sb-gold;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
   }
 
-  // ── Nav ──
+  // ── 2. Navigation Links ──
   &__nav {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-    padding: 12px 10px;
-    overflow-y: auto;
-    overflow-x: hidden;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+    padding: 12px 0 !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    flex: 1 !important;
+    scrollbar-width: none;
 
-    &::-webkit-scrollbar { width: 3px; }
-    &::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+    &::-webkit-scrollbar {
+      display: none;
+    }
   }
 
   &__link {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 12px;
-    border-radius: 10px;
-    text-decoration: none;
-    color: $sb-idle;
-    font-size: 13.5px;
-    font-weight: 500;
-    transition: background $transition, color $transition;
-    white-space: nowrap;
-    overflow: hidden;
+    position: relative !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    flex-wrap: nowrap !important;
+    white-space: nowrap !important;
+    gap: 12px !important;
+    padding: 0 10px !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    max-height: 44px !important;
+    margin: 2px 8px !important;
+    width: calc(100% - 16px) !important;
+    border-radius: 12px !important;
+    text-decoration: none !important;
+    color: $sb-text-muted !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    transition:
+      background 0.22s ease,
+      color 0.22s ease,
+      box-shadow 0.22s ease,
+      transform 0.2s ease;
 
-    &:hover { background: $sb-hover; color: $sb-white; }
+    // Inactive Icon Box
+    &-icon-box {
+      width: 32px !important;
+      height: 32px !important;
+      min-width: 32px !important;
+      max-width: 32px !important;
+      border-radius: 8px !important;
+      background: transparent !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      flex-shrink: 0 !important;
+      color: $sb-text-muted !important;
+      transition: all 0.22s $spring-ease;
 
+      svg {
+        width: 19px !important;
+        height: 19px !important;
+        color: inherit !important;
+        stroke: currentColor !important;
+        fill: none !important;
+        display: block !important;
+      }
+    }
+
+    // Label Text
+    &-label {
+      display: inline-block !important;
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      color: $sb-text !important;
+      font-size: 13.5px !important;
+      font-weight: 500 !important;
+      line-height: 1 !important;
+      text-align: left !important;
+      flex: 1 !important;
+    }
+
+    // Live Badge Pill (e.g. wishlist count)
+    &-badge {
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      background: #dc2626 !important;
+      color: #ffffff !important;
+      font-size: 10px !important;
+      font-weight: 800 !important;
+      padding: 2px 6px !important;
+      border-radius: 10px !important;
+      margin-left: auto !important;
+      line-height: 1 !important;
+      flex-shrink: 0 !important;
+    }
+
+    &:hover {
+      background: $sb-hover !important;
+      color: #ffffff !important;
+
+      .usb__link-icon-box {
+        color: #ffffff !important;
+      }
+
+      .usb__link-label {
+        color: #ffffff !important;
+      }
+    }
+
+    // ── Active Pill State (Exact design match: Royal Blue pill with light icon box) ──
     &--active {
-      background: $sb-active-bg;
-      color: $sb-gold;
-      font-weight: 700;
-      border-left: 3px solid $sb-gold;
-      padding-left: 9px;
+      background: $sb-blue-active !important;
+      color: #ffffff !important;
+      box-shadow: 0 4px 14px $sb-blue-glow !important;
+
+      .usb__link-icon-box {
+        background: rgba(255, 255, 255, 0.22) !important;
+        color: #ffffff !important;
+        border-radius: 8px !important;
+
+        svg {
+          color: #ffffff !important;
+          stroke: #ffffff !important;
+          stroke-width: 2.2 !important;
+        }
+      }
+
+      .usb__link-label {
+        color: #ffffff !important;
+        font-weight: 600 !important;
+      }
+
+      &:hover {
+        background: #1d4ed8 !important;
+        color: #ffffff !important;
+      }
     }
   }
 
-  &__link-icon {
-    flex-shrink: 0;
-    width: 20px; height: 20px;
-    display: flex; align-items: center; justify-content: center;
-    svg { width: 20px; height: 20px; }
-  }
-
-  &__link-label { overflow: hidden; text-overflow: ellipsis; }
-
-  // ── Logout ──
+  // ── 3. Bottom Logout Button ──
   &__logout {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    width: calc(100% - 20px);
-    margin: 0 10px 8px;
-    padding: 10px 12px;
-    border: 1px solid rgba(239,68,68,0.2);
-    border-radius: 10px;
-    background: rgba(239,68,68,0.08);
-    color: #f87171;
-    font-size: 13px;
-    font-weight: 600;
-    font-family: inherit;
-    cursor: pointer;
-    transition: background $transition;
-    white-space: nowrap;
-    overflow: hidden;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    flex-wrap: nowrap !important;
+    white-space: nowrap !important;
+    gap: 12px !important;
+    padding: 0 10px !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    margin: 0 8px 16px !important;
+    background: transparent !important;
+    border: none !important;
+    border-radius: 12px !important;
+    color: $sb-text-muted !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+    width: calc(100% - 16px) !important;
+    transition: all 0.2s $spring-ease;
 
-    &:hover { background: rgba(239,68,68,0.16); }
+    &-icon-box {
+      width: 32px !important;
+      height: 32px !important;
+      min-width: 32px !important;
+      border-radius: 8px !important;
+      background: rgba(255, 255, 255, 0.04) !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      flex-shrink: 0 !important;
+      color: $sb-text-muted !important;
 
-    svg { width: 18px; height: 18px; flex-shrink: 0; }
+      svg {
+        width: 18px !important;
+        height: 18px !important;
+        stroke: currentColor !important;
+      }
+    }
 
-    &--icon { justify-content: center; }
+    &-label {
+      display: inline-block !important;
+      white-space: nowrap !important;
+      font-size: 13px !important;
+      font-weight: 600 !important;
+      color: $sb-text-muted !important;
+      line-height: 1 !important;
+      text-align: left !important;
+    }
+
+    &:hover {
+      background: rgba(239, 68, 68, 0.12) !important;
+      color: #ef4444 !important;
+
+      .usb__logout-icon-box {
+        background: rgba(239, 68, 68, 0.18) !important;
+        color: #ef4444 !important;
+      }
+
+      .usb__logout-label {
+        color: #ef4444 !important;
+      }
+    }
   }
 
-  // ── Toggle ──
-  &__toggle {
+  // ── 4. Collapsed State Transitions (Rail = 60px) ──
+  &--collapsed {
+    .usb__logo {
+      padding: 0 !important;
+      justify-content: center !important;
+      width: 100% !important;
+    }
+
+    .usb__nav {
+      padding: 12px 0 !important;
+      align-items: center !important;
+    }
+
+    .usb__link {
+      width: 42px !important;
+      height: 42px !important;
+      min-height: 42px !important;
+      margin: 3px auto !important;
+      padding: 0 !important;
+      justify-content: center !important;
+      gap: 0 !important;
+      border-radius: 10px !important;
+
+      &-icon-box {
+        width: 32px !important;
+        height: 32px !important;
+        min-width: 32px !important;
+      }
+
+      &--active {
+        width: 42px !important;
+        height: 42px !important;
+        border-radius: 12px !important;
+        background: $sb-blue-active !important;
+        box-shadow: 0 4px 14px $sb-blue-glow !important;
+
+        .usb__link-icon-box {
+          background: transparent !important;
+        }
+      }
+    }
+
+    .usb__logout {
+      width: 42px !important;
+      height: 42px !important;
+      min-height: 42px !important;
+      margin: 0 auto 16px !important;
+      padding: 0 !important;
+      justify-content: center !important;
+      gap: 0 !important;
+      border-radius: 10px !important;
+
+      &-icon-box {
+        width: 32px !important;
+        height: 32px !important;
+        min-width: 32px !important;
+      }
+    }
+  }
+
+  // ── 5. Logout Confirmation Modal ──
+  &__confirm {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 10, 24, 0.78);
+    backdrop-filter: blur(6px);
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    width: calc(100% - 20px);
-    margin: 0 10px 12px;
-    padding: 10px 12px;
-    border: 1px solid $sb-border;
-    border-radius: 10px;
-    background: none;
-    color: $sb-idle;
-    font-size: 12px;
-    font-weight: 600;
-    font-family: inherit;
-    cursor: pointer;
-    transition: background $transition, color $transition;
-    white-space: nowrap;
-    overflow: hidden;
-
-    &:hover { background: $sb-hover; color: $sb-white; }
-
-    svg { width: 16px; height: 16px; flex-shrink: 0; }
-  }
-
-  // ── Logout confirm ──
-  &__confirm {
-    position: absolute; inset: 0;
-    background: rgba(15,28,46,0.9);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 10;
+    z-index: 1500;
+    animation: usbFadeIn 0.2s ease-out;
   }
 
   &__confirm-box {
-    background: #1e2d40;
-    border: 1px solid $sb-border;
-    border-radius: 12px;
-    padding: 20px;
+    background: #0d1527;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 18px;
+    padding: 28px 24px;
+    max-width: 320px;
+    width: 90%;
     text-align: center;
-    width: 180px;
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.55);
+  }
 
-    p {
-      font-size: 13px;
-      color: $sb-white;
-      margin: 0 0 14px;
-      font-family: 'DM Sans', sans-serif;
-    }
+  &__confirm-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: rgba(239, 68, 68, 0.14);
+    color: #ef4444;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 14px;
+  }
+
+  &__confirm-title {
+    font-size: 17px;
+    font-weight: 800;
+    color: #ffffff;
+    margin: 0 0 6px;
+  }
+
+  &__confirm-sub {
+    font-size: 13px;
+    color: #94a3b8;
+    margin: 0 0 20px;
+    line-height: 1.4;
   }
 
   &__confirm-btns {
-    display: flex; gap: 8px;
+    display: flex;
+    gap: 10px;
 
     button {
-      flex: 1; padding: 8px; border-radius: 7px;
-      font-size: 12px; font-weight: 600; cursor: pointer;
-      font-family: 'DM Sans', sans-serif;
-      background: rgba(255,255,255,0.08); border: 1px solid $sb-border; color: $sb-idle;
-      &:hover { background: rgba(255,255,255,0.14); color: $sb-white; }
+      flex: 1;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+
+    .usb__confirm-no {
+      background: rgba(255, 255, 255, 0.08);
+      color: #e2e8f0;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.14);
+      }
+    }
+
+    .usb__confirm-yes {
+      background: #dc2626;
+      color: #ffffff;
+
+      &:hover {
+        background: #b91c1c;
+      }
     }
   }
+}
 
-  &__confirm-yes {
-    background: rgba(239,68,68,0.15) !important;
-    border-color: rgba(239,68,68,0.3) !important;
-    color: #f87171 !important;
-    &:hover { background: rgba(239,68,68,0.28) !important; }
+// ── Tooltip Custom Styling ──
+.MuiTooltip-popper {
+  z-index: 1400 !important;
+
+  .MuiTooltip-tooltip {
+    background-color: #0d1527 !important;
+    color: #ffffff !important;
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    font-weight: 600 !important;
+    font-size: 12px !important;
+    padding: 6px 12px !important;
+    border-radius: 8px !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45) !important;
   }
 
-  // ── Collapsed state ──
-  &--collapsed {
-    .usb__logo { padding: 0; justify-content: center; }
-    .usb__user  { padding: 14px 0; justify-content: center; }
-    .usb__nav   { padding: 12px 6px; }
-    .usb__link  { padding: 10px; justify-content: center; border-left: none;
-      &--active { padding-left: 10px; border-left: 3px solid $sb-gold; padding-left: 7px; } }
-    .usb__logout { width: calc(100% - 12px); margin: 0 6px 8px; padding: 10px; justify-content: center; }
-    .usb__toggle { width: calc(100% - 12px); margin: 0 6px 12px; padding: 10px; }
+  .MuiTooltip-arrow {
+    color: #0d1527 !important;
+
+    &::before {
+      border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    }
   }
 }

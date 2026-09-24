@@ -24,6 +24,7 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { isUserAuthenticated } from '../../../services/apiClients';
 import { fetchUserOrdersList } from '../../../Actions/Users/FetchUserOrderAction';
 import { MEDIA_BASE } from '../../../Config/UrlsConfig';
+import ReviewsModal from '../../product/ProductDetail/Components/ReviewsModal';
 
 import './style.scss';
 
@@ -167,13 +168,16 @@ function DeliveryMiniStepper({ currentStep, isCancelled }) {
 }
 
 // ── Order Item Card ───────────────────────────────────────────────────────────
-function OrderCard({ order, onOpenDetails }) {
+function OrderCard({ order, onOpenDetails, onOpenReview }) {
   const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
 
   const status = order.order_status || order.status || 'pending';
   const meta = statusMeta(status);
   const isCancelled = meta.label === 'Cancelled';
+  const isDelivered = meta.label === 'Delivered' ||
+    String(status).toLowerCase().includes('deliver') ||
+    String(status).toLowerCase().includes('complet');
   const orderId = order.order_id || `#${order.id}`;
   const amount = order.total_amount || order.total || 0;
   const items = parseOrderItems(order.items);
@@ -413,7 +417,41 @@ function OrderCard({ order, onOpenDetails }) {
               </Box>
             </Box>
 
-            <Stack direction="row" spacing={1} sx={{ mt: 0.5 }}>
+            <Stack direction="row" spacing={1} sx={{ mt: 0.5, flexWrap: 'wrap', gap: 1 }}>
+              {isDelivered && (
+                <Button
+                  variant="contained"
+                  size="small"
+                  startIcon={
+                    <svg viewBox="0 0 24 24" fill="#D4AF37" width="15" height="15" style={{ display: 'block' }}>
+                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                    </svg>
+                  }
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onOpenReview?.(order);
+                  }}
+                  sx={{
+                    bgcolor: '#091122',
+                    color: '#ffffff',
+                    borderRadius: '10px',
+                    fontWeight: 700,
+                    fontSize: '0.78rem',
+                    textTransform: 'none',
+                    border: '1px solid rgba(212, 175, 55, 0.5)',
+                    px: 1.8,
+                    boxShadow: '0 2px 8px rgba(0, 31, 63, 0.15)',
+                    '&:hover': {
+                      bgcolor: '#001F3F',
+                      borderColor: '#D4AF37',
+                      boxShadow: '0 4px 12px rgba(212, 175, 55, 0.3)',
+                    },
+                  }}
+                >
+                  Write Review
+                </Button>
+              )}
+
               <Button
                 variant="contained"
                 size="small"
@@ -458,7 +496,7 @@ function OrderCard({ order, onOpenDetails }) {
 }
 
 // ── Order Details & Invoice Modal ─────────────────────────────────────────────
-function OrderDetailsModal({ order, open, onClose }) {
+function OrderDetailsModal({ order, open, onClose, onOpenReview }) {
   if (!order) return null;
 
   const orderId = order.order_id || `#${order.id}`;
@@ -468,6 +506,9 @@ function OrderDetailsModal({ order, open, onClose }) {
   const shippingCost = Number(order.shipping_cost || 0);
   const items = parseOrderItems(order.items);
   const meta = statusMeta(order.order_status || order.status);
+  const isDelivered = meta.label === 'Delivered' ||
+    String(order.order_status || order.status || '').toLowerCase().includes('deliver') ||
+    String(order.order_status || order.status || '').toLowerCase().includes('complet');
 
   const handlePrint = () => {
     window.print();
@@ -652,6 +693,32 @@ function OrderDetailsModal({ order, open, onClose }) {
                         {[item.selectedColor && `Color: ${item.selectedColor}`, item.selectedSize && `Size: ${item.selectedSize}`].filter(Boolean).join(' • ')}
                       </Typography>
                     )}
+                    {isDelivered && (
+                      <Button
+                        size="small"
+                        startIcon={
+                          <svg viewBox="0 0 24 24" fill="#D4AF37" width="13" height="13" style={{ display: 'block' }}>
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                          </svg>
+                        }
+                        onClick={() => onOpenReview?.(order, item)}
+                        sx={{
+                          mt: 0.6,
+                          fontSize: '0.7rem',
+                          fontWeight: 700,
+                          color: '#001F3F',
+                          bgcolor: 'rgba(212, 175, 55, 0.1)',
+                          border: '1px solid rgba(212, 175, 55, 0.45)',
+                          borderRadius: '6px',
+                          textTransform: 'none',
+                          py: 0.2,
+                          px: 1,
+                          '&:hover': { bgcolor: 'rgba(212, 175, 55, 0.2)', borderColor: '#D4AF37' },
+                        }}
+                      >
+                        Write Review
+                      </Button>
+                    )}
                   </Box>
                   <Box sx={{ textAlign: 'center', color: '#475569' }}>{qty}</Box>
                   <Box sx={{ textAlign: 'right', color: '#475569' }}>{fmtAmt(price)}</Box>
@@ -709,7 +776,29 @@ function OrderDetailsModal({ order, open, onClose }) {
         </Box>
       </DialogContent>
 
-      <DialogActions className="no-print" sx={{ p: 2.5, bgcolor: '#f8fafc', borderTop: '1px solid #e2e8f0' }}>
+      <DialogActions className="no-print" sx={{ p: 2.5, bgcolor: '#f8fafc', borderTop: '1px solid #e2e8f0', gap: 1, flexWrap: 'wrap' }}>
+        {isDelivered && (
+          <Button
+            onClick={() => onOpenReview?.(order)}
+            startIcon={
+              <svg viewBox="0 0 24 24" fill="#D4AF37" width="16" height="16" style={{ display: 'block' }}>
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+              </svg>
+            }
+            sx={{
+              bgcolor: '#091122',
+              color: '#ffffff',
+              fontWeight: 700,
+              textTransform: 'none',
+              borderRadius: '8px',
+              border: '1px solid rgba(212, 175, 55, 0.45)',
+              px: 2,
+              '&:hover': { bgcolor: '#001F3F', borderColor: '#D4AF37' },
+            }}
+          >
+            Write Product Review
+          </Button>
+        )}
         <Button
           onClick={handlePrint}
           startIcon={<PrintOutlinedIcon />}
@@ -747,6 +836,7 @@ function UserOrders() {
   const [searchParams] = useSearchParams();
 
   const [orders, setOrders] = useState([]);
+  const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [page, setPage] = useState(1);
@@ -754,6 +844,26 @@ function UserOrders() {
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState(() => searchParams.get('status') || 'all');
   const [detailsModal, setDetailsModal] = useState({ open: false, order: null });
+  const [reviewTarget, setReviewTarget] = useState(null);
+
+  const handleOpenReview = (order, item = null) => {
+    const items = parseOrderItems(order?.items);
+    const targetItem = item || items[0] || {};
+    const productId =
+      targetItem.product_id ||
+      targetItem.productId ||
+      targetItem.id ||
+      order?.product_id ||
+      order?.productId ||
+      order?.id;
+
+    if (productId) {
+      setReviewTarget({
+        productId: String(productId),
+        productName: targetItem.name || order?.product_name || 'Bespoke Bag',
+      });
+    }
+  };
 
   const LIMIT = 10;
 
@@ -761,9 +871,10 @@ function UserOrders() {
     setLoading(true);
     setError('');
     try {
-      const { orders: list, total_records } = await fetchUserOrdersList({ page: p, limit: LIMIT });
+      const { orders: list, total_records, summary: sum } = await fetchUserOrdersList({ page: p, limit: LIMIT });
       setOrders(list);
       setTotalRecords(total_records);
+      if (sum) setSummary(sum);
     } catch (err) {
       setError(err.message || 'Unable to retrieve your orders. Please refresh the page.');
     } finally {
@@ -785,18 +896,39 @@ function UserOrders() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Status Tab Counts
+  // Status Tab Counts - Uses API summary when provided or computes fallback
   const countsByTab = useMemo(() => {
+    if (summary) {
+      return {
+        all: Number(summary.all_orders ?? orders.length),
+        pending: Number(summary.processing ?? 0),
+        shipped: Number(summary.in_transit ?? 0),
+        delivered: Number(summary.delivered ?? 0),
+        cancelled: Number(summary.cancelled ?? 0),
+      };
+    }
     const res = { all: orders.length, pending: 0, shipped: 0, delivered: 0, cancelled: 0 };
     orders.forEach((o) => {
       const s = String(o.order_status || o.status || '').toLowerCase();
       if (s.includes('deliver') || s.includes('complet')) res.delivered++;
-      else if (s.includes('ship') || s.includes('transit')) res.shipped++;
+      else if (s.includes('ship') || s.includes('transit') || s.includes('dispat')) res.shipped++;
       else if (s.includes('cancel') || s.includes('reject')) res.cancelled++;
       else res.pending++;
     });
     return res;
-  }, [orders]);
+  }, [orders, summary]);
+
+  // Sync search state from URL query
+  useEffect(() => {
+    const q = searchParams.get('search');
+    if (q !== null) {
+      setSearch(q);
+    }
+    const st = searchParams.get('status');
+    if (st) {
+      setActiveTab(st);
+    }
+  }, [searchParams]);
 
   // Filtered orders by Search and Tab
   const filtered = useMemo(() => {
@@ -806,8 +938,8 @@ function UserOrders() {
       const city = String(o.city || o.shipping_address || '').toLowerCase();
 
       // Tab match
-      if (activeTab === 'pending' && !(s.includes('pend') || s.includes('process') || s.includes('accept'))) return false;
-      if (activeTab === 'shipped' && !(s.includes('ship') || s.includes('transit'))) return false;
+      if (activeTab === 'pending' && !(s.includes('pend') || s.includes('process') || s.includes('accept') || s.includes('confirm') || s.includes('approv'))) return false;
+      if (activeTab === 'shipped' && !(s.includes('ship') || s.includes('transit') || s.includes('dispat'))) return false;
       if (activeTab === 'delivered' && !(s.includes('deliver') || s.includes('complet'))) return false;
       if (activeTab === 'cancelled' && !(s.includes('cancel') || s.includes('reject'))) return false;
 
@@ -828,8 +960,9 @@ function UserOrders() {
       <Box
         sx={{
           borderRadius: '20px',
-          bgcolor: '#091122',
-          p: { xs: 2.5, sm: 3.5 },
+          background: 'linear-gradient(135deg, #001F3F 0%, #001328 100%)',
+          border: '1px solid rgba(212, 175, 55, 0.25)',
+          p: { xs: 2.5, sm: 3 },
           mb: 3,
           color: '#ffffff',
           display: 'flex',
@@ -837,41 +970,44 @@ function UserOrders() {
           justifyContent: 'space-between',
           flexDirection: { xs: 'column', sm: 'row' },
           gap: 2,
-          boxShadow: '0 10px 25px -5px rgba(0, 31, 63, 0.25)',
+          boxShadow: '0 8px 30px rgba(0, 31, 63, 0.18)',
         }}
       >
         <Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
-            <ShoppingBagOutlinedIcon sx={{ color: '#D4AF37', fontSize: 20 }} />
-            <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, color: '#D4AF37', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-              Customer Purchase History
+            <ShoppingBagOutlinedIcon sx={{ color: '#D4AF37', fontSize: 18 }} />
+            <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, color: '#D4AF37', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+              Consignment & Shipment History
             </Typography>
           </Box>
-          <Typography sx={{ fontWeight: 800, fontSize: { xs: '1.25rem', sm: '1.5rem' }, letterSpacing: '-0.02em', lineHeight: 1.2 }}>
-            My Orders & Consignments
+          <Typography sx={{ fontWeight: 800, fontSize: { xs: '1.25rem', sm: '1.45rem' }, letterSpacing: '-0.02em', lineHeight: 1.2 }}>
+            My Orders & Invoices
           </Typography>
-          <Typography sx={{ fontSize: '0.82rem', color: 'rgba(255, 255, 255, 0.7)', mt: 0.4 }}>
-            {totalRecords > 0 ? `${totalRecords} total orders recorded with live shipping status` : 'Track your shipments and download invoices'}
+          <Typography sx={{ fontSize: '0.8rem', color: 'rgba(255, 255, 255, 0.72)', mt: 0.4 }}>
+            {totalRecords > 0 ? `${totalRecords} total orders recorded • Track dispatches & download tax invoices` : 'Manage your recent bag orders, tracking milestones, and consignment receipts.'}
           </Typography>
         </Box>
 
-        <Stack direction="row" spacing={1}>
+        <Stack direction="row" spacing={1.5} alignItems="center">
           <Button
             variant="outlined"
             size="small"
-            startIcon={<ArrowBackIcon sx={{ fontSize: 15 }} />}
-            onClick={() => navigate('/user/dashboard')}
+            startIcon={<RefreshIcon sx={{ fontSize: 16 }} />}
+            onClick={() => loadOrders(page)}
+            disabled={loading}
             sx={{
               color: '#ffffff',
-              borderColor: 'rgba(255, 255, 255, 0.3)',
+              borderColor: 'rgba(255, 255, 255, 0.25)',
               borderRadius: '10px',
-              fontWeight: 600,
-              fontSize: '0.82rem',
+              fontWeight: 700,
+              fontSize: '0.8rem',
               textTransform: 'none',
-              '&:hover': { borderColor: '#ffffff', bgcolor: 'rgba(255, 255, 255, 0.08)' },
+              px: 1.75,
+              py: 0.75,
+              '&:hover': { borderColor: '#D4AF37', bgcolor: 'rgba(212, 175, 55, 0.08)' },
             }}
           >
-            Dashboard
+            Refresh
           </Button>
 
           <Button
@@ -881,16 +1017,18 @@ function UserOrders() {
             onClick={() => navigate('/products')}
             sx={{
               bgcolor: '#D4AF37',
-              color: '#091122',
+              color: '#001530',
               borderRadius: '10px',
-              fontWeight: 700,
-              fontSize: '0.82rem',
+              fontWeight: 800,
+              fontSize: '0.8rem',
               textTransform: 'none',
-              boxShadow: 'none',
+              px: 2,
+              py: 0.75,
+              boxShadow: '0 4px 12px rgba(212, 175, 55, 0.3)',
               '&:hover': { bgcolor: '#F5D77F' },
             }}
           >
-            Shop More Bags
+            Explore Bags
           </Button>
         </Stack>
       </Box>
@@ -1115,6 +1253,7 @@ function UserOrders() {
               key={order.order_id || order.id}
               order={order}
               onOpenDetails={(o) => setDetailsModal({ open: true, order: o })}
+              onOpenReview={handleOpenReview}
             />
           ))
         )}
@@ -1146,7 +1285,19 @@ function UserOrders() {
         order={detailsModal.order}
         open={detailsModal.open}
         onClose={() => setDetailsModal({ open: false, order: null })}
+        onOpenReview={handleOpenReview}
       />
+
+      {/* ── 6. Write Review Modal (Same as Product Detail page) ── */}
+      {reviewTarget && (
+        <ReviewsModal
+          productId={reviewTarget.productId}
+          totalReviews={0}
+          avgRating={0}
+          mode="write"
+          onClose={() => setReviewTarget(null)}
+        />
+      )}
     </Box>
   );
 }

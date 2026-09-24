@@ -116,6 +116,7 @@ function AppRoutes() {
         {/* Auth */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/signup" element={<Navigate to="/register" replace />} />
 
         {/* Static info pages */}
         <Route path="/craftsmanship" element={<AboutPage />} />

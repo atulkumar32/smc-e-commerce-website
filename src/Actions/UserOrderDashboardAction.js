@@ -17,7 +17,7 @@ export const fetchUserOrders = async () => {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
-      'X-USER-ID': String(userId),
+      // 'X-USER-ID': String(userId), // Commented out: PHP API does not allow x-user-id header
     },
   });
 

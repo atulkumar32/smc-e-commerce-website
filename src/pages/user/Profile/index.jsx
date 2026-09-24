@@ -1,5 +1,6 @@
 // Premium Profile Page with tabbed interface and hero avatar
 import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Box, Typography, Avatar, Tabs, Tab, Divider, TextField, Button, Alert, Skeleton, InputAdornment, IconButton } from '@mui/material';
 import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
@@ -18,14 +19,14 @@ import {
 // Helper components (same as original file) – retained for functionality
 function SectionCard({ icon, title, subtitle, children }) {
   return (
-    <Box sx={{ border: '1px solid #e5e7eb', borderRadius: '16px', overflow: 'hidden', bgcolor: '#fff', mb: 2.5 }}>
-      <Box sx={{ px: { xs: 2, sm: 2.75 }, py: 2, borderBottom: '1px solid #f3f4f6', bgcolor: '#fafafa', display: 'flex', alignItems: 'center', gap: 1.5 }}>
-        <Box sx={{ width: 36, height: 36, borderRadius: '10px', bgcolor: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <Box sx={{ color: '#1565c0', '& svg': { fontSize: 18 } }}>{icon}</Box>
+    <Box sx={{ border: '1px solid #e2e8f0', borderRadius: '16px', overflow: 'hidden', bgcolor: '#fff', mb: 2.5, boxShadow: '0 2px 8px rgba(0, 31, 63, 0.03)' }}>
+      <Box sx={{ px: { xs: 2, sm: 2.75 }, py: 2, borderBottom: '1px solid #f1f5f9', bgcolor: '#f8fafc', display: 'flex', alignItems: 'center', gap: 1.5 }}>
+        <Box sx={{ width: 36, height: 36, borderRadius: '10px', bgcolor: 'rgba(0, 31, 63, 0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Box sx={{ color: '#001F3F', '& svg': { fontSize: 18 } }}>{icon}</Box>
         </Box>
         <Box>
-          <Typography variant="subtitle2" fontWeight={700} color="#111827">{title}</Typography>
-          {subtitle && <Typography variant="caption" color="#9ca3af">{subtitle}</Typography>}
+          <Typography variant="subtitle2" fontWeight={700} color="#001F3F">{title}</Typography>
+          {subtitle && <Typography variant="caption" color="#64748b">{subtitle}</Typography>}
         </Box>
       </Box>
       <Box sx={{ px: { xs: 2, sm: 2.75 }, py: 2.5 }}>{children}</Box>
@@ -119,7 +120,7 @@ function ProfileForm({ onSnack }) {
         </Box>
       </Box>
       <Box sx={{ mt: 2.5, display: 'flex', justifyContent: 'flex-end' }}>
-        <Button type="submit" variant="contained" disabled={saving} startIcon={saved && !saving ? <CheckIcon /> : saving ? null : <EditOutlinedIcon />} sx={{ bgcolor: saved ? '#16a34a' : '#1565c0', '&:hover': { bgcolor: saved ? '#15803d' : '#0d47a1' }, borderRadius: '8px', fontWeight: 700, textTransform: 'none', boxShadow: 'none', px: 3 }}>
+        <Button type="submit" variant="contained" disabled={saving} startIcon={saved && !saving ? <CheckIcon /> : saving ? null : <EditOutlinedIcon />} sx={{ bgcolor: saved ? '#16a34a' : '#001F3F', '&:hover': { bgcolor: saved ? '#15803d' : '#002d5a' }, borderRadius: '10px', fontWeight: 700, textTransform: 'none', boxShadow: 'none', px: 3, py: 1 }}>
           {saving ? 'Saving…' : saved ? 'Saved!' : 'Save Profile'}
         </Button>
       </Box>
@@ -190,7 +191,7 @@ function PasswordForm({ onSnack }) {
       </Box>
       <PwdField label="Confirm New Password" field="confirm" showKey="confirm" placeholder="••••••••" />
       <Box sx={{ mt: 2.5, display: 'flex', justifyContent: 'flex-end' }}>
-        <Button type="submit" variant="contained" disabled={saving} startIcon={saving ? null : <CheckIcon />} sx={{ bgcolor: '#1565c0', '&:hover': { bgcolor: '#0d47a1' }, borderRadius: '8px', fontWeight: 700, textTransform: 'none', boxShadow: 'none', px: 3 }}>
+        <Button type="submit" variant="contained" disabled={saving} startIcon={saving ? null : <CheckIcon />} sx={{ bgcolor: '#001F3F', '&:hover': { bgcolor: '#002d5a' }, borderRadius: '10px', fontWeight: 700, textTransform: 'none', boxShadow: 'none', px: 3, py: 1 }}>
           {saving ? 'Saving…' : 'Change Password'}
         </Button>
       </Box>
@@ -202,7 +203,7 @@ function TabPanel(props) {
   const { children, value, index, ...other } = props;
   return (
     <div role="tabpanel" hidden={value !== index} id={`profile-tabpanel-${index}`} aria-labelledby={`profile-tab-${index}`} {...other}>
-      {value === index && <Box sx={{ pt: 2 }}>{children}</Box>}
+      {value === index && <Box sx={{ pt: 2.5 }}>{children}</Box>}
     </div>
   );
 }
@@ -210,29 +211,63 @@ function a11yProps(index) {
   return { id: `profile-tab-${index}`, 'aria-controls': `profile-tabpanel-${index}` };
 }
 
-export default function ProfilePage({ onSnack }) {
-  const [tab, setTab] = useState(0);
+export default function ProfilePage({ onSnack, initialTab = 0 }) {
+  const location = useLocation();
+  const getInitialTab = () => {
+    if (location.pathname.includes('security')) return 1;
+    return initialTab;
+  };
+  const [tab, setTab] = useState(getInitialTab);
+
+  useEffect(() => {
+    if (location.pathname.includes('security')) {
+      setTab(1);
+    } else if (location.pathname.includes('profile')) {
+      setTab(initialTab);
+    }
+  }, [location.pathname, initialTab]);
+
   const handleChange = (event, newValue) => setTab(newValue);
   const creds = getProfileCredentials();
   const initials = (creds?.name || 'U').split(' ').map((w) => w[0] || '').join('').slice(0, 2).toUpperCase();
 
   return (
-    <Box sx={{ maxWidth: 900, mx: 'auto', p: { xs: 2, sm: 3 } }}>
+    <Box sx={{ maxWidth: 880, mx: 'auto', p: { xs: 2, sm: 3 } }}>
       {/* Hero avatar */}
-      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
-        <Box sx={{ position: 'relative', width: 96, height: 96, borderRadius: '50%', background: 'linear-gradient(135deg, #D4AF37, #9a7a0a)', display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
-          <Avatar sx={{ width: 80, height: 80, bgcolor: '#0f1c2e', color: '#F5D77F', fontWeight: 800 }}>{initials}</Avatar>
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 3.5 }}>
+        <Box sx={{ position: 'relative', width: 96, height: 96, borderRadius: '50%', background: 'linear-gradient(135deg, #D4AF37 0%, #b8860b 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2, boxShadow: '0 8px 24px rgba(212, 175, 55, 0.3)' }}>
+          <Avatar sx={{ width: 82, height: 82, bgcolor: '#001530', color: '#F5D77F', fontWeight: 800, fontSize: '1.75rem' }}>{initials}</Avatar>
         </Box>
-        <Typography variant="h5" sx={{ fontWeight: 700 }}>{creds?.name || 'User'}</Typography>
-        <Typography variant="subtitle2" color="text.secondary">{creds?.email || ''}</Typography>
+        <Typography variant="h5" sx={{ fontWeight: 800, color: '#001F3F', letterSpacing: '-0.01em' }}>{creds?.name || 'User Profile'}</Typography>
+        <Typography variant="subtitle2" sx={{ color: '#64748b', mt: 0.25 }}>{creds?.email || ''}</Typography>
       </Box>
 
-      <Tabs value={tab} onChange={handleChange} centered>
+      <Tabs
+        value={tab}
+        onChange={handleChange}
+        centered
+        sx={{
+          '& .MuiTabs-indicator': {
+            bgcolor: '#D4AF37',
+            height: 3,
+            borderRadius: '3px 3px 0 0',
+          },
+          '& .MuiTab-root': {
+            textTransform: 'none',
+            fontWeight: 700,
+            fontSize: '0.88rem',
+            color: '#64748b',
+            '&.Mui-selected': {
+              color: '#001F3F',
+            },
+          },
+        }}
+      >
         <Tab label="Personal Details" {...a11yProps(0)} />
         <Tab label="Security & Password" {...a11yProps(1)} />
         <Tab label="Account Overview" {...a11yProps(2)} />
       </Tabs>
-      <Divider sx={{ my: 2 }} />
+      <Divider sx={{ my: 2, borderColor: '#e2e8f0' }} />
 
       <TabPanel value={tab} index={0}>
         <ProfileForm onSnack={onSnack} />

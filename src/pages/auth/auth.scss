@@ -1,580 +1,1048 @@
+@import '../../Styles/ColorCodes';
 @import '../../Styles/Mixins';
 
-// ── Shared auth page shell ────────────────────────────────────────────────────
-.auth-page {
+// ==============================================================================
+//  PREMIUM MODERN ECOMMERCE AUTHENTICATION STYLES (SMC VORANO 2026)
+// ==============================================================================
+
+.auth-shell {
   min-height: 100dvh;
+  background-color: #ffffff;
   display: flex;
-  background-color: $color-primary;
-  color: #ffffff;
-  position: relative;
-  overflow: hidden;
+  flex-direction: column;
+  color: #0f172a;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
-  // ── Right-side atmospheric image (desktop only) ───────────────
-  &__bg-panel {
-    position: fixed;
-    top: 0;
-    right: 0;
-    width: 32%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 0;
-
-    @include md { display: none; }
-  }
-
-  &__bg-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    filter: grayscale(20%) brightness(0.45) contrast(1.2);
-  }
-
-  &__bg-overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to right, $color-primary 0%, transparent 100%);
-  }
-
-  // ── Scrollable content column ─────────────────────────────────
-  &__content {
-    position: relative;
-    z-index: 1;
-    width: 100%;
-    max-width: 680px;
-    margin: 0 auto;
-    @include flex-col;
-    min-height: 100dvh;
-    padding: 0 1.5rem;
-
-    @include sm { padding: 0 1rem; }
-  }
-
-  // ── Brand header ──────────────────────────────────────────────
-  &__header {
-    height: 80px;
-    @include flex-center;
-  }
-
-  &__brand {
-    font-family: $font-headline;
-    font-size: $fs-lg;
-    font-weight: $fw-bold;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: $color-secondary;
-    text-decoration: none;
-    @include transition(opacity);
-
-    &:hover { opacity: 0.8; }
-  }
-
-  // ── Main centred area ─────────────────────────────────────────
-  &__main {
-    flex: 1;
-    @include flex-center;
-    padding: 2rem 0;
-  }
-
-  // ── Footer ────────────────────────────────────────────────────
-  &__footer {
-    padding: 1.5rem 0;
-    text-align: center;
-    @include flex-col;
+  // ── Top utility navigation ──────────────────────────────────
+  &__utility-bar {
+    height: 56px;
+    padding: 0 2rem;
+    display: flex;
     align-items: center;
-    gap: 0.5rem;
-    border-top: 1px solid rgba(255,255,255,0.08);
+    justify-content: space-between;
+    background: #ffffff;
+    border-bottom: 1px solid #f1f5f9;
+    z-index: 10;
 
-    p, a {
-      font-family: $font-label;
-      font-size: $fs-xs;
-      letter-spacing: $ls-widest;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.35);
-      text-decoration: none;
+    @media (max-width: 768px) {
+      padding: 0 1.25rem;
+      height: 50px;
     }
   }
 
-  &__footer-links {
-    display: flex;
-    gap: 1.5rem;
+  &__back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #475569;
+    text-decoration: none;
+    transition: all 0.2s ease;
 
-    a:hover { color: $color-secondary; }
+    &:hover {
+      color: #001F3F;
+      transform: translateX(-2px);
+    }
+  }
+
+  &__quick-switch {
+    font-size: 0.85rem;
+    color: #64748b;
+
+    @media (max-width: 480px) {
+      font-size: 0.8rem;
+    }
+  }
+
+  &__switch-link {
+    color: #001F3F;
+    font-weight: 700;
+    text-decoration: none;
+    margin-left: 4px;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: #D4AF37;
+      text-decoration: underline;
+    }
   }
 }
 
-// ── Auth card ─────────────────────────────────────────────────────────────────
-.auth-card {
-  width: 100%;
-  max-width: 460px;
-  background-color: rgba($color-primary-700, 0.5);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba($color-secondary, 0.12);
-  border-radius: 16px;
-  padding: 2.5rem 2rem;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+// ── Split screen 2-column layout ──────────────────────────────
+.auth-split-layout {
+  display: grid;
+  grid-template-columns: 46fr 54fr;
+  flex: 1;
+  min-height: calc(100dvh - 56px);
 
-  @include sm { padding: 2rem 1.25rem; border-radius: 12px; }
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+  }
+}
 
-  &__welcome {
-    text-align: center;
+// ==============================================================================
+//  BRAND PANEL (LEFT COLUMN - DESKTOP ONLY)
+// ==============================================================================
+.auth-brand-panel {
+  position: relative;
+  background: linear-gradient(155deg, #001F3F 0%, #091122 55%, #040810 100%);
+  color: #ffffff;
+  padding: 3.5rem 3.5rem 3rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  border-right: 1px solid rgba(212, 175, 55, 0.15);
+
+  @media (max-width: 1024px) {
+    display: none;
+  }
+
+  &__glow {
+    position: absolute;
+    top: -20%;
+    left: -20%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.12) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  &__top {
+    position: relative;
+    z-index: 1;
+  }
+
+  &__logo-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+  }
+
+  &__logo-icon {
+    width: 42px;
+    height: 42px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1.5px solid rgba(212, 175, 55, 0.5);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    backdrop-filter: blur(8px);
+    transition: transform 0.2s ease, border-color 0.2s ease;
+
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  &:hover &__logo-icon {
+    transform: scale(1.05);
+    border-color: #D4AF37;
+  }
+
+  &__smc-badge {
+    position: absolute;
+    bottom: -5px;
+    right: -5px;
+    background: #D4AF37;
+    color: #001F3F;
+    font-size: 8.5px;
+    font-weight: 900;
+    line-height: 1;
+    padding: 2px 4px;
+    border-radius: 4px;
+    letter-spacing: 0.04em;
+  }
+
+  &__logo-text {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__brand-name {
+    font-size: 1.05rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    color: #ffffff;
+    line-height: 1.2;
+  }
+
+  &__brand-sub {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    color: #D4AF37;
+    text-transform: uppercase;
+  }
+
+  &__middle {
+    position: relative;
+    z-index: 1;
+    margin: 2.5rem 0;
+  }
+
+  &__quote-box {
     margin-bottom: 2rem;
   }
 
-  &__headline {
-    font-family: $font-headline;
-    font-size: $fs-4xl;
-    font-weight: $fw-bold;
-    letter-spacing: $ls-tight;
-    text-transform: uppercase;
-    color: $color-secondary;
-    margin: 0 0 0.5rem;
-
-    @include sm { font-size: $fs-3xl; }
+  &__quote-mark {
+    font-family: Georgia, serif;
+    font-size: 3.5rem;
+    line-height: 0.8;
+    color: #D4AF37;
+    opacity: 0.8;
+    display: block;
+    margin-bottom: 4px;
   }
 
-  &__sub {
-    font-family: $font-body;
-    font-size: $fs-base;
-    color: rgba(255,255,255,0.6);
-    line-height: $lh-relaxed;
-    max-width: 320px;
-    margin: 0 auto;
+  &__quote-text {
+    font-size: clamp(1.4rem, 2vw, 1.85rem);
+    font-weight: 800;
+    line-height: 1.3;
+    letter-spacing: -0.02em;
+    color: #ffffff;
+    margin-bottom: 0.75rem;
   }
 
-  &__error {
-    display: flex;
+  &__quote-sub {
+    font-size: 0.88rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.7);
+    max-width: 440px;
+  }
+
+  // Showcase image card
+  &__showcase {
+    position: relative;
+    max-width: 440px;
+  }
+
+  &__img-frame {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    border-radius: 18px;
+    overflow: hidden;
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    box-shadow: 0 24px 50px rgba(0, 0, 0, 0.45);
+    background: #091122;
+  }
+
+  &__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    filter: brightness(0.92) contrast(1.05);
+    transition: transform 0.4s ease;
+
+    &:hover {
+      transform: scale(1.03);
+    }
+  }
+
+  &__img-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 40%, rgba(9, 17, 34, 0.85) 100%);
+    pointer-events: none;
+  }
+
+  &__img-badge {
+    position: absolute;
+    bottom: 14px;
+    left: 14px;
+    right: 14px;
+    background: rgba(9, 17, 34, 0.82);
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    backdrop-filter: blur(8px);
+    border-radius: 30px;
+    padding: 6px 14px;
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: #ffffff;
+    display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    background-color: rgba($color-error, 0.15);
-    border: 1px solid rgba($color-error, 0.4);
-    border-radius: 8px;
-    padding: 0.75rem 1rem;
-    font-family: $font-body;
-    font-size: $fs-sm;
-    color: #ff8a80;
+    gap: 8px;
+    letter-spacing: 0.02em;
+  }
+
+  &__pulse-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #22c55e;
+    box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.3);
+    animation: authPulse 2s infinite;
+  }
+
+  &__bottom {
+    position: relative;
+    z-index: 1;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 1.75rem;
+  }
+
+  &__trust-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
     margin-bottom: 1.25rem;
   }
 
-  &__footer-text {
-    text-align: center;
-    font-family: $font-body;
-    font-size: $fs-sm;
-    color: rgba(255,255,255,0.5);
-    margin: 1.5rem 0 0;
+  &__trust-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
   }
 
-  &__footer-link {
-    color: $color-secondary;
-    font-weight: $fw-semibold;
-    text-decoration: none;
-    @include transition(opacity);
+  &__trust-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: rgba(212, 175, 55, 0.12);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    color: #D4AF37;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
 
-    &:hover { opacity: 0.8; text-decoration: underline; }
+  &__trust-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.2;
+    margin-bottom: 2px;
+  }
+
+  &__trust-sub {
+    font-size: 0.68rem;
+    color: rgba(255, 255, 255, 0.55);
+    line-height: 1.3;
+  }
+
+  &__social-proof {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  &__stars {
+    display: inline-flex;
+    gap: 2px;
+  }
+
+  &__proof-text {
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.75);
+
+    strong {
+      color: #D4AF37;
+    }
   }
 }
 
-// ── Auth form ─────────────────────────────────────────────────────────────────
-.auth-form {
-  @include flex-col;
-  gap: 1.25rem;
+@keyframes authPulse {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+}
 
-  &__field { @include flex-col; gap: 0.4rem; }
+// ==============================================================================
+//  FORM PANEL (RIGHT COLUMN)
+// ==============================================================================
+.auth-form-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 3rem 4rem 2rem;
+  background-color: #ffffff;
+  overflow-y: auto;
+
+  @media (max-width: 1200px) {
+    padding: 2.5rem 2.5rem 2rem;
+  }
+
+  @media (max-width: 768px) {
+    padding: 1.5rem 1.25rem 2rem;
+  }
+
+  &__inner {
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    &--wide {
+      max-width: 560px;
+    }
+  }
+
+  // Mobile brand header
+  &__mobile-brand {
+    display: none;
+    margin-bottom: 1.75rem;
+    text-align: center;
+
+    @media (max-width: 1024px) {
+      display: flex;
+      justify-content: center;
+    }
+  }
+
+  &__mobile-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+  }
+
+  &__mobile-name {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #001F3F;
+    letter-spacing: -0.01em;
+  }
+
+  // Form Footer
+  &__footer {
+    width: 100%;
+    max-width: 480px;
+    margin: 2.5rem auto 0;
+    padding-top: 1.5rem;
+    border-top: 1px solid #f1f5f9;
+    text-align: center;
+  }
+
+  &__copyright {
+    font-size: 0.78rem;
+    color: #94a3b8;
+    margin-bottom: 6px;
+  }
+
+  &__links {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 0.78rem;
+
+    a {
+      color: #64748b;
+      text-decoration: none;
+      transition: color 0.15s ease;
+
+      &:hover {
+        color: #001F3F;
+        text-decoration: underline;
+      }
+    }
+  }
+
+  &__dot {
+    color: #cbd5e1;
+  }
+}
+
+// ── Header of the Card ────────────────────────────────────────
+.auth-header {
+  margin-bottom: 2rem;
+
+  &__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #f1f5f9;
+    color: #001F3F;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin-bottom: 0.85rem;
+    text-transform: uppercase;
+  }
+
+  &__title {
+    font-size: clamp(1.6rem, 2.4vw, 2rem);
+    font-weight: 800;
+    color: #001F3F;
+    letter-spacing: -0.025em;
+    line-height: 1.25;
+    margin-bottom: 0.5rem;
+  }
+
+  &__sub {
+    font-size: 0.92rem;
+    color: #64748b;
+    line-height: 1.5;
+  }
+}
+
+// ── Alert Message (Error / Warning) ───────────────────────────
+.auth-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  font-size: 0.88rem;
+  line-height: 1.4;
+
+  &--error {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #b91c1c;
+
+    svg {
+      color: #ef4444;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+  }
+
+  &--success {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    color: #15803d;
+
+    svg {
+      color: #22c55e;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+  }
+}
+
+// ==============================================================================
+//  INPUT FIELDS & CONTROLS
+// ==============================================================================
+.auth-input-group {
+  margin-bottom: 1.25rem;
 
   &__label-row {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
   }
 
   &__label {
-    font-family: $font-label;
-    font-size: $fs-xs;
-    font-weight: $fw-semibold;
-    letter-spacing: $ls-widest;
-    text-transform: uppercase;
-    color: rgba($color-secondary, 0.8);
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #1e293b;
+    letter-spacing: 0.02em;
   }
 
-  &__forgot {
-    font-family: $font-label;
-    font-size: $fs-xs;
-    color: rgba($color-secondary, 0.6);
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    @include transition(color);
-
-    &:hover { color: $color-secondary; }
+  &__req {
+    color: #ef4444;
+    margin-left: 2px;
   }
 
-  &__input-wrap {
+  &__helper {
+    font-size: 0.75rem;
+    color: #94a3b8;
+  }
+
+  &__field-wrap {
     position: relative;
     display: flex;
     align-items: center;
-    @include transition(transform, 0.2s);
-
-    &:focus-within { transform: scale(1.015); }
   }
 
   &__icon {
     position: absolute;
-    left: 1rem;
-    color: rgba(255,255,255,0.35);
+    left: 14px;
+    color: #94a3b8;
     display: flex;
+    align-items: center;
+    justify-content: center;
     pointer-events: none;
-    @include transition(color);
-
-    .auth-form__input-wrap:focus-within & { color: $color-secondary; }
+    transition: color 0.18s ease;
   }
 
   &__input {
     width: 100%;
-    background-color: rgba($color-primary, 0.5);
-    border: 1.5px solid rgba($color-secondary, 0.25);
-    border-radius: 10px;
-    padding: 1rem 1rem 1rem 3rem;
-    font-family: $font-body;
-    font-size: $fs-base;
-    color: #ffffff;
-    outline: none;
-    @include transition(border-color, 0.2s);
+    height: 48px;
+    background: #ffffff;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 12px;
+    padding: 0 14px;
+    font-size: 0.95rem;
+    color: #0f172a;
+    transition: all 0.2s ease;
 
-    &::placeholder { color: rgba(255,255,255,0.25); }
+    &::placeholder {
+      color: #94a3b8;
+    }
 
     &:focus {
-      border-color: $color-secondary;
-      box-shadow: 0 0 0 3px rgba($color-secondary, 0.15);
+      border-color: #001F3F;
+      box-shadow: 0 0 0 4px rgba(0, 31, 63, 0.1);
+      outline: none;
     }
 
-    &--padded-r { padding-right: 3rem; }
+    &--with-icon {
+      padding-left: 42px;
+    }
 
-    // error state
-    &--error {
-      border-color: rgba($color-error, 0.6);
-
-      &:focus { box-shadow: 0 0 0 3px rgba($color-error, 0.15); }
+    &--with-action {
+      padding-right: 44px;
     }
   }
 
-  &__eye {
+  &:focus-within &__icon {
+    color: #001F3F;
+  }
+
+  &__eye-btn {
     position: absolute;
-    right: 1rem;
+    right: 12px;
     background: none;
     border: none;
+    color: #94a3b8;
     cursor: pointer;
-    color: rgba(255,255,255,0.35);
-    display: flex;
-    @include transition(color);
-    @include focus-ring($color-secondary);
-
-    &:hover { color: $color-secondary; }
-  }
-
-  &__error-msg {
-    font-family: $font-label;
-    font-size: $fs-xs;
-    color: #ff8a80;
-    margin-top: 0.15rem;
-  }
-
-  // Section divider label
-  &__section {
-    font-family: $font-label;
-    font-size: $fs-xs;
-    font-weight: $fw-semibold;
-    letter-spacing: $ls-widest;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.4);
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-    margin-bottom: 0.25rem;
-  }
-
-  // 2-col grid row
-  &__row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-
-    @include sm { grid-template-columns: 1fr; }
-  }
-
-  // 3-col grid row
-  &__row--3 {
-    grid-template-columns: 1fr 1fr 1fr;
-
-    @include sm { grid-template-columns: 1fr; }
-  }
-}
-
-// ── Buttons ───────────────────────────────────────────────────────────────────
-.auth-btn {
-  width: 100%;
-  padding: 1rem;
-  @include label($fs-sm, $fw-bold);
-  letter-spacing: $ls-widest;
-  text-transform: uppercase;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  @include transition(all);
-  @include focus-ring($color-secondary);
-
-  &:active { transform: scale(0.98); }
-  &:disabled { opacity: 0.6; cursor: not-allowed; }
-
-  &--gold {
-    background-color: $color-secondary;
-    color: $color-primary;
-    box-shadow: 0 4px 20px rgba($color-secondary, 0.25);
-
-    &:hover:not(:disabled) { background-color: $color-secondary-400; }
-  }
-
-  &--outline {
-    background: transparent;
-    color: rgba(255,255,255,0.7);
-    border: 1.5px solid rgba(255,255,255,0.2);
-
-    &:hover:not(:disabled) { border-color: $color-secondary; color: $color-secondary; }
-  }
-
-  &--navy {
-    background-color: $color-primary-700;
-    color: #ffffff;
-    border: 1.5px solid rgba(255,255,255,0.15);
-
-    &:hover:not(:disabled) { background-color: $color-primary-600; }
-  }
-}
-
-// ── Divider ───────────────────────────────────────────────────────────────────
-.auth-divider {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  color: rgba(255,255,255,0.3);
-  font-family: $font-label;
-  font-size: $fs-xs;
-  letter-spacing: $ls-widest;
-  text-transform: uppercase;
-
-  &::before, &::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background-color: rgba(255,255,255,0.12);
-  }
-}
-
-// ── Social buttons ────────────────────────────────────────────────────────────
-.auth-social {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
-
-  &__btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
-    padding: 0.75rem;
-    background-color: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 10px;
-    @include label($fs-xs, $fw-medium);
-    letter-spacing: $ls-wider;
-    text-transform: uppercase;
-    color: #ffffff;
-    cursor: pointer;
-    @include transition(background-color);
-    @include focus-ring($color-secondary);
+    padding: 6px;
+    border-radius: 6px;
+    transition: color 0.15s ease, background 0.15s ease;
 
-    &:hover { background-color: rgba(255,255,255,0.1); }
-    &:active { transform: scale(0.97); }
-
-    img { opacity: 0.85; }
+    &:hover {
+      color: #001F3F;
+      background: #f1f5f9;
+    }
   }
-}
 
-// ── OTP input row ─────────────────────────────────────────────────────────────
-.auth-otp {
-  display: flex;
-  gap: 0.75rem;
-  justify-content: center;
-
-  &__box {
-    width: 52px;
-    height: 60px;
-    background-color: rgba($color-primary, 0.5);
-    border: 1.5px solid rgba($color-secondary, 0.25);
-    border-radius: 10px;
-    font-family: $font-headline;
-    font-size: $fs-2xl;
-    font-weight: $fw-bold;
-    color: $color-secondary;
-    text-align: center;
-    outline: none;
-    @include transition(border-color, 0.2s);
+  &--error &__input {
+    border-color: #ef4444;
+    background-color: #fffafa;
 
     &:focus {
-      border-color: $color-secondary;
-      box-shadow: 0 0 0 3px rgba($color-secondary, 0.2);
+      border-color: #dc2626;
+      box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.14);
     }
+  }
 
-    @include sm { width: 44px; height: 52px; font-size: $fs-xl; }
+  &--error &__icon {
+    color: #ef4444;
+  }
+
+  &--readonly &__input {
+    background: #f8fafc;
+    color: #64748b;
+    cursor: not-allowed;
+    border-color: #e2e8f0;
+  }
+
+  &__err-msg {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 5px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #dc2626;
   }
 }
 
-// ── Password strength ─────────────────────────────────────────────────────────
-.auth-strength {
-  @include flex-col;
-  gap: 0.5rem;
+// ── Multi-column row for Signup ───────────────────────────────
+.auth-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
 
-  &__bar-wrap {
+  @media (max-width: 540px) {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}
+
+// ── Forgot password link ──────────────────────────────────────
+.auth-forgot-link {
+  background: none;
+  border: none;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.18s ease;
+
+  &:hover {
+    color: #001F3F;
+    text-decoration: underline;
+  }
+}
+
+// ── Checkbox (Terms & Conditions) ─────────────────────────────
+.auth-checkbox-wrap {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 1.25rem 0 1.5rem;
+  cursor: pointer;
+
+  input[type="checkbox"] {
+    width: 17px;
+    height: 17px;
+    margin-top: 2px;
+    accent-color: #001F3F;
+    border-radius: 4px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  span {
+    font-size: 0.82rem;
+    color: #475569;
+    line-height: 1.45;
+  }
+
+  a {
+    color: #001F3F;
+    font-weight: 600;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+      color: #D4AF37;
+    }
+  }
+}
+
+// ── Primary Action Button ─────────────────────────────────────
+.auth-btn {
+  width: 100%;
+  height: 50px;
+  border-radius: 12px;
+  font-size: 0.96rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.22s ease-in-out;
+  border: none;
+
+  &--primary {
+    background: #001F3F;
+    color: #ffffff;
+    border: 1.5px solid #001F3F;
+    box-shadow: 0 4px 14px rgba(0, 31, 63, 0.2);
+
+    &:hover:not(:disabled) {
+      background: #D4AF37;
+      border-color: #D4AF37;
+      color: #001F3F;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 22px rgba(212, 175, 55, 0.35);
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    &:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+  }
+
+  &--ghost {
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    color: #334155;
+
+    &:hover:not(:disabled) {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+      color: #001F3F;
+    }
+  }
+}
+
+.auth-spinner {
+  animation: authSpin 1s linear infinite;
+}
+
+@keyframes authSpin {
+  100% { transform: rotate(360deg); }
+}
+
+// ── Switch prompt at bottom of card ───────────────────────────
+.auth-card-switch {
+  margin-top: 1.75rem;
+  text-align: center;
+  font-size: 0.88rem;
+  color: #64748b;
+
+  &__link {
+    color: #001F3F;
+    font-weight: 700;
+    text-decoration: none;
+    margin-left: 6px;
+    transition: color 0.15s ease;
+
+    &:hover {
+      color: #D4AF37;
+      text-decoration: underline;
+    }
+  }
+}
+
+// ==============================================================================
+//  PASSWORD STRENGTH METER
+// ==============================================================================
+.auth-strength {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-top: -0.5rem;
+  margin-bottom: 1.25rem;
+
+  &__bar-row {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    margin-bottom: 6px;
   }
 
-  &__bar {
-    flex: 1;
+  &__title {
+    color: #64748b;
+    font-weight: 600;
+  }
+
+  &__status {
+    font-weight: 700;
+  }
+
+  &__track {
+    width: 100%;
     height: 5px;
-    background-color: rgba(255,255,255,0.1);
-    border-radius: 99px;
+    background: #e2e8f0;
+    border-radius: 10px;
     overflow: hidden;
+    margin-bottom: 8px;
   }
 
-  &__bar-fill {
+  &__fill {
     height: 100%;
-    border-radius: 99px;
-    @include transition(width, 0.4s);
-  }
-
-  &__label {
-    font-family: $font-label;
-    font-size: $fs-xs;
-    font-weight: $fw-semibold;
-    min-width: 72px;
-    text-align: right;
+    border-radius: 10px;
+    transition: width 0.3s ease, background-color 0.3s ease;
   }
 
   &__rules {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem 1.5rem;
+    gap: 8px 14px;
   }
 
   &__rule {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 0.3rem;
-    font-family: $font-label;
-    font-size: $fs-xs;
-    color: rgba(255,255,255,0.4);
+    gap: 4px;
+    font-size: 0.72rem;
+    color: #94a3b8;
+    transition: color 0.2s ease;
 
-    &.is-met { color: #69f0ae; }
+    svg {
+      color: #cbd5e1;
+      transition: color 0.2s ease;
+    }
 
-    svg { flex-shrink: 0; }
-  }
-}
+    &--met {
+      color: #15803d;
+      font-weight: 600;
 
-// ── Checkbox ──────────────────────────────────────────────────────────────────
-.auth-check {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-
-  &__box {
-    width: 18px;
-    height: 18px;
-    flex-shrink: 0;
-    margin-top: 2px;
-    accent-color: $color-secondary;
-    cursor: pointer;
-  }
-
-  &__label {
-    font-family: $font-body;
-    font-size: $fs-sm;
-    color: rgba(255,255,255,0.55);
-    line-height: $lh-relaxed;
-
-    a {
-      color: $color-secondary;
-      text-decoration: underline;
-      text-underline-offset: 2px;
+      svg {
+        color: #22c55e;
+      }
     }
   }
 }
 
-// ── Step indicator ────────────────────────────────────────────────────────────
-.auth-steps {
-  display: flex;
-  justify-content: center;
-  gap: 0.5rem;
-  margin-bottom: 1.75rem;
-
-  &__dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background-color: rgba(255,255,255,0.2);
-    @include transition(all, 0.3s);
-
-    &.is-active {
-      background-color: $color-secondary;
-      width: 24px;
-      border-radius: 4px;
-    }
-
-    &.is-done { background-color: rgba($color-secondary, 0.5); }
-  }
-}
-
-// ── Success screen ────────────────────────────────────────────────────────────
-.auth-success {
-  @include flex-col;
-  align-items: center;
-  gap: 1.25rem;
+// ==============================================================================
+//  SUCCESS CARD
+// ==============================================================================
+.auth-success-card {
   text-align: center;
-  padding: 1rem 0;
+  padding: 2.5rem 1.5rem;
 
-  &__icon {
+  &__icon-box {
     width: 72px;
     height: 72px;
     border-radius: 50%;
-    background-color: rgba(#69f0ae, 0.12);
-    @include flex-center;
-    color: #69f0ae;
+    background: #dcfce7;
+    border: 2px solid #86efac;
+    color: #16a34a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    animation: authBounce 0.5s ease;
   }
 
   &__title {
-    font-family: $font-headline;
-    font-size: $fs-2xl;
-    font-weight: $fw-bold;
-    color: $color-secondary;
-    margin: 0;
+    font-size: 1.7rem;
+    font-weight: 800;
+    color: #001F3F;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.75rem;
   }
 
   &__body {
-    font-family: $font-body;
-    font-size: $fs-base;
-    color: rgba(255,255,255,0.6);
-    line-height: $lh-relaxed;
-    max-width: 320px;
-    margin: 0;
+    font-size: 0.95rem;
+    color: #475569;
+    line-height: 1.6;
+    max-width: 400px;
+    margin: 0 auto 2rem;
   }
 }
 
-// ── Spinner animation ─────────────────────────────────────────────────────────
-.auth-spin {
-  animation: authSpin 0.8s linear infinite;
+@keyframes authBounce {
+  0% { transform: scale(0.6); opacity: 0; }
+  70% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
 }
 
-@keyframes authSpin {
-  to { transform: rotate(360deg); }
+// ==============================================================================
+//  FORGOT PASSWORD MODAL
+// ==============================================================================
+.auth-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 31, 63, 0.6);
+  backdrop-filter: blur(6px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  animation: authFadeIn 0.2s ease;
+}
+
+.auth-modal-card {
+  background: #ffffff;
+  border-radius: 20px;
+  max-width: 460px;
+  width: 100%;
+  padding: 2.25rem 2rem;
+  position: relative;
+  box-shadow: 0 25px 60px rgba(0, 31, 63, 0.25);
+  border: 1px solid #e2e8f0;
+  animation: authScaleUp 0.25s ease;
+
+  &__close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: #f1f5f9;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.15s ease;
+
+    &:hover {
+      background: #e2e8f0;
+      color: #001F3F;
+    }
+  }
+
+  &__icon-box {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: #fffbeb;
+    border: 1.5px solid rgba(212, 175, 55, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.25rem;
+  }
+
+  &__title {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #001F3F;
+    margin-bottom: 0.6rem;
+    letter-spacing: -0.01em;
+  }
+
+  &__text {
+    font-size: 0.88rem;
+    color: #475569;
+    line-height: 1.6;
+    margin-bottom: 1.25rem;
+  }
+
+  &__support-box {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 1.75rem;
+  }
+
+  &__support-row {
+    font-size: 0.82rem;
+    margin-bottom: 6px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  &__support-label {
+    color: #64748b;
+    display: block;
+    font-weight: 600;
+  }
+
+  &__support-link {
+    color: #001F3F;
+    font-weight: 700;
+    text-decoration: none;
+
+    &:hover {
+      color: #D4AF37;
+      text-decoration: underline;
+    }
+  }
+}
+
+@keyframes authFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes authScaleUp {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }

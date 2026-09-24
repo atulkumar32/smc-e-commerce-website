@@ -1,28 +1,46 @@
 // ─────────────────────────────────────────────────────────────
-//  UserLayout — shell
+//  UserLayout — Shell with fluid animated sidebar adjustment
 // ─────────────────────────────────────────────────────────────
 
 .ulayout {
   display: flex;
-  min-height: 100vh;
-  background: #f0f4f8;
+  height: 100vh;
+  max-height: 100vh;
+  background: #f8fafc;
+  overflow: hidden; // Freezes window scroll; locks sidebar strictly in place
 }
 
 .ulayout__main {
   flex: 1;
   min-width: 0;
+  height: 100vh;
+  max-height: 100vh;
+  overflow-y: auto; // Only content layout scrolls
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
-  // Topbar height offset handled inside __content
+  position: relative;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
 }
 
 .ulayout__content {
   flex: 1;
-  padding: 80px 28px 40px;   // 80px = topbar clearance
-  max-width: 1200px;
+  padding: 28px 32px 48px; // Clean spacing below the sticky topbar
+  max-width: 1440px;
   width: 100%;
   margin: 0 auto;
   box-sizing: border-box;
 
-  @media (max-width: 900px) { padding: 72px 16px 32px; }
+  @media (max-width: 1200px) {
+    padding: 24px 24px 40px;
+  }
+
+  @media (max-width: 900px) {
+    padding: 20px 16px 36px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 16px 12px 28px;
+  }
 }

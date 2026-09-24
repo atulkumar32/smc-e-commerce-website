@@ -1,9 +1,8 @@
 /**
  * DashboardCountActions.js  —  used by Dashboard page only
  *
- * All requests: POST with JSON body { user_id, email, ... }
- * Also X-USER-ID header.
- * user_id + email read from localStorage 'user_profile' (set by saveUserAuth on login).
+ * Requests userDashboardTotalCount and userOrderDetailsList
+ * user_id + user_email read from localStorage 'user_profile'
  */
 
 import { USER_APIS } from '../../Config/UrlsConfig';
@@ -12,73 +11,100 @@ import { USER_APIS } from '../../Config/UrlsConfig';
 export function getDashboardCredentials() {
   try {
     const p = JSON.parse(localStorage.getItem('user_profile') || '{}');
+    const storedEmail = localStorage.getItem('user_email') || '';
     return {
       user_id: p.user_id ?? p.id    ?? p.userId    ?? null,
-      email:   p.email   ?? p.Email ?? p.userEmail ?? '',
+      email:   p.email   ?? p.Email ?? p.userEmail ?? p.customer_email ?? storedEmail,
       name:    p.name    ?? p.full_name ?? p.fullName ?? '',
       token:   localStorage.getItem('user_token') ?? '',
     };
-  } catch { return null; }
+  } catch {
+    return null;
+  }
 }
 
 function headers(creds) {
   return {
     'Content-Type': 'application/json',
-    'X-USER-ID':    String(creds.user_id),
-    ...(creds.token ? { Authorization: `Bearer ${creds.token}` } : {}),
+    // ...(creds?.user_id ? { 'X-USER-ID': String(creds.user_id) } : {}), // Commented out: PHP API does not allow x-user-id header
+    ...(creds?.token ? { Authorization: `Bearer ${creds.token}` } : {}),
   };
 }
 
 async function parseRes(res, tag) {
   const text = await res.text();
-  console.group(`📨 [${tag}] Response — HTTP ${res.status}`);
-  console.log(text.slice(0, 700));
-  console.groupEnd();
   let data = {};
-  try { data = text ? JSON.parse(text) : {}; } catch { /* non-JSON */ }
-  if (!res.ok || data.status === false) throw new Error(data.message || `HTTP ${res.status}`);
+  try {
+    data = text ? JSON.parse(text) : {};
+  } catch {
+    /* non-JSON */
+  }
+  if (!res.ok || data.status === false || data.success === false) {
+    throw new Error(data.message || data.error || `HTTP ${res.status}`);
+  }
   return data;
 }
 
 // ── 1. Dashboard counts ────────────────────────────────────────────────────────
-// POST body: { user_id, email }
 export const fetchDashboardCounts = async () => {
   const creds = getDashboardCredentials();
-  if (!creds?.user_id) throw new Error('Not authenticated');
+  if (!creds?.user_id && !creds?.email) throw new Error('Not authenticated');
 
-  const body = { user_id: creds.user_id, email: creds.email };
+  const body = {
+    user_id: creds.user_id,
+    user_email: creds.email,
+    email: creds.email,
+  };
 
-  console.group('📡 [DashboardCounts] POST', USER_APIS.DASHBOARD_COUNT);
-  console.log('body:', JSON.stringify(body));
-  console.groupEnd();
-
-  const res  = await fetch(USER_APIS.DASHBOARD_COUNT, {
-    method: 'POST', headers: headers(creds), body: JSON.stringify(body),
-  });
-  const data = await parseRes(res, 'DashboardCounts');
-  const result = data?.data ?? data;
-  console.log('✅ [DashboardCounts]', result);
-  return result;
+  try {
+    const res = await fetch(USER_APIS.DASHBOARD_COUNT, {
+      method: 'POST',
+      headers: headers(creds),
+      body: JSON.stringify(body),
+    });
+    const data = await parseRes(res, 'DashboardCounts');
+    return data?.data ?? data;
+  } catch (err) {
+    console.warn('[DashboardCounts] Falling back to orders summary count:', err.message);
+    return null;
+  }
 };
 
 // ── 2. Recent orders ──────────────────────────────────────────────────────────
-// POST body: { user_id, email, page, limit }
+// Calls userOrderDetailsList with user_id, user_email, page, per_page
 export const fetchDashboardRecentOrders = async ({ page = 1, limit = 5 } = {}) => {
   const creds = getDashboardCredentials();
-  if (!creds?.user_id) throw new Error('Not authenticated');
+  if (!creds?.user_id && !creds?.email) return [];
 
-  const body = { user_id: creds.user_id, email: creds.email, page, limit };
+  const endpoint = USER_APIS.ORDERS_LIST;
+  const url = new URL(endpoint, window.location.origin);
 
-  console.group('📡 [DashboardRecentOrders] POST', USER_APIS.ORDERS_LIST);
-  console.log('body:', JSON.stringify(body));
-  console.groupEnd();
+  if (creds.user_id) {
+    url.searchParams.set('user_id', String(creds.user_id));
+  }
+  if (creds.email) {
+    url.searchParams.set('user_email', String(creds.email).trim());
+  }
+  url.searchParams.set('page', String(page));
+  url.searchParams.set('per_page', String(limit));
+  url.searchParams.set('limit', String(limit));
 
-  const res  = await fetch(USER_APIS.ORDERS_LIST, {
-    method: 'POST', headers: headers(creds), body: JSON.stringify(body),
+  const res = await fetch(url.toString(), {
+    method: 'GET',
+    headers: headers(creds),
   });
+
   const data = await parseRes(res, 'DashboardRecentOrders');
-  const d    = data?.data ?? data;
-  const orders = Array.isArray(d.orders) ? d.orders : Array.isArray(d) ? d : [];
-  console.log(`✅ [DashboardRecentOrders] ${orders.length} orders`);
-  return orders;
+  const d = data?.data ?? data;
+  const rawList = Array.isArray(d) ? d : Array.isArray(d.orders) ? d.orders : [];
+
+  return rawList.map((item) => ({
+    ...item,
+    id: item.id ?? item.order_id,
+    order_id: item.order_id || `SMC-ODR-${String(item.id || '').padStart(5, '0')}`,
+    total_amount: Number(item.total_amount ?? item.total ?? item.subtotal ?? 0),
+    order_status: item.order_status || item.status || 'confirmed',
+    created_at: item.created_at || new Date().toISOString(),
+    items: Array.isArray(item.items) ? item.items : [],
+  }));
 };

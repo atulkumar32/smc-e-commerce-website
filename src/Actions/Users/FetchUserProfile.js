@@ -22,7 +22,7 @@ export function getProfileCredentials() {
 function buildHeaders(creds) {
   return {
     'Content-Type': 'application/json',
-    'X-USER-ID':    String(creds.user_id),
+    // 'X-USER-ID':    String(creds.user_id), // Commented out: PHP API does not allow x-user-id header
     ...(creds.token ? { Authorization: `Bearer ${creds.token}` } : {}),
   };
 }

@@ -1,86 +1,420 @@
+// ─────────────────────────────────────────────────────────────
+//  UserTopbar — Refined Luxury Glassmorphic Topbar
+//  Shree Mahaveer Collections Design System (#001F3F & #D4AF37)
+// ─────────────────────────────────────────────────────────────
+
+$ut-navy:         #001F3F;
+$ut-gold:         #D4AF37;
+$ut-gold-light:   #f5d77f;
+$ut-border:       #e8ecf2;
+$ut-text-main:    #0f172a;
+$ut-text-muted:   #64748b;
+$ut-bg:           rgba(255, 255, 255, 0.94);
+$spring:          cubic-bezier(0.22, 1, 0.36, 1);
+
 .utopbar {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  height: 64px;
-  background: rgba(255,255,255,0.97);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid #e5e7eb;
+  position: sticky;
+  top: 0;
+  width: 100%;
+  height: 84px; // Increased height for spacious, premium feel
+  background: $ut-bg;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid $ut-border;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 16px;
-  padding: 0 24px;
+  padding: 10px 32px 10px 10px; // Placed near sidebar's curved edge
   z-index: 1100;
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  box-shadow: 0 1px 4px rgba(0, 31, 63, 0.02);
+  box-sizing: border-box;
 
-  @media (max-width: 900px) { height: 60px; padding: 0 16px; }
+  @media (max-width: 900px) {
+    height: 70px;
+    padding: 0 16px 0 8px;
+    gap: 12px;
+  }
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+    flex-shrink: 0;
+  }
 
   &__ham {
-    background: none; border: none; cursor: pointer;
-    width: 36px; height: 36px; border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    color: #374151; flex-shrink: 0;
-    transition: background 0.15s;
-    &:hover { background: #f3f4f6; }
-    svg { width: 20px; height: 20px; }
+    background: transparent;
+    border: 1px solid transparent;
+    cursor: pointer;
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    display: flex !important; // Visible on desktop & mobile exactly as in reference image
+    align-items: center;
+    justify-content: center;
+    color: #475569;
+    flex-shrink: 0;
+    margin-left: 0;
+    margin-right: 2px;
+    transition: all 0.2s $spring;
+
+    &:hover {
+      background: #f1f5f9;
+      color: $ut-navy;
+    }
+
+    svg {
+      width: 21px;
+      height: 21px;
+    }
   }
 
-  &__title {
-    font-size: 16px;
+  &__title-box {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  &__breadcrumb-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+
+    @media (max-width: 680px) {
+      display: none;
+    }
+  }
+
+  &__breadcrumb {
+    font-size: 0.68rem;
     font-weight: 700;
-    color: #111827;
-    white-space: nowrap;
+    color: $ut-text-muted;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    line-height: 1;
   }
 
-  &__actions {
+  &__tag {
+    font-size: 0.62rem;
+    font-weight: 800;
+    color: #b8860b;
+    background: rgba(212, 175, 55, 0.14);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    padding: 1px 7px;
+    border-radius: 12px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    line-height: 1.2;
+  }
+
+  &__heading-row {
     display: flex;
     align-items: center;
     gap: 10px;
   }
 
+  &__heading-icon-badge {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: rgba(0, 31, 63, 0.05);
+    border: 1px solid rgba(0, 31, 63, 0.1);
+    color: $ut-navy;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    svg {
+      width: 16px;
+      height: 16px;
+      stroke: $ut-navy;
+    }
+
+    @media (max-width: 600px) {
+      display: none;
+    }
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1.18rem;
+    font-weight: 800;
+    color: $ut-navy;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    white-space: nowrap;
+
+    @media (max-width: 600px) {
+      font-size: 1rem;
+    }
+  }
+
+  // ── Center Search Area ──
+  &__center {
+    flex: 1;
+    max-width: 360px;
+    margin: 0 16px;
+    display: flex;
+    align-items: center;
+
+    @media (max-width: 1024px) {
+      max-width: 260px;
+    }
+
+    @media (max-width: 768px) {
+      display: none; // Hides center search bar on mobile/small tablets
+    }
+  }
+
+  &__search-form {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+  }
+
+  &__search-icon {
+    position: absolute;
+    left: 12px;
+    width: 15px;
+    height: 15px;
+    color: #94a3b8;
+    pointer-events: none;
+  }
+
+  &__search-input {
+    width: 100%;
+    height: 38px;
+    padding: 0 34px 0 36px;
+    border-radius: 10px;
+    border: 1px solid $ut-border;
+    background: #f8fafc;
+    font-size: 12.5px;
+    color: $ut-text-main;
+    font-family: inherit;
+    transition: all 0.2s $spring;
+    box-sizing: border-box;
+
+    &::placeholder {
+      color: #94a3b8;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: $ut-navy;
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(0, 31, 63, 0.08);
+    }
+  }
+
+  &__search-clear {
+    position: absolute;
+    right: 10px;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    padding: 0;
+
+    &:hover {
+      color: $ut-navy;
+    }
+
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
+
+  // ── Right Action Controls ──
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+    margin-left: auto;
+  }
+
   &__btn {
-    display: flex; align-items: center; gap: 6px;
-    padding: 7px 14px; border: 1px solid #e5e7eb;
-    border-radius: 8px; background: #fff;
-    font-size: 12.5px; font-weight: 600;
-    color: #374151; cursor: pointer;
-    font-family: 'DM Sans', sans-serif;
-    transition: background 0.15s, border-color 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border: 1px solid $ut-border;
+    border-radius: 10px;
+    background: #ffffff;
+    font-size: 13px;
+    font-weight: 700;
+    color: #334155;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s $spring;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 
-    &:hover { background: #f9fafb; border-color: #d1d5db; }
+    &:hover {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+      color: $ut-navy;
+      transform: translateY(-1px);
+    }
 
-    svg { width: 16px; height: 16px; }
+    svg {
+      width: 17px;
+      height: 17px;
+    }
 
-    span { @media (max-width: 520px) { display: none; } }
+    &--shop {
+      background: rgba(0, 31, 63, 0.04);
+      border-color: rgba(0, 31, 63, 0.12);
+      color: $ut-navy;
 
-    &--cart {
+      &:hover {
+        background: $ut-navy;
+        color: #ffffff;
+        border-color: $ut-navy;
+
+        svg {
+          color: #ffffff;
+        }
+      }
+
+      span {
+        @media (max-width: 520px) {
+          display: none;
+        }
+      }
+    }
+
+    &--icon {
       position: relative;
-      padding: 7px 10px;
+      width: 38px;
+      height: 38px;
+      padding: 0;
+      justify-content: center;
     }
   }
 
   &__badge {
-    position: absolute; top: -5px; right: -5px;
-    background: #c8a477; color: #fff;
-    font-size: 9px; font-weight: 800;
-    width: 17px; height: 17px;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: $ut-navy;
+    color: #ffffff;
+    font-size: 9.5px;
+    font-weight: 800;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 4px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     line-height: 1;
-    border: 2px solid #fff;
+    border: 2px solid #ffffff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+
+    &--wish {
+      background: #dc2626;
+    }
+  }
+
+  // ── Luxury User Profile Chip ──
+  &__user-chip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 14px 4px 5px;
+    border-radius: 30px;
+    background: #ffffff;
+    border: 1.5px solid $ut-border;
+    cursor: pointer;
+    transition: all 0.2s $spring;
+    box-shadow: 0 1px 4px rgba(0, 31, 63, 0.03);
+
+    &:hover {
+      border-color: $ut-gold;
+      box-shadow: 0 4px 14px rgba(212, 175, 55, 0.2);
+      transform: translateY(-1px);
+
+      .utopbar__user-chevron {
+        color: $ut-navy;
+        transform: translateY(1px);
+      }
+    }
+
+    @media (max-width: 680px) {
+      padding: 0;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+    }
   }
 
   &__avatar {
-    width: 36px; height: 36px;
+    width: 34px;
+    height: 34px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #0f1c2e, #1565c0);
-    border: 2px solid #c8a477;
-    color: #F5D77F;
-    font-size: 12px; font-weight: 800;
-    font-family: 'DM Sans', sans-serif;
-    cursor: pointer; border-style: solid;
-    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, $ut-navy 0%, #001530 100%);
+    border: 1.5px solid $ut-gold;
+    color: $ut-gold-light;
+    font-size: 12px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     flex-shrink: 0;
-    transition: transform 0.15s;
-    &:hover { transform: scale(1.08); }
+    box-shadow: 0 2px 8px rgba(212, 175, 55, 0.25);
+    transition: transform 0.2s $spring;
+  }
+
+  &__user-meta {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+
+    @media (max-width: 680px) {
+      display: none;
+    }
+  }
+
+  &__user-name {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: $ut-navy;
+    line-height: 1.2;
+    white-space: nowrap;
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__user-role {
+    font-size: 9.5px;
+    font-weight: 800;
+    color: $ut-gold;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    line-height: 1;
+  }
+
+  &__user-chevron {
+    width: 13px;
+    height: 13px;
+    color: #94a3b8;
+    transition: transform 0.2s, color 0.2s;
+
+    @media (max-width: 680px) {
+      display: none;
+    }
   }
 }

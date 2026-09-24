@@ -61,7 +61,7 @@ export const fetchCurrentUserOrders = async () => {
   }
 
   const response = await api.getUserOrders({
-    headers: { 'X-USER-ID': String(userId) },
+    // headers: { 'X-USER-ID': String(userId) }, // Commented out: PHP API does not allow x-user-id header
   });
 
   const data = response?.data ?? response;

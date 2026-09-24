@@ -1,0 +1,1740 @@
+// ─────────────────────────────────────────────────────────────────────────────
+//  UserDashboard.scss — Premium VORANO Redesign Customer Portal
+// ─────────────────────────────────────────────────────────────────────────────
+
+$ud-navy:         #001F3F;
+$ud-navy-deep:    #001530;
+$ud-navy-light:   #002d5a;
+$ud-gold:         #D4AF37;
+$ud-gold-light:   #f5d77f;
+$ud-gold-glow:    rgba(212, 175, 55, 0.25);
+$ud-text-main:    #0f172a;
+$ud-text-muted:   #64748b;
+$ud-text-sub:     #94a3b8;
+$ud-border:       #e2e8f0;
+$ud-card-bg:      #ffffff;
+$ud-surface:      #f8fafc;
+$spring:          cubic-bezier(0.22, 1, 0.36, 1);
+
+.ud-dashboard-root {
+  max-width: 1320px;
+  margin: 0 auto;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: $ud-text-main;
+  box-sizing: border-box;
+
+  * {
+    box-sizing: border-box;
+  }
+}
+
+// ── 1. Dashboard Header ─────────────────────────────────────────
+.ud-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 28px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid rgba(0, 31, 63, 0.08);
+
+  &__welcome {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+
+  &__avatar-wrap {
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  &__avatar {
+    width: 62px !important;
+    height: 62px !important;
+    font-size: 1.25rem !important;
+    font-weight: 800 !important;
+    background: linear-gradient(135deg, $ud-navy 0%, $ud-navy-light 100%) !important;
+    color: $ud-gold-light !important;
+    border: 2.5px solid $ud-gold !important;
+    box-shadow: 0 8px 24px $ud-gold-glow;
+  }
+
+  &__online-dot {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 14px;
+    height: 14px;
+    background: #16a34a;
+    border: 2.5px solid #ffffff;
+    border-radius: 50%;
+  }
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__badge-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+    flex-wrap: wrap;
+  }
+
+  &__status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: rgba(212, 175, 55, 0.12);
+    border: 1px solid rgba(212, 175, 55, 0.35);
+    color: #9a7307;
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  &__status-pulse {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #d4af37;
+    box-shadow: 0 0 8px #d4af37;
+    animation: udRadarPulse 1.8s infinite;
+  }
+
+  &__store-tag {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: $ud-text-sub;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1.65rem;
+    font-weight: 800;
+    color: $ud-text-main;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+
+    @media (max-width: 600px) {
+      font-size: 1.35rem;
+    }
+  }
+
+  &__wave {
+    display: inline-block;
+    animation: udWave 2.5s infinite;
+    transform-origin: 70% 70%;
+  }
+
+  &__subtitle {
+    margin: 4px 0 0;
+    font-size: 0.85rem;
+    color: $ud-text-muted;
+
+    strong {
+      color: $ud-navy;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  &__icon-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px !important;
+    background: #ffffff !important;
+    border: 1px solid $ud-border !important;
+    color: $ud-text-main !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    transition: all 0.2s $spring !important;
+
+    &:hover {
+      border-color: $ud-navy !important;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 31, 63, 0.1);
+      color: $ud-navy !important;
+    }
+
+    &--spin svg {
+      animation: udSpin 1s linear infinite;
+    }
+  }
+}
+
+@keyframes udWave {
+  0%, 100% { transform: rotate(0deg); }
+  20%      { transform: rotate(14deg); }
+  40%      { transform: rotate(-8deg); }
+  60%      { transform: rotate(14deg); }
+  80%      { transform: rotate(-4deg); }
+}
+
+@keyframes udSpin {
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes udRadarPulse {
+  0%   { transform: scale(0.9); opacity: 1; }
+  50%  { transform: scale(1.4); opacity: 0.4; }
+  100% { transform: scale(0.9); opacity: 1; }
+}
+
+// ── Notifications Popover ─────────────────────────────────────
+.ud-notif-menu {
+  border-radius: 16px !important;
+  min-width: 320px;
+  max-width: 360px;
+  padding: 8px 0;
+  border: 1px solid $ud-border !important;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 16px 4px;
+  }
+
+  &__badge {
+    background: rgba(2, 132, 199, 0.12);
+    color: #0284c7;
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 12px;
+  }
+}
+
+// ── 2. Top Banner Grid (Hero Profile + Stats Overview) ────────
+.ud-top-grid {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 24px;
+  margin-bottom: 28px;
+
+  @media (max-width: 1080px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ── Profile Card ──────────────────────────────────────────────
+.ud-profile-card {
+  background: linear-gradient(145deg, #ffffff 0%, #fcfdfd 100%);
+  border: 1px solid $ud-border;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(0, 31, 63, 0.04);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  &__top {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  &__avatar-box {
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  &__avatar {
+    width: 64px !important;
+    height: 64px !important;
+    background: $ud-navy !important;
+    color: $ud-gold-light !important;
+    font-size: 1.35rem !important;
+    font-weight: 800 !important;
+    border: 2px solid $ud-gold !important;
+  }
+
+  &__badge-icon {
+    position: absolute;
+    bottom: -4px;
+    right: -4px;
+    background: #16a34a;
+    color: #ffffff;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #ffffff;
+
+    svg {
+      font-size: 13px;
+    }
+  }
+
+  &__status-row {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 4px;
+  }
+
+  &__status-pill {
+    background: #dcfce7;
+    color: #15803d;
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 12px;
+  }
+
+  &__tier-pill {
+    background: rgba(212, 175, 55, 0.15);
+    color: #9a7307;
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 12px;
+  }
+
+  &__name {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: $ud-text-main;
+    line-height: 1.25;
+  }
+
+  &__welcome-sub {
+    margin: 2px 0 0;
+    font-size: 0.74rem;
+    color: $ud-text-sub;
+  }
+
+  &__details {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px 0;
+    border-top: 1px solid #f1f5f9;
+    border-bottom: 1px solid #f1f5f9;
+    margin-bottom: 18px;
+  }
+
+  &__detail-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  &__detail-icon {
+    font-size: 20px !important;
+    color: $ud-text-sub;
+    flex-shrink: 0;
+  }
+
+  &__detail-text {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  &__detail-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: $ud-text-sub;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  &__detail-value {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: $ud-text-main;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__perks {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  &__perk-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f8fafc;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #475569;
+
+    svg {
+      color: $ud-gold;
+    }
+  }
+
+  &__edit-btn {
+    width: 100%;
+    background: $ud-navy !important;
+    color: #ffffff !important;
+    border-radius: 12px !important;
+    font-weight: 700 !important;
+    font-size: 0.82rem !important;
+    text-transform: none !important;
+    padding: 10px 16px !important;
+    box-shadow: 0 4px 14px rgba(0, 31, 63, 0.2) !important;
+    transition: all 0.2s $spring !important;
+
+    &:hover {
+      background: #002d5a !important;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 31, 63, 0.3) !important;
+    }
+  }
+}
+
+// ── 3. Quick Stats Grid ────────────────────────────────────────
+.ud-stats-section {
+  width: 100%;
+}
+
+.ud-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+
+  @media (max-width: 1200px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ud-stat-card {
+  background: #ffffff !important;
+  border: 1px solid $ud-border !important;
+  border-radius: 18px !important;
+  padding: 20px !important;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.25s $spring !important;
+
+  &--clickable {
+    cursor: pointer;
+
+    &:hover {
+      transform: translateY(-3px);
+      border-color: var(--stat-accent, #001F3F) !important;
+      box-shadow: 0 12px 28px -6px rgba(0, 31, 63, 0.08) !important;
+    }
+  }
+
+  &__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  &__icon-box {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: rgba(0, 31, 63, 0.06);
+    color: var(--stat-accent, #001F3F);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    svg {
+      font-size: 22px;
+    }
+  }
+
+  &__live-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(2, 132, 199, 0.1);
+    color: #0284c7;
+    font-size: 0.68rem;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 12px;
+  }
+
+  &__live-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #0284c7;
+    animation: udRadarPulse 1.6s infinite;
+  }
+
+  &__value {
+    font-size: 1.6rem !important;
+    font-weight: 800 !important;
+    color: $ud-text-main !important;
+    line-height: 1.1 !important;
+    letter-spacing: -0.02em !important;
+    margin-bottom: 2px !important;
+  }
+
+  &__label {
+    font-size: 0.82rem !important;
+    font-weight: 700 !important;
+    color: $ud-text-muted !important;
+  }
+
+  &__subtext {
+    font-size: 0.72rem !important;
+    color: $ud-text-sub !important;
+    margin-top: 2px !important;
+  }
+
+  &__arrow {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    color: $ud-text-sub;
+    opacity: 0;
+    transform: translateX(-4px);
+    transition: all 0.2s $spring;
+
+    svg {
+      font-size: 16px;
+    }
+  }
+
+  &:hover &__arrow {
+    opacity: 1;
+    transform: translateX(0);
+    color: var(--stat-accent, #001F3F);
+  }
+}
+
+// ── 4. Order Tracking Component ────────────────────────────────
+.ud-tracking-card {
+  background: #ffffff !important;
+  border: 1px solid $ud-border !important;
+  border-radius: 20px !important;
+  padding: 24px 28px !important;
+  margin-bottom: 28px;
+  box-shadow: 0 4px 20px rgba(0, 31, 63, 0.03) !important;
+
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  &__pulse-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+
+  &__radar {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #0284c7;
+    box-shadow: 0 0 10px #0284c7;
+    animation: udRadarPulse 1.8s infinite;
+  }
+
+  &__pulse-label {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #0284c7;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: $ud-text-main;
+    letter-spacing: -0.01em;
+  }
+
+  &__id {
+    color: $ud-navy;
+    font-family: monospace;
+    font-size: 1.15rem;
+  }
+
+  &__meta {
+    margin: 4px 0 0;
+    font-size: 0.8rem;
+    color: $ud-text-muted;
+
+    strong {
+      color: $ud-text-main;
+    }
+  }
+
+  &__action-btn {
+    border-radius: 10px !important;
+    text-transform: none !important;
+    font-weight: 700 !important;
+    font-size: 0.82rem !important;
+    color: $ud-navy !important;
+    border-color: rgba(0, 31, 63, 0.25) !important;
+
+    &:hover {
+      border-color: $ud-navy !important;
+      background: rgba(0, 31, 63, 0.04) !important;
+    }
+  }
+
+  &__cancelled-alert {
+    padding: 16px;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #b91c1c;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  &__timeline-wrap {
+    padding: 10px 0 4px;
+    overflow-x: auto;
+  }
+
+  &__timeline {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;
+    position: relative;
+    min-width: 640px;
+  }
+}
+
+.ud-tracking-step {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+
+  &__node {
+    display: flex;
+    align-items: center;
+    position: relative;
+    margin-bottom: 12px;
+  }
+
+  &__circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #f1f5f9;
+    border: 2px solid $ud-border;
+    color: $ud-text-sub;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 0.75rem;
+    flex-shrink: 0;
+    z-index: 2;
+    transition: all 0.25s $spring;
+  }
+
+  &__line {
+    flex: 1;
+    height: 3px;
+    background: #e2e8f0;
+    margin-left: -2px;
+    margin-right: -2px;
+    z-index: 1;
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: $ud-text-muted;
+    line-height: 1.2;
+    margin-bottom: 2px;
+  }
+
+  &__desc {
+    font-size: 0.7rem;
+    color: $ud-text-sub;
+  }
+
+  // Done status
+  &--done {
+    .ud-tracking-step__circle {
+      background: $ud-navy;
+      border-color: $ud-gold;
+      color: $ud-gold-light;
+      box-shadow: 0 0 12px rgba(212, 175, 55, 0.35);
+    }
+
+    .ud-tracking-step__line {
+      background: $ud-gold;
+    }
+
+    .ud-tracking-step__label {
+      color: $ud-text-main;
+      font-weight: 800;
+    }
+  }
+
+  // Current active status
+  &--current {
+    .ud-tracking-step__circle {
+      background: #0284c7;
+      border-color: #38bdf8;
+      color: #ffffff;
+      box-shadow: 0 0 14px rgba(2, 132, 199, 0.45);
+      animation: udNodePulse 1.8s infinite;
+    }
+
+    .ud-tracking-step__active-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #ffffff;
+    }
+
+    .ud-tracking-step__label {
+      color: #0284c7;
+      font-weight: 800;
+    }
+  }
+
+  &__check {
+    font-size: 16px !important;
+  }
+}
+
+@keyframes udNodePulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.1); }
+}
+
+// ── 5. Standard Section Card Shell ─────────────────────────────
+.ud-section-card {
+  background: #ffffff !important;
+  border: 1px solid $ud-border !important;
+  border-radius: 20px !important;
+  margin-bottom: 28px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 31, 63, 0.03) !important;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 22px 28px;
+    border-bottom: 1px solid #f1f5f9;
+  }
+
+  &__header-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: #9a7307;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 4px;
+  }
+
+  &__tag-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: $ud-gold;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: $ud-text-main;
+    letter-spacing: -0.01em;
+  }
+
+  &__subtitle {
+    margin: 4px 0 0;
+    font-size: 0.78rem;
+    color: $ud-text-muted;
+  }
+
+  &__action-link {
+    text-transform: none !important;
+    font-weight: 700 !important;
+    font-size: 0.82rem !important;
+    color: $ud-navy !important;
+
+    &:hover {
+      background: rgba(0, 31, 63, 0.05) !important;
+    }
+  }
+}
+
+// ── 6. Order Overview & Order Cards ────────────────────────────
+.ud-orders-overview {
+  &__content {
+    padding: 0;
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__loading {
+    padding: 16px;
+  }
+
+  &__skeleton-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    border-bottom: 1px solid #f8fafc;
+  }
+}
+
+.ud-order-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 18px 28px;
+  border-bottom: 1px solid #f1f5f9;
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background: #f8fafc;
+  }
+
+  &__product {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-width: 280px;
+    flex: 2;
+  }
+
+  &__thumb {
+    position: relative;
+    width: 62px;
+    height: 62px;
+    border-radius: 12px;
+    background: #f8fafc;
+    border: 1px solid $ud-border;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  &__thumb-placeholder {
+    color: $ud-text-sub;
+  }
+
+  &__item-badge {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    background: rgba(10, 19, 34, 0.85);
+    color: #ffffff;
+    font-size: 0.65rem;
+    font-weight: 800;
+    padding: 1px 5px;
+    border-radius: 6px;
+  }
+
+  &__product-info {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  &__id-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 2px;
+  }
+
+  &__id {
+    font-family: monospace;
+    font-weight: 800;
+    font-size: 0.88rem;
+    color: $ud-text-main;
+  }
+
+  &__copy-btn {
+    padding: 2px !important;
+    color: $ud-text-sub !important;
+  }
+
+  &__name {
+    margin: 0;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: $ud-text-main;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 320px;
+  }
+
+  &__date {
+    font-size: 0.74rem;
+    color: $ud-text-muted;
+    margin-top: 2px;
+  }
+
+  &__price-box {
+    display: flex;
+    flex-direction: column;
+    min-width: 120px;
+    flex: 1;
+  }
+
+  &__amount {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: $ud-navy;
+  }
+
+  &__payment-method {
+    font-size: 0.72rem;
+    color: $ud-text-muted;
+  }
+
+  &__status-box {
+    min-width: 130px;
+  }
+
+  &__status-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    border: 1px solid transparent;
+  }
+
+  &__status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+
+  &__view-btn {
+    border-radius: 10px !important;
+    text-transform: none !important;
+    font-weight: 700 !important;
+    font-size: 0.78rem !important;
+    color: $ud-navy !important;
+    border-color: rgba(0, 31, 63, 0.2) !important;
+
+    &:hover {
+      background: $ud-navy !important;
+      color: #ffffff !important;
+      border-color: $ud-navy !important;
+    }
+  }
+
+  @media (max-width: 640px) {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 16px 20px;
+
+    &__product {
+      width: 100%;
+    }
+
+    &__action-box {
+      width: 100%;
+
+      button {
+        width: 100%;
+      }
+    }
+  }
+}
+
+// ── 7. Wishlist Preview ────────────────────────────────────────
+.ud-wishlist-preview {
+  &__content {
+    padding: 24px 28px;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+
+    @media (max-width: 1100px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 580px) {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+.ud-wishlist-card {
+  border: 1px solid $ud-border;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.22s $spring;
+
+  &:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.05);
+    transform: translateY(-3px);
+  }
+
+  &__image-box {
+    position: relative;
+    height: 180px;
+    background: #f8fafc;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.35s $spring;
+    }
+  }
+
+  &:hover &__image-box img {
+    transform: scale(1.05);
+  }
+
+  &__placeholder {
+    font-size: 3rem;
+  }
+
+  &__badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: #dc2626;
+    color: #ffffff;
+    font-size: 0.68rem;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 6px;
+  }
+
+  &__remove-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255, 255, 255, 0.9) !important;
+    color: #64748b !important;
+
+    &:hover {
+      background: #ffffff !important;
+      color: #dc2626 !important;
+    }
+  }
+
+  &__info {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    justify-content: space-between;
+  }
+
+  &__brand {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: $ud-text-sub;
+    text-transform: uppercase;
+  }
+
+  &__title {
+    margin: 2px 0 8px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: $ud-text-main;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 38px;
+  }
+
+  &__pricing {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  &__price {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: $ud-navy;
+  }
+
+  &__mrp {
+    font-size: 0.82rem;
+    color: $ud-text-sub;
+    text-decoration: line-through;
+  }
+
+  &__cart-btn {
+    border-radius: 10px !important;
+    text-transform: none !important;
+    font-weight: 700 !important;
+    font-size: 0.8rem !important;
+    background: $ud-navy !important;
+    color: #ffffff !important;
+
+    &:hover {
+      background: #002d5a !important;
+    }
+
+    &--in-cart {
+      background: transparent !important;
+      color: $ud-navy !important;
+      border-color: $ud-navy !important;
+    }
+  }
+}
+
+// ── 8. Recently Viewed Carousel ────────────────────────────────
+.ud-recently-viewed {
+  &__nav-btns {
+    display: flex;
+    gap: 6px;
+  }
+
+  &__arrow-btn {
+    width: 34px !important;
+    height: 34px !important;
+    border-radius: 8px !important;
+    border: 1px solid $ud-border !important;
+    background: #ffffff !important;
+    color: $ud-text-main !important;
+
+    &:hover {
+      background: #f1f5f9 !important;
+      border-color: #cbd5e1 !important;
+    }
+  }
+
+  &__carousel {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    padding: 24px 28px;
+    scroll-behavior: smooth;
+    scrollbar-width: none; // Firefox
+    &::-webkit-scrollbar {
+      display: none; // Chrome/Safari
+    }
+  }
+}
+
+.ud-product-slide {
+  flex: 0 0 240px;
+  max-width: 240px;
+  border: 1px solid $ud-border;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #ffffff;
+  transition: all 0.22s $spring;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.05);
+  }
+
+  &__link {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  &__image-wrap {
+    position: relative;
+    height: 180px;
+    background: #f8fafc;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.35s $spring;
+    }
+  }
+
+  &:hover &__image-wrap img {
+    transform: scale(1.05);
+  }
+
+  &__placeholder {
+    font-size: 2.8rem;
+  }
+
+  &__discount-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: #dc2626;
+    color: #ffffff;
+    font-size: 0.65rem;
+    font-weight: 800;
+    padding: 2px 7px;
+    border-radius: 5px;
+  }
+
+  &__wish-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255, 255, 255, 0.9) !important;
+    color: #64748b !important;
+
+    &--active {
+      color: #dc2626 !important;
+    }
+  }
+
+  &__details {
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    justify-content: space-between;
+  }
+
+  &__brand {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: $ud-text-sub;
+    text-transform: uppercase;
+  }
+
+  &__title {
+    margin: 2px 0 6px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: $ud-text-main;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__rating-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  &__stars {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 0.74rem;
+    font-weight: 700;
+    color: $ud-text-main;
+  }
+
+  &__stock-pill {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #16a34a;
+    background: #dcfce7;
+    padding: 1px 6px;
+    border-radius: 4px;
+  }
+
+  &__price-row {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  &__price {
+    font-size: 1rem;
+    font-weight: 800;
+    color: $ud-navy;
+  }
+
+  &__mrp {
+    font-size: 0.78rem;
+    color: $ud-text-sub;
+    text-decoration: line-through;
+  }
+
+  &__cart-btn {
+    border-radius: 9px !important;
+    text-transform: none !important;
+    font-weight: 700 !important;
+    font-size: 0.75rem !important;
+    background: $ud-navy !important;
+    color: #ffffff !important;
+
+    &:hover {
+      background: #002d5a !important;
+    }
+  }
+}
+
+// ── 9. Recommended Products Grid ──────────────────────────────
+.ud-recommended {
+  &__content {
+    padding: 24px 28px;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+
+    @media (max-width: 1100px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 580px) {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+.ud-rec-card {
+  border: 1px solid $ud-border;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #ffffff;
+  transition: all 0.22s $spring;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.05);
+  }
+
+  &__link {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  &__image-box {
+    position: relative;
+    height: 200px;
+    background: #f8fafc;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.35s $spring;
+    }
+  }
+
+  &:hover &__image-box img {
+    transform: scale(1.05);
+  }
+
+  &__placeholder {
+    font-size: 3rem;
+  }
+
+  &__discount-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: #dc2626;
+    color: #ffffff;
+    font-size: 0.65rem;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 6px;
+  }
+
+  &__wish-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255, 255, 255, 0.9) !important;
+    color: #64748b !important;
+
+    &--active {
+      color: #dc2626 !important;
+    }
+  }
+
+  &__info {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    justify-content: space-between;
+  }
+
+  &__brand {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: $ud-text-sub;
+    text-transform: uppercase;
+  }
+
+  &__name {
+    margin: 2px 0 6px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: $ud-text-main;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 38px;
+  }
+
+  &__rating {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.74rem;
+    font-weight: 700;
+    color: $ud-text-main;
+    margin-bottom: 8px;
+  }
+
+  &__reviews {
+    font-weight: 500;
+    color: $ud-text-sub;
+    font-size: 0.7rem;
+  }
+
+  &__price-row {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  &__price {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: $ud-navy;
+  }
+
+  &__mrp {
+    font-size: 0.8rem;
+    color: $ud-text-sub;
+    text-decoration: line-through;
+  }
+
+  &__cart-btn {
+    border-radius: 10px !important;
+    text-transform: none !important;
+    font-weight: 700 !important;
+    font-size: 0.8rem !important;
+    background: $ud-navy !important;
+    color: #ffffff !important;
+
+    &:hover {
+      background: #002d5a !important;
+    }
+  }
+}
+
+// ── 10. Address Management Section ─────────────────────────────
+.ud-address-section {
+  &__add-btn {
+    border-radius: 10px !important;
+    text-transform: none !important;
+    font-weight: 700 !important;
+    font-size: 0.82rem !important;
+    background: $ud-navy !important;
+    color: #ffffff !important;
+
+    &:hover {
+      background: #002d5a !important;
+    }
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    padding: 24px 28px;
+
+    @media (max-width: 1000px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 600px) {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+.ud-address-card {
+  border: 1.5px solid $ud-border;
+  border-radius: 16px;
+  padding: 18px 20px;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.22s $spring;
+
+  &--default {
+    border-color: #0284c7;
+    background: rgba(2, 132, 199, 0.02);
+  }
+
+  &:hover {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+    transform: translateY(-2px);
+  }
+
+  &__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  &__default-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #e0f2fe;
+    color: #0369a1;
+    font-size: 0.7rem;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 12px;
+  }
+
+  &__set-default-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #0284c7;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    gap: 4px;
+  }
+
+  &__action-btn {
+    padding: 4px !important;
+    color: $ud-text-sub !important;
+
+    &:hover {
+      color: $ud-navy !important;
+    }
+
+    &--delete:hover {
+      color: #dc2626 !important;
+    }
+  }
+
+  &__name {
+    margin: 0 0 4px;
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: $ud-text-main;
+  }
+
+  &__text {
+    margin: 0 0 4px;
+    font-size: 0.82rem;
+    color: $ud-text-muted;
+    line-height: 1.4;
+  }
+
+  &__city {
+    margin: 0 0 8px;
+    font-size: 0.82rem;
+    color: $ud-text-muted;
+
+    strong {
+      color: $ud-text-main;
+    }
+  }
+
+  &__phone {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: $ud-text-sub;
+  }
+}
+
+.ud-modal-icon-badge {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: rgba(0, 31, 63, 0.08);
+  color: $ud-navy;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// ── 11. Empty State Reusable ───────────────────────────────────
+.ud-empty-state {
+  text-align: center;
+  padding: 48px 24px;
+
+  &__icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: #f1f5f9;
+    color: $ud-text-sub;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 14px;
+
+    svg {
+      font-size: 32px;
+    }
+  }
+
+  &__title {
+    font-weight: 800 !important;
+    font-size: 1.1rem !important;
+    color: $ud-text-main !important;
+    margin-bottom: 4px !important;
+  }
+
+  &__desc {
+    font-size: 0.85rem !important;
+    color: $ud-text-muted !important;
+    max-width: 380px;
+    margin: 0 auto 20px !important;
+    line-height: 1.45 !important;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  &__btn {
+    border-radius: 10px !important;
+    text-transform: none !important;
+    font-weight: 700 !important;
+    font-size: 0.85rem !important;
+    padding: 8px 22px !important;
+
+    &--primary {
+      background: $ud-navy !important;
+      color: #ffffff !important;
+      box-shadow: none !important;
+
+      &:hover {
+        background: #002d5a !important;
+      }
+    }
+
+    &--secondary {
+      border-color: $ud-border !important;
+      color: $ud-navy !important;
+
+      &:hover {
+        background: #f8fafc !important;
+      }
+    }
+  }
+}
+

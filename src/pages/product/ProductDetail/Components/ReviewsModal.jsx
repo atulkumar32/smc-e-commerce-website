@@ -16,6 +16,7 @@
 import { useState, useEffect } from 'react';
 import { useProductReviews }   from '../ProductDetailsData';
 import { URL_SAVE_REVIEW }     from '../../../../Config/UrlsConfig';
+import './ReviewsModal.scss';
 
 // ── Star picker ───────────────────────────────────────────────────────────────
 function StarPicker({ value, onChange, error }) {
@@ -52,10 +53,24 @@ function StarPicker({ value, onChange, error }) {
 }
 
 // ── Write review form ─────────────────────────────────────────────────────────
-const EMPTY = { name: '', email: '', mobile: '', rating: 0, text: '' };
+const getInitialForm = () => {
+  try {
+    const p = JSON.parse(localStorage.getItem('user_profile') || '{}');
+    const storedEmail = localStorage.getItem('user_email') || '';
+    return {
+      name:   p.name || p.full_name || '',
+      email:  p.email || storedEmail || '',
+      mobile: p.phone || p.mobile || '',
+      rating: 0,
+      text:   '',
+    };
+  } catch {
+    return { name: '', email: '', mobile: '', rating: 0, text: '' };
+  }
+};
 
 function WriteReviewForm({ productId, onBack, onSubmitted }) {
-  const [form,       setForm]       = useState({ ...EMPTY });
+  const [form,       setForm]       = useState(getInitialForm);
   const [errors,     setErrors]     = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [done,       setDone]       = useState(false);
@@ -295,7 +310,7 @@ function ReviewsList({ reviews, loading, error, avgRating, totalReviews }) {
  * @param {function} props.onClose
  */
 export default function ReviewsModal({
-  productId, totalReviews, avgRating, mode = 'reviews', onClose,
+  productId, totalReviews, avgRating, mode = 'reviews', allowWrite = false, onClose,
 }) {
   const { reviews, loading, error, fetchReviews } = useProductReviews(productId);
   const [view, setView] = useState(mode); // 'reviews' | 'write'
@@ -354,14 +369,20 @@ export default function ReviewsModal({
           ) : (
             <WriteReviewForm
               productId={productId}
-              onBack={() => setView('reviews')}
+              onBack={() => {
+                if (mode === 'write') {
+                  onClose?.();
+                } else {
+                  setView('reviews');
+                }
+              }}
               onSubmitted={() => { /* stay on success screen */ }}
             />
           )}
         </div>
 
-        {/* ── Footer — only shown on reviews view ── */}
-        {view === 'reviews' && (
+        {/* ── Footer — only shown on reviews view when writing reviews is allowed ── */}
+        {view === 'reviews' && allowWrite && (
           <div className="rv-modal__footer">
             <button
               className="rv-modal__add-btn"

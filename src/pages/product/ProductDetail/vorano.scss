@@ -16,9 +16,11 @@
 
   // ── Right panel card ──────────────────────────────────────
   &__right {
-    border: 1px solid $v-border !important;
-    border-radius: 0 !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 16px !important;
     background: $v-white !important;
+    padding: 1.75rem 2rem !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03) !important;
   }
 
   // ── Breadcrumb (if rendered) ──────────────────────────────
@@ -33,10 +35,12 @@
   // ── Title block ────────────────────────────────────────────
   &__title {
     font-family: $v-font-sans !important;
-    font-size: clamp(18px, 2.2vw, 24px) !important;
+    font-size: clamp(20px, 2.2vw, 28px) !important;
     font-weight: 700 !important;
-    color: $v-black !important;
-    line-height: 1.3 !important;
+    color: #0f172a !important;
+    line-height: 1.35 !important;
+    letter-spacing: -0.015em !important;
+    margin-bottom: 0.85rem !important;
   }
 
   &__title-brand {
@@ -54,42 +58,62 @@
 
   // ── Rating row ─────────────────────────────────────────────
   &__rating-badge {
-    background: $v-green !important;
-    border-radius: 4px !important;
-    padding: 4px 10px !important;
+    background: #001F3F !important;
+    border-radius: 6px !important;
+    padding: 4px 8px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 3px !important;
 
-    svg { color: $v-white !important; }
+    svg { color: #f59e0b !important; }
   }
 
-  &__rating-sep { color: $v-border !important; }
+  &__rating-sep { color: #cbd5e1 !important; }
 
   &__rating-count {
     font-family: $v-font-sans !important;
-    font-size: 12px !important;
-    color: $v-gray !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #475569 !important;
+    text-decoration: underline !important;
+    text-underline-offset: 3px !important;
+    cursor: pointer !important;
+
+    &:hover { color: #001F3F !important; }
   }
 
   // ── Divider ────────────────────────────────────────────────
-  &__divider { border-top: 1px solid $v-border !important; }
+  &__divider {
+    border: none !important;
+    border-top: 1px solid #e2e8f0 !important;
+    margin: 1.2rem 0 !important;
+  }
 
   // ── Price row ──────────────────────────────────────────────
   &__price {
     font-family: $v-font-sans !important;
-    font-size: 2rem !important;
+    font-size: 2.2rem !important;
     font-weight: 800 !important;
-    color: $v-black !important;
+    color: #001F3F !important;
+    letter-spacing: -0.02em !important;
   }
 
   &__mrp {
-    font-size: 13px !important;
-    color: #aaa !important;
+    font-size: 14px !important;
+    color: #94a3b8 !important;
     text-decoration: line-through !important;
+    font-weight: 500 !important;
   }
 
   &__off {
-    font-size: 13px !important;
-    color: #d55353 !important;
+    font-size: 12.5px !important;
+    color: #16a34a !important;
+    background: #dcfce7 !important;
+    border: 1px solid #bbf7d0 !important;
     font-weight: 700 !important;
+    padding: 3px 9px !important;
+    border-radius: 20px !important;
+    letter-spacing: 0.02em !important;
   }
 
   &__oos {
@@ -104,45 +128,79 @@
   // ── Section labels ─────────────────────────────────────────
   &__section-label {
     font-family: $v-font-sans !important;
-    font-size: 11px !important;
+    font-size: 11.5px !important;
     font-weight: 700 !important;
-    color: #666 !important;
+    color: #475569 !important;
     text-transform: uppercase !important;
     letter-spacing: 0.07em !important;
+    margin-bottom: 8px !important;
   }
 
   // ── Variant thumbnails ─────────────────────────────────────
   &__variant-thumb {
-    border-radius: 4px !important;
-    border: 2px solid $v-border !important;
+    border-radius: 8px !important;
+    border: 2px solid #e2e8f0 !important;
+    transition: transform 0.15s, border-color 0.15s !important;
 
     &--on {
-      border-color: $v-black !important;
-      box-shadow: 0 0 0 1px $v-black !important;
+      border-color: #001F3F !important;
+      box-shadow: 0 0 0 1px #001F3F !important;
+      transform: scale(1.04) !important;
+    }
+  }
+
+  // ── Combined Size + Quantity Row ─────────────────────────────
+  &__size-qty-row {
+    display: flex !important;
+    align-items: flex-start !important;
+    gap: 2.2rem !important;
+    flex-wrap: wrap !important;
+    margin: 1.15rem 0 !important;
+
+    @media (max-width: 480px) {
+      gap: 1.25rem !important;
+    }
+  }
+
+  &__size-col,
+  &__qty-col {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+
+    .pd__section-label {
+      margin-bottom: 0 !important;
     }
   }
 
   // ── Size chips ─────────────────────────────────────────────
   &__size-chip {
-    border: 1.5px solid $v-black !important;
-    border-radius: 0 !important;
+    border: 1.5px solid #cbd5e1 !important;
+    border-radius: 8px !important;
     font-family: $v-font-sans !important;
-    font-size: 11.5px !important;
+    font-size: 12px !important;
     font-weight: 700 !important;
-    color: $v-black !important;
+    color: #0f172a !important;
+    padding: 8px 16px !important;
+    transition: all 0.15s !important;
 
     &--on {
-      background: $v-black !important;
-      color: $v-white !important;
+      background: #001F3F !important;
+      border-color: #001F3F !important;
+      color: #ffffff !important;
     }
 
-    &:hover:not(&--on) { background: rgba(21,21,21,.06) !important; }
+    &:hover:not(&--on) {
+      border-color: #001F3F !important;
+      background: #f8fafc !important;
+    }
   }
 
   // ── Qty stepper ────────────────────────────────────────────
   &__qty-stepper {
-    border: 1.5px solid $v-border !important;
-    border-radius: 0 !important;
+    border: 1.5px solid #cbd5e1 !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
   }
 
   &__qty-btn {
@@ -155,94 +213,117 @@
     font-family: $v-font-sans !important;
     font-weight: 700 !important;
     color: $v-black !important;
-    border-color: $v-border !important;
+    border-color: #cbd5e1 !important;
   }
 
   // ── Feature tiles ───────────────────────────────────────────
   &__feature-tile {
-    border: 1px solid $v-border !important;
-    border-radius: 0 !important;
-    background: $v-soft !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 10px !important;
+    background: #f8fafc !important;
+    padding: 10px 12px !important;
+    transition: border-color 0.15s, background 0.15s !important;
+
+    &:hover {
+      border-color: #cbd5e1 !important;
+      background: #ffffff !important;
+    }
   }
 
-  &__feature-icon { color: #8a5c2e !important; }
+  &__feature-icon { color: #D4AF37 !important; }
 
   &__feature-label {
     font-family: $v-font-sans !important;
     font-weight: 700 !important;
-    font-size: 11px !important;
-    color: $v-black !important;
+    font-size: 11.5px !important;
+    color: #0f172a !important;
   }
 
   &__feature-sub {
-    font-size: 10px !important;
-    color: $v-gray !important;
+    font-size: 10.5px !important;
+    color: #64748b !important;
   }
 
   // ── CTA buttons ────────────────────────────────────────────
   &__cta {
-    border-radius: 0 !important;
+    border-radius: 12px !important;
     font-family: $v-font-sans !important;
-    font-size: 12px !important;
+    font-size: 13.5px !important;
     font-weight: 700 !important;
-    letter-spacing: 0.5px !important;
-    padding: 14px 12px !important;
-    transition: background 0.25s, border-color 0.25s, color 0.25s !important;
+    letter-spacing: 0.3px !important;
+    padding: 14px 18px !important;
+    height: 48px !important;
+    transition: all 0.2s ease !important;
 
     &--cart {
-      background: $v-black !important;
-      border: none !important;
-      color: $v-white !important;
-      &:hover:not(:disabled) { background: $v-gold !important; }
+      background: #001F3F !important;
+      border: 1.5px solid #001F3F !important;
+      color: #ffffff !important;
+      box-shadow: 0 4px 14px rgba(0, 31, 63, 0.18) !important;
+      &:hover:not(:disabled) {
+        background: #D4AF37 !important;
+        border-color: #D4AF37 !important;
+        color: #001F3F !important;
+        transform: translateY(-1px) !important;
+      }
     }
 
     &--buy {
-      background: none !important;
-      border: 2px solid $v-black !important;
-      color: $v-black !important;
-      &:hover:not(:disabled) { background: $v-black !important; color: $v-white !important; }
+      background: #ffffff !important;
+      border: 2px solid #001F3F !important;
+      color: #001F3F !important;
+      &:hover:not(:disabled) {
+        background: #001F3F !important;
+        color: #ffffff !important;
+        transform: translateY(-1px) !important;
+      }
     }
   }
 
   // ── Pincode section ─────────────────────────────────────────
   &__pincode {
-    background: $v-soft !important;
-    border: 1px solid $v-border !important;
-    border-radius: 0 !important;
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 12px !important;
+    padding: 14px 16px !important;
   }
 
   &__pincode-label {
     font-family: $v-font-sans !important;
     font-size: 12px !important;
     font-weight: 700 !important;
-    color: $v-black !important;
+    color: #0f172a !important;
 
-    svg { color: $v-gold !important; }
+    svg { color: #D4AF37 !important; }
   }
 
   &__pincode-input {
-    border: 1.5px solid $v-border !important;
-    border-radius: 0 !important;
+    border: 1.5px solid #cbd5e1 !important;
+    border-radius: 8px !important;
     font-family: $v-font-sans !important;
     font-size: 13px !important;
 
     &:focus {
-      border-color: $v-gold !important;
-      box-shadow: 0 0 0 2px rgba(200,164,119,.2) !important;
+      border-color: #001F3F !important;
+      box-shadow: 0 0 0 3px rgba(0, 31, 63, 0.1) !important;
     }
   }
 
   &__pincode-btn {
-    background: $v-black !important;
-    border-radius: 0 !important;
+    background: #001F3F !important;
+    border-radius: 8px !important;
     font-family: $v-font-sans !important;
     font-weight: 700 !important;
     font-size: 12px !important;
-    &:hover:not(:disabled) { background: $v-gold !important; }
+    color: #ffffff !important;
+    &:hover:not(:disabled) {
+      background: #D4AF37 !important;
+      color: #001F3F !important;
+    }
   }
 
   &__pincode-result {
-    border-radius: 0 !important;
+    border-radius: 8px !important;
 
     &--ok  { background: rgba(39,131,74,.08) !important; color: #1a5c34 !important; border-color: rgba(39,131,74,.3) !important; }
     &--err { background: rgba(217,76,76,.08) !important; color: #7f1d1d !important; border-color: rgba(217,76,76,.25) !important; }
@@ -359,7 +440,78 @@
   }
 
   // ── Mosaic grid ─────────────────────────────────────────────
-  &__mosaic-cell { border-radius: 0 !important; }
+  &__mosaic-cell {
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    border: 1px solid #e2e8f0 !important;
+    background: #f8fafc !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03) !important;
+    transition: border-color 0.2s, box-shadow 0.2s !important;
+
+    &:hover {
+      border-color: #001F3F !important;
+      box-shadow: 0 6px 16px rgba(0, 31, 63, 0.08) !important;
+    }
+  }
+
+  // ── Zoom inspection lens & portal overrides ─────────────────
+  &__lens {
+    position: absolute !important;
+    background: rgba(212, 175, 55, 0.22) !important;
+    border: 2px solid #D4AF37 !important;
+    box-shadow: 0 0 0 1px rgba(0, 31, 63, 0.45), inset 0 0 12px rgba(212, 175, 55, 0.35) !important;
+    border-radius: 4px !important;
+    pointer-events: none !important;
+    z-index: 10 !important;
+    box-sizing: border-box !important;
+  }
+
+  &__zoom-portal {
+    position: absolute !important;
+    top: 0 !important;
+    left: calc(55% + 14px) !important;
+    width: calc(45% - 14px) !important;
+    height: 520px !important;
+    max-height: 80vh !important;
+    z-index: 90 !important;
+    border: 2px solid #001F3F !important;
+    border-radius: 16px !important;
+    box-shadow: 0 20px 50px rgba(0, 31, 63, 0.22), 0 0 0 1px rgba(0, 31, 63, 0.08) !important;
+    background-color: #ffffff !important;
+    pointer-events: none !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+
+    @media (max-width: 900px) { display: none !important; }
+  }
+
+  &__zoom-badge {
+    position: absolute !important;
+    top: 12px !important;
+    left: 12px !important;
+    z-index: 10 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    background: rgba(0, 31, 63, 0.88) !important;
+    color: #ffffff !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.04em !important;
+    padding: 5px 12px !important;
+    border-radius: 20px !important;
+    backdrop-filter: blur(6px) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18) !important;
+    border: 1px solid rgba(212, 175, 55, 0.4) !important;
+    pointer-events: none !important;
+  }
+
+  &__zoom-view {
+    width: 100% !important;
+    height: 100% !important;
+    background-color: #ffffff !important;
+  }
 }
 
 // ─────────────────────────────────────────────────────────────
