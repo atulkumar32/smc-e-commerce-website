@@ -19,7 +19,7 @@ export default function AuthBrandPanel() {
           </div>
           <div className="auth-brand-panel__logo-text">
             <span className="auth-brand-panel__brand-name">Shree Mahaveer Collections</span>
-            <span className="auth-brand-panel__brand-sub">VORANO INDIA</span>
+            <span className="auth-brand-panel__brand-sub">EST. 1998 • PREMIUM COLLECTIONS</span>
           </div>
         </Link>
       </div>

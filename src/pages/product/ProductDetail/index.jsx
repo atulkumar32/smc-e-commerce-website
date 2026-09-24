@@ -203,6 +203,7 @@ function ProductDetail() {
 
   useEffect(() => {
     setQuantity(1);
+    setZoomData(null);
   }, [selectedVariant]);
 
   const canBuyNow = pincodeResult?.available === true;
@@ -218,15 +219,13 @@ function ProductDetail() {
   const displayGallery = useMemo(() => {
     const variantImgs = Array.isArray(selectedVariant?.gallery) ? selectedVariant.gallery.filter(Boolean) : [];
     const productImgs = Array.isArray(product?.gallery) ? product.gallery.filter(Boolean) : [];
+    const primaryImg = product?.primaryImage ? [product.primaryImage] : [];
 
-    // Prioritize variant images first, then append any remaining product images
-    const combined = [...variantImgs];
-    for (const img of productImgs) {
-      if (!combined.includes(img)) {
-        combined.push(img);
-      }
-    }
-    return combined.length > 0 ? combined : (productImgs.length > 0 ? productImgs : []);
+    // Show ONLY the selected variant's images if available; otherwise fallback to product gallery
+    const source = variantImgs.length > 0 ? variantImgs : (productImgs.length > 0 ? productImgs : primaryImg);
+
+    // Maximum 4 images on the left side
+    return source.slice(0, 4);
   }, [selectedVariant, product]);
   const displayPrice = selectedVariant?.sellingPrice ?? product?.price ?? 0;
   const displayMRP = selectedVariant?.mrp ?? product?.originalPrice ?? null;
@@ -287,6 +286,8 @@ function ProductDetail() {
       <h2>{error || 'Product not found'}</h2>
       <Link to="/products" className="pd-not-found__link">← Back to Products</Link>
     </div>
+  );
+
   return (
     <>
       <ProductDetailSeo product={product} selectedVariant={selectedVariant} path={`/products/${slug || ''}`} />

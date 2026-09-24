@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ProductListSeo from '../../../components/Seo/ProductListSeo';
+import SkeletonCard from '../../../components/SkeletonCard';
 import { useProductFilter } from '../useProductFilter';
 import { useCart } from '../../../context/CartContext';
 import { useCartDrawer } from '../../../context/CartDrawerContext';
@@ -8,19 +9,36 @@ import { toSlug, toTitleCase } from '../../../utils/slug';
 import './style.scss';
 import './vorano.scss'; // VORANO redesign overrides
 
-// ── Scroll-reveal ─────────────────────────────────────────────────────────────
-function useScrollReveal(ref) {
+// ── Scroll-reveal with Row-by-Row Stagger ─────────────────────────────────────
+function useScrollReveal(ref, deps = []) {
   useEffect(() => {
-    if (!ref.current) return;
+    if (!ref.current || typeof window === 'undefined') return undefined;
     const obs = new IntersectionObserver(
-      (entries) => entries.forEach((e) => {
-        if (e.isIntersecting) { e.target.classList.add('is-visible'); obs.unobserve(e.target); }
-      }),
-      { threshold: 0.05 }
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            e.target.classList.add('is-visible');
+            e.target.classList.add('stagger-revealed');
+            obs.unobserve(e.target);
+          }
+        });
+      },
+      { threshold: 0.06, rootMargin: '0px 0px -30px 0px' }
     );
-    ref.current.querySelectorAll('.pcard').forEach((el) => obs.observe(el));
+
+    const cards = ref.current.querySelectorAll('.pcard');
+    cards.forEach((el, i) => {
+      if (!el.classList.contains('is-visible')) {
+        const delay = (i % 6) * 85;
+        el.style.setProperty('--stagger-delay', `${delay}ms`);
+        el.style.transitionDelay = `${delay}ms`;
+        obs.observe(el);
+      }
+    });
+
     return () => obs.disconnect();
-  });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps);
 }
 
 // ── Feature tag icon helpers ──────────────────────────────────────────────────
@@ -98,16 +116,22 @@ function ProductCard({ product, index }) {
 
   const handleWishlist = (e) => {
     e.stopPropagation();
+    e.preventDefault();
     toggleWishlist({ id: product.id, name: product.name, price: product.price,
       originalPrice: product.originalPrice || null, image: product.image || '',
       category: product.category || '', colorName: product.colorName || '',
       brand: product.brand || '' });
   };
 
+  const rowDelay = (index % 6) * 85;
+
   return (
     <article
       className="pcard"
-      style={{ transitionDelay: `${Math.min(index * 50, 400)}ms` }}
+      style={{
+        '--stagger-delay': `${rowDelay}ms`,
+        transitionDelay: `${rowDelay}ms`,
+      }}
       onClick={() => navigate(`/products/${slug}`)}
       role="button" tabIndex={0}
       onKeyDown={(e) => e.key === 'Enter' && navigate(`/products/${slug}`)}
@@ -149,6 +173,7 @@ function ProductCard({ product, index }) {
 
         {/* Heart — top-right */}
         <button
+          type="button"
           className={`pcard__heart${wished ? ' pcard__heart--on' : ''}`}
           onClick={handleWishlist}
           aria-label={wished ? 'Remove from wishlist' : 'Save to wishlist'}
@@ -183,14 +208,14 @@ function ProductCard({ product, index }) {
 
         {/* Brand */}
         {product.brand && (
-          <p className="pcard__brand">{product.brand.toUpperCase()}</p>
+          <p className="pcard__brand stagger-text">{product.brand.toUpperCase()}</p>
         )}
 
         {/* Product name — full descriptive (3 lines max) */}
-        <h3 className="pcard__name">{name}</h3>
+        <h3 className="pcard__name stagger-text">{name}</h3>
 
         {/* Rating */}
-        <div className="pcard__rating">
+        <div className="pcard__rating stagger-text">
           <span className="pcard__rating-pill">
             <svg viewBox="0 0 10 10" fill="currentColor" width="9" height="9">
               <path d="M5 0l1.12 3.45H10L7.06 5.59l1.12 3.44L5 7 1.82 9.03 2.94 5.59.01 3.45H3.88z"/>
@@ -201,7 +226,7 @@ function ProductCard({ product, index }) {
         </div>
 
         {/* Price */}
-        <div className="pcard__price-row">
+        <div className="pcard__price-row stagger-text">
           <span className="pcard__price">₹{(product.price || 0).toLocaleString()}</span>
           {hasDiscount && (
             <>
@@ -504,7 +529,7 @@ export default function ProductList() {
            onRemove: () => { handleLocal('minPrice', null); handleLocal('maxPrice', null); } }] : []),
   ];
 
-  useScrollReveal(gridRef);
+  useScrollReveal(gridRef, [filteredProducts, loading]);
 
   useEffect(() => {
     if (filterOpen) {
@@ -675,7 +700,7 @@ export default function ProductList() {
           {/* Products */}
           {loading && filteredProducts.length === 0 ? (
             <div className="pl__grid">
-              {Array.from({ length: 9 }).map((_, i) => <div key={i} className="pcard pcard--skeleton is-visible"/>)}
+              <SkeletonCard count={12} />
             </div>
           ) : filteredProducts.length === 0 ? (
             <div className="pl__empty">

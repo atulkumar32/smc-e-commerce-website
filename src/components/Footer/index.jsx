@@ -54,9 +54,8 @@ function Footer() {
         {/* ── Brand column ── */}
         <div className="v-footer__brand">
           <Link to="/home" className="v-footer__logo">
-           VORANO
-
-            <small>INDIA</small>
+            SHREE MAHAVEER
+            <small>COLLECTIONS</small>
           </Link>
           <p className="v-footer__tagline">
             Bags for a Brighter Tomorrow.<br />

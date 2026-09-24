@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useStaggerReveal } from '../../../../components/StaggerReveal';
 
 const BANNERS = [
   {
@@ -20,17 +21,22 @@ const BANNERS = [
 ];
 
 export default function VPromoBanners() {
+  const gridRef = useStaggerReveal({
+    selector: '.v-promo__banner',
+    staggerDelay: 120,
+  });
+
   return (
     <section className="v-section">
       <div className="v-section__container">
-        <div className="v-promo__grid">
+        <div className="v-promo__grid" ref={gridRef}>
           {BANNERS.map((b) => (
             <div key={b.id} className="v-promo__banner">
               <img src={b.img} alt={b.heading} className="v-promo__img" loading="lazy" />
               <div className="v-promo__overlay">
-                <h2 className="v-promo__heading">{b.heading}</h2>
-                <p className="v-promo__sub">{b.sub}</p>
-                <Link to={b.to} className="v-hero__cta">{b.cta}</Link>
+                <h2 className="v-promo__heading stagger-text">{b.heading}</h2>
+                <p className="v-promo__sub stagger-text">{b.sub}</p>
+                <Link to={b.to} className="v-hero__cta stagger-text">{b.cta}</Link>
               </div>
             </div>
           ))}

@@ -42,23 +42,28 @@ export function CartProvider({ children }) {
   // ── Cart ──────────────────────────────────────────────────────────────────
 
   const addItem = useCallback((product, quantity = 1) => {
+    if (!product) return;
+    const name = product.name || 'Product';
     // Guard: out of stock
     if (product.stock !== undefined && Number(product.stock) === 0) {
-      toast.error(`❌ ${product.name} is out of stock`, TOAST_ERR);
+      toast.error(`${name} is currently out of stock`, {
+        ...TOAST_ERR,
+        toastId: `oos-${product.id}`,
+      });
       return;
     }
 
     // Check outside setCartItems to avoid double-fire in React 18 StrictMode
     const alreadyInCart = cartItems.some((i) => i.id === product.id);
     if (alreadyInCart) {
-      toast.info(`🛒 ${product.name} is already in your cart`, {
+      toast.info(`Already in your cart — ${name}`, {
         ...TOAST_OPTS,
         toastId: `already-${product.id}`,  // dedupe: same id = no duplicate
       });
       return;
     }
 
-    toast.success(`🛒 Added to cart — ${product.name}`, {
+    toast.success(`Added to cart — ${name}`, {
       ...TOAST_OPTS,
       toastId: `added-${product.id}`,
     });
@@ -70,9 +75,12 @@ export function CartProvider({ children }) {
     [cartItems]
   );
 
-  const removeItem = useCallback((productId, productName = 'Item') => {
+  const removeItem = useCallback((productId, productName = 'Product') => {
     setCartItems((prev) => prev.filter((i) => i.id !== productId));
-    toast.info(`🗑️ ${productName} removed from cart`, TOAST_OPTS);
+    toast.info(`Removed from cart — ${productName}`, {
+      ...TOAST_OPTS,
+      toastId: `cart-rm-${productId}`,
+    });
   }, []);
 
   const updateQuantity = useCallback((productId, quantity) => {
@@ -84,25 +92,43 @@ export function CartProvider({ children }) {
 
   const clearCart = useCallback(() => {
     setCartItems([]);
-    toast.success('🛒 Cart cleared successfully', TOAST_OPTS);
+    toast.success('Cart cleared successfully', {
+      ...TOAST_OPTS,
+      toastId: 'cart-cleared',
+    });
   }, []);
 
   // ── Wishlist ──────────────────────────────────────────────────────────────
 
-  const addToWishlist = useCallback((product) => {
-    setWishlistItems((prev) => {
-      if (prev.find((i) => i.id === product.id)) {
-        toast.info(`💛 ${product.name} is already in your wishlist`, TOAST_OPTS);
-        return prev;
-      }
-      toast.success(`💛 Saved to wishlist — ${product.name}`, TOAST_OPTS);
-      return [...prev, { ...product }];
-    });
-  }, []);
+  const addToWishlist = useCallback(
+    (product) => {
+      if (!product || !product.id) return;
+      const alreadyWishlisted = wishlistItems.some((i) => i.id === product.id);
+      const name = product.name || 'Product';
+      const toastId = `wishlist-${product.id}`;
 
-  const removeFromWishlist = useCallback((productId, productName = 'Item') => {
+      if (alreadyWishlisted) {
+        toast.info(`Already in your wishlist — ${name}`, {
+          ...TOAST_OPTS,
+          toastId,
+        });
+        return;
+      }
+      setWishlistItems((prev) => [...prev, { ...product }]);
+      toast.success(`Saved to wishlist — ${name}`, {
+        ...TOAST_OPTS,
+        toastId,
+      });
+    },
+    [wishlistItems]
+  );
+
+  const removeFromWishlist = useCallback((productId, productName = 'Product') => {
     setWishlistItems((prev) => prev.filter((i) => i.id !== productId));
-    toast.info(`💔 ${productName} removed from wishlist`, TOAST_OPTS);
+    toast.info(`Removed from wishlist — ${productName}`, {
+      ...TOAST_OPTS,
+      toastId: `wishlist-${productId}`,
+    });
   }, []);
 
   const isWishlisted = useCallback(
@@ -112,22 +138,33 @@ export function CartProvider({ children }) {
 
   const toggleWishlist = useCallback(
     (product) => {
-      setWishlistItems((prev) => {
-        const exists = prev.find((i) => i.id === product.id);
-        if (exists) {
-          toast.info(`💔 ${product.name} removed from wishlist`, TOAST_OPTS);
-          return prev.filter((i) => i.id !== product.id);
-        }
-        toast.success(`💛 Saved to wishlist — ${product.name}`, TOAST_OPTS);
-        return [...prev, { ...product }];
-      });
+      if (!product || !product.id) return;
+      const alreadyWishlisted = wishlistItems.some((i) => i.id === product.id);
+      const name = product.name || 'Product';
+      const toastId = `wishlist-${product.id}`;
+
+      if (alreadyWishlisted) {
+        setWishlistItems((prev) => prev.filter((i) => i.id !== product.id));
+        toast.info(`Removed from wishlist — ${name}`, {
+          ...TOAST_OPTS,
+          toastId,
+        });
+      } else {
+        setWishlistItems((prev) => [...prev, { ...product }]);
+        toast.success(`Saved to wishlist — ${name}`, {
+          ...TOAST_OPTS,
+          toastId,
+        });
+      }
     },
-    []
+    [wishlistItems]
   );
 
   // Move wishlist → cart (removes from wishlist, adds to cart)
   const moveToCart = useCallback(
     (product) => {
+      if (!product || !product.id) return;
+      const name = product.name || 'Product';
       setCartItems((prev) => {
         const existing = prev.find((i) => i.id === product.id);
         if (existing) {
@@ -138,7 +175,10 @@ export function CartProvider({ children }) {
         return [...prev, { ...product, quantity: 1 }];
       });
       setWishlistItems((prev) => prev.filter((i) => i.id !== product.id));
-      toast.success(`🛒 ${product.name} moved to cart`, TOAST_OPTS);
+      toast.success(`Moved to cart — ${name}`, {
+        ...TOAST_OPTS,
+        toastId: `move-cart-${product.id}`,
+      });
     },
     []
   );
@@ -146,12 +186,17 @@ export function CartProvider({ children }) {
   // Move cart → wishlist (removes from cart, saves to wishlist)
   const moveToWishlist = useCallback(
     (product) => {
+      if (!product || !product.id) return;
+      const name = product.name || 'Product';
       setWishlistItems((prev) => {
         if (prev.find((i) => i.id === product.id)) return prev;
         return [...prev, { ...product }];
       });
       setCartItems((prev) => prev.filter((i) => i.id !== product.id));
-      toast.success(`💛 ${product.name} moved to wishlist`, TOAST_OPTS);
+      toast.success(`Saved to wishlist — ${name}`, {
+        ...TOAST_OPTS,
+        toastId: `move-wishlist-${product.id}`,
+      });
     },
     []
   );

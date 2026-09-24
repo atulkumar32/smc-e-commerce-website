@@ -1,4 +1,5 @@
- import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { useStaggerReveal } from '../../../../components/StaggerReveal';
 
 const features = [
   { icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 2l2 7h7l-5.5 4 2 7L12 16l-5.5 4 2-7L3 9h7z"/></svg>, label: 'Stylish', sub: 'Designs' },
@@ -8,6 +9,11 @@ const features = [
 ];
 
 export default function VHero() {
+  const featRef = useStaggerReveal({
+    selector: '.v-hero__feature',
+    staggerDelay: 85,
+  });
+
   return (
     <section className="v-hero">
       <div className="v-hero__content">
@@ -35,7 +41,7 @@ export default function VHero() {
             </svg>
           </Link>
 
-          <div className="v-hero__features">
+          <div className="v-hero__features" ref={featRef}>
             {features.map((f, i) => (
               <div key={i} className="v-hero__feature">
                 <span className="v-hero__feature-icon">{f.icon}</span>

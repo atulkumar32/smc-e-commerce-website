@@ -1,42 +1,47 @@
 /**
- * SkeletonCard — matches the exact layout of ProductCard.
+ * SkeletonCard — modern shimmer placeholder for products and categories.
  *
  * Props:
- *  count  – number of skeleton cards to render (default 8)
+ *  count     – number of skeleton cards to render (default 8)
  *  className – optional wrapper class
  */
 import './style.scss';
 
-function SkeletonCardItem() {
+export function SkeletonCardItem({ index = 0 }) {
   return (
-    <div className="skel-card" aria-hidden="true">
-      {/* Image area — 4:5 ratio matching pcard__img-wrap */}
+    <div
+      className="skel-card skel-stagger-item"
+      style={{ '--skel-delay': `${index * 60}ms` }}
+      aria-hidden="true"
+    >
+      {/* Image area */}
       <div className="skel-card__img skel-card__pulse" />
 
       <div className="skel-card__body">
-        {/* Color swatches row */}
-        <div className="skel-card__swatches">
-          <span className="skel-card__swatch skel-card__pulse" />
-          <span className="skel-card__swatch skel-card__pulse" />
-          <span className="skel-card__swatch skel-card__pulse" />
-        </div>
+        {/* Brand placeholder */}
+        <div className="skel-card__line skel-card__line--brand skel-card__pulse" />
 
-        {/* Color name */}
-        <div className="skel-card__color-name skel-card__pulse" />
-
-        {/* Product name — 2 lines */}
+        {/* Product title — 2 lines */}
         <div className="skel-card__line skel-card__line--name skel-card__pulse" />
         <div className="skel-card__line skel-card__line--name-short skel-card__pulse" />
 
-        {/* Brand */}
-        <div className="skel-card__line skel-card__line--brand skel-card__pulse" />
+        {/* Rating pill */}
+        <div className="skel-card__rating-row">
+          <div className="skel-card__rating skel-card__pulse" />
+        </div>
 
-        {/* Price */}
-        <div className="skel-card__line skel-card__line--price skel-card__pulse" />
+        {/* Price & Discount */}
+        <div className="skel-card__price-row">
+          <div className="skel-card__line skel-card__line--price skel-card__pulse" />
+          <div className="skel-card__line skel-card__line--mrp skel-card__pulse" />
+          <div className="skel-card__line skel-card__line--badge skel-card__pulse" />
+        </div>
 
-        {/* Buttons */}
+        {/* Delivery line */}
+        <div className="skel-card__line skel-card__line--delivery skel-card__pulse" />
+
+        {/* Action button */}
         <div className="skel-card__btns">
-          <div className="skel-card__btn skel-card__pulse" />
           <div className="skel-card__btn skel-card__pulse" />
         </div>
       </div>
@@ -44,14 +49,46 @@ function SkeletonCardItem() {
   );
 }
 
-function SkeletonCard({ count = 8, className = '' }) {
+export function SkeletonCategoryItem({ index = 0 }) {
+  return (
+    <div
+      className="skel-cat skel-stagger-item"
+      style={{ '--skel-delay': `${index * 50}ms` }}
+      aria-hidden="true"
+    >
+      <div className="skel-cat__circle skel-card__pulse" />
+      <div className="skel-cat__label skel-card__pulse" />
+      <div className="skel-cat__sublabel skel-card__pulse" />
+    </div>
+  );
+}
+
+export function SkeletonCategoryGrid({ count = 6, className = '' }) {
+  return (
+    <div className={`v-cats__grid ${className}`.trim()} aria-hidden="true">
+      {Array.from({ length: count }).map((_, i) => (
+        <SkeletonCategoryItem key={i} index={i} />
+      ))}
+    </div>
+  );
+}
+
+export function SkeletonProductGrid({ count = 8, className = '' }) {
+  return (
+    <div className={`pl__grid ${className}`.trim()} aria-hidden="true">
+      {Array.from({ length: count }).map((_, i) => (
+        <SkeletonCardItem key={i} index={i} />
+      ))}
+    </div>
+  );
+}
+
+export default function SkeletonCard({ count = 8, className = '' }) {
   return (
     <>
       {Array.from({ length: count }).map((_, i) => (
-        <SkeletonCardItem key={i} />
+        <SkeletonCardItem key={i} index={i} />
       ))}
     </>
   );
 }
-
-export default SkeletonCard;

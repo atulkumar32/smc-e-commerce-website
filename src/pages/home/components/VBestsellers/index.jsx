@@ -1,6 +1,8 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useCart } from '../../../../context/CartContext';
+import SkeletonCard from '../../../../components/SkeletonCard';
+import { useStaggerReveal } from '../../../../components/StaggerReveal';
 
 // ── Heart icon ────────────────────────────────────────────────
 const HeartIcon = ({ filled }) => (
@@ -21,19 +23,27 @@ const PRODUCTS = [
   { id: 'bs4', name: 'Elegant Tote Bag for Office & Daily Use',        brand: 'SMC', badge: 'Best Seller', price: 899,  mrp: 1799, rating: 4.6, reviews: '421',   img: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=700&q=80' },
 ];
 
-const Stars = ({ n }) => (
-  <span className="v-card__rating">
-    {'★'.repeat(Math.floor(n))}{'☆'.repeat(5 - Math.floor(n))}
-    <span>{n} ({PRODUCTS.find(p => p.rating === n)?.reviews ?? ''})</span>
-  </span>
-);
-
 const fmt = (v) => `₹${Number(v).toLocaleString('en-IN')}`;
 const disc = (p, m) => Math.round((1 - p / m) * 100);
 
 export default function VBestsellers() {
   const { addItem, toggleWishlist, isWishlisted } = useCart();
   const [added, setAdded] = useState({});
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Initial loading state with smooth transition
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const gridRef = useStaggerReveal({
+    selector: '.v-card',
+    staggerDelay: 85,
+    deps: [loading],
+  });
 
   const handleAdd = (p) => {
     addItem({ ...p, id: p.id, price: p.price, image: p.img, quantity: 1 });
@@ -49,51 +59,57 @@ export default function VBestsellers() {
           <Link to="/products" className="v-section__view-all">View All →</Link>
         </div>
 
-        <div className="v-products__grid">
-          {PRODUCTS.map((p) => {
-            const wished = isWishlisted(p.id);
-            const justAdded = added[p.id];
-            return (
-              <article key={p.id} className="v-card">
-                <div className="v-card__img-wrap">
-                  {p.badge && <span className="v-card__badge">{p.badge}</span>}
-                  <button
-                    className={`v-card__wish${wished ? ' v-card__wish--on' : ''}`}
-                    onClick={() => toggleWishlist({ id: p.id, name: p.name, price: p.price, image: p.img })}
-                    aria-label={wished ? 'Remove from wishlist' : 'Add to wishlist'}
-                  >
-                    <HeartIcon filled={wished} />
-                  </button>
-                  <img src={p.img} alt={p.name} className="v-card__img" loading="lazy" />
-                  <Link to="/products" className="v-card__quick">QUICK VIEW</Link>
-                </div>
+        {loading ? (
+          <div className="v-products__grid">
+            <SkeletonCard count={4} />
+          </div>
+        ) : (
+          <div className="v-products__grid" ref={gridRef}>
+            {PRODUCTS.map((p) => {
+              const wished = isWishlisted(p.id);
+              const justAdded = added[p.id];
+              return (
+                <article key={p.id} className="v-card">
+                  <div className="v-card__img-wrap">
+                    {p.badge && <span className="v-card__badge">{p.badge}</span>}
+                    <button
+                      className={`v-card__wish${wished ? ' v-card__wish--on' : ''}`}
+                      onClick={() => toggleWishlist({ id: p.id, name: p.name, price: p.price, image: p.img })}
+                      aria-label={wished ? 'Remove from wishlist' : 'Add to wishlist'}
+                    >
+                      <HeartIcon filled={wished} />
+                    </button>
+                    <img src={p.img} alt={p.name} className="v-card__img" loading="lazy" />
+                    <Link to="/products" className="v-card__quick">QUICK VIEW</Link>
+                  </div>
 
-                <div className="v-card__body">
-                  <p className="v-card__brand">{p.brand}</p>
-                  <p className="v-card__name">{p.name}</p>
-                  <div className="v-card__rating">
-                    {'★'.repeat(Math.floor(p.rating))}
-                    <span>{p.rating} ({p.reviews})</span>
+                  <div className="v-card__body">
+                    <p className="v-card__brand stagger-text">{p.brand}</p>
+                    <p className="v-card__name stagger-text">{p.name}</p>
+                    <div className="v-card__rating stagger-text">
+                      {'★'.repeat(Math.floor(p.rating))}
+                      <span>{p.rating} ({p.reviews})</span>
+                    </div>
+                    <div className="v-card__price stagger-text">
+                      <strong className="v-card__current">{fmt(p.price)}</strong>
+                      <span className="v-card__mrp">{fmt(p.mrp)}</span>
+                      <span className="v-card__off">{disc(p.price, p.mrp)}% OFF</span>
+                    </div>
+                    <p className="v-card__delivery stagger-text">
+                      <CheckCircle /> Free Delivery
+                    </p>
+                    <button
+                      className="v-card__add"
+                      onClick={() => handleAdd(p)}
+                    >
+                      {justAdded ? '✓ ADDED' : 'ADD TO CART'}
+                    </button>
                   </div>
-                  <div className="v-card__price">
-                    <strong className="v-card__current">{fmt(p.price)}</strong>
-                    <span className="v-card__mrp">{fmt(p.mrp)}</span>
-                    <span className="v-card__off">{disc(p.price, p.mrp)}% OFF</span>
-                  </div>
-                  <p className="v-card__delivery">
-                    <CheckCircle /> Free Delivery
-                  </p>
-                  <button
-                    className="v-card__add"
-                    onClick={() => handleAdd(p)}
-                  >
-                    {justAdded ? '✓ ADDED' : 'ADD TO CART'}
-                  </button>
-                </div>
-              </article>
-            );
-          })}
-        </div>
+                </article>
+              );
+            })}
+          </div>
+        )}
       </div>
     </section>
   );

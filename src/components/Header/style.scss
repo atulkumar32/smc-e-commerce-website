@@ -21,26 +21,34 @@
 //  TOP BAR  (free shipping strip)
 // ─────────────────────────────────────────────────────────────
 .v-topbar {
-  background: $v-black;
-  color: $v-white;
-  min-height: 36px;
+  background: #001224;
+  color: #e2e8f0;
+  min-height: 34px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 $v-container-pad;
   font-family: $v-font-sans;
-  font-size: 11.5px;
+  font-size: 11px;
+  letter-spacing: 0.35px;
   gap: 12px;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.16);
 
   &__left {
     display: flex;
     align-items: center;
-    gap: 24px;
+    gap: 28px;
 
     span {
       display: flex;
       align-items: center;
       gap: 7px;
+      color: #cbd5e1;
+
+      svg {
+        color: #D4AF37;
+        flex-shrink: 0;
+      }
     }
   }
 
@@ -53,123 +61,234 @@
       display: flex;
       align-items: center;
       gap: 6px;
+      color: #94a3b8;
     }
 
     a {
-      color: $v-white;
-      opacity: 0.75;
-      transition: opacity 0.15s;
-      &:hover { opacity: 1; }
+      color: #cbd5e1;
+      opacity: 0.82;
+      transition: all 0.18s ease;
+      display: inline-flex;
+      align-items: center;
+
+      &:hover {
+        opacity: 1;
+        color: #D4AF37;
+        transform: translateY(-1px);
+      }
+
+      svg {
+        width: 14px;
+        height: 14px;
+      }
     }
   }
 
-  @media (max-width: 650px) { display: none; }
+  @media (max-width: 768px) { display: none; }
 }
 
 // ─────────────────────────────────────────────────────────────
 //  MAIN HEADER  (logo + search + actions)
 // ─────────────────────────────────────────────────────────────
 .v-header {
-  height: 88px;
+  height: 78px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 $v-container-pad;
-  background: $v-white;
-  border-bottom: 1px solid $v-border;
-  gap: 20px;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+  gap: 24px;
   font-family: $v-font-sans;
   position: sticky;
   top: 0;
   z-index: 100;
+  transition: all 0.25s ease;
 
-  @media (max-width: 900px) { padding: 0 4%; gap: 12px; }
-  @media (max-width: 650px) { height: 72px; padding: 0 5%; }
+  @media (max-width: 900px) { padding: 0 4%; gap: 14px; height: 72px; }
+  @media (max-width: 650px) { height: 68px; padding: 0 4%; }
 }
 
 // Logo
 .v-logo {
   font-family: $v-font-serif;
-  font-size: 34px;
+  font-size: 21px;
   font-weight: 700;
-  letter-spacing: 2px;
-  line-height: 1.1;
+  letter-spacing: 1.8px;
+  line-height: 1.15;
   text-align: center;
   text-decoration: none;
-  color: $v-black;
+  color: #001F3F;
   flex-shrink: 0;
+  text-transform: uppercase;
+  transition: opacity 0.18s ease;
+
+  &:hover {
+    opacity: 0.9;
+  }
 
   small {
     display: block;
     font-family: $v-font-sans;
-    font-size: 10px;
-    letter-spacing: 5px;
-    font-weight: 400;
+    font-size: 8.5px;
+    letter-spacing: 4px;
+    font-weight: 600;
     margin-top: 3px;
-    color: $v-gray;
+    color: #D4AF37;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 900px) {
+    font-size: 18px;
+    letter-spacing: 1.2px;
+    small { font-size: 7.5px; letter-spacing: 3px; }
   }
 
   @media (max-width: 650px) {
-    font-size: 24px;
-    small { font-size: 7px; letter-spacing: 4px; }
+    font-size: 16px;
+    letter-spacing: 0.8px;
+    small { font-size: 7px; letter-spacing: 2.5px; }
   }
 }
 
-// Search
+// ─────────────────────────────────────────────────────────────
+//  ADVANCED SEARCH BAR  (Refined small icon & sleek pill design)
+// ─────────────────────────────────────────────────────────────
 .v-search {
   flex: 1;
-  max-width: 44%;
-  height: 46px;
-  border: 1px solid #d8d5d1;
-  border-radius: 25px;
+  max-width: 440px;
+  height: 42px;
+  border: 1px solid rgba(0, 31, 63, 0.12);
+  border-radius: 999px;
   display: flex;
   align-items: center;
-  overflow: hidden;
-  background: $v-white;
-  transition: border-color 0.2s;
+  background: #f8fafc;
+  padding: 0 5px 0 14px;
+  gap: 10px;
+  position: relative;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 
-  &:focus-within { border-color: $v-gold; }
+  &:hover {
+    border-color: rgba(212, 175, 55, 0.45);
+    background: #ffffff;
+  }
+
+  &:focus-within {
+    border-color: #D4AF37;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.14), 0 4px 14px rgba(0, 31, 63, 0.05);
+
+    .v-search__lead {
+      color: #D4AF37;
+    }
+  }
+
+  &__lead {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+    flex-shrink: 0;
+    transition: color 0.18s ease;
+
+    svg {
+      display: block;
+    }
+  }
 
   input {
     flex: 1;
+    min-width: 0;
     border: none;
     outline: none;
-    font-size: 13.5px;
+    font-size: 13px;
     font-family: $v-font-sans;
     background: transparent;
-    padding: 0 18px;
-    color: $v-text;
+    padding: 0;
+    color: #0f172a;
 
-    &::placeholder { color: #aaa; }
+    &::placeholder {
+      color: #94a3b8;
+      font-weight: 400;
+      transition: color 0.18s;
+    }
+
+    &:focus::placeholder {
+      color: #cbd5e1;
+    }
   }
 
-  button {
-    width: 48px;
-    height: 100%;
+  &__clear {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #e2e8f0;
     border: none;
-    background: none;
-    cursor: pointer;
-    color: $v-gray;
-    font-size: 17px;
-    display: flex;
+    color: #64748b;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    transition: color 0.15s;
-    &:hover { color: $v-black; }
+    cursor: pointer;
+    flex-shrink: 0;
+    padding: 0;
+    transition: all 0.15s ease;
+
+    &:hover {
+      background: #cbd5e1;
+      color: #0f172a;
+    }
   }
 
-  @media (max-width: 900px) { max-width: 38%; }
+  &__btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #001F3F;
+    border: none;
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    padding: 0;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+    &:hover {
+      background: #D4AF37;
+      color: #001F3F;
+      transform: scale(1.06);
+      box-shadow: 0 2px 8px rgba(212, 175, 55, 0.45);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+  }
+
+  @media (max-width: 900px) { max-width: 36%; }
   @media (max-width: 650px) { display: none; }
+
+  &--mobile {
+    display: flex !important;
+    max-width: 100% !important;
+    width: 100%;
+  }
 }
 
-// Header actions (wishlist / account / cart)
+// ─────────────────────────────────────────────────────────────
+//  HEADER ACTIONS  (wishlist / account / cart)
+// ─────────────────────────────────────────────────────────────
 .v-hdr-acts {
   display: flex;
   align-items: center;
-  gap: 22px;
+  gap: 8px;
   flex-shrink: 0;
 
-  @media (max-width: 650px) { gap: 14px; }
+  @media (max-width: 650px) { gap: 4px; }
 }
 
 .v-hdr-act {
@@ -178,68 +297,103 @@
   font-size: 11px;
   font-family: $v-font-sans;
   font-weight: 500;
-  color: $v-text;
+  letter-spacing: 0.3px;
+  color: #334155;
   cursor: pointer;
   text-decoration: none;
   border: none;
   background: none;
-  padding: 0;
+  padding: 6px 11px;
+  border-radius: 10px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  transition: color 0.15s;
+  gap: 3px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
-  &:hover { color: $v-gold; }
+  &:hover {
+    color: #001F3F;
+    background: rgba(0, 31, 63, 0.04);
 
-  i, svg {
-    font-size: 22px;
+    svg {
+      color: #D4AF37;
+      transform: translateY(-1px);
+    }
+  }
+
+  &__icon-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  svg {
     display: block;
-    width: 22px;
-    height: 22px;
+    width: 19px;
+    height: 19px;
+    color: #1e293b;
+    transition: transform 0.18s ease, color 0.18s ease;
   }
 
   span.lbl {
+    font-size: 11px;
+    line-height: 1;
     @media (max-width: 650px) { display: none; }
   }
 }
 
+.v-badge,
 .v-cart-count {
   position: absolute;
-  top: -6px;
+  top: -5px;
   right: -9px;
-  background: $v-gold;
-  color: $v-white;
-  width: 17px;
+  background: linear-gradient(135deg, #f59e0b 0%, #D4AF37 50%, #b45309 100%);
+  color: #ffffff;
+  min-width: 17px;
   height: 17px;
-  border-radius: 50%;
-  font-size: 9.5px;
+  padding: 0 4px;
+  border-radius: 9px;
+  font-size: 9px;
   font-weight: 700;
+  font-family: $v-font-sans;
   display: flex;
   align-items: center;
   justify-content: center;
   line-height: 1;
+  box-shadow: 0 2px 6px rgba(245, 158, 11, 0.45);
+  border: 1.5px solid #ffffff;
 }
 
 // Hamburger (mobile)
 .v-ham {
   display: none;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
   gap: 5px;
-  background: none;
+  background: rgba(0, 31, 63, 0.04);
   border: none;
   cursor: pointer;
-  padding: 4px;
+  width: 38px;
+  height: 38px;
+  border-radius: 9px;
+  padding: 0;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(0, 31, 63, 0.08);
+  }
 
   @media (max-width: 650px) { display: flex; }
 
   span {
     display: block;
-    width: 22px;
+    width: 20px;
     height: 2px;
-    background: $v-black;
+    background: #0f172a;
     border-radius: 2px;
-    transition: all 0.22s;
+    transition: all 0.24s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   &--open {
@@ -253,65 +407,116 @@
 //  NAVIGATION  (category nav row)
 // ─────────────────────────────────────────────────────────────
 .v-nav {
-  background: $v-white;
-  border-bottom: 1px solid $v-border;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   font-family: $v-font-sans;
   position: sticky;
-  top: 88px;
+  top: 78px;
   z-index: 90;
+  transition: top 0.25s ease;
 
-  @media (max-width: 650px) { top: 72px; overflow-x: auto; }
+  @media (max-width: 900px) { top: 72px; }
+  @media (max-width: 650px) { top: 68px; }
 
   &__inner {
     max-width: $v-container-max;
     margin: 0 auto;
     padding: 0 $v-container-pad;
-    height: 48px;
+    height: 44px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 36px;
+    gap: 34px;
     list-style: none;
     white-space: nowrap;
 
-    @media (max-width: 900px) { gap: 22px; padding: 0 4%; }
+    @media (max-width: 900px) { gap: 20px; padding: 0 4%; }
     @media (max-width: 650px) {
       justify-content: flex-start;
-      padding: 0 20px;
-      gap: 26px;
-      width: max-content;
+      padding: 0 16px;
+      gap: 22px;
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      &::-webkit-scrollbar { display: none; }
     }
   }
 
   &__link {
-    font-size: 13.5px;
+    font-size: 13px;
     font-weight: 500;
-    color: $v-text;
+    color: #475569;
     text-decoration: none;
     position: relative;
-    transition: color 0.15s;
-    padding: 0;
+    padding: 6px 4px;
     background: none;
     border: none;
     cursor: pointer;
     font-family: $v-font-sans;
+    letter-spacing: 0.3px;
+    transition: color 0.18s ease;
 
-    &:hover { color: $v-gold; }
+    &:hover {
+      color: #D4AF37;
+    }
 
     &--active {
-      color: $v-black;
+      color: #001F3F;
       font-weight: 600;
 
       &::after {
         content: '';
         position: absolute;
         left: 0;
-        bottom: -15px;
+        bottom: -5px;
         width: 100%;
         height: 2px;
-        background: $v-gold;
+        border-radius: 2px;
+        background: linear-gradient(90deg, #001F3F 0%, #D4AF37 100%);
+        box-shadow: 0 1px 4px rgba(212, 175, 55, 0.4);
       }
     }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+//  SCROLL PROGRESS BAR (Theme: Royal Navy to Luxury Gold)
+//  Pinned to the very top edge of the screen / header
+// ─────────────────────────────────────────────────────────────
+.v-scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3.5px;
+  background: rgba(0, 31, 63, 0.04);
+  pointer-events: none;
+  z-index: 150;
+  overflow: visible;
+
+  &__bar {
+    height: 100%;
+    background: linear-gradient(90deg, #001F3F 0%, #1d4ed8 25%, #d97706 60%, #f59e0b 82%, #D4AF37 100%);
+    position: relative;
+    will-change: width;
+    transition: width 0.05s ease-out;
+    border-radius: 0 2px 2px 0;
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.45), 0 1px 3px rgba(0, 31, 63, 0.2);
+  }
+
+  &__glow {
+    position: absolute;
+    right: -1px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 0 10px 2.5px rgba(245, 158, 11, 0.95), 0 0 4px 1.5px rgba(212, 175, 55, 1);
   }
 }
 

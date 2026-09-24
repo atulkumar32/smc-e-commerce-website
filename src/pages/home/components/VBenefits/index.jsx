@@ -1,3 +1,5 @@
+import { useStaggerReveal } from '../../../../components/StaggerReveal';
+
 const ITEMS = [
   {
     icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>,
@@ -22,16 +24,21 @@ const ITEMS = [
 ];
 
 export default function VBenefits() {
+  const gridRef = useStaggerReveal({
+    selector: '.v-benefits__item',
+    staggerDelay: 90,
+  });
+
   return (
     <div className="v-benefits">
       <div className="v-benefits__container">
-        <div className="v-benefits__grid">
+        <div className="v-benefits__grid" ref={gridRef}>
           {ITEMS.map((item) => (
             <div key={item.title} className="v-benefits__item">
               <span className="v-benefits__icon">{item.icon}</span>
               <div>
-                <p className="v-benefits__title">{item.title}</p>
-                <p className="v-benefits__sub">{item.sub}</p>
+                <p className="v-benefits__title stagger-text">{item.title}</p>
+                <p className="v-benefits__sub stagger-text">{item.sub}</p>
               </div>
             </div>
           ))}

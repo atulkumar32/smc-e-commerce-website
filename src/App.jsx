@@ -19,19 +19,15 @@ function App() {
             <CartDrawer />
             <ToastContainer
               position="top-right"
-              autoClose={2800}
+              autoClose={2600}
               hideProgressBar={false}
               newestOnTop
               closeOnClick
               pauseOnHover
               pauseOnFocusLoss
               draggable
+              limit={3}
               theme="light"
-              toastStyle={{
-                fontFamily: "'Hanken Grotesk', sans-serif",
-                fontSize: '14px',
-                borderRadius: '8px',
-              }}
             />
           </CartDrawerProvider>
         </CartProvider>

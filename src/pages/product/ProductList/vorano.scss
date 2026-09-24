@@ -1,5 +1,6 @@
 @import '../../../Styles/ColorCodes';
 @import '../../../Styles/Mixins';
+@import '../../../components/StaggerReveal/style.scss';
 
 // ============================================================
 //  VORANO PLP OVERRIDES  (redesign 2026)
@@ -129,11 +130,24 @@ body { background: $v-white; font-family: $v-font-sans; }
   border: 1px solid $v-border !important;
   border-radius: 0 !important;
   background: $v-white !important;
-  transition: transform 0.28s ease, box-shadow 0.28s ease, opacity 0.38s ease !important;
+  opacity: 0;
+  transform: translateY(24px) scale(0.985);
+  transition: transform 0.48s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.28s ease,
+              opacity 0.48s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  transition-delay: var(--stagger-delay, 0ms) !important;
 
-  &:hover {
+  &.is-visible,
+  &.stagger-revealed {
+    opacity: 1 !important;
+    transform: translateY(0) scale(1) !important;
+  }
+
+  &.is-visible:hover,
+  &.stagger-revealed:hover {
     transform: translateY(-5px) !important;
-    box-shadow: 0 15px 35px rgba(0,0,0,.08) !important;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08) !important;
+    transition-delay: 0s !important;
   }
 
   // Image area

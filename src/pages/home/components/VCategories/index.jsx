@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useStaggerReveal } from '../../../../components/StaggerReveal';
 
 const CATS = [
   { label: 'Backpacks',   to: '/products?category_name=Backpacks',   img: 'https://images.unsplash.com/photo-1622560480605-d83c853bc5c3?auto=format&fit=crop&w=600&q=80' },
@@ -10,6 +11,11 @@ const CATS = [
 ];
 
 export default function VCategories() {
+  const gridRef = useStaggerReveal({
+    selector: '.v-cats__card',
+    staggerDelay: 75,
+  });
+
   return (
     <section className="v-section">
       <div className="v-section__container">
@@ -18,7 +24,7 @@ export default function VCategories() {
           <Link to="/products" className="v-section__view-all">View All →</Link>
         </div>
 
-        <div className="v-cats__grid">
+        <div className="v-cats__grid" ref={gridRef}>
           {CATS.map((cat) => (
             <Link key={cat.label} to={cat.to} className="v-cats__card">
               <div className="v-cats__circle">
@@ -29,8 +35,8 @@ export default function VCategories() {
                   loading="lazy"
                 />
               </div>
-              <p className="v-cats__name">{cat.label}</p>
-              <span className="v-cats__sub">Shop Now →</span>
+              <p className="v-cats__name stagger-text">{cat.label}</p>
+              <span className="v-cats__sub stagger-text">Shop Now →</span>
             </Link>
           ))}
         </div>

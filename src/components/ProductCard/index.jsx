@@ -48,6 +48,7 @@ function ProductCard({ product, animate = false }) {
 
   const handleWishlist = (e) => {
     e.preventDefault();
+    e.stopPropagation();
     toggleWishlist(product);
   };
 
@@ -95,6 +96,7 @@ function ProductCard({ product, animate = false }) {
 
         {/* Wishlist heart */}
         <button
+          type="button"
           className={`pcard__wish${wished ? ' is-wished' : ''}`}
           onClick={handleWishlist}
           aria-label={wished ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
