@@ -155,107 +155,110 @@ export default function Header() {
 
       {/* ═══ TOP BAR ═══════════════════════════════════════════ */}
       <div className="v-topbar">
-        <div className="v-topbar__left">
-          <span>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-            Free Shipping on Orders Above ₹999
-          </span>
-          <span>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 16V8a2 2 0 00-1-1.7l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.7l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
-            Easy Returns within 7 Days
-          </span>
-          <span>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            100% Secure Payments
-          </span>
-        </div>
-        <div className="v-topbar__right">
-          <span>Follow Us</span>
-          <a href="#" aria-label="Instagram"><InstagramIcon /></a>
-          <a href="#" aria-label="Facebook"><FacebookIcon /></a>
-          <a href="#" aria-label="YouTube"><YoutubeIcon /></a>
+        <div className="v-topbar__inner">
+          <div className="v-topbar__left">
+            <span>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+              Free Shipping on Orders Above ₹999
+            </span>
+            <span>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 16V8a2 2 0 00-1-1.7l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.7l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+              Easy Returns within 7 Days
+            </span>
+            <span>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              100% Secure Payments
+            </span>
+          </div>
+          <div className="v-topbar__right">
+            <span>Follow Us</span>
+            <a href="#" aria-label="Instagram"><InstagramIcon /></a>
+            <a href="#" aria-label="Facebook"><FacebookIcon /></a>
+            <a href="#" aria-label="YouTube"><YoutubeIcon /></a>
+          </div>
         </div>
       </div>
 
       {/* ═══ MAIN HEADER ═══════════════════════════════════════ */}
       <header className="v-header">
+        <div className="v-header__inner">
+          {/* Logo */}
+          <Link to="/home" className="v-logo" aria-label="Shree Mahaveer Collections Home">
+            SHREE MAHAVEER
+            <small>COLLECTIONS</small>
+          </Link>
 
-        {/* Logo */}
-        <Link to="/home" className="v-logo" aria-label="Shree Mahaveer Collections Home">
-          SHREE MAHAVEER
-          <small>COLLECTIONS</small>
-        </Link>
-
-        {/* Search */}
-        <form className="v-search" onSubmit={handleSearch} role="search">
-          <span className="v-search__lead" aria-hidden="true">
-            <SearchIcon size={14} />
-          </span>
-          <input
-            type="text"
-            placeholder="Search school bags, backpacks, travel gear…"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            aria-label="Search products"
-          />
-          {query.trim() && (
-            <button
-              type="button"
-              className="v-search__clear"
-              onClick={() => setQuery('')}
-              aria-label="Clear search input"
-            >
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                <line x1="18" y1="6" x2="6" y2="18"/>
-                <line x1="6" y1="6" x2="18" y2="18"/>
-              </svg>
+          {/* Search */}
+          <form className="v-search" onSubmit={handleSearch} role="search">
+            <span className="v-search__lead" aria-hidden="true">
+              <SearchIcon size={14} />
+            </span>
+            <input
+              type="text"
+              placeholder="Search school bags, backpacks, travel gear…"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              aria-label="Search products"
+            />
+            {query.trim() && (
+              <button
+                type="button"
+                className="v-search__clear"
+                onClick={() => setQuery('')}
+                aria-label="Clear search input"
+              >
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                  <line x1="18" y1="6" x2="6" y2="18"/>
+                  <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            )}
+            <button type="submit" className="v-search__btn" aria-label="Submit search">
+              <ArrowRightIcon />
             </button>
-          )}
-          <button type="submit" className="v-search__btn" aria-label="Submit search">
-            <ArrowRightIcon />
-          </button>
-        </form>
+          </form>
 
-        {/* Actions */}
-        <div className="v-hdr-acts">
-          <NavLink
-            to={isAuthenticated ? "/user/dashboard" : "/login"}
-            className="v-hdr-act"
-            aria-label={isAuthenticated ? "User Account" : "Login"}
+          {/* Actions */}
+          <div className="v-hdr-acts">
+            <NavLink
+              to={isAuthenticated ? "/user/dashboard" : "/login"}
+              className="v-hdr-act"
+              aria-label={isAuthenticated ? "User Account" : "Login"}
+            >
+              <UserIcon />
+              <span className="lbl">{isAuthenticated ? userDisplayName : 'Login'}</span>
+            </NavLink>
+
+            <NavLink to="/wishlist" className="v-hdr-act" aria-label="Wishlist">
+              <div className="v-hdr-act__icon-wrap">
+                <HeartIcon />
+                {wishlistCount > 0 && (
+                  <span className="v-badge">{wishlistCount > 99 ? '99+' : wishlistCount}</span>
+                )}
+              </div>
+              <span className="lbl">Wishlist</span>
+            </NavLink>
+
+            <button className="v-hdr-act" onClick={openDrawer} aria-label="Shopping Cart" type="button">
+              <div className="v-hdr-act__icon-wrap">
+                <CartIcon />
+                {totalItems > 0 && (
+                  <span className="v-badge">{totalItems > 99 ? '99+' : totalItems}</span>
+                )}
+              </div>
+              <span className="lbl">Cart</span>
+            </button>
+          </div>
+
+          {/* Mobile hamburger */}
+          <button
+            className={`v-ham${mobileOpen ? ' v-ham--open' : ''}`}
+            onClick={() => setMobileOpen(p => !p)}
+            aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
           >
-            <UserIcon />
-            <span className="lbl">{isAuthenticated ? userDisplayName : 'Login'}</span>
-          </NavLink>
-
-          <NavLink to="/wishlist" className="v-hdr-act" aria-label="Wishlist">
-            <div className="v-hdr-act__icon-wrap">
-              <HeartIcon />
-              {wishlistCount > 0 && (
-                <span className="v-badge">{wishlistCount > 99 ? '99+' : wishlistCount}</span>
-              )}
-            </div>
-            <span className="lbl">Wishlist</span>
-          </NavLink>
-
-          <button className="v-hdr-act" onClick={openDrawer} aria-label="Shopping Cart" type="button">
-            <div className="v-hdr-act__icon-wrap">
-              <CartIcon />
-              {totalItems > 0 && (
-                <span className="v-badge">{totalItems > 99 ? '99+' : totalItems}</span>
-              )}
-            </div>
-            <span className="lbl">Cart</span>
+            <span/><span/><span/>
           </button>
         </div>
-
-        {/* Mobile hamburger */}
-        <button
-          className={`v-ham${mobileOpen ? ' v-ham--open' : ''}`}
-          onClick={() => setMobileOpen(p => !p)}
-          aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
-        >
-          <span/><span/><span/>
-        </button>
       </header>
 
       {/* ═══ NAV BAR ════════════════════════════════════════════ */}

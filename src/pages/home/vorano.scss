@@ -9,37 +9,37 @@
 
 // ── Shared section layout ─────────────────────────────────────
 .v-section {
-  padding: 70px 0;
+  padding: clamp(40px, 6vw, 70px) 0;
 
   &__container {
-    width: 92%;
-    max-width: $v-container-max;
-    margin: 0 auto;
+    @include v-container;
   }
 
   &__header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 32px;
+    align-items: flex-end;
+    margin-bottom: clamp(20px, 3.5vw, 32px);
     flex-wrap: wrap;
     gap: 12px;
   }
 
   &__title {
     font-family: $v-font-serif;
-    font-size: clamp(26px, 3vw, 36px);
+    font-size: clamp(22px, 3.8vw, 36px);
     font-weight: 700;
     color: $v-black;
     position: relative;
-    padding-bottom: 14px;
+    padding-bottom: 12px;
+    margin: 0;
+    line-height: 1.15;
 
     &::after {
       content: '';
       position: absolute;
       left: 0;
       bottom: 0;
-      width: 42px;
+      width: clamp(32px, 5vw, 42px);
       height: 3px;
       background: $v-gold;
     }
@@ -47,8 +47,9 @@
 
   &__view-all {
     font-family: $v-font-sans;
-    font-size: 13px;
-    font-weight: 600;
+    font-size: clamp(11.5px, 2.4vw, 13px);
+    font-weight: 700;
+    letter-spacing: 0.3px;
     color: $v-text;
     text-decoration: none;
     transition: color 0.15s;
@@ -57,7 +58,7 @@
     &:hover { color: $v-gold; }
   }
 
-  @media (max-width: 650px) { padding: 48px 0; }
+  @media (max-width: 650px) { padding: 36px 0; }
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -117,18 +118,24 @@
   &__cta {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
+    justify-content: center;
+    gap: 8px;
     border: none;
     background: $v-black;
     color: $v-white;
-    padding: 16px 30px;
+    padding: clamp(10px, 2.5vw, 15px) clamp(16px, 3.8vw, 30px);
     font-family: $v-font-sans;
     font-weight: 700;
-    font-size: 13px;
-    letter-spacing: 0.5px;
+    font-size: clamp(11px, 2.5vw, 13px);
+    letter-spacing: clamp(0.4px, 0.1vw, 0.8px);
     cursor: pointer;
     text-decoration: none;
-    transition: background 0.25s;
+    transition: all 0.25s ease;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    text-align: center;
+    word-break: keep-all;
 
     &:hover { background: $v-gold; }
   }
@@ -191,10 +198,10 @@
   &__grid {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
-    gap: 24px;
+    gap: clamp(12px, 2vw, 24px);
 
-    @media (max-width: 1000px) { grid-template-columns: repeat(3, 1fr); }
-    @media (max-width: 650px)  { grid-template-columns: repeat(2, 1fr); gap: 18px; }
+    @media (max-width: 1000px) { grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    @media (max-width: 650px)  { grid-template-columns: repeat(2, 1fr); gap: 14px; }
   }
 
   &__card {
@@ -213,7 +220,7 @@
     border-radius: 50%;
     overflow: hidden;
     background: #f4f1ee;
-    margin-bottom: 14px;
+    margin-bottom: 12px;
   }
 
   &__img {
@@ -226,16 +233,16 @@
 
   &__name {
     font-family: $v-font-sans;
-    font-size: 14.5px;
+    font-size: clamp(12.5px, 2.6vw, 14.5px);
     font-weight: 600;
     color: $v-black;
-    margin-bottom: 4px;
+    margin-bottom: 3px;
     transition: color 0.2s;
   }
 
   &__sub {
     font-family: $v-font-sans;
-    font-size: 11.5px;
+    font-size: clamp(10.5px, 2.2vw, 11.5px);
     color: $v-gray;
   }
 }
@@ -260,7 +267,7 @@
     position: relative;
     overflow: hidden;
 
-    @media (max-width: 650px) { height: 210px; }
+    @media (max-width: 650px) { height: clamp(170px, 42vw, 220px); }
   }
 
   &__img {
@@ -275,12 +282,12 @@
 
   &__badge {
     position: absolute;
-    top: 12px;
-    left: 12px;
+    top: 10px;
+    left: 10px;
     background: #e8d1b3;
-    padding: 5px 9px;
+    padding: 4px 8px;
     font-family: $v-font-sans;
-    font-size: 9.5px;
+    font-size: clamp(8.5px, 2vw, 9.5px);
     font-weight: 700;
     text-transform: uppercase;
     z-index: 2;
@@ -288,10 +295,10 @@
 
   &__wish {
     position: absolute;
-    top: 12px;
-    right: 12px;
-    width: 34px;
-    height: 34px;
+    top: 10px;
+    right: 10px;
+    width: clamp(28px, 6.5vw, 34px);
+    height: clamp(28px, 6.5vw, 34px);
     border-radius: 50%;
     border: none;
     background: $v-white;
@@ -303,21 +310,21 @@
     z-index: 3;
     transition: color 0.15s;
 
-    svg { width: 16px; height: 16px; }
+    svg { width: clamp(13px, 3vw, 16px); height: clamp(13px, 3vw, 16px); }
 
     &--on { color: #d94c4c; }
   }
 
   &__quick {
     position: absolute;
-    left: 12px;
-    right: 12px;
-    bottom: 12px;
-    height: 38px;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    height: 36px;
     border: none;
     background: rgba(255,255,255,.96);
     font-family: $v-font-sans;
-    font-size: 10.5px;
+    font-size: clamp(9.5px, 2.2vw, 10.5px);
     font-weight: 700;
     letter-spacing: 0.5px;
     cursor: pointer;
@@ -325,78 +332,84 @@
     transform: translateY(8px);
     transition: opacity 0.22s, transform 0.22s;
     z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: $v-black;
 
     .v-card:hover & { opacity: 1; transform: translateY(0); }
   }
 
   &__body {
-    padding: 16px;
+    padding: clamp(10px, 2.4vw, 16px);
   }
 
   &__brand {
     font-family: $v-font-sans;
-    font-size: 10px;
+    font-size: 9.5px;
     letter-spacing: 1.2px;
     color: #999;
     text-transform: uppercase;
-    margin-bottom: 5px;
+    margin-bottom: 4px;
   }
 
   &__name {
     font-family: $v-font-sans;
-    font-size: 14.5px;
+    font-size: clamp(12.5px, 2.8vw, 14.5px);
     font-weight: 600;
     color: $v-black;
     line-height: 1.35;
-    margin-bottom: 8px;
-    min-height: 38px;
+    margin-bottom: 6px;
+    min-height: auto;
+    word-break: break-word;
   }
 
   &__rating {
     color: #e2a634;
-    font-size: 12.5px;
-    margin-bottom: 10px;
+    font-size: clamp(11px, 2.4vw, 12.5px);
+    margin-bottom: 8px;
 
-    span { color: #888; margin-left: 4px; font-size: 11.5px; }
+    span { color: #888; margin-left: 4px; font-size: clamp(10px, 2.2vw, 11.5px); }
   }
 
   &__price {
     display: flex;
     align-items: center;
-    gap: 9px;
-    margin-bottom: 14px;
+    gap: clamp(6px, 1.5vw, 9px);
+    margin-bottom: clamp(10px, 2.2vw, 14px);
     flex-wrap: wrap;
   }
 
   &__current {
     font-family: $v-font-sans;
-    font-size: 20px;
+    font-size: clamp(16px, 3.8vw, 20px);
     font-weight: 700;
     color: $v-black;
   }
 
   &__mrp {
-    font-size: 12.5px;
+    font-size: clamp(11px, 2.4vw, 12.5px);
     color: #aaa;
     text-decoration: line-through;
   }
 
   &__off {
-    font-size: 11.5px;
+    font-size: clamp(10px, 2.2vw, 11.5px);
     color: #d55353;
     font-weight: 700;
   }
 
   &__delivery {
     font-family: $v-font-sans;
-    font-size: 10.5px;
+    font-size: clamp(9.5px, 2.2vw, 10.5px);
     color: $v-green;
-    margin-bottom: 12px;
+    margin-bottom: clamp(8px, 2vw, 12px);
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 4px;
 
-    svg { width: 12px; height: 12px; }
+    svg { width: 12px; height: 12px; flex-shrink: 0; }
   }
 
   &__add {
@@ -404,13 +417,16 @@
     border: none;
     background: $v-black;
     color: $v-white;
-    padding: 13px;
+    padding: clamp(9px, 2.2vw, 13px) clamp(8px, 1.8vw, 14px);
     font-family: $v-font-sans;
     font-weight: 700;
-    font-size: 12px;
+    font-size: clamp(10px, 2.5vw, 12px);
     letter-spacing: 0.5px;
     cursor: pointer;
     transition: background 0.25s;
+    box-sizing: border-box;
+    text-align: center;
+    word-break: keep-all;
 
     &:hover { background: $v-gold; }
     &:disabled { opacity: 0.45; cursor: not-allowed; }
@@ -426,8 +442,8 @@
     grid-template-columns: repeat(4, 1fr);
     gap: 24px;
 
-    @media (max-width: 1000px) { grid-template-columns: repeat(2, 1fr); }
-    @media (max-width: 450px)  { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    @media (max-width: 1000px) { grid-template-columns: repeat(2, 1fr); gap: 18px; }
+    @media (max-width: 480px)  { grid-template-columns: repeat(2, 1fr); gap: 10px; }
   }
 }
 
@@ -440,16 +456,22 @@
     grid-template-columns: 1fr 1fr;
     gap: 20px;
 
-    @media (max-width: 650px) { grid-template-columns: 1fr; }
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
   }
 
   &__banner {
-    min-height: 300px;
+    min-height: clamp(230px, 30vw, 320px);
     position: relative;
     overflow: hidden;
     background: $v-cream;
+    border-radius: 4px;
 
-    @media (max-width: 650px) { min-height: 250px; }
+    @media (max-width: 650px) {
+      min-height: 240px;
+    }
   }
 
   &__img {
@@ -464,30 +486,44 @@
   &__overlay {
     position: absolute;
     inset: 0;
-    padding: 45px;
+    padding: clamp(20px, 4.5vw, 42px);
     display: flex;
     flex-direction: column;
     justify-content: center;
-    background: linear-gradient(90deg, rgba(247,241,235,.96) 0%, rgba(247,241,235,.7) 48%, transparent 80%);
+    align-items: flex-start;
+    background: linear-gradient(
+      90deg,
+      rgba(247, 241, 235, 0.96) 0%,
+      rgba(247, 241, 235, 0.78) 55%,
+      transparent 88%
+    );
 
-    @media (max-width: 650px) { padding: 30px; }
+    @media (max-width: 650px) {
+      padding: clamp(16px, 4vw, 24px);
+      background: linear-gradient(
+        90deg,
+        rgba(247, 241, 235, 0.97) 0%,
+        rgba(247, 241, 235, 0.90) 70%,
+        rgba(247, 241, 235, 0.70) 100%
+      );
+    }
   }
 
   &__heading {
     font-family: $v-font-serif;
-    font-size: clamp(28px, 3vw, 40px);
+    font-size: clamp(22px, 3.4vw, 36px);
     font-weight: 700;
     color: $v-black;
     max-width: 340px;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     line-height: 1.15;
   }
 
   &__sub {
     font-family: $v-font-sans;
-    font-size: 14px;
+    font-size: clamp(12px, 2.4vw, 14px);
     color: #555;
-    margin-bottom: 22px;
+    margin-bottom: clamp(14px, 2.5vw, 22px);
   }
 }
 
@@ -496,12 +532,10 @@
 // ─────────────────────────────────────────────────────────────
 .v-benefits {
   background: #f5f2ee;
-  padding: 28px 0;
+  padding: clamp(20px, 4vw, 32px) 0;
 
   &__container {
-    width: 92%;
-    max-width: $v-container-max;
-    margin: 0 auto;
+    @include v-container;
   }
 
   &__grid {
@@ -509,14 +543,14 @@
     grid-template-columns: repeat(4, 1fr);
 
     @media (max-width: 1000px) { grid-template-columns: repeat(2, 1fr); }
-    @media (max-width: 500px)  { grid-template-columns: 1fr; }
+    @media (max-width: 540px)  { grid-template-columns: 1fr; }
   }
 
   &__item {
     display: flex;
     align-items: center;
-    gap: 15px;
-    padding: 12px 24px;
+    gap: clamp(10px, 2.5vw, 15px);
+    padding: clamp(10px, 2vw, 14px) clamp(12px, 3vw, 24px);
     border-right: 1px solid #ddd;
 
     &:last-child { border-right: none; }
@@ -524,34 +558,38 @@
     @media (max-width: 1000px) {
       &:nth-child(2) { border-right: none; }
       &:nth-child(3) { border-top: 1px solid #ddd; }
+      &:nth-child(4) { border-top: 1px solid #ddd; }
     }
 
-    @media (max-width: 500px) {
+    @media (max-width: 540px) {
       border-right: none;
+      border-top: none !important;
       border-bottom: 1px solid #ddd;
+      padding: 12px 14px;
       &:last-child { border-bottom: none; }
     }
   }
 
   &__icon {
-    font-size: 26px;
+    font-size: clamp(20px, 5vw, 26px);
     flex-shrink: 0;
     color: $v-black;
 
-    svg { width: 26px; height: 26px; }
+    svg { width: clamp(20px, 5vw, 26px); height: clamp(20px, 5vw, 26px); }
   }
 
   &__title {
     font-family: $v-font-sans;
-    font-size: 14px;
+    font-size: clamp(12.5px, 2.5vw, 14px);
     font-weight: 700;
     color: $v-black;
-    margin-bottom: 3px;
+    margin-bottom: 2px;
   }
 
   &__sub {
     font-family: $v-font-sans;
-    font-size: 11.5px;
+    font-size: clamp(10.5px, 2.2vw, 11.5px);
     color: $v-gray;
   }
 }
+

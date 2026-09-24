@@ -1,0 +1,659 @@
+@import '../../../../Styles/ColorCodes';
+@import '../../../../Styles/Mixins';
+
+// ============================================================
+//  BRAND AMBASSADOR SPOTLIGHT — Shree Mahaveer Collections
+//  High-quality 4-banner showcase featuring real brand models:
+//  1. Male model with Goofi PU leather laptop bag & car
+//  2. Female model with Modivo navy daypack backpack
+//  3. Female model with boutique structured leather handbag
+//  4. Male model with executive travel briefcase in airport
+// ============================================================
+
+.v-spotlight {
+  background: #fbfbfd;
+  padding: 65px 0 75px;
+  position: relative;
+  overflow: hidden;
+
+  &__container {
+    @include v-container;
+  }
+
+  // ── Section Header ──
+  &__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 28px;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  &__eyebrow {
+    display: inline-block;
+    font-family: $v-font-sans;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #c89355;
+    margin-bottom: 8px;
+  }
+
+  &__title {
+    font-family: $v-font-serif;
+    font-size: clamp(26px, 3.2vw, 38px);
+    font-weight: 700;
+    color: #0b0f15;
+    line-height: 1.15;
+    margin: 0 0 8px 0;
+  }
+
+  &__desc {
+    font-family: $v-font-sans;
+    font-size: 14px;
+    color: #555e6c;
+    margin: 0;
+    max-width: 580px;
+    line-height: 1.55;
+  }
+
+  // ── Header Navigation Controls ──
+  &__nav-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  &__nav-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.22s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+
+    svg {
+      width: 17px;
+      height: 17px;
+      stroke-width: 2.2;
+    }
+
+    &:hover {
+      background: #090d14;
+      border-color: #090d14;
+      color: #c89355;
+      transform: scale(1.06);
+    }
+  }
+
+  &__counter {
+    font-family: $v-font-sans;
+    font-size: 14px;
+    color: #64748b;
+    padding: 0 6px;
+
+    strong {
+      color: #0b0f15;
+      font-weight: 700;
+    }
+
+    small {
+      font-size: 12px;
+      color: #94a3b8;
+    }
+  }
+
+  // ── Main Featured Stage ──
+  &__stage {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #0b0f15;
+    box-shadow: 0 14px 35px rgba(0, 0, 0, 0.08);
+    display: grid;
+    grid-template-columns: 1fr;
+    min-height: 340px;
+    height: 720px;
+
+    @media (max-width: 900px) {
+      min-height: 300px;
+      height: 360px;
+    }
+
+    @media (max-width: 600px) {
+      min-height: 260px;
+      height: 300px;
+    }
+  }
+
+  &__banner-img-wrap {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 340px;
+    overflow: hidden;
+
+    @media (max-width: 900px) {
+      min-height: 300px;
+      height: 360px;
+    }
+
+    @media (max-width: 600px) {
+      min-height: 260px;
+      height: 300px;
+    }
+  }
+
+  &__banner-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    animation: bannerFadeScale 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    transition: transform 0.45s ease;
+
+    &:hover {
+      transform: scale(1.02);
+    }
+  }
+
+  &__scrim {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    // background: linear-gradient(
+    //   105deg,
+    //   rgba(9, 13, 20, 0.94) 0%,
+    //   rgba(9, 13, 20, 0.68) 42%,
+    //   rgba(9, 13, 20, 0.18) 72%,
+    //   transparent 100%
+    // ),
+    // linear-gradient(
+    //   0deg,
+    //   rgba(9, 13, 20, 0.92) 0%,
+    //   rgba(9, 13, 20, 0.4) 48%,
+    //   transparent 100%
+    // );
+  }
+
+  // ── Bottom-Left Corner Overlay: ONLY Title & 2 Highlighted Buttons ──
+  &__bottom-left {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    padding: 30px 36px;
+    z-index: 5;
+    max-width: 580px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+    animation: cardSlideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+
+    @media (max-width: 768px) {
+      padding: 16px 14px;
+      width: 100%;
+      right: 0;
+      box-sizing: border-box;
+      max-width: 100%;
+    }
+  }
+
+  &__eyebrow-badge {
+    display: inline-block;
+    padding: 4px 11px;
+    border-radius: 4px;
+    background: rgba(9, 13, 20, 0.08);
+    border: 1px solid rgba(9, 13, 20, 0.22);
+    color: #090d14;
+    font-family: $v-font-sans;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    text-shadow: none;
+
+    @media (max-width: 640px) {
+      font-size: 9px;
+      padding: 3px 8px;
+      margin-bottom: 5px;
+    }
+  }
+
+  &__card-title {
+    font-family: $v-font-serif;
+    font-size: clamp(22px, 2.8vw, 34px);
+    font-weight: 700;
+    color: #090d14;
+    line-height: 1.15;
+    letter-spacing: -0.5px;
+    margin: 0 0 14px;
+    text-shadow: 0 1px 3px rgba(255, 255, 255, 0.6);
+
+    @media (max-width: 640px) {
+      font-size: clamp(17px, 4.8vw, 22px);
+      margin-bottom: 10px;
+      line-height: 1.15;
+    }
+  }
+
+  // ── Highlighted Motion Buttons: ONLY 2 Buttons (1 row, 2 columns on mobile) ──
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: clamp(8px, 2vw, 14px);
+    flex-wrap: wrap;
+
+    @media (max-width: 640px) {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      width: 100%;
+      max-width: 320px;
+      gap: 8px;
+    }
+
+    @media (max-width: 360px) {
+      max-width: 100%;
+      gap: 6px;
+    }
+  }
+
+  &__btn {
+    position: relative;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: clamp(9px, 2.2vw, 12px) clamp(14px, 3.5vw, 24px);
+    border-radius: 4px;
+    font-family: $v-font-sans;
+    font-size: clamp(10.5px, 2.7vw, 12px);
+    font-weight: 700;
+    letter-spacing: clamp(0.4px, 0.15vw, 0.9px);
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    max-width: 100%;
+    min-width: 0;
+    text-align: center;
+    word-break: keep-all;
+    box-sizing: border-box;
+
+    svg {
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 640px) {
+      height: 34px;
+      min-height: 34px;
+      padding: 0 8px;
+      width: 100%;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.35px;
+      gap: 5px;
+      white-space: nowrap;
+      border-radius: 4px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+      svg {
+        width: 11px;
+        height: 11px;
+      }
+    }
+
+    @media (max-width: 360px) {
+      height: 32px;
+      min-height: 32px;
+      padding: 0 5px;
+      font-size: 9px;
+      letter-spacing: 0.2px;
+      gap: 3px;
+
+      svg {
+        width: 10px;
+        height: 10px;
+      }
+    }
+
+    .v-spotlight__btn-sheen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 50%;
+      height: 100%;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(200, 147, 85, 0.45) 30%,
+        rgba(255, 255, 255, 0.85) 50%,
+        rgba(200, 147, 85, 0.45) 70%,
+        transparent 100%
+      );
+      transform: translateX(-150%) skewX(-25deg);
+      animation: spot-sheen-sweep 3.2s infinite ease-in-out;
+      pointer-events: none;
+    }
+
+    .v-spotlight__btn-text {
+      position: relative;
+      z-index: 1;
+    }
+
+    // 1. Primary "Shop Now"
+    &--shop {
+      background: #090d14;
+      color: #ffffff;
+      border: 1px solid #090d14;
+      animation: spot-pulse-highlight 3.2s infinite ease-in-out;
+
+      svg {
+        width: 14px;
+        height: 14px;
+        position: relative;
+        z-index: 1;
+        transition: transform 0.25s ease;
+      }
+
+      &:hover {
+        background: #c89355;
+        border-color: #c89355;
+        color: #ffffff;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 26px rgba(200, 147, 85, 0.5);
+
+        svg {
+          transform: translateX(4px);
+        }
+      }
+    }
+
+    // 2. Secondary "View All Collections"
+    &--view {
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      color: #090d14;
+      border: 1.5px solid #090d14;
+      animation: spot-pulse-highlight 3.8s infinite ease-in-out;
+      animation-delay: 1.2s;
+
+      &:hover {
+        background: #090d14;
+        border-color: #090d14;
+        color: #ffffff;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+      }
+    }
+  }
+
+  &__explore-link {
+    font-family: $v-font-sans;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    transition: color 0.18s;
+
+    &:hover {
+      color: #ffffff;
+      text-decoration: underline;
+    }
+  }
+
+  // ── 4-Thumbnail Selector Strip (Always 1 row, 4 columns on mobile) ──
+  &__thumbs-grid {
+    margin-top: clamp(12px, 2.5vw, 22px);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+
+    @media (max-width: 960px) {
+      gap: 10px;
+    }
+
+    @media (max-width: 640px) {
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }
+  }
+
+  &__thumb {
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 12px;
+    padding: clamp(6px, 1.8vw, 10px);
+    display: flex;
+    align-items: center;
+    gap: clamp(8px, 2vw, 12px);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    text-align: left;
+    transition: all 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+    min-width: 0;
+
+    &:hover {
+      border-color: #cbd5e1;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+    }
+
+    &.is-active {
+      border-color: #c89355;
+      background: #ffffff;
+      box-shadow: 0 8px 22px rgba(200, 147, 85, 0.16);
+
+      .v-spotlight__thumb-title {
+        color: #0b0f15;
+      }
+    }
+
+    @media (max-width: 640px) {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 5px 3px 6px;
+      gap: 4px;
+      border-radius: 8px;
+    }
+  }
+
+  &__thumb-img-box {
+    position: relative;
+    width: clamp(52px, 12vw, 68px);
+    height: clamp(52px, 12vw, 68px);
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: #f1f5f9;
+
+    @media (max-width: 640px) {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      height: auto;
+      border-radius: 6px;
+    }
+  }
+
+  &__thumb-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    transition: transform 0.3s ease;
+  }
+
+  &:hover &__thumb-img {
+    transform: scale(1.08);
+  }
+
+  &__thumb-pill {
+    position: absolute;
+    bottom: 3px;
+    left: 3px;
+    right: 3px;
+    background: rgba(9, 13, 20, 0.85);
+    color: #c89355;
+    font-size: 7px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding: 1.5px 0;
+    text-align: center;
+    border-radius: 3px;
+    text-transform: uppercase;
+
+    @media (max-width: 640px) {
+      font-size: 6px;
+      letter-spacing: 0.2px;
+      padding: 1px 2px;
+      bottom: 2px;
+      left: 2px;
+      right: 2px;
+      line-height: 1.1;
+    }
+  }
+
+  &__thumb-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+
+    @media (max-width: 640px) {
+      width: 100%;
+      align-items: center;
+    }
+  }
+
+  &__thumb-cat {
+    font-family: $v-font-sans;
+    font-size: 10.5px;
+    font-weight: 600;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 2px;
+
+    @media (max-width: 640px) {
+      font-size: 7.5px;
+      letter-spacing: 0.2px;
+      margin-bottom: 1px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 100%;
+      line-height: 1.1;
+    }
+  }
+
+  &__thumb-title {
+    font-family: $v-font-sans;
+    font-size: 13px;
+    font-weight: 700;
+    color: #334155;
+    line-height: 1.25;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    @media (max-width: 640px) {
+      font-size: 8.5px;
+      font-weight: 600;
+      line-height: 1.15;
+      width: 100%;
+    }
+  }
+
+  &__thumb-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: #c89355;
+    width: 0%;
+    animation: thumbFill 6s linear forwards;
+
+    &.is-paused {
+      animation-play-state: paused;
+    }
+
+    @media (max-width: 640px) {
+      height: 2px;
+    }
+  }
+}
+
+@keyframes bannerFadeScale {
+  0% {
+    opacity: 0.7;
+    transform: scale(1.04);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes cardSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spot-sheen-sweep {
+  0% {
+    transform: translateX(-150%) skewX(-25deg);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  35% {
+    transform: translateX(250%) skewX(-25deg);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(250%) skewX(-25deg);
+    opacity: 0;
+  }
+}
+
+@keyframes spot-pulse-highlight {
+  0%, 100% {
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3), 0 0 0 0 rgba(200, 147, 85, 0);
+  }
+  50% {
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4), 0 0 16px 2px rgba(200, 147, 85, 0.45);
+  }
+}
+
+@keyframes thumbFill {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+

@@ -44,16 +44,28 @@
 }
 
 // ── Layout helpers ────────────────────────────────────────────
-// Matches header hdr-inner: max-width 1440px, 28px side padding
-@mixin container($max: 1440px) {
+@mixin container($max: $v-container-max) {
   width: 100%;
   max-width: $max;
-  margin-inline: auto;
-  padding-inline: 1.75rem;   // 28px — same as header
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: $v-container-pad;
+  padding-right: $v-container-pad;
+  box-sizing: border-box;
 
   @media (max-width: 900px) {
-    padding-inline: 1rem;    // 16px on tablet/mobile
+    padding-left: $v-container-pad-tab;
+    padding-right: $v-container-pad-tab;
   }
+
+  @media (max-width: 600px) {
+    padding-left: $v-container-pad-mob;
+    padding-right: $v-container-pad-mob;
+  }
+}
+
+@mixin v-container($max: $v-container-max) {
+  @include container($max);
 }
 
 @mixin flex-center {

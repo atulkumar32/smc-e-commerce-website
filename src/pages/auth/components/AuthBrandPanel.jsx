@@ -1,10 +1,42 @@
 import { Link } from 'react-router-dom';
-import bannerImg from '../../../assets/homeimages/banner_1.png';
+import authBannerLogin from '../../../assets/auth/auth_banner_login.jpg';
+import authBannerSignup from '../../../assets/auth/auth_banner_signup.jpg';
 
-export default function AuthBrandPanel() {
+export default function AuthBrandPanel({ activeTab = 'login' }) {
+  const isLogin = activeTab === 'login';
+
+  const showcase = isLogin
+    ? {
+        badge: 'EXECUTIVE SERIES • VINTAGE LEATHER SATCHEL',
+        title: 'Carry your ambitions with confidence.',
+        sub: 'Handcrafted full-grain leather satchels, laptop messengers & executive briefcases engineered for senior professionals and urban commuters.',
+        image: authBannerLogin,
+        alt: 'Brand model wearing handcrafted vintage leather messenger bag on shoulder',
+        pill: 'Full-Grain Leather Touch • Ergonomic Shoulder Sling',
+        testimonial: {
+          quote: 'The craftsmanship and weight distribution are unmatched. It feels effortlessly premium throughout long city commutes.',
+          author: 'Arjun Mehta',
+          role: 'Management Consultant, Mumbai',
+        },
+      }
+    : {
+        badge: 'EXECUTIVE TRAVEL • BESPOKE PRIVILEGE',
+        title: 'Step into a world of bespoke luxury travel.',
+        sub: 'Unlock exclusive member pricing, lifetime warranty coverage, priority dispatch, and personalized embossing across our entire luxury line.',
+        image: authBannerSignup,
+        alt: 'Brand model with executive leather travel briefcase and luggage in airport lounge',
+        pill: 'Airport Friendly • Dedicated Tech Sleeves • TSA Approved',
+        testimonial: {
+          quote: 'Joining SMC Privilege was the best decision. The travel briefcase and rolling luggage make business flights effortless.',
+          author: 'Vikram Malhotra',
+          role: 'Managing Director, Bengaluru',
+        },
+      };
+
   return (
     <aside className="auth-brand-panel" aria-label="Brand showcase">
       <div className="auth-brand-panel__glow" aria-hidden="true" />
+      <div className="auth-brand-panel__grain" aria-hidden="true" />
 
       {/* Top Brand Header */}
       <div className="auth-brand-panel__top">
@@ -19,43 +51,61 @@ export default function AuthBrandPanel() {
           </div>
           <div className="auth-brand-panel__logo-text">
             <span className="auth-brand-panel__brand-name">Shree Mahaveer Collections</span>
-            <span className="auth-brand-panel__brand-sub">EST. 1998 • PREMIUM COLLECTIONS</span>
+            <span className="auth-brand-panel__brand-sub">EST. 1998 • VORANO ATELIER</span>
           </div>
         </Link>
+
+        <span className="auth-brand-panel__mode-tag">
+          {isLogin ? 'VIP Member Portal' : 'New Member Invitation'}
+        </span>
       </div>
 
       {/* Hero Quote & Showcase Card */}
       <div className="auth-brand-panel__middle">
         <div className="auth-brand-panel__quote-box">
-          <span className="auth-brand-panel__quote-mark">“</span>
+          <span className="auth-brand-panel__eyebrow-badge">{showcase.badge}</span>
           <h2 className="auth-brand-panel__quote-text">
-            Designed for every journey,<br />
-            built for everyday confidence.
+            {showcase.title}
           </h2>
           <p className="auth-brand-panel__quote-sub">
-            Luxury school bags, backpacks &amp; travel gear engineered for uncompromising durability and ergonomic comfort.
+            {showcase.sub}
           </p>
         </div>
 
-        {/* Showcase Image Card */}
+        {/* Showcase Image Card with New Dedicated Banner */}
         <div className="auth-brand-panel__showcase">
           <div className="auth-brand-panel__img-frame">
             <img
-              src={bannerImg}
-              alt="Premium Shree Mahaveer School Bags Collection"
+              src={showcase.image}
+              alt={showcase.alt}
               className="auth-brand-panel__img"
               loading="lazy"
             />
             <div className="auth-brand-panel__img-overlay" />
             <div className="auth-brand-panel__img-badge">
               <span className="auth-brand-panel__pulse-dot" />
-              <span>Handcrafted Excellence • Water Resistant</span>
+              <span>{showcase.pill}</span>
+            </div>
+          </div>
+
+          {/* Testimonial Snippet Card */}
+          <div className="auth-brand-panel__testimonial-card">
+            <div className="auth-brand-panel__stars" aria-label="5 stars rating">
+              {'★★★★★'.split('').map((star, i) => (
+                <span key={i} className="auth-brand-panel__star">{star}</span>
+              ))}
+            </div>
+            <p className="auth-brand-panel__testimonial-text">
+              &ldquo;{showcase.testimonial.quote}&rdquo;
+            </p>
+            <div className="auth-brand-panel__testimonial-author">
+              <strong>{showcase.testimonial.author}</strong> &bull; <span>{showcase.testimonial.role}</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Bottom Trust Pillars & Social Proof */}
+      {/* Bottom Trust Pillars */}
       <div className="auth-brand-panel__bottom">
         <div className="auth-brand-panel__trust-grid">
           <div className="auth-brand-panel__trust-item">
@@ -98,22 +148,7 @@ export default function AuthBrandPanel() {
             </div>
           </div>
         </div>
-
-        {/* Rating proof */}
-        <div className="auth-brand-panel__social-proof">
-          <div className="auth-brand-panel__stars" aria-label="5 star rating">
-            {[1, 2, 3, 4, 5].map((n) => (
-              <svg key={n} viewBox="0 0 24 24" fill="#D4AF37" width="13" height="13">
-                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-              </svg>
-            ))}
-          </div>
-          <span className="auth-brand-panel__proof-text">
-            <strong>4.9 / 5</strong> rating from 10,000+ students &amp; parents
-          </span>
-        </div>
       </div>
     </aside>
   );
 }
-

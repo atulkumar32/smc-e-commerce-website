@@ -1,0 +1,453 @@
+@import '../../../../Styles/Mixins';
+@import '../../../../Styles/ColorCodes';
+
+// ─────────────────────────────────────────────────────────────
+//  KEYFRAME ANIMATIONS: HIGHLIGHTED MOVEMENT & SWEEP
+// ─────────────────────────────────────────────────────────────
+@keyframes sig-sheen-sweep {
+  0% {
+    transform: translateX(-150%) skewX(-25deg);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  35% {
+    transform: translateX(250%) skewX(-25deg);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(250%) skewX(-25deg);
+    opacity: 0;
+  }
+}
+
+@keyframes sig-pulse-highlight {
+  0%, 100% {
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3), 0 0 0 0 rgba(200, 147, 85, 0);
+  }
+  50% {
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4), 0 0 16px 2px rgba(200, 147, 85, 0.45);
+  }
+}
+
+@keyframes sig-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes sig-dash-progress {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+//  THE SIGNATURE COLLECTION FULL SCREEN BANNER
+// ─────────────────────────────────────────────────────────────
+.v-sig-banner {
+  position: relative;
+  width: 100%;
+  min-height: 560px;
+  height: 72vh;
+  max-height: 720px;
+  overflow: hidden;
+  background: #090d14;
+
+  @media (max-width: 900px) {
+    min-height: 500px;
+    height: 62vh;
+  }
+
+  @media (max-width: 600px) {
+    min-height: 480px;
+    height: auto;
+    padding-bottom: 30px;
+  }
+
+  // ── Slides Stage ───────────────────────────────────────────
+  &__stage {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  &__slide {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transform: scale(1.04);
+    transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1), transform 7s ease-out;
+    pointer-events: none;
+
+    &.is-active {
+      opacity: 1;
+      transform: scale(1);
+      pointer-events: auto;
+    }
+  }
+
+  &__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+  }
+
+  &__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      105deg,
+      rgba(9, 13, 20, 0.95) 0%,
+      rgba(9, 13, 20, 0.72) 42%,
+      rgba(9, 13, 20, 0.25) 75%,
+      rgba(9, 13, 20, 0.1) 100%
+    ),
+    linear-gradient(
+      0deg,
+      rgba(9, 13, 20, 0.94) 0%,
+      rgba(9, 13, 20, 0.4) 48%,
+      transparent 100%
+    );
+    pointer-events: none;
+  }
+
+  // ── Equal Margins Container ────────────────────────────────
+  &__container {
+    @include v-container;
+    position: relative;
+    height: 100%;
+    min-height: inherit;
+    z-index: 2;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding-bottom: 50px;
+    gap: 30px;
+
+    @media (max-width: 900px) {
+      padding-bottom: 36px;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-end;
+    }
+
+    @media (max-width: 600px) {
+      padding-top: 50px;
+      padding-bottom: 24px;
+    }
+  }
+
+  // ── Left Side Bottom Corner: Content & 2 Buttons ───────────
+  &__bottom-left {
+    max-width: 620px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+    animation: sig-fade-up 0.5s ease forwards;
+
+    @media (max-width: 640px) {
+      width: 100%;
+    }
+  }
+
+  &__eyebrow {
+    display: inline-block;
+    font-family: $v-font-sans;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2.2px;
+    text-transform: uppercase;
+    color: $v-gold;
+    margin-bottom: 10px;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  }
+
+  &__title {
+    font-family: $v-font-serif;
+    font-size: clamp(28px, 3.8vw, 50px);
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.15;
+    letter-spacing: -0.5px;
+    margin: 0 0 12px;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+  }
+
+  &__sub {
+    font-family: $v-font-sans;
+    font-size: clamp(13.5px, 1.25vw, 16px);
+    color: rgba(255, 255, 255, 0.88);
+    line-height: 1.55;
+    margin: 0 0 26px;
+    max-width: 540px;
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
+
+    @media (max-width: 600px) {
+      margin-bottom: 14px;
+    }
+  }
+
+  // ── ONLY 2 Buttons on Left Side Bottom Corner (1 row, 2 columns on mobile) ──
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: clamp(8px, 2vw, 14px);
+    flex-wrap: wrap;
+
+    @media (max-width: 640px) {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      width: 100%;
+      max-width: 320px;
+      gap: 8px;
+    }
+
+    @media (max-width: 360px) {
+      max-width: 100%;
+      gap: 6px;
+    }
+  }
+
+  &__btn {
+    position: relative;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: clamp(10px, 2.4vw, 13px) clamp(16px, 3.8vw, 28px);
+    border-radius: 4px;
+    font-family: $v-font-sans;
+    font-size: clamp(10.5px, 2.6vw, 12.5px);
+    font-weight: 700;
+    letter-spacing: clamp(0.5px, 0.15vw, 0.9px);
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.32);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    max-width: 100%;
+    min-width: 0;
+    text-align: center;
+    word-break: keep-all;
+    box-sizing: border-box;
+
+    svg {
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 640px) {
+      height: 34px;
+      min-height: 34px;
+      padding: 0 8px;
+      width: 100%;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.35px;
+      gap: 5px;
+      white-space: nowrap;
+      border-radius: 4px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+
+      svg {
+        width: 11px;
+        height: 11px;
+      }
+    }
+
+    @media (max-width: 360px) {
+      height: 32px;
+      min-height: 32px;
+      padding: 0 5px;
+      font-size: 9px;
+      letter-spacing: 0.2px;
+      gap: 3px;
+
+      svg {
+        width: 10px;
+        height: 10px;
+      }
+    }
+
+    // Sweeping Highlight Sheen ("movement like highlighted")
+    .v-sig-banner__btn-sheen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 50%;
+      height: 100%;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(200, 147, 85, 0.45) 30%,
+        rgba(255, 255, 255, 0.85) 50%,
+        rgba(200, 147, 85, 0.45) 70%,
+        transparent 100%
+      );
+      transform: translateX(-150%) skewX(-25deg);
+      animation: sig-sheen-sweep 3.2s infinite ease-in-out;
+      pointer-events: none;
+    }
+
+    .v-sig-banner__btn-text {
+      position: relative;
+      z-index: 1;
+    }
+
+    // 1. Primary "Shop Now" Button
+    &--shop {
+      background: #ffffff;
+      color: #090d14;
+      border: 1px solid #ffffff;
+      animation: sig-pulse-highlight 3.2s infinite ease-in-out;
+
+      svg {
+        width: 14px;
+        height: 14px;
+        position: relative;
+        z-index: 1;
+        transition: transform 0.25s ease;
+      }
+
+      &:hover {
+        background: $v-gold;
+        border-color: $v-gold;
+        color: #ffffff;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 26px rgba(200, 147, 85, 0.5);
+
+        svg {
+          transform: translateX(4px);
+        }
+      }
+    }
+
+    // 2. Secondary "View All Collections" Button
+    &--view {
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      color: #ffffff;
+      border: 1.5px solid rgba(255, 255, 255, 0.5);
+      animation: sig-pulse-highlight 3.8s infinite ease-in-out;
+      animation-delay: 1.2s;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.28);
+        border-color: #ffffff;
+        color: #ffffff;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(255, 255, 255, 0.25);
+      }
+    }
+  }
+
+  // ── Right Side Bottom Corner: Controls ──────────────────────
+  &__controls {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding-bottom: 6px;
+
+    @media (max-width: 900px) {
+      width: 100%;
+      justify-content: space-between;
+      margin-top: 16px;
+    }
+  }
+
+  // ── Dash Indicators ─────────────────────────────────────────
+  &__dashes {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &__dash {
+    position: relative;
+    width: 38px;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.35);
+    border: none;
+    border-radius: 2px;
+    padding: 0;
+    cursor: pointer;
+    overflow: hidden;
+    transition: background 0.25s, width 0.3s;
+
+    &.is-active {
+      width: 54px;
+      background: rgba(255, 255, 255, 0.45);
+    }
+
+    &:hover:not(.is-active) {
+      background: rgba(255, 255, 255, 0.6);
+    }
+  }
+
+  &__dash-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: $v-gold;
+    border-radius: 2px;
+    animation: sig-dash-progress linear forwards;
+
+    &.is-paused {
+      animation-play-state: paused;
+    }
+  }
+
+  // ── Navigation Arrows ───────────────────────────────────────
+  &__arrows {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &__arrow-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.25s ease;
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    &:hover {
+      background: $v-gold;
+      border-color: $v-gold;
+      color: #ffffff;
+      transform: scale(1.08);
+      box-shadow: 0 4px 14px rgba(200, 147, 85, 0.4);
+    }
+  }
+}

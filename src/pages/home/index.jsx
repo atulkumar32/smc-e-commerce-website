@@ -9,11 +9,13 @@
  */
 
 // ── NEW VORANO COMPONENTS ─────────────────────────────────────
-import VHero         from './components/VHero';
-import VCategories   from './components/VCategories';
-import VBestsellers  from './components/VBestsellers';
-import VPromoBanners from './components/VPromoBanners';
-import VBenefits     from './components/VBenefits';
+import VHero                from './components/VHero';
+import VCategories          from './components/VCategories';
+import VBestsellers         from './components/VBestsellers';
+import VSignatureCollection from './components/VSignatureCollection';
+import VBrandSpotlight      from './components/VBrandSpotlight';
+import VPromoBanners        from './components/VPromoBanners';
+import VBenefits            from './components/VBenefits';
 
 // ── OLD COMPONENTS (preserved for reference) ──────────────────
 // import HeroSection       from './components/HeroSection';
@@ -35,6 +37,8 @@ function HomePage() {
       <VHero />
       <VCategories />
       <VBestsellers />
+      <VSignatureCollection />
+      <VBrandSpotlight />
       <VPromoBanners />
       <VBenefits />
 

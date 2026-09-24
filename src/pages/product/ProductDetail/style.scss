@@ -10,11 +10,14 @@
 
   // ── Wrapper ─────────────────────────────────────────────────
   &__inner {
-    max-width: 1440px;
-    margin: 0 auto;
-    padding: 1.25rem 1.75rem 4rem;
+    @include v-container;
+    padding-top: 1.25rem;
+    padding-bottom: 4rem;
 
-    @media (max-width: 900px) { padding: 0.75rem 1rem 3rem; }
+    @media (max-width: 900px) {
+      padding-top: 0.75rem;
+      padding-bottom: 3rem;
+    }
   }
 
   // ── 55% / 45% two-column grid ────────────────────────────────

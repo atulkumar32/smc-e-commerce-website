@@ -39,6 +39,7 @@ function LoginPage() {
     : undefined;
 
   const [form, setForm] = useState({ email: '', password: '' });
+  const [rememberMe, setRememberMe] = useState(true);
   const [fieldErrors, setFieldErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [generalError, setGeneralError] = useState('');
@@ -56,6 +57,16 @@ function LoginPage() {
     setGeneralError('');
   };
 
+  // Quick Demo fill for convenience
+  const handleQuickFill = () => {
+    setForm({
+      email: 'customer@shreemahaveer.com',
+      password: 'Password@123',
+    });
+    setFieldErrors({});
+    setGeneralError('');
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -70,7 +81,7 @@ function LoginPage() {
     setGeneralError('');
 
     try {
-      // 2. Call existing backend authentication
+      // 2. Call backend authentication
       const data = await userLoginAction(form);
       saveUserAuth(data);
 
@@ -102,10 +113,23 @@ function LoginPage() {
     <AuthLayout activeTab="login">
       {/* Auth Card Header */}
       <div className="auth-header">
-        <span className="auth-header__badge">Verified Customer Access</span>
-        <h1 className="auth-header__title">Welcome Back 👋</h1>
+        <div className="auth-header__badge-row">
+          <span className="auth-header__badge">
+            <span className="auth-header__badge-pulse" />
+            VIP Member Access
+          </span>
+          <button
+            type="button"
+            className="auth-header__demo-btn"
+            onClick={handleQuickFill}
+            title="Auto-fill sample credentials for rapid preview"
+          >
+            ⚡ Quick Demo Fill
+          </button>
+        </div>
+        <h1 className="auth-header__title">Sign In to SMC</h1>
         <p className="auth-header__sub">
-          Access your orders, wishlist and personalized shopping experience.
+          Enter your credentials to access your bespoke orders, tracking, and wishlist.
         </p>
       </div>
 
@@ -122,7 +146,7 @@ function LoginPage() {
       )}
 
       {/* Authentication Form */}
-      <form onSubmit={handleSubmit} noValidate>
+      <form onSubmit={handleSubmit} noValidate className="auth-form">
         {/* Email Address */}
         <AuthInput
           id="login-email"
@@ -160,29 +184,51 @@ function LoginPage() {
           }
         />
 
-        {/* Submit Button */}
+        {/* Remember Me & Security info */}
+        <div className="auth-form__extra-row">
+          <label className="auth-form__remember">
+            <input
+              type="checkbox"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              disabled={loading}
+            />
+            <span>Remember this device</span>
+          </label>
+        </div>
+
+        {/* Submit Button with Sweeping Sheen Animation */}
         <button
           type="submit"
-          className="auth-btn auth-btn--primary"
+          className="auth-btn auth-btn--primary auth-btn--sheen"
           disabled={loading}
-          style={{ marginTop: '0.75rem' }}
         >
+          <span className="auth-btn__sheen-sweep" aria-hidden="true" />
           {loading ? (
             <>
               <IconSpinner />
-              <span>Logging in...</span>
+              <span>Authenticating...</span>
             </>
           ) : (
-            <span>Login</span>
+            <>
+              <span>Sign In to Your Account</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" width="16" height="16">
+                <line x1="5" y1="12" x2="19" y2="12" />
+                <polyline points="12 5 19 12 12 19" />
+              </svg>
+            </>
           )}
         </button>
       </form>
 
       {/* Switch to Signup */}
       <p className="auth-card-switch">
-        Don&apos;t have an account?
-        <Link to="/register" className="auth-card-switch__link">
-          Create Account
+        New to Shree Mahaveer Collections?
+        <Link to="/register" state={location.state} className="auth-card-switch__link">
+          <span>Create an Account</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14">
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
         </Link>
       </p>
 
@@ -196,22 +242,3 @@ function LoginPage() {
 }
 
 export default LoginPage;
-
-/*
- ==============================================================================
-  PREVIOUS LOGIN IMPLEMENTATION (PRESERVED FOR HISTORICAL REFERENCE)
- ==============================================================================
-
-function LegacyLoginPage() {
-  return (
-    <div className="auth-page">
-      <div className="auth-page__bg-panel">
-        <img src="legacy-bg.jpg" alt="" className="auth-page__bg-img" />
-      </div>
-      <div className="auth-page__content">
-        <Link to="/" className="auth-page__brand">MAJESTIC HERITAGE</Link>
-      </div>
-    </div>
-  );
-}
-*/

@@ -13,31 +13,14 @@ import './vorano.scss'; // VORANO redesign overrides
 function useScrollReveal(ref, deps = []) {
   useEffect(() => {
     if (!ref.current || typeof window === 'undefined') return undefined;
-    const obs = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) {
-            e.target.classList.add('is-visible');
-            e.target.classList.add('stagger-revealed');
-            obs.unobserve(e.target);
-          }
-        });
-      },
-      { threshold: 0.06, rootMargin: '0px 0px -30px 0px' }
-    );
-
     const cards = ref.current.querySelectorAll('.pcard');
     cards.forEach((el, i) => {
-      if (!el.classList.contains('is-visible')) {
-        const delay = (i % 6) * 85;
-        el.style.setProperty('--stagger-delay', `${delay}ms`);
-        el.style.transitionDelay = `${delay}ms`;
-        obs.observe(el);
-      }
+      const delay = (i % 6) * 85;
+      el.style.setProperty('--stagger-delay', `${delay}ms`);
+      el.classList.add('is-visible');
+      el.classList.add('stagger-revealed');
     });
-
-    return () => obs.disconnect();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return undefined;
   }, deps);
 }
 
@@ -127,7 +110,7 @@ function ProductCard({ product, index }) {
 
   return (
     <article
-      className="pcard"
+      className="pcard is-visible stagger-revealed"
       style={{
         '--stagger-delay': `${rowDelay}ms`,
         transitionDelay: `${rowDelay}ms`,

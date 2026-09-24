@@ -1,0 +1,512 @@
+@import '../../../../Styles/ColorCodes';
+@import '../../../../Styles/Mixins';
+
+// ============================================================
+//  HERO CAROUSEL — Shree Mahaveer Collections
+//  Matches luxury reference banners with auto-play, hover pause,
+//  and one-by-one sequential entrance animations on each slide.
+// ============================================================
+
+.v-hero-carousel {
+  
+  position: relative;
+  width: 100%;
+  background: #0b0f15;
+  overflow: hidden;
+  user-select: none;
+
+  // ── Slides Stage ──
+  &__stage {
+    position: relative;
+    width: 100%;
+    height: clamp(520px, 64vh, 680px);
+    min-height: 520px;
+    overflow: hidden;
+
+    @media (max-width: 768px) {
+      height: auto;
+      min-height: 540px;
+    }
+  }
+
+  // ── Individual Slide ──
+  &__slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.85s cubic-bezier(0.4, 0, 0.2, 1),
+                visibility 0.85s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1;
+    pointer-events: none;
+
+    &.is-active {
+      opacity: 1;
+      visibility: visible;
+      z-index: 2;
+      pointer-events: auto;
+    }
+  }
+
+  // ── Slide Background Image Layer ──
+  &__bg {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: right center;
+    background-repeat: no-repeat;
+    transform: scale(1.04);
+    will-change: transform;
+
+    @media (max-width: 768px) {
+      background-position: center 30%;
+    }
+  }
+
+  &__slide.is-active &__bg {
+    animation: heroKenBurns 7s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  }
+
+  // ── Luxury Dark Gradient Overlay ──
+  &__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      rgba(9, 12, 18, 0.96) 0%,
+      rgba(9, 12, 18, 0.88) 35%,
+      rgba(9, 12, 18, 0.52) 62%,
+      rgba(9, 12, 18, 0.20) 84%,
+      rgba(9, 12, 18, 0.06) 100%
+    );
+
+    @media (max-width: 900px) {
+      background: linear-gradient(
+        90deg,
+        rgba(9, 12, 18, 0.94) 0%,
+        rgba(9, 12, 18, 0.78) 55%,
+        rgba(9, 12, 18, 0.40) 100%
+      );
+    }
+
+    @media (max-width: 650px) {
+      background: linear-gradient(
+        180deg,
+        rgba(9, 12, 18, 0.92) 0%,
+        rgba(9, 12, 18, 0.76) 50%,
+        rgba(9, 12, 18, 0.94) 100%
+      );
+    }
+  }
+
+  // ── Foreground Content Container ──
+  &__container {
+    position: relative;
+    z-index: 3;
+    @include v-container;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    padding-top: 60px;
+    padding-bottom: 85px;
+
+    @media (max-width: 768px) {
+      padding-top: 65px;
+      padding-bottom: 110px;
+    }
+  }
+
+  &__content {
+    max-width: 680px;
+  }
+
+  // ── Eyebrow ──
+  &__eyebrow {
+    font-family: $v-font-sans;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 3.8px;
+    text-transform: uppercase;
+    color: #c89355;
+    margin: 0 0 16px 0;
+  }
+
+  // ── Main Heading ──
+  &__heading {
+    font-family: $v-font-serif;
+    font-size: clamp(36px, 5.2vw, 68px);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.5px;
+    text-transform: uppercase;
+    color: #ffffff;
+    margin: 0 0 20px 0;
+    text-shadow: 0 2px 14px rgba(0, 0, 0, 0.4);
+  }
+
+  // ── Subtitle ──
+  &__sub {
+    font-family: $v-font-sans;
+    font-size: clamp(12.5px, 1.35vw, 15px);
+    font-weight: 500;
+    letter-spacing: 1.6px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.88);
+    line-height: 1.55;
+    margin: 0 0 34px 0;
+    max-width: 580px;
+
+    @media (max-width: 650px) {
+      margin-bottom: 26px;
+      line-height: 1.5;
+    }
+  }
+
+  // ── Action Buttons (Auto-adjustable on all screens) ──
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: clamp(10px, 2.5vw, 16px);
+    flex-wrap: wrap;
+
+    @media (max-width: 540px) {
+      width: 100%;
+      gap: 10px;
+    }
+  }
+
+  &__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: clamp(11px, 2.5vw, 15px) clamp(16px, 4vw, 30px);
+    font-family: $v-font-sans;
+    font-size: clamp(11px, 2.6vw, 13px);
+    font-weight: 700;
+    letter-spacing: clamp(0.5px, 0.15vw, 1.2px);
+    text-transform: uppercase;
+    text-decoration: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    max-width: 100%;
+    min-width: 0;
+    text-align: center;
+    word-break: keep-all;
+    box-sizing: border-box;
+
+    svg {
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 540px) {
+      width: 100%;
+      padding: 12px 18px;
+    }
+
+    &--primary {
+      background: #111418;
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+
+      svg {
+        transition: transform 0.24s ease;
+      }
+
+      &:hover {
+        background: #d4af37;
+        color: #0c1016;
+        border-color: #d4af37;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 26px rgba(212, 175, 55, 0.3);
+
+        svg {
+          transform: translateX(4px);
+        }
+      }
+
+      &:active {
+        transform: translateY(0);
+      }
+    }
+
+    &--secondary {
+      background: transparent;
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.38);
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: #ffffff;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+      }
+
+      &:active {
+        transform: translateY(0);
+      }
+    }
+  }
+
+  // ── Staggered Entrance Keyframes (Triggers every slide transition) ──
+  &__anim-1 {
+    animation: heroFadeUp 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+  }
+
+  &__anim-2 {
+    animation: heroFadeUp 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.22s both;
+  }
+
+  &__anim-3 {
+    animation: heroFadeUp 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.36s both;
+  }
+
+  &__anim-4 {
+    animation: heroFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both;
+  }
+
+  // ── Bottom Controls Bar (Dashes left, Arrows right, aligned with container) ──
+  &__controls {
+    position: absolute;
+    bottom: 30px;
+    left: 0;
+    width: 100%;
+    z-index: 10;
+    pointer-events: none;
+
+    @media (max-width: 768px) {
+      bottom: 20px;
+    }
+  }
+
+  &__controls-inner {
+    @include v-container;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  // ── Bottom Controls: Dash Indicators (Bottom Left) ──
+  &__dashes {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    pointer-events: auto;
+  }
+
+  &__dash {
+    width: 38px;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.26);
+    border: none;
+    border-radius: 2px;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.3s ease, width 0.3s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.5);
+    }
+
+    &--active {
+      background: rgba(255, 255, 255, 0.26);
+      width: 44px;
+    }
+  }
+
+  &__dash-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: #c89355;
+    border-radius: 2px;
+    width: 0%;
+
+    &.is-animating {
+      animation: dashProgress 5.5s linear forwards;
+    }
+
+    &.is-paused {
+      animation-play-state: paused !important;
+    }
+  }
+
+  // ── Bottom Controls: Circular Arrows (Bottom Right) ──
+  &__arrows {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    pointer-events: auto;
+  }
+
+  &__arrow {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.16);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+
+    svg {
+      width: 18px;
+      height: 18px;
+      stroke-width: 2.2;
+      transition: transform 0.2s ease;
+    }
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.32);
+      border-color: rgba(255, 255, 255, 0.35);
+      transform: scale(1.08);
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+
+    @media (max-width: 650px) {
+      width: 38px;
+      height: 38px;
+
+      svg {
+        width: 16px;
+        height: 16px;
+      }
+    }
+  }
+
+  // ── Value Pillars Strip (Below Carousel) ──
+  &__strip {
+    background: #0b0f15;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 18px 0;
+  }
+
+  &__strip-grid {
+    @include v-container;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+
+    @media (max-width: 960px) {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 540px) {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+  }
+
+  &__strip-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  &__strip-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: rgba(200, 147, 85, 0.14);
+    border: 1px solid rgba(200, 147, 85, 0.25);
+    color: #c89355;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  &__strip-text {
+    font-family: $v-font-sans;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.35;
+
+    strong {
+      display: block;
+      color: #ffffff;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+
+    span {
+      color: rgba(255, 255, 255, 0.55);
+      font-size: 11px;
+    }
+  }
+}
+
+// ── Keyframe Animations ──
+@keyframes heroFadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes heroKenBurns {
+  0% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1.0);
+  }
+}
+
+@keyframes dashProgress {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+// ── Reduced Motion Accessibility ──
+@media (prefers-reduced-motion: reduce) {
+  .v-hero-carousel__anim-1,
+  .v-hero-carousel__anim-2,
+  .v-hero-carousel__anim-3,
+  .v-hero-carousel__anim-4 {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .v-hero-carousel__bg {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  .v-hero-carousel__dash-fill {
+    animation: none !important;
+    width: 100% !important;
+  }
+}
+

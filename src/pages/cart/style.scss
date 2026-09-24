@@ -6,14 +6,14 @@
   min-height: 60vh;
 
   &__inner {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2.5rem 1.5rem 5rem;
+    @include v-container;
+    padding-top: 2.5rem;
+    padding-bottom: 5rem;
 
-    @include md  { padding: 2rem 1.25rem 4rem; }
-    @include sm  { padding: 1.5rem 0.875rem 3.5rem; }
-    @include xs  { padding: 1.25rem 0.75rem 3rem; }
-    @media (max-width: 360px) { padding: 1rem 0.5rem 3rem; }
+    @include md  { padding-top: 2rem; padding-bottom: 4rem; }
+    @include sm  { padding-top: 1.5rem; padding-bottom: 3.5rem; }
+    @include xs  { padding-top: 1.25rem; padding-bottom: 3rem; }
+    @media (max-width: 360px) { padding-top: 1rem; padding-bottom: 3rem; }
   }
 
   &__title {

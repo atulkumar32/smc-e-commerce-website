@@ -77,26 +77,50 @@
     margin: 0;
   }
 
-  &__card-sub {
-    @include label($fs-xs, $fw-medium);
-    letter-spacing: $ls-widest;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.65);
-    margin: 0 0 0.5rem;
+  &__card-buttons {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-top: 0.5rem;
   }
 
   &__card-btn {
     @include label($fs-xs, $fw-bold);
     letter-spacing: $ls-widest;
     text-transform: uppercase;
-    background-color: #ffffff;
-    color: $color-primary;
-    padding: 0.5rem 1.25rem;
+    padding: 0.55rem 1.1rem;
     text-decoration: none;
-    opacity: 0;
-    @include transition(opacity);
+    opacity: 1;
+    border-radius: 4px;
     align-self: flex-start;
     @include focus-ring($color-secondary);
+    transition: all 0.25s ease;
+
+    &--shop {
+      background-color: #ffffff;
+      color: $color-primary;
+      border: 1px solid #ffffff;
+
+      &:hover {
+        background-color: $color-secondary;
+        border-color: $color-secondary;
+        color: #ffffff;
+      }
+    }
+
+    &--view {
+      background-color: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.3);
+        border-color: #ffffff;
+      }
+    }
   }
 
   // ── 4K ≥1536px ───────────────────────────────────────────────

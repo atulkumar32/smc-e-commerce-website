@@ -130,24 +130,19 @@ body { background: $v-white; font-family: $v-font-sans; }
   border: 1px solid $v-border !important;
   border-radius: 0 !important;
   background: $v-white !important;
-  opacity: 0;
-  transform: translateY(24px) scale(0.985);
-  transition: transform 0.48s cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 0.28s ease,
-              opacity 0.48s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  transition-delay: var(--stagger-delay, 0ms) !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: translateY(0) scale(1) !important;
+  transition: transform 0.28s ease, box-shadow 0.28s ease !important;
 
-  &.is-visible,
-  &.stagger-revealed {
+  .stagger-text {
     opacity: 1 !important;
-    transform: translateY(0) scale(1) !important;
+    transform: none !important;
   }
 
-  &.is-visible:hover,
-  &.stagger-revealed:hover {
+  &:hover {
     transform: translateY(-5px) !important;
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08) !important;
-    transition-delay: 0s !important;
   }
 
   // Image area
@@ -415,14 +410,13 @@ body { background: $v-white; font-family: $v-font-sans; }
 //  SHOP LAYOUT  — left sidebar + right grid (reference HTML)
 // ─────────────────────────────────────────────────────────────
 .pl__shop-layout {
+  @include v-container;
   display: grid;
   grid-template-columns: 245px 1fr;
   gap: 28px;
   align-items: start;
-  width: 92%;
-  max-width: $v-container-max;
-  margin: 0 auto;
-  padding: 22px 0 80px;
+  padding-top: 22px;
+  padding-bottom: 80px;
 
   @media (max-width: 1050px) { grid-template-columns: 210px 1fr; }
   @media (max-width: 750px)  { display: block; }

@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { registerAction } from '../../../Actions/AuthAction';
 import { validateRegisterForm, hasErrors } from '../../../utils/validators';
 import { toast } from 'react-toastify';
@@ -68,6 +68,7 @@ const INITIAL_FORM = {
 
 function RegisterPage() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [form, setForm] = useState(INITIAL_FORM);
   const [fieldErrors, setFieldErrors] = useState({});
@@ -131,7 +132,7 @@ function RegisterPage() {
 
       // 4. Smooth auto-redirect to login
       setTimeout(() => {
-        navigate('/login', { replace: true });
+        navigate('/login', { replace: true, state: location.state });
       }, 2500);
     } catch (err) {
       console.error('[Register] Error:', err);
@@ -151,7 +152,7 @@ function RegisterPage() {
     } finally {
       setLoading(false);
     }
-  }, [form, navigate]);
+  }, [form, navigate, location.state]);
 
   return (
     <AuthLayout activeTab="register">
@@ -159,26 +160,37 @@ function RegisterPage() {
         // ── Success State Screen ──
         <div className="auth-success-card">
           <div className="auth-success-card__icon-box">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="36" height="36">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="40" height="40">
               <polyline points="20 6 9 17 4 12" />
             </svg>
           </div>
+          <span className="auth-success-card__badge">WELCOME TO SMC ATELIER</span>
           <h2 className="auth-success-card__title">Welcome to the Family! 🎉</h2>
           <p className="auth-success-card__body">
-            Your account has been created successfully. You can now explore bespoke bags, manage your orders, and enjoy member perks.
+            Your account has been created successfully. Redirecting you to sign in to access your dashboard...
           </p>
-          <Link to="/login" className="auth-btn auth-btn--primary">
-            Proceed to Login Now
+          <Link to="/login" state={location.state} className="auth-btn auth-btn--primary auth-btn--sheen">
+            <span className="auth-btn__sheen-sweep" aria-hidden="true" />
+            <span>Proceed to Login Now</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" width="16" height="16">
+              <line x1="5" y1="12" x2="19" y2="12" />
+              <polyline points="12 5 19 12 12 19" />
+            </svg>
           </Link>
         </div>
       ) : (
         // ── Registration Form ──
         <>
           <div className="auth-header">
-            <span className="auth-header__badge">Join Shree Mahaveer</span>
+            <div className="auth-header__badge-row">
+              <span className="auth-header__badge">
+                <span className="auth-header__badge-pulse" />
+                Join SMC Privilege
+              </span>
+            </div>
             <h1 className="auth-header__title">Create Your Account</h1>
             <p className="auth-header__sub">
-              Join Shree Mahaveer Collections and enjoy a better shopping experience.
+              Enjoy bespoke member pricing, express dispatch, and seamless consignment tracking.
             </p>
           </div>
 
@@ -193,7 +205,7 @@ function RegisterPage() {
             </div>
           )}
 
-          <form onSubmit={handleRegister} noValidate>
+          <form onSubmit={handleRegister} noValidate className="auth-form">
             {/* Row 1: First Name & Last Name */}
             <div className="auth-grid-2">
               <AuthInput
@@ -323,33 +335,48 @@ function RegisterPage() {
               </span>
             </label>
             {fieldErrors.terms && (
-              <span className="auth-input-group__err-msg" style={{ marginTop: '-1rem', marginBottom: '1rem' }}>
+              <span className="auth-input-group__err-msg" style={{ marginTop: '-0.75rem', marginBottom: '1rem' }}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="13" height="13">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="8" x2="12" y2="12" />
+                  <line x1="12" y1="16" x2="12.01" y2="16" />
+                </svg>
                 {fieldErrors.terms}
               </span>
             )}
 
-            {/* Submit Button */}
+            {/* Submit Button with Sweeping Sheen */}
             <button
               type="submit"
-              className="auth-btn auth-btn--primary"
+              className="auth-btn auth-btn--primary auth-btn--sheen"
               disabled={loading}
             >
+              <span className="auth-btn__sheen-sweep" aria-hidden="true" />
               {loading ? (
                 <>
                   <IconSpinner />
-                  <span>Creating Account...</span>
+                  <span>Creating Your Account...</span>
                 </>
               ) : (
-                <span>Create Account</span>
+                <>
+                  <span>Create Your SMC Account</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" width="16" height="16">
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                    <polyline points="12 5 19 12 12 19" />
+                  </svg>
+                </>
               )}
             </button>
           </form>
 
           {/* Switch to Login */}
           <p className="auth-card-switch">
-            Already have an account?
-            <Link to="/login" className="auth-card-switch__link">
-              Sign In
+            Already have an SMC account?
+            <Link to="/login" state={location.state} className="auth-card-switch__link">
+              <span>Sign In</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14">
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
             </Link>
           </p>
         </>
@@ -359,17 +386,3 @@ function RegisterPage() {
 }
 
 export default RegisterPage;
-
-/*
- ==============================================================================
-  PREVIOUS MULTI-STEP REGISTER IMPLEMENTATION (PRESERVED FOR HISTORICAL REFERENCE)
- ==============================================================================
-
-function LegacyRegisterPage() {
-  // Previously used mock OTP with hardcoded "123456" and three separate steps:
-  // Step 1: StepEmail
-  // Step 2: StepOTP
-  // Step 3: StepForm
-  return null;
-}
-*/

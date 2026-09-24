@@ -7,9 +7,9 @@ function Collections() {
     <section className="collections" aria-labelledby="collections-heading">
       <div className="collections__container">
         <div className="collections__header">
-          <span className="collections__eyebrow">Curated Selections</span>
+          <span className="collections__eyebrow">Curated Exclusives</span>
           <h2 className="collections__heading" id="collections-heading">
-            Explore Our Collections
+            The Signature Collection
           </h2>
         </div>
 
@@ -25,14 +25,22 @@ function Collections() {
               <div className="collections__card-overlay" aria-hidden="true" />
               <div className="collections__card-body">
                 <h3 className="collections__card-title">{col.title}</h3>
-                <p className="collections__card-sub">{col.subtitle}</p>
-                <Link
-                  to={col.to}
-                  className="collections__card-btn"
-                  aria-label={`View all ${col.title}`}
-                >
-                  View All
-                </Link>
+                <div className="collections__card-buttons">
+                  <Link
+                    to={col.to}
+                    className="collections__card-btn collections__card-btn--shop"
+                    aria-label={`Shop now for ${col.title}`}
+                  >
+                    Shop Now →
+                  </Link>
+                  <Link
+                    to={col.to}
+                    className="collections__card-btn collections__card-btn--view"
+                    aria-label={`View all ${col.title}`}
+                  >
+                    View All
+                  </Link>
+                </div>
               </div>
             </div>
           ))}

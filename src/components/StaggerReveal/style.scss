@@ -14,8 +14,7 @@
 .v-benefits__item,
 .v-benefit,
 .v-promo__banner,
-.v-hero__feature,
-.pcard {
+.v-hero__feature {
   opacity: 0;
   transform: translateY(28px) scale(0.985);
   transition: opacity 0.52s cubic-bezier(0.16, 1, 0.3, 1),
