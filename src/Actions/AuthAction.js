@@ -25,14 +25,35 @@ export const userLoginAction = async ({ email, password }) => {
   const response = await fetch(URL_LOGIN, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ email: email.trim(), password }),
   });
   const text = await response.text();
-  const data = text ? JSON.parse(text) : {};
-  if (!response.ok || data.status === false) {
-    throw new Error(data.message || 'Invalid credentials');
+  let data = {};
+  try {
+    data = text ? JSON.parse(text) : {};
+  } catch (err) {
+    console.error('[userLoginAction] JSON parse error:', err, 'Raw text:', text);
   }
-  return data.data ?? data;
+
+  if (
+    !response.ok ||
+    data.status === false ||
+    data.status === 'false' ||
+    data.success === false ||
+    data.success === 'false'
+  ) {
+    throw new Error(data.message || data.error || 'Invalid email or password');
+  }
+
+  const payload = data.data
+    ? typeof data.data === 'object'
+      ? { ...data, ...data.data }
+      : data.data
+    : data.user
+      ? { ...data, ...data.user }
+      : data;
+
+  return payload;
 };
 
 // ── User register ─────────────────────────────────────────────────────────────

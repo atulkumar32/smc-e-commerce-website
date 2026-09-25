@@ -31,32 +31,22 @@ import LoginPage from '../pages/auth/Login';
 import RegisterPage from '../pages/auth/Register';
 import UpcomingPage from '../pages/upComingPage';
 
+function AdminGuard() {
+  return isAdminAuthenticated() ? <AdminShell /> : <Navigate to="/admin/login" replace />;
+}
+
+function AdminLoginGuard() {
+  return isAdminAuthenticated() ? <Navigate to="/admin/dashboard" replace /> : <AdminLoginPage />;
+}
+
 function AppRoutes() {
   return (
     <Routes>
       {/* ── Admin login — standalone, no AdminShell wrapper ── */}
-      <Route
-        path="/admin/login"
-        element={
-          isAdminAuthenticated() ? (
-            <Navigate to="/admin/dashboard" replace />
-          ) : (
-            <AdminLoginPage />
-          )
-        }
-      />
+      <Route path="/admin/login" element={<AdminLoginGuard />} />
 
       {/* ── Admin panel — protected by admin auth token ── */}
-      <Route
-        path="/admin"
-        element={
-          isAdminAuthenticated() ? (
-            <AdminShell />
-          ) : (
-            <Navigate to="/admin/login" replace />
-          )
-        }
-      >
+      <Route path="/admin" element={<AdminGuard />}>
         <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<DashboardPage />} />
         <Route path="products"    element={<ProductsPage />} />

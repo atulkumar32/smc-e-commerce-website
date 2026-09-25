@@ -91,6 +91,13 @@ export default function Header() {
   const [query,          setQuery]          = useState('');
   const [mobileOpen,     setMobileOpen]     = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [authTick,       setAuthTick]       = useState(0);
+
+  useEffect(() => {
+    const handleAuth = () => setAuthTick((t) => t + 1);
+    window.addEventListener('authChange', handleAuth);
+    return () => window.removeEventListener('authChange', handleAuth);
+  }, []);
 
   const isAuthenticated = isUserAuthenticated();
   const userProfile     = getUserProfile();

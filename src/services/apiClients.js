@@ -95,16 +95,35 @@ export function saveUserAuth(payload) {
     return false;
   }
 
-  const userData = payload.user ?? payload.data ?? payload;
-  if (!userData) {
+  const rawUser = payload.user ?? payload.data ?? payload;
+  if (!rawUser || typeof rawUser !== 'object') {
     return false;
+  }
+
+  // Normalize user data structure
+  const userData = { ...rawUser };
+  if (!userData.name && (userData.first_name || userData.last_name)) {
+    userData.name = `${userData.first_name || ''} ${userData.last_name || ''}`.trim();
+  }
+  if (!userData.user_id && userData.id) {
+    userData.user_id = userData.id;
   }
 
   localStorage.setItem(USER_LOGGED_IN_KEY, 'true');
   // Use token if provided, otherwise fallback to user ID or email
-  const token = userData.token || userData.id || userData.email || 'user_session';
+  const token = userData.token || payload.token || userData.id || userData.email || 'user_session';
   localStorage.setItem(USER_TOKEN_KEY, String(token));
   localStorage.setItem(USER_PROFILE_KEY, JSON.stringify(userData));
+  if (userData.email) {
+    localStorage.setItem('user_email', userData.email);
+  }
+
+  try {
+    window.dispatchEvent(new CustomEvent('authChange', { detail: { isAuthenticated: true, user: userData } }));
+  } catch {
+    /* ignore */
+  }
+
   return true;
 }
 
@@ -112,6 +131,13 @@ export function clearUserAuth() {
   localStorage.removeItem(USER_LOGGED_IN_KEY);
   localStorage.removeItem(USER_PROFILE_KEY);
   localStorage.removeItem(USER_TOKEN_KEY);
+  localStorage.removeItem('user_email');
+
+  try {
+    window.dispatchEvent(new CustomEvent('authChange', { detail: { isAuthenticated: false } }));
+  } catch {
+    /* ignore */
+  }
 }
 
 export function getUserHeaders(additional = {}) {

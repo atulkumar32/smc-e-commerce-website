@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { userLoginAction } from '../../../Actions/AuthAction';
-import { saveUserAuth } from '../../../services/apiClients';
+import { saveUserAuth, isUserAuthenticated } from '../../../services/apiClients';
 import { validateLoginForm, hasErrors } from '../../../utils/validators';
 import { toast } from 'react-toastify';
 
@@ -30,7 +30,9 @@ function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const returnTo = location.state?.from || '/user/dashboard';
+  const rawFrom = location.state?.from;
+  const returnTo =
+    (typeof rawFrom === 'string' ? rawFrom : rawFrom?.pathname) || '/user/dashboard';
   const redirectState = location.state?.selectedProduct
     ? {
         selectedProduct: location.state.selectedProduct,
@@ -45,6 +47,13 @@ function LoginPage() {
   const [generalError, setGeneralError] = useState('');
   const [showForgotModal, setShowForgotModal] = useState(false);
 
+  // Auto-redirect if already authenticated
+  useEffect(() => {
+    if (isUserAuthenticated()) {
+      navigate(returnTo, { replace: true, state: redirectState });
+    }
+  }, [navigate, returnTo, redirectState]);
+
   const handleChange = (field) => (e) => {
     setForm((prev) => ({ ...prev, [field]: e.target.value }));
     if (fieldErrors[field]) {
@@ -57,10 +66,10 @@ function LoginPage() {
     setGeneralError('');
   };
 
-  // Quick Demo fill for convenience
+  // Quick Demo fill for convenience with active verified user
   const handleQuickFill = () => {
     setForm({
-      email: 'customer@shreemahaveer.com',
+      email: 'smc.user@gmail.com',
       password: 'Password@123',
     });
     setFieldErrors({});
@@ -83,14 +92,17 @@ function LoginPage() {
     try {
       // 2. Call backend authentication
       const data = await userLoginAction(form);
-      saveUserAuth(data);
+      const saved = saveUserAuth(data);
+      if (!saved) {
+        throw new Error('Failed to initialize session. Please try again.');
+      }
 
       toast.success('Welcome back! Signed in successfully.', {
         position: 'top-right',
-        autoClose: 2500,
+        autoClose: 2000,
       });
 
-      // 3. Navigate back to destination or user portal
+      // 3. Smooth auto-navigation to user dashboard or return URL
       navigate(returnTo, { replace: true, state: redirectState });
     } catch (err) {
       console.error('[Login] Error:', err);
