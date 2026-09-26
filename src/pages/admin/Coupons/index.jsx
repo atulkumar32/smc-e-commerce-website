@@ -42,7 +42,7 @@ const isExpired = (d) => d && new Date(d) < new Date();
 
 // ── Coupon Modal (Add + Edit) ─────────────────────────────────
 function CouponModal({ open, onClose, editRow, onSaved }) {
-  const { products, users } = useProductsAndUsers();
+  const { products, users } = useProductsAndUsers(open);
   const {
     form, set, prefill, errors, saving, handleSave, reset, isEdit,
     toggleProduct, toggleUser,
@@ -526,12 +526,14 @@ export default function CouponsPage() {
       )}
 
       {/* ── Modal ── */}
-      <CouponModal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        editRow={editRow}
-        onSaved={refetch}
-      />
+      {modalOpen && (
+        <CouponModal
+          open={modalOpen}
+          onClose={() => setModalOpen(false)}
+          editRow={editRow}
+          onSaved={refetch}
+        />
+      )}
     </Box>
   );
 }

@@ -166,11 +166,13 @@ export function useCouponsList() {
 }
 
 // ── Hook: products + users for selectors ──────────────────────
-export function useProductsAndUsers() {
+export function useProductsAndUsers(enabled = true) {
   const [products, setProducts] = useState([]);
   const [users,    setUsers]    = useState([]);
 
   useEffect(() => {
+    if (!enabled) return;
+
     // Products
     fetch(`${URL_PRODUCTS_FETCH}?per_page=200`)
       .then(r => r.json())
@@ -189,7 +191,7 @@ export function useProductsAndUsers() {
         setUsers(list);
       })
       .catch(() => {});
-  }, []);
+  }, [enabled]);
 
   return { products, users };
 }

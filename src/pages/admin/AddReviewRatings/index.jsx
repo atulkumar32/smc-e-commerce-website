@@ -64,12 +64,14 @@ export default function AddReviewRatingsPage() {
       />
 
       {/* ── Add / Edit modal ── */}
-      <AddReviewModal
-        open={modalOpen}
-        onClose={onClose}
-        onSaved={refetch}
-        editRow={editRow}
-      />
+      {modalOpen && (
+        <AddReviewModal
+          open={modalOpen}
+          onClose={onClose}
+          onSaved={refetch}
+          editRow={editRow}
+        />
+      )}
     </Box>
   );
 }

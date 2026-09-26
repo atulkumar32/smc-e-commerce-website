@@ -15,7 +15,7 @@ export function getDashboardCredentials() {
     return {
       user_id: p.user_id ?? p.id    ?? p.userId    ?? null,
       email:   p.email   ?? p.Email ?? p.userEmail ?? p.customer_email ?? storedEmail,
-      name:    p.name    ?? p.full_name ?? p.fullName ?? '',
+      name:    p.name    ?? p.full_name ?? p.fullName ?? p.first_name ?? p.firstName ?? '',
       token:   localStorage.getItem('user_token') ?? '',
     };
   } catch {

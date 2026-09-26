@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box, Button, IconButton, Chip, Stack, Paper, Typography,
@@ -563,6 +563,11 @@ function ProductsPage() {
   const navigate = useNavigate();
   const { products, productsLoading, upsertProduct, deleteProduct, refreshProducts } = useAdmin();
 
+  // Load products specifically on mount of ProductsPage
+  useEffect(() => {
+    refreshProducts();
+  }, [refreshProducts]);
+
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [search, setSearch] = useState('');
@@ -791,8 +796,10 @@ function ProductsPage() {
       {/* Add/Edit Product */}
       <ModalComponent open={editModal.open} onClose={() => setEditModal({ open: false, product: null })}
         title={editModal.product ? 'Edit Product' : 'Add New Product'} maxWidth="lg">
-        <AddNewProduct editingProduct={editModal.product} onSuccess={handleProductSuccess}
-          onCancel={() => setEditModal({ open: false, product: null })} />
+        {editModal.open && (
+          <AddNewProduct editingProduct={editModal.product} onSuccess={handleProductSuccess}
+            onCancel={() => setEditModal({ open: false, product: null })} />
+        )}
       </ModalComponent>
 
       {/* View Product — full detail with variants */}

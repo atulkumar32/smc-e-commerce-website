@@ -298,31 +298,48 @@ $duration:      0.3s;
       }
     }
 
-    // ── Active Pill State (Exact design match: Royal Blue pill with light icon box) ──
+    // ── Active Pill State (Premium Dark Luxury Navy + Gold Accent) ──
     &--active {
-      background: $sb-blue-active !important;
+      background: linear-gradient(135deg, #001530 0%, #001F3F 100%) !important;
       color: #ffffff !important;
-      box-shadow: 0 4px 14px $sb-blue-glow !important;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+      border: 1px solid rgba(212, 175, 55, 0.4) !important;
+
+      // Signature gold accent strip on the active item left edge
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 8px;
+        bottom: 8px;
+        width: 4px;
+        border-radius: 0 4px 4px 0;
+        background: $sb-gold;
+        box-shadow: 0 0 10px rgba(212, 175, 55, 0.9);
+      }
 
       .usb__link-icon-box {
-        background: rgba(255, 255, 255, 0.22) !important;
-        color: #ffffff !important;
+        background: rgba(212, 175, 55, 0.18) !important;
+        color: #D4AF37 !important;
         border-radius: 8px !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25) !important;
 
         svg {
-          color: #ffffff !important;
-          stroke: #ffffff !important;
-          stroke-width: 2.2 !important;
+          color: #D4AF37 !important;
+          stroke: #D4AF37 !important;
+          stroke-width: 2.3 !important;
         }
       }
 
       .usb__link-label {
         color: #ffffff !important;
-        font-weight: 600 !important;
+        font-weight: 700 !important;
+        letter-spacing: -0.01em !important;
       }
 
       &:hover {
-        background: #1d4ed8 !important;
+        background: linear-gradient(135deg, #001a3d 0%, #00264d 100%) !important;
+        border-color: rgba(212, 175, 55, 0.6) !important;
         color: #ffffff !important;
       }
     }
@@ -430,11 +447,22 @@ $duration:      0.3s;
         width: 42px !important;
         height: 42px !important;
         border-radius: 12px !important;
-        background: $sb-blue-active !important;
-        box-shadow: 0 4px 14px $sb-blue-glow !important;
+        background: linear-gradient(135deg, #001530 0%, #001F3F 100%) !important;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5) !important;
+        border: 1.5px solid rgba(212, 175, 55, 0.6) !important;
+
+        &::before {
+          display: none;
+        }
 
         .usb__link-icon-box {
           background: transparent !important;
+          color: #D4AF37 !important;
+
+          svg {
+            stroke: #D4AF37 !important;
+            stroke-width: 2.3 !important;
+          }
         }
       }
     }

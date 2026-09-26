@@ -6,7 +6,7 @@
  */
 
 import { useState } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { Tooltip } from '@mui/material';
 import { clearUserAuth } from '../../services/apiClients';
 import { useCart } from '../../context/CartContext';
@@ -84,10 +84,49 @@ const NAV = [
 
 function SidebarContent({ collapsed, onClose }) {
   const navigate  = useNavigate();
+  const location  = useLocation();
   const cartCtx   = useCart ? useCart() : {};
   const wishlistCount = cartCtx?.wishlistCount ?? (cartCtx?.wishlistItems?.length || 0);
   const cartCount     = cartCtx?.totalItems ?? (cartCtx?.cartItems?.length || 0);
   const [logoutConfirm, setLogoutConfirm] = useState(false);
+
+  // Robust active page detection for all routes, index redirection, query params & subpaths
+  const isItemActive = (toPath) => {
+    const rawPath = location.pathname || '';
+    const current = rawPath.toLowerCase().replace(/\/+$/, '') || '/';
+    const target  = (toPath || '').toLowerCase().replace(/\/+$/, '');
+
+    // Dashboard match: /user/dashboard, /user, /dashboard
+    if (target === '/user/dashboard') {
+      return (
+        current === '/user/dashboard' ||
+        current === '/user' ||
+        current === '/dashboard' ||
+        current.startsWith('/user/dashboard')
+      );
+    }
+    // Orders match: /user/orders or /user/orders/123 etc.
+    if (target === '/user/orders') {
+      return current === '/user/orders' || current.startsWith('/user/orders');
+    }
+    // Profile vs Security
+    if (target === '/user/profile') {
+      return current === '/user/profile' || current.startsWith('/user/profile');
+    }
+    if (target === '/user/security') {
+      return current === '/user/security' || current.startsWith('/user/security');
+    }
+    // Wishlist
+    if (target === '/user/wishlist') {
+      return current === '/user/wishlist' || current === '/wishlist' || current.startsWith('/user/wishlist');
+    }
+    // Cart
+    if (target === '/user/cart') {
+      return current === '/user/cart' || current === '/cart' || current.startsWith('/user/cart');
+    }
+
+    return current === target || current.startsWith(`${target}/`);
+  };
 
   const doLogout = () => {
     clearUserAuth();
@@ -124,30 +163,35 @@ function SidebarContent({ collapsed, onClose }) {
 
       {/* ── Navigation Links ── */}
       <nav className="usb__nav">
-        {NAV.map(({ label, to, icon, badgeKey }) => (
-          <Tooltip key={to} title={label} placement="right" arrow disableHoverListener={!collapsed}>
-            <NavLink
-              to={to}
-              className={({ isActive }) => `usb__link${isActive ? ' usb__link--active' : ''}`}
-              onClick={onClose}
-            >
-              <span className="usb__link-icon-box">
-                {icon}
-              </span>
-              {!collapsed && (
-                <span className="usb__link-label">
-                  {label}
+        {NAV.map(({ label, to, icon, badgeKey }) => {
+          const active = isItemActive(to);
+          return (
+            <Tooltip key={to} title={label} placement="right" arrow disableHoverListener={!collapsed}>
+              <NavLink
+                to={to}
+                className={({ isActive: navActive }) =>
+                  `usb__link${navActive || active ? ' usb__link--active' : ''}`
+                }
+                onClick={onClose}
+              >
+                <span className="usb__link-icon-box">
+                  {icon}
                 </span>
-              )}
-              {!collapsed && badgeKey === 'wishlist' && wishlistCount > 0 && (
-                <span className="usb__link-badge">{wishlistCount}</span>
-              )}
-              {!collapsed && badgeKey === 'cart' && cartCount > 0 && (
-                <span className="usb__link-badge">{cartCount}</span>
-              )}
-            </NavLink>
-          </Tooltip>
-        ))}
+                {!collapsed && (
+                  <span className="usb__link-label">
+                    {label}
+                  </span>
+                )}
+                {!collapsed && badgeKey === 'wishlist' && wishlistCount > 0 && (
+                  <span className="usb__link-badge">{wishlistCount}</span>
+                )}
+                {!collapsed && badgeKey === 'cart' && cartCount > 0 && (
+                  <span className="usb__link-badge">{cartCount}</span>
+                )}
+              </NavLink>
+            </Tooltip>
+          );
+        })}
       </nav>
 
       {/* ── Spacer ── */}

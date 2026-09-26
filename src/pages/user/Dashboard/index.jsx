@@ -211,13 +211,8 @@ export default function UserDashboard() {
         </Alert>
       )}
 
-      {/* ── 2. Top Banner Grid: Profile Summary + Quick Stats ── */}
-      <div className="ud-top-grid">
-        <ProfileCard
-          user={activeUser}
-          onEdit={() => navigate('/user/profile')}
-        />
-
+      {/* ── 2. Top Stats Overview (1 Row 5 Columns, 100% Responsive) ── */}
+      <div className="ud-stats-container">
         <StatsCards
           stats={stats}
           wishlistCount={wishlistCount}

@@ -6,7 +6,7 @@ const AdminContext = createContext(null);
 
 export function AdminProvider({ children }) {
   const [products, setProducts] = useState([]);
-  const [productsLoading, setProductsLoading] = useState(true);
+  const [productsLoading, setProductsLoading] = useState(false);
   const [orders] = useState(initialOrders);
 
   const loadProducts = async () => {
@@ -26,8 +26,6 @@ export function AdminProvider({ children }) {
       setProductsLoading(false);
     }
   };
-
-  useEffect(() => { loadProducts(); }, []);
 
   // ── Upsert (add or update) a product in local state ─────────────────────────
   const upsertProduct = (product) => {

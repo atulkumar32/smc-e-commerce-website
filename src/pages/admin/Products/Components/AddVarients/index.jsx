@@ -623,13 +623,15 @@ export default function AddVarientsPage() {
       />
 
       {/* ── Add Variant modal ── */}
-      <AddVariantModal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        products={products}
-        onSaved={handleSaved}
-        defaultProductId={defaultPid}
-      />
+      {modalOpen && (
+        <AddVariantModal
+          open={modalOpen}
+          onClose={() => setModalOpen(false)}
+          products={products}
+          onSaved={handleSaved}
+          defaultProductId={defaultPid}
+        />
+      )}
     </Box>
   );
 }
