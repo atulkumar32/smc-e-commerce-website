@@ -1,132 +1,123 @@
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import AuthBrandPanel from './AuthBrandPanel';
+import { Link } from 'react-router-dom';
+import authSchoolBackpack from '../../../assets/auth/auth_school_backpack.jpg';
+import '../auth.scss';
 
 export default function AuthLayout({ children, activeTab = 'login' }) {
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  const handleTabSwitch = (targetTab) => {
-    if (targetTab === activeTab) return;
-    const targetPath = targetTab === 'login' ? '/login' : '/register';
-    navigate(targetPath, { state: location.state });
-  };
+  const isLogin = activeTab === 'login';
 
   return (
-    <div className="auth-shell">
-      <div className="auth-shell__container">
-        {/* Top utility bar with back-to-store link and concierge help - in line with grid */}
-        <header className="auth-shell__utility-bar">
-          <Link to="/" className="auth-shell__back-link">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" width="16" height="16" aria-hidden="true">
-              <polyline points="15 18 9 12 15 6" />
-            </svg>
-            <span>Back to Store</span>
-          </Link>
-
-          <div className="auth-shell__center-badge">
-            <span className="auth-shell__center-dot" />
-            <span className="auth-shell__center-text">Official SMC Atelier</span>
-          </div>
-
-          <div className="auth-shell__utility-right">
-            <Link to="/contact" className="auth-shell__help-link">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="15" height="15" aria-hidden="true">
-                <circle cx="12" cy="12" r="10" />
-                <path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" />
-                <line x1="12" y1="17" x2="12.01" y2="17" />
-              </svg>
-              <span>Need Help?</span>
-            </Link>
-          </div>
-        </header>
-
-        {/* Framed Split Card aligned with website container guidelines */}
-        <div className="auth-split-layout">
-          {/* Left column: Brand & Showcase with activeTab awareness */}
-          <AuthBrandPanel activeTab={activeTab} />
-
-          {/* Right column: Authentication Form Container */}
-          <main className="auth-form-panel">
-            <div className={`auth-form-panel__inner${activeTab === 'register' ? ' auth-form-panel__inner--wide' : ''}`}>
-              {/* Mobile / Tablet Brand Header */}
-              <div className="auth-form-panel__mobile-brand">
-                <Link to="/" className="auth-form-panel__mobile-logo">
-                  <div className="auth-brand-panel__logo-icon" style={{ width: 38, height: 38 }}>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="#D4AF37" strokeWidth="2.2" aria-hidden="true">
-                      <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
-                      <line x1="3" y1="6" x2="21" y2="6" />
-                      <path d="M16 10a4 4 0 01-8 0" />
-                    </svg>
-                  </div>
-                  <div className="auth-form-panel__mobile-text">
-                    <span className="auth-form-panel__mobile-name">Shree Mahaveer Collections</span>
-                    <span className="auth-form-panel__mobile-sub">EST. 1998 &bull; VORANO LUXURY ATELIER</span>
-                  </div>
-                </Link>
-              </div>
-
-              {/* Premium Interactive Segmented Tab Switcher */}
-              <div className="auth-tabs" role="tablist" aria-label="Authentication Options">
-                <button
-                  type="button"
-                  role="tab"
-                  aria-selected={activeTab === 'login'}
-                  className={`auth-tab${activeTab === 'login' ? ' is-active' : ''}`}
-                  onClick={() => handleTabSwitch('login')}
-                >
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
-                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
-                    <polyline points="10 17 15 12 10 7" />
-                    <line x1="15" y1="12" x2="3" y2="12" />
+    <div className="smc-auth">
+      <div className="smc-auth__wrapper">
+        <div className="smc-auth__card">
+          {/* ── LEFT COLUMN: Brand Story & School Backpack Showcase ── */}
+          <div className="smc-auth__left">
+            {/* Top Row: Brand Identity & Back to School script */}
+            <div className="smc-auth__brand-header">
+              <Link to="/" className="smc-auth__brand-logo" aria-label="Shree Mahaveer Collections Home">
+                <div className="smc-auth__logo-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                    <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+                    <line x1="3" y1="6" x2="21" y2="6" />
+                    <path d="M16 10a4 4 0 01-8 0" />
                   </svg>
-                  <span>Sign In</span>
-                </button>
+                </div>
+                <div className="smc-auth__brand-text">
+                  <h2 className="smc-auth__brand-name">
+                    Shree Mahaveer <span>Collections</span>
+                  </h2>
+                  <p className="smc-auth__brand-tagline">Quality Bags | Better Tomorrow</p>
+                </div>
+              </Link>
 
-                <button
-                  type="button"
-                  role="tab"
-                  aria-selected={activeTab === 'register'}
-                  className={`auth-tab${activeTab === 'register' ? ' is-active' : ''}`}
-                  onClick={() => handleTabSwitch('register')}
-                >
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
-                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                    <circle cx="8.5" cy="7" r="4" />
-                    <line x1="20" y1="8" x2="20" y2="14" />
-                    <line x1="23" y1="11" x2="17" y2="11" />
-                  </svg>
-                  <span>Create Account</span>
-                </button>
-              </div>
-
-              {/* Child Form (Login or Register) */}
-              <div className="auth-form-panel__card">
-                {children}
+              <div className="smc-auth__script-badge" aria-hidden="true">
+                <span className="smc-auth__script-text">Back to School</span>
+                <svg className="smc-auth__script-swoosh" viewBox="0 0 100 20" fill="none">
+                  <path d="M5 12C30 4 70 3 95 14" stroke="#2563eb" strokeWidth="2.5" strokeLinecap="round" />
+                  <path d="M20 17C45 11 75 11 90 18" stroke="#2563eb" strokeWidth="1.8" strokeLinecap="round" />
+                </svg>
               </div>
             </div>
 
-            <footer className="auth-form-panel__footer">
-              <div className="auth-form-panel__assurance">
-                <span className="auth-form-panel__lock-icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="13" height="13">
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                    <path d="M7 11V7a5 5 0 0110 0v4" />
-                  </svg>
-                </span>
-                <span>256-Bit SSL Encrypted &bull; Guaranteed Privacy &bull; Official Portal</span>
-              </div>
-              <p className="auth-form-panel__copyright">
-                &copy; {new Date().getFullYear()} Shree Mahaveer Collections. All rights reserved.
+            {/* Headline & Subtitle */}
+            <div className="smc-auth__hero-text">
+              <h1 className="smc-auth__hero-title">
+                Smart Bags for <span className="smc-auth__highlight">Bright Futures</span>
+              </h1>
+              <p className="smc-auth__hero-subtitle">
+                Premium quality school bags designed for comfort, durability and style.
               </p>
-              <div className="auth-form-panel__links">
-                <Link to="/privacy-policy">Privacy Policy</Link>
-                <span className="auth-form-panel__dot">&bull;</span>
-                <Link to="/shipping-returns">Terms &amp; Shipping</Link>
-                <span className="auth-form-panel__dot">&bull;</span>
-                <Link to="/contact">Support Concierge</Link>
+            </div>
+
+            {/* 3 Circular Feature Badges */}
+            <div className="smc-auth__features-row">
+              <div className="smc-auth__feature-item">
+                <div className="smc-auth__feature-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                    <path d="M9 12l2 2 4-4" />
+                  </svg>
+                </div>
+                <span className="smc-auth__feature-label">Durable<br />Quality</span>
               </div>
-            </footer>
-          </main>
+
+              <div className="smc-auth__feature-item">
+                <div className="smc-auth__feature-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z" />
+                    <line x1="16" y1="8" x2="2" y2="22" />
+                    <line x1="17.5" y1="15" x2="9" y2="15" />
+                  </svg>
+                </div>
+                <span className="smc-auth__feature-label">Lightweight<br />Design</span>
+              </div>
+
+              <div className="smc-auth__feature-item">
+                <div className="smc-auth__feature-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                  </svg>
+                </div>
+                <span className="smc-auth__feature-label">Trendy<br />Styles</span>
+              </div>
+            </div>
+
+            {/* School Backpack Hero Photo with Blue Accent Wave */}
+            <div className="smc-auth__visual-container">
+              <div className="smc-auth__wave-decor" aria-hidden="true" />
+              <img
+                src={authSchoolBackpack}
+                alt="Shree Mahaveer modern blue school backpack with books and water bottle on campus"
+                className="smc-auth__backpack-photo"
+              />
+            </div>
+          </div>
+
+          {/* ── RIGHT COLUMN: Authentication Form ── */}
+          <div className="smc-auth__right">
+            {/* Top Switcher Link */}
+            <div className="smc-auth__switch-bar">
+              {isLogin ? (
+                <span>
+                  New Account?{' '}
+                  <Link to="/register" className="smc-auth__switch-link">
+                    Create Account
+                  </Link>
+                </span>
+              ) : (
+                <span>
+                  Already have an account?{' '}
+                  <Link to="/login" className="smc-auth__switch-link">
+                    Sign In
+                  </Link>
+                </span>
+              )}
+            </div>
+
+            {/* Form Slot */}
+            <div className="smc-auth__form-container">
+              {children}
+            </div>
+          </div>
         </div>
       </div>
     </div>

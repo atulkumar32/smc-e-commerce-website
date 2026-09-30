@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import contactHeroBanner from '../../assets/contact/contact_hero_banner.jpg';
 import showroomImg from '../../assets/contact/showroom.jpg';
 import { useStaggerReveal } from '../../components/StaggerReveal';
 import './style.scss';
@@ -69,8 +70,17 @@ function ContactPage() {
 
   return (
     <div className="contact-v">
-      {/* ── Page Hero Header ── */}
+      {/* ── Page Hero Header with Animated Banner ── */}
       <section className="contact-v__hero">
+        <div className="contact-v__hero-media" aria-hidden="true">
+          <img
+            src={contactHeroBanner}
+            alt="Customer concierge and showroom lounge at Shree Mahaveer Collections"
+            className="contact-v__hero-bg-img"
+          />
+          <div className="contact-v__hero-overlay" />
+        </div>
+
         <div className="contact-v__hero-inner">
           <nav className="contact-v__breadcrumb" aria-label="Breadcrumb">
             <Link to="/">Home</Link>
@@ -78,7 +88,12 @@ function ContactPage() {
             <span className="contact-v__bc-current">Contact Us</span>
           </nav>
 
-          <span className="contact-v__eyebrow">CUSTOMER CARE &amp; CONCIERGE</span>
+          <div className="contact-v__hero-badge-wrap">
+            <span className="contact-v__eyebrow">
+              <span className="contact-v__eyebrow-dot" />
+              CUSTOMER CARE &amp; CONCIERGE
+            </span>
+          </div>
 
           <h1 className="contact-v__title">
             Connect with Our Atelier.
@@ -88,6 +103,11 @@ function ContactPage() {
             Whether you need bag sizing assistance, order tracking, bulk school orders,
             or bespoke corporate requests, our customer concierge team is here to assist you.
           </p>
+
+          <div className="contact-v__hero-status-pill">
+            <span className="contact-v__status-beacon" />
+            <span>Concierge Desk Live • Average Response Time &lt; 15 Mins</span>
+          </div>
         </div>
       </section>
 
@@ -295,7 +315,7 @@ function ContactPage() {
 
             {/* ── Right: Showroom & FAQ Panel ── */}
             <div className="contact-v__side-panel">
-              {/* Showroom Visual Card */}
+              {/* Showroom Visual Card with Interactive Hover */}
               <div className="contact-v__showroom-card">
                 <div className="contact-v__showroom-frame">
                   <img
