@@ -200,34 +200,22 @@ export default function VHero() {
                 <div className="v-hero-carousel__container">
                   <div className="v-hero-carousel__content">
                     {/* Eyebrow */}
-                    <p
-                      key={`eyebrow-${animKey}`}
-                      className="v-hero-carousel__eyebrow v-hero-carousel__anim-1"
-                    >
+                    <p className="v-hero-carousel__eyebrow">
                       {activeSlide.eyebrow}
                     </p>
 
                     {/* Heading */}
-                    <h1
-                      key={`heading-${animKey}`}
-                      className="v-hero-carousel__heading v-hero-carousel__anim-2"
-                    >
+                    <h1 className="v-hero-carousel__heading">
                       {activeSlide.heading}
                     </h1>
 
                     {/* Subtitle */}
-                    <p
-                      key={`sub-${animKey}`}
-                      className="v-hero-carousel__sub v-hero-carousel__anim-3"
-                    >
+                    <p className="v-hero-carousel__sub">
                       {activeSlide.sub}
                     </p>
 
                     {/* Action CTAs */}
-                    <div
-                      key={`actions-${animKey}`}
-                      className="v-hero-carousel__actions v-hero-carousel__anim-4"
-                    >
+                    <div className="v-hero-carousel__actions">
                       <Link
                         to={activeSlide.primaryCta.to}
                         className="v-hero-carousel__btn v-hero-carousel__btn--primary"

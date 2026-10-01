@@ -9,6 +9,7 @@ import ProductDetailSeo from '../../../components/Seo/ProductDetailSeo';
 import RecentlyViewedSlider from '../../../components/RecentlyViewedSlider';
 import { toTitleCase } from '../../../utils/slug';
 import ReviewsModal           from './Components/ReviewsModal';
+import Breadcrumbs            from '../../../components/Breadcrumbs';
 import './style.scss';
 import './vorano.scss'; // VORANO redesign overrides
 
@@ -245,25 +246,40 @@ function ProductDetail() {
 
   const handleColorSelect = useCallback((v) => setSelectedVariant(v), []);
 
-  const buildCartItem = useCallback(() => ({
-    ...product,
-    id: product.id || product.productId,
-    price: displayPrice,
-    image: displayGallery[0] ?? '',
-    selectedColor: displayColorHex,
-    selectedSize: displaySize,
-    variantId: selectedVariant?.variantId,
-    stock: displayStock,
-    quantity: quantity,
-  }), [product, displayPrice, displayGallery, displayColorHex, displaySize, selectedVariant, displayStock, quantity]);
+  const buildCartItem = useCallback(() => {
+    const selectedQty = Math.max(1, Number(quantity) || 1);
+    return {
+      ...product,
+      id: product.id || product.productId,
+      price: displayPrice,
+      image: displayGallery[0] ?? '',
+      selectedColor: displayColorHex,
+      selectedSize: displaySize,
+      variantId: selectedVariant?.variantId,
+      stock: displayStock,
+      quantity: selectedQty,
+      qty: selectedQty,
+    };
+  }, [product, displayPrice, displayGallery, displayColorHex, displaySize, selectedVariant, displayStock, quantity]);
 
-  const buildNavState = useCallback((mode) => ({
-    selectedProduct: buildCartItem(), checkoutMode: mode,
-    pincode: pincode || '', pincodeData: pincodeResult ?? null,
-  }), [buildCartItem, pincode, pincodeResult]);
+  const buildNavState = useCallback((mode) => {
+    const item = buildCartItem();
+    return {
+      selectedProduct: item,
+      product: item,
+      quantity: item.quantity,
+      qty: item.quantity,
+      checkoutMode: mode,
+      pincode: pincode || '',
+      pincodeData: pincodeResult ?? null,
+    };
+  }, [buildCartItem, pincode, pincodeResult]);
 
-  const handleAddToCart = useCallback(() => { if (!product || displayStock === 0) return; addItem(buildCartItem()); },
-    [product, displayStock, addItem, buildCartItem]);
+  const handleAddToCart = useCallback(() => {
+    if (!product || displayStock === 0) return;
+    const item = buildCartItem();
+    addItem(item, item.quantity);
+  }, [product, displayStock, addItem, buildCartItem]);
   const handleWishlist = useCallback(() => { if (!product) return; toggleWishlist(product); }, [product, toggleWishlist]);
   const closeBuyNowModal = useCallback(() => setShowBuyNowModal(false), []);
   const handleBuyNow = useCallback(() => {
@@ -298,6 +314,17 @@ function ProductDetail() {
 
       <div className="pd">
         <div className="pd__inner">
+          {/* Breadcrumb Navigation */}
+          <Breadcrumbs
+            items={[
+              { label: 'Home', to: '/' },
+              { label: 'All Collections', to: '/products' },
+              product.categoryName ? { label: product.categoryName, to: `/products?category_name=${encodeURIComponent(product.categoryName)}` } : null,
+              { label: toTitleCase(product.name || 'Product Details') },
+            ].filter(Boolean)}
+            className="pd__breadcrumbs"
+          />
+
           {/* pd__layout is position:relative so the zoom portal can anchor to it */}
           <div className="pd__layout">
 
@@ -366,7 +393,7 @@ function ProductDetail() {
               </div>
             )}
 
-            {/* ── RIGHT: info panel — matches reference screenshot ── */}
+            {/* ── RIGHT: info   panel — matches reference screenshot ── */}
             <div className="pd__right">
 
               {/* Title: Brand bold + enriched product name (same pattern as PLP) */}

@@ -1,3 +1,5 @@
+import { BRAND_CONTACT } from '../../../Config/brandConfig';
+
 export default function ForgotPasswordModal({ open, onClose }) {
   if (!open) return null;
 
@@ -24,14 +26,14 @@ export default function ForgotPasswordModal({ open, onClose }) {
         <div className="auth-modal-card__support-box">
           <div className="auth-modal-card__support-row">
             <span className="auth-modal-card__support-label">Customer Email:</span>
-            <a href="mailto:care@shreemahaveercollections.com" className="auth-modal-card__support-link">
-              care@shreemahaveercollections.com
+            <a href={BRAND_CONTACT.careEmailMailto} className="auth-modal-card__support-link">
+              {BRAND_CONTACT.careEmail}
             </a>
           </div>
           <div className="auth-modal-card__support-row">
             <span className="auth-modal-card__support-label">Support Helpline:</span>
-            <a href="tel:+919876543210" className="auth-modal-card__support-link">
-              +91 98765 43210 (Mon–Sat, 10 AM – 7 PM)
+            <a href={BRAND_CONTACT.phoneTel} className="auth-modal-card__support-link">
+              {BRAND_CONTACT.phone} ({BRAND_CONTACT.supportHours})
             </a>
           </div>
         </div>

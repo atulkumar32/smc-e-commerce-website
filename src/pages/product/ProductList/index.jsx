@@ -6,6 +6,7 @@ import { useProductFilter } from '../useProductFilter';
 import { useCart } from '../../../context/CartContext';
 import { useCartDrawer } from '../../../context/CartDrawerContext';
 import { toSlug, toTitleCase } from '../../../utils/slug';
+import Breadcrumbs from '../../../components/Breadcrumbs';
 import './style.scss';
 import './vorano.scss'; // VORANO redesign overrides
 
@@ -532,11 +533,15 @@ export default function ProductList() {
       {/* ── Page head — breadcrumb + title only ── */}
       <div className="pl__head">
         {/* Breadcrumb */}
-        <nav className="pl__breadcrumb" aria-label="Breadcrumb">
-          <span>Home</span>
-          <span className="pl__bc-sep">›</span>
-          <span className="pl__bc-cur">{pageTitle}</span>
-        </nav>
+        <Breadcrumbs
+          items={[
+            { label: 'Home', to: '/' },
+            activeCategory && activeCategory !== 'all' && activeCategory !== 'All Bags'
+              ? { label: 'All Collections', to: '/products' }
+              : null,
+            { label: pageTitle },
+          ].filter(Boolean)}
+        />
 
         <div className="pl__head-row">
           <div>

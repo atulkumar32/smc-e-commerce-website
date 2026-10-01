@@ -3,37 +3,37 @@
 
 // ============================================================
 //  BACK TO TOP BUTTON — Shree Mahaveer Collections
-//  Floating bottom-right button with smooth entrance,
-//  gold accents, and luxury hover lift.
+//  Floating bottom-right luxury gold button with circular
+//  scroll progress ring, smooth entrance, and hover lift.
 // ============================================================
 
 .back-to-top {
   position: fixed;
   bottom: 28px;
   right: 28px;
-  z-index: 99;
+  z-index: 999;
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: #090d14;
-  border: 1.5px solid rgba(200, 147, 85, 0.6);
-  color: #c89355;
+  background: #0B0F19;
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  color: #D4AF37;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0;
   margin: 0;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35),
-              0 0 12px rgba(200, 147, 85, 0.15);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4),
+              0 0 16px rgba(212, 175, 55, 0.2);
 
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
   transform: translateY(20px) scale(0.85);
-  transition: opacity 0.32s ease,
-              transform 0.32s cubic-bezier(0.16, 1, 0.3, 1),
-              visibility 0.32s ease,
+  transition: opacity 0.3s ease,
+              transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              visibility 0.3s ease,
               background 0.25s ease,
               color 0.25s ease,
               border-color 0.25s ease,
@@ -46,31 +46,62 @@
     transform: translateY(0) scale(1);
   }
 
+  // Circular scroll progress ring
+  &__ring {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+    pointer-events: none;
+  }
+
+  &__ring-bg {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.08);
+    stroke-width: 2.2;
+  }
+
+  &__ring-progress {
+    fill: none;
+    stroke: #D4AF37;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.1s linear;
+  }
+
+  // Arrow Icon
   &__icon {
     width: 20px;
     height: 20px;
-    transition: transform 0.22s ease;
+    color: #ffffff;
+    z-index: 2;
+    transition: transform 0.22s ease, color 0.22s ease;
   }
 
   &:hover {
-    background: #c89355;
-    color: #090d14;
-    border-color: #c89355;
-    transform: translateY(-4px) scale(1.08);
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45),
-                0 0 20px rgba(200, 147, 85, 0.4);
+    background: #D4AF37;
+    border-color: #D4AF37;
+    transform: translateY(-3px) scale(1.06);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45),
+                0 0 24px rgba(212, 175, 55, 0.45);
 
     .back-to-top__icon {
+      color: #0B0F19;
       transform: translateY(-2px);
+    }
+
+    .back-to-top__ring-progress {
+      stroke: #ffffff;
     }
   }
 
   &:active {
-    transform: translateY(0) scale(0.95);
+    transform: translateY(0) scale(0.96);
   }
 
   @media (max-width: 900px) {
-    bottom: 74px; // positioned above the 58px fixed bottom navigation bar
+    bottom: 74px; // positioned safely above the 58px fixed mobile bottom navigation bar
     right: 16px;
     width: 44px;
     height: 44px;
@@ -81,4 +112,3 @@
     }
   }
 }
-

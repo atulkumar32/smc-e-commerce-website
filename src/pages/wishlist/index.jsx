@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
+import Breadcrumbs from '../../components/Breadcrumbs';
 import './style.scss';
 
 const fmt = (n) =>
@@ -62,6 +63,13 @@ function WishlistPage() {
   return (
     <div className="wl-page">
       <div className="wl-page__inner">
+        <Breadcrumbs
+          items={[
+            { label: 'Home', to: '/' },
+            { label: 'Saved Wishlist' },
+          ]}
+        />
+
         {/* Header */}
         <div className="wl-page__header">
           <div>

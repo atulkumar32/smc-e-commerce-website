@@ -7,13 +7,16 @@
  * These helpers build fallbacks when the DB fields are absent.
  */
 
+import { BRAND_NAME, BRAND_WEBSITE, BRAND_TAGLINE, BRAND_SOCIAL_LINKS } from '../Config/brandConfig';
+
 // ── Site-wide constants ───────────────────────────────────────────────────────
-export const SITE_NAME        = 'Shree Mahaveer Collections';
-export const SITE_URL         = 'https://shreemahaveercollections.com';
-export const SITE_DESCRIPTION = 'Premium school bags, backpacks & kids accessories — quality you can trust.';
+export const SITE_NAME        = BRAND_NAME;
+export const SITE_URL         = BRAND_WEBSITE;
+export const SITE_DESCRIPTION = BRAND_TAGLINE;
 export const SITE_LOCALE      = 'en_IN';
 export const SITE_CURRENCY    = 'INR';
-export const TWITTER_HANDLE   = '@shreemahaveer';   // update if applicable
+export const TWITTER_HANDLE   = '@shreemahaveer';
+export const INSTAGRAM_URL    = BRAND_SOCIAL_LINKS.instagram;
 
 // ── Separator used in <title> ─────────────────────────────────────────────────
 const SEP = ' | ';

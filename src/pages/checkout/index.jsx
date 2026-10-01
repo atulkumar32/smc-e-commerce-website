@@ -5,6 +5,7 @@ import { useCart } from '../../context/CartContext';
 import { isUserAuthenticated, getUserProfile } from '../../services/apiClients';
 import { createOrderOnline } from '../../Actions/Web/CreateOrderActions';
 import { validateShipping, hasErrors, email } from '../../utils/validators';
+import Breadcrumbs from '../../components/Breadcrumbs';
 import './style.scss';
 
 const fmt = (n) =>
@@ -637,7 +638,7 @@ function CheckoutPage() {
   const location = useLocation();
 
   const locationState       = location.state || {};
-  const selectedProduct     = locationState.selectedProduct || null;
+  const selectedProduct     = locationState.selectedProduct || locationState.product || null;
   const incomingPincode     = locationState.pincode      || '';
   const incomingPincodeData = locationState.pincodeData  || null;
   const isAuthenticated     = isUserAuthenticated();
@@ -671,15 +672,18 @@ function CheckoutPage() {
 
   const orderItems = useMemo(() => {
     if (selectedProduct) {
+      const rawQty = selectedProduct.quantity ?? selectedProduct.qty ?? locationState.quantity ?? 1;
+      const parsedQty = Math.max(1, Number(rawQty) || 1);
       return [{
         ...selectedProduct,
-        quantity: selectedProduct.quantity ?? 1,
+        quantity: parsedQty,
+        qty: parsedQty,
         image: selectedProduct.image || selectedProduct.primaryImage || selectedProduct.gallery?.[0] || '',
       }];
     }
     if (cartItems.length > 0) return cartItems;
     return [];
-  }, [cartItems, selectedProduct]);
+  }, [cartItems, selectedProduct, locationState.quantity]);
 
   const totals = useMemo(() => {
     const subtotal = orderItems.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 1), 0);
@@ -748,10 +752,11 @@ function CheckoutPage() {
     setOrderPlacing(true);
 
     const normalizedItems = orderItems.map((item) => {
-      const quantity = Number(item.quantity ?? 1) || 1;
+      const quantity = Math.max(1, Number(item.quantity ?? item.qty ?? 1) || 1);
       const price = Number(item.price ?? 0) || 0;
       return {
         product_id: item.product_id || item.id,
+        variant_id: item.variantId || item.variant_id || null,
         name: item.name,
         quantity,
         price,
@@ -882,6 +887,14 @@ function CheckoutPage() {
       </div>
 
       <div className="co-page__inner">
+        <Breadcrumbs
+          items={[
+            { label: 'Home', to: '/' },
+            { label: 'Shopping Cart', to: '/cart' },
+            { label: 'Secure Checkout' },
+          ]}
+        />
+
         {success ? (
           <OrderSuccess />
         ) : (

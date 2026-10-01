@@ -55,8 +55,7 @@
     background-size: cover;
     background-position: right center;
     background-repeat: no-repeat;
-    transform: scale(1.04);
-    will-change: transform;
+    transform: none;
 
     @media (max-width: 768px) {
       background-position: center 30%;
@@ -64,7 +63,7 @@
   }
 
   &__slide.is-active &__bg {
-    animation: heroKenBurns 7s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    transform: none;
   }
 
   // ── Luxury Dark Gradient Overlay ──
@@ -247,23 +246,6 @@
         transform: translateY(0);
       }
     }
-  }
-
-  // ── Staggered Entrance Keyframes (Triggers every slide transition) ──
-  &__anim-1 {
-    animation: heroFadeUp 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
-  }
-
-  &__anim-2 {
-    animation: heroFadeUp 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.22s both;
-  }
-
-  &__anim-3 {
-    animation: heroFadeUp 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.36s both;
-  }
-
-  &__anim-4 {
-    animation: heroFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both;
   }
 
   // ── Bottom Controls Bar (Dashes left, Arrows right, aligned with container) ──
@@ -459,25 +441,6 @@
 }
 
 // ── Keyframe Animations ──
-@keyframes heroFadeUp {
-  0% {
-    opacity: 0;
-    transform: translateY(24px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes heroKenBurns {
-  0% {
-    transform: scale(1.05);
-  }
-  100% {
-    transform: scale(1.0);
-  }
-}
 
 @keyframes dashProgress {
   0% {
@@ -490,20 +453,6 @@
 
 // ── Reduced Motion Accessibility ──
 @media (prefers-reduced-motion: reduce) {
-  .v-hero-carousel__anim-1,
-  .v-hero-carousel__anim-2,
-  .v-hero-carousel__anim-3,
-  .v-hero-carousel__anim-4 {
-    animation: none !important;
-    opacity: 1 !important;
-    transform: none !important;
-  }
-
-  .v-hero-carousel__bg {
-    animation: none !important;
-    transform: none !important;
-  }
-
   .v-hero-carousel__dash-fill {
     animation: none !important;
     width: 100% !important;

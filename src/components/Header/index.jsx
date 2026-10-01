@@ -3,6 +3,7 @@ import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { useCartDrawer } from '../../context/CartDrawerContext';
 import { isUserAuthenticated, getUserProfile } from '../../services/apiClients';
+import { BRAND_SOCIAL_LINKS } from '../../Config/brandConfig';
 import './style.scss';
 
 // ── Static nav links ──────────────────────────────────────────
@@ -90,8 +91,42 @@ export default function Header() {
 
   const [query,          setQuery]          = useState('');
   const [mobileOpen,     setMobileOpen]     = useState(false);
-  const [scrollProgress, setScrollProgress] = useState(0);
   const [authTick,       setAuthTick]       = useState(0);
+
+  // ── 2 Toggle Options: Imported vs Vorano (Right of Logo, Left of Search) ──
+  const searchParams = new URLSearchParams(location.search);
+  const currentBrand = searchParams.get('brand') || '';
+  const currentCategory = searchParams.get('category_name') || searchParams.get('category') || '';
+  const isVoranoActive =
+    currentBrand.toLowerCase() === 'vorano' || currentCategory.toLowerCase() === 'vorano';
+
+  const [activeCollection, setActiveCollection] = useState(isVoranoActive ? 'vorano' : 'imported');
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const brand = params.get('brand') || '';
+    const cat = params.get('category_name') || params.get('category') || '';
+    if (brand.toLowerCase() === 'vorano' || cat.toLowerCase() === 'vorano') {
+      setActiveCollection('vorano');
+    } else if (brand.toLowerCase() === 'imported' || cat.toLowerCase() === 'imported') {
+      setActiveCollection('imported');
+    }
+  }, [location.search]);
+
+  const handleCollectionToggle = (type) => {
+    setActiveCollection(type);
+    if (type === 'vorano') {
+      navigate('/products?brand=Vorano');
+    } else {
+      navigate('/products?category_name=Imported');
+    }
+    setMobileOpen(false);
+  };
+
+  const searchPlaceholder =
+    activeCollection === 'vorano'
+      ? 'Search Vorano luxury collection, backpacks, tech…'
+      : 'Search imported school bags, backpacks, travel gear…';
 
   useEffect(() => {
     const handleAuth = () => setAuthTick((t) => t + 1);
@@ -106,60 +141,18 @@ export default function Header() {
   // Close mobile drawer on route change
   useEffect(() => { setMobileOpen(false); }, [location.pathname]);
 
-  // Track window scroll progress for brand theme progress bar
-  useEffect(() => {
-    let ticking = false;
-
-    const updateScrollProgress = () => {
-      const scrollY = window.scrollY || document.documentElement.scrollTop;
-      const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
-      if (scrollHeight <= 0) {
-        setScrollProgress(0);
-      } else {
-        const pct = Math.min(100, Math.max(0, (scrollY / scrollHeight) * 100));
-        setScrollProgress(pct);
-      }
-      ticking = false;
-    };
-
-    const handleScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(updateScrollProgress);
-        ticking = true;
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('resize', handleScroll, { passive: true });
-    updateScrollProgress();
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', handleScroll);
-    };
-  }, [location.pathname]);
-
   const handleSearch = useCallback((e) => {
     e.preventDefault();
     if (query.trim()) {
-      navigate(`/products?q=${encodeURIComponent(query.trim())}`);
+      const brandFilter = activeCollection === 'vorano' ? '&brand=Vorano' : '';
+      navigate(`/products?q=${encodeURIComponent(query.trim())}${brandFilter}`);
       setQuery('');
       setMobileOpen(false);
     }
-  }, [query, navigate]);
+  }, [query, navigate, activeCollection]);
 
   return (
     <>
-      {/* ═══ SCROLL PROGRESS BAR (Top of Header) ══════════════ */}
-      <div className="v-scroll-progress" aria-hidden="true">
-        <div
-          className="v-scroll-progress__bar"
-          style={{ width: `${scrollProgress}%` }}
-        >
-          {scrollProgress > 0 && <span className="v-scroll-progress__glow" />}
-        </div>
-      </div>
-
       {/* ═══ TOP BAR ═══════════════════════════════════════════ */}
       <div className="v-topbar">
         <div className="v-topbar__inner">
@@ -179,9 +172,9 @@ export default function Header() {
           </div>
           <div className="v-topbar__right">
             <span>Follow Us</span>
-            <a href="#" aria-label="Instagram"><InstagramIcon /></a>
-            <a href="#" aria-label="Facebook"><FacebookIcon /></a>
-            <a href="#" aria-label="YouTube"><YoutubeIcon /></a>
+            <a href={BRAND_SOCIAL_LINKS.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram"><InstagramIcon /></a>
+            <a href={BRAND_SOCIAL_LINKS.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook"><FacebookIcon /></a>
+            <a href={BRAND_SOCIAL_LINKS.youtube} target="_blank" rel="noopener noreferrer" aria-label="YouTube"><YoutubeIcon /></a>
           </div>
         </div>
       </div>
@@ -195,6 +188,30 @@ export default function Header() {
             <small>COLLECTIONS</small>
           </Link>
 
+          {/* 2-Option Toggle: Imported & Vorano (Right of Logo, Left of Search Bar) */}
+          <div className="v-collection-toggle" role="group" aria-label="Product collection mode">
+            <button
+              type="button"
+              className={`v-collection-toggle__btn${activeCollection === 'imported' ? ' is-active is-imported' : ''}`}
+              onClick={() => handleCollectionToggle('imported')}
+              aria-pressed={activeCollection === 'imported'}
+              title="Browse Imported School Bags & Travel Collections"
+            >
+              <span className="v-collection-toggle__dot" />
+              <span className="v-collection-toggle__text">Imported</span>
+            </button>
+            <button
+              type="button"
+              className={`v-collection-toggle__btn${activeCollection === 'vorano' ? ' is-active is-vorano' : ''}`}
+              onClick={() => handleCollectionToggle('vorano')}
+              aria-pressed={activeCollection === 'vorano'}
+              title="Browse Vorano Luxury Atelier Collections"
+            >
+              <span className="v-collection-toggle__dot" />
+              <span className="v-collection-toggle__text">Vorano</span>
+            </button>
+          </div>
+
           {/* Search */}
           <form className="v-search" onSubmit={handleSearch} role="search">
             <span className="v-search__lead" aria-hidden="true">
@@ -202,7 +219,7 @@ export default function Header() {
             </span>
             <input
               type="text"
-              placeholder="Search school bags, backpacks, travel gear…"
+              placeholder={searchPlaceholder}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               aria-label="Search products"
@@ -309,13 +326,34 @@ export default function Header() {
 
         {/* Mobile search */}
         <form onSubmit={handleSearch} style={{ padding: '12px 18px' }}>
+          <div className="v-collection-toggle v-collection-toggle--mobile" role="group" aria-label="Product collection mode">
+            <button
+              type="button"
+              className={`v-collection-toggle__btn${activeCollection === 'imported' ? ' is-active is-imported' : ''}`}
+              onClick={() => handleCollectionToggle('imported')}
+              aria-pressed={activeCollection === 'imported'}
+            >
+              <span className="v-collection-toggle__dot" />
+              <span className="v-collection-toggle__text">Imported</span>
+            </button>
+            <button
+              type="button"
+              className={`v-collection-toggle__btn${activeCollection === 'vorano' ? ' is-active is-vorano' : ''}`}
+              onClick={() => handleCollectionToggle('vorano')}
+              aria-pressed={activeCollection === 'vorano'}
+            >
+              <span className="v-collection-toggle__dot" />
+              <span className="v-collection-toggle__text">Vorano</span>
+            </button>
+          </div>
+
           <div className="v-search v-search--mobile" style={{ maxWidth: '100%', height: 42 }}>
             <span className="v-search__lead" aria-hidden="true">
               <SearchIcon size={14} />
             </span>
             <input
               type="text"
-              placeholder="Search products…"
+              placeholder={searchPlaceholder}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />

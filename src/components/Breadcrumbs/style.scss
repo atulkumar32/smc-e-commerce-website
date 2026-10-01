@@ -1,0 +1,145 @@
+@import '../../Styles/ColorCodes';
+@import '../../Styles/Mixins';
+
+// ============================================================
+//  UNIVERSAL BREADCRUMBS — Shree Mahaveer Collections / Vorano
+// ============================================================
+
+.v-breadcrumbs {
+  display: block;
+  width: 100%;
+  margin-bottom: 14px;
+  user-select: none;
+
+  &__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px 4px;
+    font-family: $v-font-sans;
+    font-size: clamp(11px, 2vw, 12.5px);
+    line-height: 1.4;
+    letter-spacing: 0.25px;
+  }
+
+  &__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+
+    &.is-active {
+      max-width: 320px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  &__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.18s ease, transform 0.18s ease;
+
+    &:hover {
+      text-decoration: none;
+    }
+  }
+
+  &__home-icon {
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+    margin-top: -1px;
+  }
+
+  &__current {
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__sep {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.55;
+    margin: 0 1px;
+  }
+
+  &__chevron {
+    width: 10px;
+    height: 10px;
+    flex-shrink: 0;
+  }
+
+  // ── VARIANT: LIGHT (Default on white/cream shop backgrounds) ──
+  &--light {
+    .v-breadcrumbs__link {
+      color: #64748b;
+
+      &:hover {
+        color: #d4af37;
+      }
+    }
+
+    .v-breadcrumbs__current {
+      color: #0f172a;
+    }
+
+    .v-breadcrumbs__sep {
+      color: #94a3b8;
+    }
+  }
+
+  // ── VARIANT: DARK (Hero banners, midnight blue / dark sections) ──
+  &--dark {
+    .v-breadcrumbs__link {
+      color: rgba(255, 255, 255, 0.65);
+
+      &:hover {
+        color: #d4af37;
+      }
+    }
+
+    .v-breadcrumbs__current {
+      color: #ffffff;
+    }
+
+    .v-breadcrumbs__sep {
+      color: rgba(212, 175, 55, 0.6);
+    }
+  }
+
+  // ── VARIANT: GOLD (High-luxury highlighted breadcrumb) ──
+  &--gold {
+    .v-breadcrumbs__link {
+      color: rgba(212, 175, 55, 0.75);
+
+      &:hover {
+        color: #ffffff;
+      }
+    }
+
+    .v-breadcrumbs__current {
+      color: #d4af37;
+      font-weight: 700;
+    }
+
+    .v-breadcrumbs__sep {
+      color: rgba(212, 175, 55, 0.4);
+    }
+  }
+
+  // ── VARIANT: INLINE (Compact for card headers) ──
+  &--inline {
+    margin-bottom: 8px;
+    font-size: 11px;
+  }
+}

@@ -41,9 +41,12 @@ export function CartProvider({ children }) {
 
   // ── Cart ──────────────────────────────────────────────────────────────────
 
-  const addItem = useCallback((product, quantity = 1) => {
+  const addItem = useCallback((product, quantity) => {
     if (!product) return;
     const name = product.name || 'Product';
+    const targetQty = Number(quantity ?? product.quantity ?? product.qty ?? 1);
+    const validQty = Math.max(1, isNaN(targetQty) ? 1 : targetQty);
+
     // Guard: out of stock
     if (product.stock !== undefined && Number(product.stock) === 0) {
       toast.error(`${name} is currently out of stock`, {
@@ -53,21 +56,28 @@ export function CartProvider({ children }) {
       return;
     }
 
-    // Check outside setCartItems to avoid double-fire in React 18 StrictMode
-    const alreadyInCart = cartItems.some((i) => i.id === product.id);
-    if (alreadyInCart) {
-      toast.info(`Already in your cart — ${name}`, {
+    // Check if already in cart
+    const existingIndex = cartItems.findIndex((i) => i.id === product.id);
+    if (existingIndex > -1) {
+      setCartItems((prev) =>
+        prev.map((item, idx) =>
+          idx === existingIndex
+            ? { ...item, quantity: (Number(item.quantity) || 1) + validQty, qty: (Number(item.quantity) || 1) + validQty }
+            : item
+        )
+      );
+      toast.success(`Updated cart quantity for ${name} (+${validQty})`, {
         ...TOAST_OPTS,
-        toastId: `already-${product.id}`,  // dedupe: same id = no duplicate
+        toastId: `already-${product.id}`,
       });
       return;
     }
 
-    toast.success(`Added to cart — ${name}`, {
+    toast.success(`Added to cart (${validQty}) — ${name}`, {
       ...TOAST_OPTS,
       toastId: `added-${product.id}`,
     });
-    setCartItems((prev) => [...prev, { ...product, quantity }]);
+    setCartItems((prev) => [...prev, { ...product, quantity: validQty, qty: validQty }]);
   }, [cartItems]);
 
   const isInCart = useCallback(

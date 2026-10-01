@@ -79,7 +79,11 @@ function LoginPage() {
   const redirectState = location.state?.selectedProduct
     ? {
         selectedProduct: location.state.selectedProduct,
-        checkoutMode: location.state.checkoutMode,
+        product: location.state.selectedProduct,
+        quantity: location.state.selectedProduct.quantity || location.state.quantity || 1,
+        checkoutMode: location.state.checkoutMode || 'user',
+        pincode: location.state.pincode,
+        pincodeData: location.state.pincodeData,
       }
     : undefined;
 

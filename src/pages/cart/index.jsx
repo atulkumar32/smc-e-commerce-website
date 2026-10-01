@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
+import Breadcrumbs from '../../components/Breadcrumbs';
 import './style.scss';
 
 // ── Format currency ───────────────────────────────────────────────────────────
@@ -153,7 +154,12 @@ function CartPage() {
   return (
     <div className="cart-page">
       <div className="cart-page__inner">
-        {/* <h1 className="cart-page__title">Shopping Cart</h1> */}
+        <Breadcrumbs
+          items={[
+            { label: 'Home', to: '/' },
+            { label: 'Shopping Bag' },
+          ]}
+        />
 
         {cartItems.length === 0 ? (
           <div className="cart-page__empty">

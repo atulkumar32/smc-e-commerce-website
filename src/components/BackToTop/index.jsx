@@ -3,21 +3,34 @@ import './style.scss';
 
 export default function BackToTop() {
   const [isVisible, setIsVisible] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
 
   useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 320) {
-        setIsVisible(true);
-      } else {
-        setIsVisible(false);
+    let ticking = false;
+
+    const onScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const scrollY = window.scrollY || document.documentElement.scrollTop;
+          const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+
+          if (scrollY > 280) {
+            setIsVisible(true);
+            const pct = docHeight > 0 ? Math.min(100, Math.max(0, (scrollY / docHeight) * 100)) : 0;
+            setScrollProgress(pct);
+          } else {
+            setIsVisible(false);
+          }
+          ticking = false;
+        });
+        ticking = true;
       }
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    // Check initial scroll position
-    handleScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
 
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
   const scrollToTop = () => {
@@ -27,6 +40,11 @@ export default function BackToTop() {
     });
   };
 
+  // SVG circular progress calculation (radius = 18, circumference = 2 * PI * 18 ≈ 113.1)
+  const radius = 18;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (scrollProgress / 100) * circumference;
+
   return (
     <button
       type="button"
@@ -35,6 +53,27 @@ export default function BackToTop() {
       aria-label="Back to top"
       title="Back to top"
     >
+      {/* Circular Progress Ring */}
+      <svg className="back-to-top__ring" viewBox="0 0 44 44" aria-hidden="true">
+        <circle
+          className="back-to-top__ring-bg"
+          cx="22"
+          cy="22"
+          r={radius}
+        />
+        <circle
+          className="back-to-top__ring-progress"
+          cx="22"
+          cy="22"
+          r={radius}
+          style={{
+            strokeDasharray: circumference,
+            strokeDashoffset,
+          }}
+        />
+      </svg>
+
+      {/* Up Arrow Icon */}
       <svg
         viewBox="0 0 24 24"
         fill="none"
@@ -43,11 +82,10 @@ export default function BackToTop() {
         strokeLinecap="round"
         strokeLinejoin="round"
         className="back-to-top__icon"
+        aria-hidden="true"
       >
         <polyline points="18 15 12 9 6 15" />
       </svg>
-      <span className="back-to-top__ripple" />
     </button>
   );
 }
-

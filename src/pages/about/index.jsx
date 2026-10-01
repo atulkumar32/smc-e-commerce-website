@@ -5,6 +5,7 @@ import craftAtelier from '../../assets/about/craft_atelier.jpg';
 import ergonomicLab from '../../assets/about/ergonomic_lab.jpg';
 import materialsWaterproof from '../../assets/about/materials_waterproof.jpg';
 import { useStaggerReveal } from '../../components/StaggerReveal';
+import Breadcrumbs from '../../components/Breadcrumbs';
 import './style.scss';
 
 const STATS_DATA = [
@@ -181,11 +182,13 @@ function AboutPage() {
         </div>
 
         <div className="about-v__hero-inner">
-          <nav className="about-v__breadcrumb" aria-label="Breadcrumb">
-            <Link to="/">Home</Link>
-            <span className="about-v__bc-sep">/</span>
-            <span className="about-v__bc-current">About Us</span>
-          </nav>
+          <Breadcrumbs
+            variant="dark"
+            items={[
+              { label: 'Home', to: '/' },
+              { label: 'About Us' },
+            ]}
+          />
 
           <div className="about-v__hero-badge-wrap">
             <span className="about-v__eyebrow">

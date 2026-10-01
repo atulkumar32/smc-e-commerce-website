@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import contactHeroBanner from '../../assets/contact/contact_hero_banner.jpg';
 import showroomImg from '../../assets/contact/showroom.jpg';
 import { useStaggerReveal } from '../../components/StaggerReveal';
+import { BRAND_CONTACT, BRAND_SOCIAL_LINKS } from '../../Config/brandConfig';
+import Breadcrumbs from '../../components/Breadcrumbs';
 import './style.scss';
 
 const INIT = {
@@ -82,11 +84,13 @@ function ContactPage() {
         </div>
 
         <div className="contact-v__hero-inner">
-          <nav className="contact-v__breadcrumb" aria-label="Breadcrumb">
-            <Link to="/">Home</Link>
-            <span className="contact-v__bc-sep">/</span>
-            <span className="contact-v__bc-current">Contact Us</span>
-          </nav>
+          <Breadcrumbs
+            variant="dark"
+            items={[
+              { label: 'Home', to: '/' },
+              { label: 'Contact Us' },
+            ]}
+          />
 
           <div className="contact-v__hero-badge-wrap">
             <span className="contact-v__eyebrow">
@@ -116,7 +120,7 @@ function ContactPage() {
         <div className="contact-v__container">
           <div className="contact-v__channels-grid" ref={channelsRef}>
             {/* Phone & WhatsApp */}
-            <a href="tel:+919876543210" className="contact-v__channel">
+            <a href={BRAND_CONTACT.phoneTel} className="contact-v__channel">
               <span className="contact-v__channel-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
                   <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 3.07 9.81 19.79 19.79 0 0 1 1.01 1.18 2 2 0 0 1 2 0h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L6.09 7.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 14.92z" />
@@ -124,14 +128,14 @@ function ContactPage() {
               </span>
               <div className="contact-v__channel-body">
                 <span className="contact-v__channel-tag">PHONE &amp; WHATSAPP</span>
-                <h3 className="contact-v__channel-val">+91 98765 43210</h3>
-                <p className="contact-v__channel-sub">Mon – Sat: 10:00 AM – 7:00 PM IST</p>
+                <h3 className="contact-v__channel-val">{BRAND_CONTACT.phone}</h3>
+                <p className="contact-v__channel-sub">{BRAND_CONTACT.supportHours}</p>
                 <span className="contact-v__channel-link">Call Directly →</span>
               </div>
             </a>
 
             {/* Email Concierge */}
-            <a href="mailto:support@shreemahaveer.com" className="contact-v__channel">
+            <a href={BRAND_CONTACT.emailMailto} className="contact-v__channel">
               <span className="contact-v__channel-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
                   <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
@@ -140,8 +144,8 @@ function ContactPage() {
               </span>
               <div className="contact-v__channel-body">
                 <span className="contact-v__channel-tag">EMAIL CONCIERGE</span>
-                <h3 className="contact-v__channel-val">support@shreemahaveer.com</h3>
-                <p className="contact-v__channel-sub">Guaranteed response within 4 hours</p>
+                <h3 className="contact-v__channel-val">{BRAND_CONTACT.email}</h3>
+                <p className="contact-v__channel-sub">{BRAND_CONTACT.responsePromise}</p>
                 <span className="contact-v__channel-link">Write to Concierge →</span>
               </div>
             </a>
@@ -156,9 +160,9 @@ function ContactPage() {
               </span>
               <div className="contact-v__channel-body">
                 <span className="contact-v__channel-tag">FLAGSHIP SHOWROOM</span>
-                <h3 className="contact-v__channel-val">Mumbai Heritage Atelier</h3>
-                <p className="contact-v__channel-sub">123 Heritage Lane, Kalbadevi, Mumbai 400002</p>
-                <span className="contact-v__channel-link">Mon – Sat: 10:30 AM – 8:00 PM</span>
+                <h3 className="contact-v__channel-val">{BRAND_CONTACT.flagshipShowroom.name}</h3>
+                <p className="contact-v__channel-sub">{BRAND_CONTACT.flagshipShowroom.fullAddress}</p>
+                <span className="contact-v__channel-link">{BRAND_CONTACT.flagshipShowroom.operatingHours}</span>
               </div>
             </div>
           </div>
@@ -399,8 +403,56 @@ function ContactPage() {
               </p>
             </div>
             <div className="contact-v__corp-action">
-              <a href="tel:+919876543210" className="contact-v__btn contact-v__btn--gold">
-                CALL BULK DESK: +91 98765 43210
+              <a href={BRAND_CONTACT.phoneTel} className="contact-v__btn contact-v__btn--gold">
+                CALL BULK DESK: {BRAND_CONTACT.phone}
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Official Social Follow Banner ── */}
+      <section className="contact-v__social-strip" style={{ padding: '0 0 60px', background: '#0B0F19' }}>
+        <div className="contact-v__container">
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(212, 175, 55, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%)',
+            border: '1px solid rgba(212, 175, 55, 0.25)',
+            borderRadius: '16px',
+            padding: '32px',
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '20px'
+          }}>
+            <div>
+              <span className="contact-v__section-tag">CONNECT WITH US</span>
+              <h3 style={{ fontFamily: 'Playfair Display, serif', color: '#fff', fontSize: '1.4rem', margin: '6px 0 4px' }}>
+                Follow Shree Mahaveer Collections on Instagram
+              </h3>
+              <p style={{ color: '#94A3B8', fontSize: '0.9rem', margin: 0 }}>
+                Get behind-the-scenes atelier stories, new bag drops, and student styling inspiration.
+              </p>
+            </div>
+            <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap' }}>
+              <a
+                href={BRAND_SOCIAL_LINKS.instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="contact-v__btn contact-v__btn--gold"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.6" fill="currentColor"/></svg>
+                @shreemahaveercollections
+              </a>
+              <a
+                href={BRAND_CONTACT.whatsappLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="contact-v__btn contact-v__btn--ghost"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}
+              >
+                Chat on WhatsApp
               </a>
             </div>
           </div>

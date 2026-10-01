@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import authSchoolBackpack from '../../../assets/auth/auth_school_backpack.jpg';
+import AuthCarousel from './AuthCarousel';
 import '../auth.scss';
 
 export default function AuthLayout({ children, activeTab = 'login' }) {
@@ -81,14 +81,10 @@ export default function AuthLayout({ children, activeTab = 'login' }) {
               </div>
             </div>
 
-            {/* School Backpack Hero Photo with Blue Accent Wave */}
+            {/* School Backpack Hero Photo Carousel with Blue Accent Wave */}
             <div className="smc-auth__visual-container">
               <div className="smc-auth__wave-decor" aria-hidden="true" />
-              <img
-                src={authSchoolBackpack}
-                alt="Shree Mahaveer modern blue school backpack with books and water bottle on campus"
-                className="smc-auth__backpack-photo"
-              />
+              <AuthCarousel />
             </div>
           </div>
 

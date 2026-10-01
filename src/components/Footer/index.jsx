@@ -3,6 +3,7 @@ import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { useCartDrawer } from '../../context/CartDrawerContext';
 import { isUserAuthenticated } from '../../services/apiClients';
+import { BRAND_SOCIAL_LINKS, BRAND_CONTACT } from '../../Config/brandConfig';
 import './style.scss';
 
 // ── SVG Social & Contact icons ─────────────────────────────────
@@ -138,10 +139,10 @@ function Footer() {
             Stylish. Functional. For Every Journey.
           </p>
           <div className="v-footer__social">
-            <a href="#" aria-label="Instagram"><Ig /></a>
-            <a href="#" aria-label="Facebook"><Fb /></a>
-            <a href="#" aria-label="YouTube"><Yt /></a>
-            <a href="#" aria-label="Pinterest"><Pin /></a>
+            <a href={BRAND_SOCIAL_LINKS.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram"><Ig /></a>
+            <a href={BRAND_SOCIAL_LINKS.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook"><Fb /></a>
+            <a href={BRAND_SOCIAL_LINKS.youtube} target="_blank" rel="noopener noreferrer" aria-label="YouTube"><Yt /></a>
+            <a href={BRAND_SOCIAL_LINKS.pinterest} target="_blank" rel="noopener noreferrer" aria-label="Pinterest"><Pin /></a>
           </div>
         </div>
 
@@ -174,15 +175,15 @@ function Footer() {
           <h4>Contact</h4>
           <div className="v-footer__contact-row">
             <PhoneIcon />
-            <span>+91 98765 43210</span>
+            <a href={BRAND_CONTACT.phoneTel} style={{ color: 'inherit', textDecoration: 'none' }}>{BRAND_CONTACT.phone}</a>
           </div>
           <div className="v-footer__contact-row">
             <MailIcon />
-            <span>support@shreemahaveer.in</span>
+            <a href={BRAND_CONTACT.emailMailto} style={{ color: 'inherit', textDecoration: 'none' }}>{BRAND_CONTACT.email}</a>
           </div>
           <div className="v-footer__contact-row">
             <LocIcon />
-            <span>Noida, Uttar Pradesh, India</span>
+            <span>{BRAND_CONTACT.corporateOffice.display}</span>
           </div>
 
           <h4 style={{ marginTop: '20px' }}>Newsletter</h4>
