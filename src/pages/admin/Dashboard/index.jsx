@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Grid,
   Card,
@@ -9,52 +10,74 @@ import {
   Tooltip,
   IconButton,
 } from '@mui/material';
-
+import InfoIcon from '@mui/icons-material/Info';
 
 import { fetchDashboardStatsAction } from '../../../Actions/DashboardAction';
+import { fetchPendingReviewsAction } from '../../../Actions/ReviewNotificationActions';
 import { STAT_CARDS } from './DashboardData';
 
-
-
 // ── Single stat card ───────────────────────────────────────────────────────────
-function StatCard({ label, value, icon: Icon, color, bg, hasInfo, tooltip, isCurrency }) {
+function StatCard({ label, value, icon: Icon, color, bg, hasInfo, tooltip, isCurrency, to }) {
+  const navigate = useNavigate();
   const displayValue = isCurrency
     ? `₹${(value ?? 0).toLocaleString()}`
     : value ?? 0;
 
+  const isClickable = Boolean(to);
+
   return (
-    <Card>
+    <Card
+      onClick={isClickable ? () => navigate(to) : undefined}
+      sx={{
+        cursor: isClickable ? 'pointer' : 'default',
+        transition: 'all 0.22s ease',
+        border: '1px solid #e4e7ec',
+        borderRadius: '14px',
+        '&:hover': isClickable
+          ? {
+              transform: 'translateY(-3px)',
+              boxShadow: '0 8px 24px rgba(0, 31, 63, 0.1)',
+              borderColor: color,
+            }
+          : undefined,
+      }}
+    >
       <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
         <Box
           sx={{
             width: 52,
             height: 52,
-            borderRadius: 2,
+            borderRadius: 2.5,
             bgcolor: bg,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             flexShrink: 0,
+            transition: 'transform 0.2s ease',
           }}
         >
           <Icon sx={{ color, fontSize: 26 }} />
         </Box>
 
-        <Box sx={{ flexGrow: 1 }}>
+        <Box sx={{ flexGrow: 1, minWidth: 0 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <Typography variant="body2" color="text.secondary" noWrap>
               {label}
             </Typography>
             {hasInfo && tooltip && (
               <Tooltip title={tooltip} arrow>
-                <IconButton size="small" sx={{ p: 0.3 }}>
+                <IconButton
+                  size="small"
+                  sx={{ p: 0.3 }}
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <InfoIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
                 </IconButton>
               </Tooltip>
             )}
           </Box>
 
-          <Typography variant="h5" fontWeight={700}>
+          <Typography variant="h5" fontWeight={700} noWrap>
             {displayValue}
           </Typography>
         </Box>
@@ -70,8 +93,18 @@ function DashboardPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    fetchDashboardStatsAction()
-      .then(setStats)
+    Promise.allSettled([
+      fetchDashboardStatsAction(),
+      fetchPendingReviewsAction({ limit: 100 }),
+    ])
+      .then(([statsRes, reviewsRes]) => {
+        const statsData = statsRes.status === 'fulfilled' ? statsRes.value : {};
+        const reviewsCount = reviewsRes.status === 'fulfilled' ? reviewsRes.value.count : 0;
+        setStats({
+          ...statsData,
+          pendingReviewsCount: reviewsCount,
+        });
+      })
       .catch((err) => setError(err.message || 'Failed to load stats'))
       .finally(() => setLoading(false));
   }, []);
@@ -100,7 +133,7 @@ function DashboardPage() {
 
       {/* ── Stat cards ── */}
       <Grid container spacing={2.5}>
-        {STAT_CARDS.map(({ key, label, icon, color, bg, hasInfo, tooltip, isCurrency }) => (
+        {STAT_CARDS.map(({ key, label, icon, color, bg, hasInfo, tooltip, isCurrency, to }) => (
           <Grid key={key} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
             <StatCard
               label={label}
@@ -111,6 +144,7 @@ function DashboardPage() {
               hasInfo={hasInfo}
               tooltip={tooltip}
               isCurrency={isCurrency}
+              to={to}
             />
           </Grid>
         ))}

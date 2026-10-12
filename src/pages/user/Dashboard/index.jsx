@@ -111,7 +111,7 @@ export default function UserDashboard() {
         setCatalogProducts(Array.isArray(pList) ? pList : []);
       }
     } catch (err) {
-      console.error('[UserDashboard] Load error:', err);
+      // console.error('[UserDashboard] Load error:', err);
       setError('Unable to refresh some dashboard data. You can continue shopping.');
     } finally {
       setLoading(false);

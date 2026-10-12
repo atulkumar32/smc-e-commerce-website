@@ -550,6 +550,7 @@ import {
 } from './PinCodeData';
 import StatsCard from '../../../components/StatsCard';
 import { savePincodeAction } from '../../../Actions/SavePincodeAction';
+import { preventNegativeInput, preventNegativePaste } from '../../../utils/validators';
 import * as XLSX from 'xlsx';
 import './index.scss';
 
@@ -621,6 +622,9 @@ function PincodeDrawer({ open, editing, onClose, onSave }) {
         if (!form.pincode || !/^\d{6}$/.test(form.pincode)) e.pincode = 'Enter a valid 6 digit pincode';
         if (!form.state) e.state = 'Required';
         if (!form.city) e.city = 'Required';
+        if (form.delivery_charge && Number(form.delivery_charge) < 0) {
+            e.delivery_charge = 'Delivery charge cannot be negative';
+        }
         setErrors(e);
         return Object.keys(e).length === 0;
     };
@@ -794,10 +798,14 @@ function PincodeDrawer({ open, editing, onClose, onSave }) {
                         placeholder="0"
                         value={form.delivery_charge}
                         onChange={set('delivery_charge')}
+                        onKeyDown={preventNegativeInput}
+                        onPaste={preventNegativePaste}
+                        inputProps={{ min: 0 }}
+                        error={!!errors.delivery_charge}
+                        helperText={errors.delivery_charge || 'Leave 0 for free delivery'}
                         InputProps={{
                             startAdornment: <InputAdornment position="start">₹</InputAdornment>,
                         }}
-                        helperText="Leave 0 for free delivery"
                     />
                 </Box>
 

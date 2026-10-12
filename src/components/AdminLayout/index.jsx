@@ -13,6 +13,9 @@ const pageTitles = {
   '/admin/shipments': 'Shipments',
   '/admin/add-pin-code': 'Add Pin Code',
   '/admin/pincodes':     'Pincodes',
+  '/admin/reviews':      'Reviews & Ratings',
+  '/admin/coupons':      'Coupons',
+  '/admin/send-emails':  'Send Emails',
 };
 
 function AdminLayout() {

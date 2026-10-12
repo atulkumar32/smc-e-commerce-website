@@ -31,6 +31,7 @@ import {
   PERCENT_OPTIONS,
 } from './CouponsData';
 import CustomSelect from '../../../components/CustomSelect';
+import { preventNegativeInput, preventNegativePaste } from '../../../utils/validators';
 import './index.scss';
 
 // ── Helpers ───────────────────────────────────────────────────
@@ -126,6 +127,11 @@ function CouponModal({ open, onClose, editRow, onSaved }) {
                 placeholder="0"
                 value={form.min_order_amount}
                 onChange={e => set('min_order_amount')(e.target.value)}
+                onKeyDown={preventNegativeInput}
+                onPaste={preventNegativePaste}
+                inputProps={{ min: 0 }}
+                error={!!errors.min_order_amount}
+                helperText={errors.min_order_amount}
                 InputProps={{ startAdornment: <InputAdornment position="start">₹</InputAdornment> }}
                 sx={{ bgcolor: '#fff', '& .MuiInputBase-root': { borderRadius: '10px' } }}
               />
@@ -133,9 +139,14 @@ function CouponModal({ open, onClose, editRow, onSaved }) {
             <Box>
               <label className="cp-fl">Max Uses</label>
               <TextField size="small" fullWidth type="number"
-                placeholder="Unlimited"
+                placeholder="1"
                 value={form.max_uses}
                 onChange={e => set('max_uses')(e.target.value)}
+                onKeyDown={preventNegativeInput}
+                onPaste={preventNegativePaste}
+                inputProps={{ min: 1 }}
+                error={!!errors.max_uses}
+                helperText={errors.max_uses}
                 sx={{ bgcolor: '#fff', '& .MuiInputBase-root': { borderRadius: '10px' } }}
               />
             </Box>

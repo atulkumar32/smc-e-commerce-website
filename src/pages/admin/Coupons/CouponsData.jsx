@@ -32,7 +32,7 @@ export const EMPTY_COUPON = {
   coupon_code:      '',
   discount_percent: '',
   min_order_amount: '',
-  max_uses:         '',
+  max_uses:         1,
   expiry_date:      '',
   is_active:        1,
   product_ids:      [],      // numeric product ids
@@ -258,7 +258,7 @@ export function useCouponForm({ onSuccess } = {}) {
         coupon_code:      form.coupon_code.trim().toUpperCase(),
         discount_percent: Number(form.discount_percent),
         min_order_amount: form.min_order_amount ? Number(form.min_order_amount) : 0,
-        max_uses:         form.max_uses         ? Number(form.max_uses)         : null,
+        max_uses:         form.max_uses !== '' && form.max_uses !== null && form.max_uses !== undefined ? Number(form.max_uses) : 1,
         expiry_date:      form.expiry_date      || null,
         is_active:        form.is_active,
         product_ids:      form.product_ids,

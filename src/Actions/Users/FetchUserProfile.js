@@ -14,6 +14,7 @@ export function getProfileCredentials() {
       user_id: p.user_id ?? p.id    ?? p.userId    ?? null,
       email:   p.email   ?? p.Email ?? p.userEmail ?? '',
       name:    p.name    ?? p.full_name ?? p.fullName ?? '',
+      phone:   p.phone   ?? p.mobile ?? p.mobileNumber ?? p.phone_number ?? p.mobile_number ?? '',
       token:   localStorage.getItem('user_token') ?? '',
     };
   } catch { return null; }
@@ -29,9 +30,9 @@ function buildHeaders(creds) {
 
 async function parseResponse(res, tag) {
   const text = await res.text();
-  console.group(`📨 [${tag}] Response — HTTP ${res.status}`);
-  console.log(text.slice(0, 700));
-  console.groupEnd();
+  // console.group(`📨 [${tag}] Response — HTTP ${res.status}`);
+  // console.log(text.slice(0, 700));
+  // console.groupEnd();
   let data = {};
   try { data = text ? JSON.parse(text) : {}; } catch { /* non-JSON */ }
   if (!res.ok || data.status === false) throw new Error(data.message || `HTTP ${res.status}`);
@@ -46,17 +47,17 @@ export const fetchUserProfileApi = async () => {
 
   const body = { user_id: creds.user_id, email: creds.email };
 
-  console.group('📡 [UserProfile] POST', USER_APIS.PROFILE_GET);
-  console.log('user_id :', creds.user_id, '| email:', creds.email);
-  console.log('body    :', JSON.stringify(body));
-  console.groupEnd();
+  // console.group('📡 [UserProfile] POST', USER_APIS.PROFILE_GET);
+  // console.log('user_id :', creds.user_id, '| email:', creds.email);
+  // console.log('body    :', JSON.stringify(body));
+  // console.groupEnd();
 
   const res     = await fetch(USER_APIS.PROFILE_GET, {
     method: 'POST', headers: buildHeaders(creds), body: JSON.stringify(body),
   });
   const data    = await parseResponse(res, 'UserProfile');
   const profile = data?.data ?? data?.user ?? data;
-  console.log('✅ [UserProfile]', profile);
+  // console.log('✅ [UserProfile]', profile);
   return profile;
 };
 
@@ -68,10 +69,10 @@ export const updateUserProfileApi = async (fields) => {
 
   const body = { user_id: creds.user_id, email: creds.email, ...fields };
 
-  console.group('📡 [UpdateProfile] POST', USER_APIS.PROFILE_UPDATE);
-  console.log('user_id :', creds.user_id, '| email:', creds.email);
-  console.log('body    :', JSON.stringify(body));
-  console.groupEnd();
+  // console.group('📡 [UpdateProfile] POST', USER_APIS.PROFILE_UPDATE);
+  // console.log('user_id :', creds.user_id, '| email:', creds.email);
+  // console.log('body    :', JSON.stringify(body));
+  // console.groupEnd();
 
   const res  = await fetch(USER_APIS.PROFILE_UPDATE, {
     method: 'POST', headers: buildHeaders(creds), body: JSON.stringify(body),
@@ -84,7 +85,7 @@ export const updateUserProfileApi = async (fields) => {
     localStorage.setItem('user_profile', JSON.stringify({ ...existing, ...fields }));
   } catch { /* ignore */ }
 
-  console.log('✅ [UpdateProfile]', data);
+  // console.log('✅ [UpdateProfile]', data);
   return data?.data ?? data;
 };
 
@@ -96,17 +97,17 @@ export const updateUserPasswordApi = async ({ old_password, new_password }) => {
 
   const body = { user_id: creds.user_id, email: creds.email, old_password, new_password };
 
-  console.group('📡 [UpdatePassword] POST', USER_APIS.PASSWORD_UPDATE);
-  console.log('user_id :', creds.user_id, '| email:', creds.email);
+  // console.group('📡 [UpdatePassword] POST', USER_APIS.PASSWORD_UPDATE);
+  // console.log('user_id :', creds.user_id, '| email:', creds.email);
   // Don't log actual passwords
-  console.log('body    :', JSON.stringify({ user_id: creds.user_id, email: creds.email,
-    old_password: '***', new_password: '***' }));
-  console.groupEnd();
+  // console.log('body    :', JSON.stringify({ user_id: creds.user_id, email: creds.email,
+  //   old_password: '***', new_password: '***' }));
+  // console.groupEnd();
 
   const res  = await fetch(USER_APIS.PASSWORD_UPDATE, {
     method: 'POST', headers: buildHeaders(creds), body: JSON.stringify(body),
   });
   const data = await parseResponse(res, 'UpdatePassword');
-  console.log('✅ [UpdatePassword]', data?.message || 'OK');
+  // console.log('✅ [UpdatePassword]', data?.message || 'OK');
   return data;
 };

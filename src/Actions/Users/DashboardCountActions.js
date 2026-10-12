@@ -65,7 +65,7 @@ export const fetchDashboardCounts = async () => {
     const data = await parseRes(res, 'DashboardCounts');
     return data?.data ?? data;
   } catch (err) {
-    console.warn('[DashboardCounts] Falling back to orders summary count:', err.message);
+    // console.warn('[DashboardCounts] Falling back to orders summary count:', err.message);
     return null;
   }
 };

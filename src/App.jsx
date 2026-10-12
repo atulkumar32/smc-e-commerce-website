@@ -7,6 +7,7 @@ import { CartDrawerProvider } from './context/CartDrawerContext';
 import CartDrawer from './components/CartDrawer';
 import ScrollToTop from './components/ScrollToTop';
 import BackToTop from './components/BackToTop';
+import ScrollProgress from './components/ScrollProgress';
 import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
         <CartProvider>
           <CartDrawerProvider>
             <ScrollToTop />
+            <ScrollProgress />
             <BackToTop />
             <AppRoutes />
             <CartDrawer />

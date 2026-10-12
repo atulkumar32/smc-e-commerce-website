@@ -250,6 +250,13 @@ function WriteReviewForm({ productId, onBack, onSubmitted }) {
 // ── Reviews list view ─────────────────────────────────────────────────────────
 function ReviewsList({ reviews, loading, error, avgRating, totalReviews }) {
   const fmt = (n) => Number(n || 0).toFixed(1);
+
+  // Filter out inactive/reverted reviews (status === 0) so they are hidden from PDP
+  const visibleReviews = reviews.filter((r) => {
+    if (r.status === 0 || r.status === '0' || r.status === 'inactive') return false;
+    return true;
+  });
+
   return (
     <>
       {loading && (
@@ -259,10 +266,10 @@ function ReviewsList({ reviews, loading, error, avgRating, totalReviews }) {
         </div>
       )}
       {!loading && error && <p className="rv-modal__error">{error}</p>}
-      {!loading && !error && reviews.length === 0 && (
+      {!loading && !error && visibleReviews.length === 0 && (
         <p className="rv-modal__empty">No reviews yet. Be the first to review!</p>
       )}
-      {!loading && reviews.map((r, i) => (
+      {!loading && visibleReviews.map((r, i) => (
         <div key={r.id ?? i} className="rv-modal__item">
           <div className="rv-modal__item-head">
             <div className="rv-modal__user-info">

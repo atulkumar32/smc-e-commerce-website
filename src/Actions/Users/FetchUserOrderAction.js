@@ -74,11 +74,11 @@ export const fetchUserOrdersList = async ({ page = 1, limit = 10, search = '' } 
     url.searchParams.set('search', String(search).trim());
   }
 
-  console.group('📡 [UserOrders] GET', url.toString());
-  console.log('user_id    :', creds.user_id);
-  console.log('user_email :', creds.email);
-  console.log('page       :', page, '| per_page:', limit);
-  console.groupEnd();
+  // console.group('📡 [UserOrders] GET', url.toString());
+  // console.log('user_id    :', creds.user_id);
+  // console.log('user_email :', creds.email);
+  // console.log('page       :', page, '| per_page:', limit);
+  // console.groupEnd();
 
   const res = await fetch(url.toString(), {
     method: 'GET',
@@ -90,7 +90,7 @@ export const fetchUserOrdersList = async ({ page = 1, limit = 10, search = '' } 
   try {
     data = text ? JSON.parse(text) : {};
   } catch (err) {
-    console.warn('[UserOrders] Non-JSON response:', text.slice(0, 300));
+    // console.warn('[UserOrders] Non-JSON response:', text.slice(0, 300));
   }
 
   if (!res.ok || data.success === false || data.status === false) {
@@ -128,7 +128,7 @@ export const fetchUserOrdersList = async ({ page = 1, limit = 10, search = '' } 
     cancelled: 0,
   };
 
-  console.log(`✅ [UserOrders] Received ${orders.length} orders | total=${totalRecords} | summary=`, summary);
+  // console.log(`✅ [UserOrders] Received ${orders.length} orders | total=${totalRecords} | summary=`, summary);
 
   return {
     orders,

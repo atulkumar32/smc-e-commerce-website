@@ -12,6 +12,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import InfoIcon from '@mui/icons-material/Info';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import RateReviewIcon from '@mui/icons-material/RateReview';
 
 // ── Stat card config ───────────────────────────────────────────────────────────
 export const STAT_CARDS = [
@@ -43,6 +44,18 @@ export const STAT_CARDS = [
     icon: CategoryIcon,
     color: '#7b1fa2',
     bg: '#f3e5f5',
+  },
+
+  // Customer Reviews & Ratings
+  {
+    key: 'pendingReviewsCount',
+    label: 'New Reviews & Ratings',
+    icon: RateReviewIcon,
+    color: '#d97706',
+    bg: '#fef3c7',
+    hasInfo: true,
+    tooltip: 'Customer reviews that are inactive and pending activation (Click to open)',
+    to: '/admin/reviews?filter=pending',
   },
 
   // Users

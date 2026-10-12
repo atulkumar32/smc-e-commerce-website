@@ -1,0 +1,63 @@
+.v-scroll-progress-line {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 3.5px;
+  z-index: 999999;
+  pointer-events: none;
+  background: transparent;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+
+  &.is-visible {
+    opacity: 1;
+  }
+
+  &__fill {
+    position: relative;
+    height: 100%;
+    // Exact gradient sampled from user reference: Royal Navy -> Royal Blue -> Indigo/Bronze -> Amber -> Sun Gold
+    background: linear-gradient(
+      90deg,
+      #001F3F 0%,
+      #0a2e6b 10%,
+      #1346a0 20%,
+      #255dbb 30%,
+      #4f568a 40%,
+      #845d45 50%,
+      #b36e1c 60%,
+      #dc7e09 70%,
+      #e58708 78%,
+      #f59e0b 86%,
+      #fbbf24 94%,
+      #ffd54f 100%
+    );
+    background-size: 100vw 100%;
+    background-repeat: no-repeat;
+    border-radius: 0 2px 2px 0;
+    box-shadow: 0 1px 6px rgba(229, 135, 8, 0.45);
+    transition: width 0.08s cubic-bezier(0.25, 0.1, 0.25, 1);
+    will-change: width;
+  }
+
+  // Glowing white circular bead at the leading tip with warm amber-gold radial halo
+  &__head {
+    position: absolute;
+    right: -3.5px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow:
+      0 0 0 1.2px rgba(255, 255, 255, 0.95),
+      0 0 8px 3px rgba(245, 158, 11, 0.95),
+      0 0 16px 6px rgba(251, 191, 36, 0.7),
+      0 4px 14px rgba(229, 135, 8, 0.6);
+    pointer-events: none;
+    z-index: 2;
+  }
+}

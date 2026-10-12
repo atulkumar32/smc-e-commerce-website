@@ -427,8 +427,6 @@ body { background: $v-white; font-family: $v-font-sans; }
   border: 1px solid $v-border;
   background: $v-white;
   font-family: $v-font-sans;
-  position: sticky;
-  top: 140px;  // clears both topbar rows
 
   @media (max-width: 750px) { display: none; }
 }
@@ -592,3 +590,54 @@ body { background: $v-white; font-family: $v-font-sans; }
 // ── Page head: no extra gap since toolbar moved into shop layout ──────────────
 .pl__head-row { flex-direction: column !important; align-items: flex-start !important; gap: 6px !important; }
 .pl__head { padding-bottom: 8px !important; }
+
+// ── Load more & pagination ────────────────────────────────────
+.pl__load-more {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding-top: 48px;
+  margin-bottom: 24px;
+}
+
+.pl__load-text {
+  font-family: $v-font-sans;
+  font-size: 12.5px;
+  letter-spacing: 0.02em;
+  color: #666;
+}
+
+.pl__progress {
+  width: 220px;
+  height: 3px;
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.pl__progress-fill {
+  height: 100%;
+  background: $v-gold;
+  transition: width 0.35s ease;
+}
+
+.pl__more-btn {
+  border: 1.5px solid $v-black;
+  background: transparent;
+  color: $v-black;
+  padding: 11px 34px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  font-family: $v-font-sans;
+  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+
+  &:hover {
+    background: $v-black;
+    color: $v-white;
+    border-color: $v-black;
+  }
+}

@@ -52,9 +52,21 @@ export const numeric = (value, label = 'Field') => {
   return !Number.isNaN(Number(value)) ? null : `${label} must be a number`;
 };
 
+export const nonNegative = (value, label = 'Field') => {
+  if (!value && value !== 0) return null;
+  const n = Number(value);
+  if (Number.isNaN(n)) return `${label} must be a valid number`;
+  return n >= 0 ? null : `${label} cannot be negative (entered: ${value}). Must be 0 or greater.`;
+};
+
 export const min = (minimum) => (value, label = 'Field') => {
   if (!value && value !== 0) return null;
-  return Number(value) >= minimum
+  const n = Number(value);
+  if (Number.isNaN(n)) return `${label} must be a valid number`;
+  if (n < 0 && minimum >= 0) {
+    return `${label} cannot be negative (entered: ${value}). Must be at least ${minimum}.`;
+  }
+  return n >= minimum
     ? null
     : `${label} must be at least ${minimum}`;
 };
@@ -67,9 +79,28 @@ export const max = (maximum) => (value, label = 'Field') => {
 };
 
 export const positiveNumber = (value, label = 'Field') => {
+  if (!value && value !== 0) return null;
   const n = Number(value);
-  return !Number.isNaN(n) && n > 0 ? null : `${label} must be a positive number`;
+  if (Number.isNaN(n)) return `${label} must be a number`;
+  if (n <= 0) return `${label} must be greater than 0 (entered: ${value}).`;
+  return null;
 };
+
+// Re-export all dedicated number validation functions
+export {
+  isNonNegative,
+  isPositive,
+  nonNegativeNumber,
+  minNumber,
+  integerNonNegative,
+  numberRange,
+  clampNonNegative,
+  sanitizeNonNegative,
+  preventNegativeInput,
+  preventNegativePaste,
+  nonNegativeInputProps,
+  validateFormNonNegative,
+} from './numberValidation';
 
 export const url = (value, label = 'URL') => {
   if (!value) return null;

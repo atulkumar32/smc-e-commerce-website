@@ -159,4 +159,7 @@ export const USER_APIS = {
   PROFILE_UPDATE:   `${BASE_URL}smc/user/api/userProfileUpdate.php`,
   PROFILE_GET:      `${BASE_URL}smc/user/api/GetUserProfileDetails.php`,
   PASSWORD_UPDATE:  `${BASE_URL}smc/user/api/userPasswordUpdate.php`,
+  // ── Shipping addresses ──────────────────────────────────────────
+  ADDRESS_SAVE:     `${BASE_URL}smc/user/api/SaveUserAddress.php`,
+  ADDRESS_LIST:     `${BASE_URL}smc/user/api/GetUserAddresses.php`, // pass here ? user_id= after url
 };

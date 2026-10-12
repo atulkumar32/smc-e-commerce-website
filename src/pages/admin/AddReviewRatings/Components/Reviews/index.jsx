@@ -17,11 +17,14 @@ import RefreshIcon    from '@mui/icons-material/Refresh';
 import RateReviewIcon from '@mui/icons-material/RateReview';
 import EditOutlinedIcon   from '@mui/icons-material/EditOutlined';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
+import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
+import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined';
 import { toast } from 'react-toastify';
 
 import { TABLE_COLUMNS, REVIEWS_PER_PAGE } from '../../AddReviewData';
 import { STATUS_OPTIONS }                   from '../../AddRatingData';
-import { deleteReviewAction }               from '../../../../../Actions/GetProductIdToReviewsActions';
+import { deleteReviewAction, updateReviewAction } from '../../../../../Actions/GetProductIdToReviewsActions';
+import { isInactive }                    from '../../../../../Actions/ReviewNotificationActions';
 
 // ── Truncate to first N words, show full text on hover ────────────────────────
 function TruncatedText({ text, words = 3 }) {
@@ -58,15 +61,24 @@ function StarBadge({ value }) {
 }
 
 // ── Status chip ───────────────────────────────────────────────────────────────
-function StatusChip({ status }) {
+function StatusChip({ status, isPending }) {
   const s = STATUS_OPTIONS.find((o) => o.value === Number(status))
          ?? STATUS_OPTIONS[0];
   return (
-    <Chip label={s.label} size="small"
-      sx={{
-        bgcolor: s.bg, color: s.color, fontWeight: 700,
-        fontSize: '0.7rem', border: `1px solid ${s.border}`,
-      }} />
+    <Stack direction="row" spacing={0.6} alignItems="center">
+      <Chip label={s.label} size="small"
+        sx={{
+          bgcolor: s.bg, color: s.color, fontWeight: 700,
+          fontSize: '0.7rem', border: `1px solid ${s.border}`,
+        }} />
+      {isPending && (
+        <Chip label="New" size="small"
+          sx={{
+            bgcolor: '#fef3c7', color: '#b45309', fontWeight: 800,
+            fontSize: '0.64rem', border: '1px solid #fde68a', height: 20,
+          }} />
+      )}
+    </Stack>
   );
 }
 
@@ -126,6 +138,40 @@ export default function ReviewsTable({
       toast.error(`❌ ${err.message || 'Delete failed'}`, { autoClose: 4000 });
     } finally {
       setDeleting(false);
+    }
+  };
+
+  // Status toggle state (for 1-click Active & Revert)
+  const [updatingStatusId, setUpdatingStatusId] = useState(null);
+
+  const handleToggleStatus = async (row, targetStatus) => {
+    if (!row?.id) return;
+    setUpdatingStatusId(row.id);
+    try {
+      const updatedRating = Number(row.updated_rating || row.rating || 5);
+      const updatedTextReview = (row.updated_text_review || row.review_text || '').trim();
+
+      await updateReviewAction({
+        id: row.id,
+        status: targetStatus,
+        rating: Number(row.rating || updatedRating),
+        review_text: (row.review_text || updatedTextReview).trim(),
+        updated_rating: updatedRating,
+        updated_text_review: updatedTextReview,
+        user_name: row.user_name,
+        user_email: row.user_email,
+      });
+
+      if (targetStatus === 1) {
+        toast.success(`✅ Review #${row.id} activated! Now visible on PDP page.`, { autoClose: 3000 });
+      } else {
+        toast.info(`↩️ Review #${row.id} reverted! Hidden from PDP page.`, { autoClose: 3000 });
+      }
+      onRefresh();
+    } catch (err) {
+      toast.error(`❌ ${err.message || 'Status update failed'}`, { autoClose: 4000 });
+    } finally {
+      setUpdatingStatusId(null);
     }
   };
 
@@ -210,106 +256,251 @@ export default function ReviewsTable({
                 </tr>
               </thead>
               <tbody>
-                {reviews.map((row, i) => (
-                  <tr key={row.id ?? i}>
-                    {/* # */}
-                    <td className="arr-table__num">
-                      {(page - 1) * REVIEWS_PER_PAGE + i + 1}
-                    </td>
+                {reviews.map((row, i) => {
+                  const isPending = isInactive(row);
+                  return (
+                    <tr
+                      key={row.id ?? i}
+                      style={
+                        isPending
+                          ? { backgroundColor: 'rgba(254, 243, 199, 0.28)' }
+                          : undefined
+                      }
+                    >
+                      {/* # */}
+                      <td className="arr-table__num">
+                        {(page - 1) * REVIEWS_PER_PAGE + i + 1}
+                      </td>
 
-                    {/* Product ID */}
-                    <td>
-                      <Typography variant="caption"
-                        sx={{ fontFamily: 'monospace', color: '#6b7280' }}>
-                        {row.product_id || '—'}
-                      </Typography>
-                    </td>
-
-                    {/* Product name */}
-                    <td>
-                      <Typography variant="body2" fontWeight={500} sx={{
-                        maxWidth: 160, overflow: 'hidden',
-                        textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                      }}>
-                        {row.product_name || '—'}
-                      </Typography>
-                    </td>
-
-                    {/* Variant */}
-                    <td>
-                      {row.variant_id
-                        ? <Chip label={row.variant_id} size="small"
-                            sx={{ fontFamily: 'monospace', fontSize: '0.7rem',
-                              bgcolor: '#f3f4f6', color: '#374151' }} />
-                        : <Typography variant="caption" color="text.secondary">—</Typography>}
-                    </td>
-
-                    {/* Rating */}
-                    <td><StarBadge value={row.rating} /></td>
-
-                    {/* Updated Rating — only if present */}
-                    <td>
-                      {row.updated_rating
-                        ? <StarBadge value={row.updated_rating} />
-                        : <Typography variant="caption" color="text.secondary">—</Typography>}
-                    </td>
-
-                    {/* Reviewer */}
-                    <td>
-                      <Typography variant="body2" fontWeight={500}>
-                        {row.user_name || '—'}
-                      </Typography>
-                      {row.user_email && (
-                        <Typography variant="caption" color="text.secondary"
-                          sx={{ display: 'block' }}>
-                          {row.user_email}
+                      {/* Product ID */}
+                      <td>
+                        <Typography variant="caption"
+                          sx={{ fontFamily: 'monospace', color: '#6b7280' }}>
+                          {row.product_id || '—'}
                         </Typography>
-                      )}
-                    </td>
+                      </td>
 
-                    {/* Review text — 3 words + tooltip */}
-                    <td><TruncatedText text={row.review_text} /></td>
+                      {/* Product name */}
+                      <td>
+                        <Typography variant="body2" fontWeight={500} sx={{
+                          maxWidth: 160, overflow: 'hidden',
+                          textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                        }}>
+                          {row.product_name || '—'}
+                        </Typography>
+                      </td>
 
-                    {/* Updated review text — 3 words + tooltip */}
-                    <td>
-                      {row.updated_text_review
-                        ? <TruncatedText text={row.updated_text_review} />
-                        : <Typography variant="caption" color="text.secondary">—</Typography>}
-                    </td>
+                      {/* Variant */}
+                      <td>
+                        {row.variant_id
+                          ? <Chip label={row.variant_id} size="small"
+                              sx={{ fontFamily: 'monospace', fontSize: '0.7rem',
+                                bgcolor: '#f3f4f6', color: '#374151' }} />
+                          : <Typography variant="caption" color="text.secondary">—</Typography>}
+                      </td>
 
-                    {/* Status */}
-                    <td><StatusChip status={row.status} /></td>
+                      {/* Rating */}
+                      <td><StarBadge value={row.rating} /></td>
 
-                    {/* Date */}
-                    {/* <td>
-                      <Typography variant="caption" color="text.secondary">
-                        {row.created_at
-                          ? new Date(row.created_at).toLocaleDateString('en-IN', {
-                              day: '2-digit', month: 'short', year: 'numeric',
-                            })
-                          : '—'}
-                      </Typography>
-                    </td> */}
+                      {/* Updated Rating — only if present */}
+                      <td>
+                        {row.updated_rating
+                          ? <StarBadge value={row.updated_rating} />
+                          : <Typography variant="caption" color="text.secondary">—</Typography>}
+                      </td>
 
-                    {/* Actions */}
-                    <td>
-                      <Stack direction="row" spacing={0.5}>
-                        <Tooltip title="Edit">
-                          <IconButton size="small" color="primary"
-                            onClick={() => onEdit?.(row)}>
-                            <EditOutlinedIcon sx={{ fontSize: 15 }} />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Delete">
-                          <IconButton size="small" color="error"
-                            onClick={() => setDeleteTarget(row)}>
-                            <DeleteOutlinedIcon sx={{ fontSize: 15 }} />
-                          </IconButton>
-                        </Tooltip>
-                      </Stack>
-                    </td>
+                      {/* Reviewer */}
+                      <td>
+                        <Typography variant="body2" fontWeight={500}>
+                          {row.user_name || '—'}
+                        </Typography>
+                        {row.user_email && (
+                          <Typography variant="caption" color="text.secondary"
+                            sx={{ display: 'block' }}>
+                            {row.user_email}
+                          </Typography>
+                        )}
+                      </td>
+
+                      {/* Review text — 3 words + tooltip */}
+                      <td><TruncatedText text={row.review_text} /></td>
+
+                      {/* Updated review text — 3 words + tooltip */}
+                      <td>
+                        {row.updated_text_review
+                          ? <TruncatedText text={row.updated_text_review} />
+                          : <Typography variant="caption" color="text.secondary">—</Typography>}
+                      </td>
+
+                      {/* Status */}
+                      <td><StatusChip status={row.status} isPending={isPending} /></td>
+
+                      {/* Date */}
+                      <td>
+                        <Typography variant="body2" sx={{ fontSize: '0.78rem', color: '#1f2937', fontWeight: 600 }}>
+                          {row.created_at
+                            ? new Date(row.created_at.replace(' ', 'T')).toLocaleDateString('en-IN', {
+                                day: '2-digit', month: 'short', year: 'numeric',
+                              })
+                            : '—'}
+                        </Typography>
+                        {row.updated_at ? (
+                          <Typography variant="caption" sx={{ display: 'block', fontSize: '0.68rem', color: '#16a34a' }}>
+                            Updated: {new Date(row.updated_at.replace(' ', 'T')).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
+                          </Typography>
+                        ) : (
+                          <Typography variant="caption" sx={{ display: 'block', fontSize: '0.68rem', color: '#9ca3af' }}>
+                            Not updated yet
+                          </Typography>
+                        )}
+                      </td>
+
+                      {/* Actions */}
+                      <td style={{ whiteSpace: 'nowrap' }}>
+                        <Stack direction="row" spacing={0.6} alignItems="center">
+                          {/* Active Button */}
+                          <Tooltip
+                            title={
+                              Number(row.status) === 1
+                                ? 'Already Active (Visible on PDP)'
+                                : 'Make Active (Show on PDP page)'
+                            }
+                            arrow
+                          >
+                            <span>
+                              <Button
+                                size="small"
+                                variant={Number(row.status) === 1 ? 'contained' : 'outlined'}
+                                color="success"
+                                disabled={Number(row.status) === 1 || updatingStatusId === row.id}
+                                onClick={() => handleToggleStatus(row, 1)}
+                                startIcon={
+                                  updatingStatusId === row.id ? (
+                                    <CircularProgress size={12} color="inherit" />
+                                  ) : (
+                                    <CheckCircleOutlinedIcon sx={{ fontSize: '14px !important' }} />
+                                  )
+                                }
+                                sx={{
+                                  fontSize: '0.72rem',
+                                  fontWeight: 700,
+                                  py: '3px',
+                                  px: '8px',
+                                  minWidth: 'auto',
+                                  borderRadius: '6px',
+                                  textTransform: 'none',
+                                  bgcolor: Number(row.status) === 1 ? '#16a34a' : 'transparent',
+                                  borderColor: '#16a34a',
+                                  color: Number(row.status) === 1 ? '#fff' : '#16a34a',
+                                  boxShadow: 'none',
+                                  '&:hover': {
+                                    bgcolor: Number(row.status) === 1 ? '#15803d' : '#f0fdf4',
+                                    borderColor: '#15803d',
+                                    boxShadow: 'none',
+                                  },
+                                  '&.Mui-disabled': {
+                                    bgcolor: Number(row.status) === 1 ? '#16a34a' : undefined,
+                                    color: Number(row.status) === 1 ? 'rgba(255, 255, 255, 0.95)' : undefined,
+                                    borderColor: Number(row.status) === 1 ? 'transparent' : undefined,
+                                    opacity: Number(row.status) === 1 ? 0.9 : 0.45,
+                                  },
+                                }}
+                              >
+                                Active
+                              </Button>
+                            </span>
+                          </Tooltip>
+
+                          {/* Revert Button (Hide from PDP) */}
+                          <Tooltip
+                            title={
+                              Number(row.status) === 0
+                                ? 'Already Reverted (Hidden from PDP)'
+                                : 'Revert Review (Hide from PDP page)'
+                            }
+                            arrow
+                          >
+                            <span>
+                              <Button
+                                size="small"
+                                variant={Number(row.status) === 0 ? 'contained' : 'outlined'}
+                                disabled={Number(row.status) === 0 || updatingStatusId === row.id}
+                                onClick={() => handleToggleStatus(row, 0)}
+                                startIcon={
+                                  updatingStatusId === row.id ? (
+                                    <CircularProgress size={12} color="inherit" />
+                                  ) : (
+                                    <VisibilityOffOutlinedIcon sx={{ fontSize: '14px !important' }} />
+                                  )
+                                }
+                                sx={{
+                                  fontSize: '0.72rem',
+                                  fontWeight: 700,
+                                  py: '3px',
+                                  px: '8px',
+                                  minWidth: 'auto',
+                                  borderRadius: '6px',
+                                  textTransform: 'none',
+                                  bgcolor: Number(row.status) === 0 ? '#ea580c' : 'transparent',
+                                  borderColor: '#ea580c',
+                                  color: Number(row.status) === 0 ? '#fff' : '#ea580c',
+                                  boxShadow: 'none',
+                                  '&:hover': {
+                                    bgcolor: Number(row.status) === 0 ? '#c2410c' : '#fff7ed',
+                                    borderColor: '#c2410c',
+                                    boxShadow: 'none',
+                                  },
+                                  '&.Mui-disabled': {
+                                    bgcolor: Number(row.status) === 0 ? '#ea580c' : undefined,
+                                    color: Number(row.status) === 0 ? 'rgba(255, 255, 255, 0.95)' : undefined,
+                                    borderColor: Number(row.status) === 0 ? 'transparent' : undefined,
+                                    opacity: Number(row.status) === 0 ? 0.9 : 0.45,
+                                  },
+                                }}
+                              >
+                                Revert
+                              </Button>
+                            </span>
+                          </Tooltip>
+
+                          {/* Edit button */}
+                          <Tooltip title="Edit Details" arrow>
+                            <IconButton
+                              size="small"
+                              color="primary"
+                              onClick={() => onEdit?.(row)}
+                              sx={{
+                                border: '1px solid #d0d5dd',
+                                borderRadius: '6px',
+                                p: '4px',
+                                '&:hover': { bgcolor: '#f0f9ff', borderColor: '#0284c7' },
+                              }}
+                            >
+                              <EditOutlinedIcon sx={{ fontSize: 14 }} />
+                            </IconButton>
+                          </Tooltip>
+
+                          {/* Delete button */}
+                          <Tooltip title="Delete Review" arrow>
+                            <IconButton
+                              size="small"
+                              color="error"
+                              onClick={() => setDeleteTarget(row)}
+                              sx={{
+                                border: '1px solid #fecaca',
+                                borderRadius: '6px',
+                                p: '4px',
+                                '&:hover': { bgcolor: '#fef2f2', borderColor: '#ef4444' },
+                              }}
+                            >
+                              <DeleteOutlinedIcon sx={{ fontSize: 14 }} />
+                            </IconButton>
+                          </Tooltip>
+                        </Stack>
+                      </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </Box>

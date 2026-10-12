@@ -42,12 +42,11 @@ export default function AuthBrandPanel({ activeTab = 'login' }) {
       <div className="auth-brand-panel__top">
         <Link to="/" className="auth-brand-panel__logo-link">
           <div className="auth-brand-panel__logo-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#D4AF37" strokeWidth="2.2" aria-hidden="true">
-              <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
-              <line x1="3" y1="6" x2="21" y2="6" />
-              <path d="M16 10a4 4 0 01-8 0" />
-            </svg>
-            <span className="auth-brand-panel__smc-badge">SMC</span>
+            <img
+              src="/smc-logo-icon.png"
+              alt="SMC Emblem"
+              style={{ width: '100%', height: '100%', borderRadius: '8px', objectFit: 'cover' }}
+            />
           </div>
           <div className="auth-brand-panel__logo-text">
             <span className="auth-brand-panel__brand-name">Shree Mahaveer Collections</span>
