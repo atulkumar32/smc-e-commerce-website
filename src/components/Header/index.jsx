@@ -102,6 +102,55 @@ export default function Header() {
 
   const [activeCollection, setActiveCollection] = useState(isVoranoActive ? 'vorano' : 'imported');
 
+  // Match only the genuinely selected category/page so only that link gets the underline
+  const isLinkActive = useCallback((link) => {
+    // 1. Home link
+    if (link.to === '/home') {
+      return location.pathname === '/home' || location.pathname === '/';
+    }
+
+    // 2. New Arrivals
+    if (link.to === '/products/new-arrivals') {
+      const catParam = searchParams.get('category') || searchParams.get('category_name') || '';
+      const catNorm = catParam.toLowerCase().replace(/[\s\-_+]+/g, '');
+      return location.pathname === '/products/new-arrivals' || catNorm === 'newarrivals';
+    }
+
+    // 3. Category links under /products
+    if (link.to.startsWith('/products')) {
+      if (location.pathname !== '/products' && !location.pathname.startsWith('/products/')) {
+        return false;
+      }
+
+      if (location.pathname === '/products/new-arrivals') {
+        return false;
+      }
+
+      const norm = (str) => String(str || '').toLowerCase().replace(/[\s\-_+]+/g, '');
+
+      const targetQuery = link.to.split('?')[1] || '';
+      const linkParams = new URLSearchParams(targetQuery);
+      const targetCat = linkParams.get('category_name') || linkParams.get('category') || link.label;
+      const targetNorm = norm(targetCat);
+
+      const activeCat = searchParams.get('category_name') || searchParams.get('category') || '';
+      const activeNorm = norm(activeCat);
+
+      if (activeNorm && activeNorm !== 'all' && activeNorm !== 'allbags') {
+        return activeNorm === targetNorm;
+      }
+
+      const pathSuffix = location.pathname.replace(/^\/products\/?/, '');
+      if (pathSuffix && pathSuffix !== 'new-arrivals') {
+        return norm(pathSuffix) === targetNorm;
+      }
+
+      return false;
+    }
+
+    return location.pathname === link.to;
+  }, [location.pathname, searchParams]);
+
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const brand = params.get('brand') || '';
@@ -288,18 +337,19 @@ export default function Header() {
       {/* ═══ NAV BAR ════════════════════════════════════════════ */}
       <nav className="v-nav" aria-label="Main navigation">
         <ul className="v-nav__inner">
-          {NAV_LINKS.map(({ label, to }) => (
-            <li key={to}>
-              <NavLink
-                to={to}
-                className={({ isActive }) =>
-                  `v-nav__link${isActive ? ' v-nav__link--active' : ''}`
-                }
-              >
-                {label}
-              </NavLink>
-            </li>
-          ))}
+          {NAV_LINKS.map((link) => {
+            const active = isLinkActive(link);
+            return (
+              <li key={link.to}>
+                <Link
+                  to={link.to}
+                  className={`v-nav__link${active ? ' v-nav__link--active' : ''}`}
+                >
+                  {link.label}
+                </Link>
+              </li>
+            );
+          })}
         </ul>
       </nav>
 
@@ -378,18 +428,19 @@ export default function Header() {
 
         <div className="v-drawer__hr" />
 
-        {NAV_LINKS.map(({ label, to }) => (
-          <NavLink
-            key={to}
-            to={to}
-            className={({ isActive }) =>
-              `v-drawer__link${isActive ? ' v-drawer__link--active' : ''}`
-            }
-            onClick={() => setMobileOpen(false)}
-          >
-            {label}
-          </NavLink>
-        ))}
+        {NAV_LINKS.map((link) => {
+          const active = isLinkActive(link);
+          return (
+            <Link
+              key={link.to}
+              to={link.to}
+              className={`v-drawer__link${active ? ' v-drawer__link--active' : ''}`}
+              onClick={() => setMobileOpen(false)}
+            >
+              {link.label}
+            </Link>
+          );
+        })}
 
         <div className="v-drawer__hr" />
 

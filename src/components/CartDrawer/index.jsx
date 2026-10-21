@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { useCartDrawer } from '../../context/CartDrawerContext';
+import { getProductSlug } from '../../utils/slug';
 import './style.scss';
 
 const SHIPPING_THRESHOLD = 5000;
@@ -129,31 +130,52 @@ export default function CartDrawer() {
             </div>
           ) : (
             <ul className="cdr__list">
-              {cartItems.map((item) => (
-                <li key={item.id} className="cdr__item">
-                  {/* Image */}
-                  <div className="cdr__item-img">
-                    {item.image
-                      ? <img src={item.image} alt={item.name} loading="lazy"
-                          onError={(e) => { e.currentTarget.style.display = 'none'; }} />
-                      : <div className="cdr__item-img-placeholder">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4">
-                            <path d="M6 8h12l-1 13H7L6 8z"/>
-                            <path d="M9 8V6a3 3 0 0 1 6 0v2"/>
-                          </svg>
-                        </div>
-                    }
-                  </div>
+              {cartItems.map((item) => {
+                const slug = getProductSlug(item);
+                const detailUrl = `/products/${slug}`;
+                const handleItemClick = () => {
+                  closeDrawer();
+                  navigate(detailUrl);
+                };
 
-                  {/* Details */}
-                  <div className="cdr__item-info">
-                    <p className="cdr__item-name">{item.name}</p>
-                    {item.colorName && (
-                      <p className="cdr__item-variant">Colour: {item.colorName}</p>
-                    )}
-                    {item.category && (
-                      <p className="cdr__item-cat">{item.category}</p>
-                    )}
+                return (
+                  <li key={item.id} className="cdr__item">
+                    {/* Image */}
+                    <div
+                      className="cdr__item-img"
+                      onClick={handleItemClick}
+                      style={{ cursor: 'pointer' }}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => e.key === 'Enter' && handleItemClick()}
+                    >
+                      {item.image
+                        ? <img src={item.image} alt={item.name} loading="lazy"
+                            onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+                        : <div className="cdr__item-img-placeholder">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4">
+                              <path d="M6 8h12l-1 13H7L6 8z"/>
+                              <path d="M9 8V6a3 3 0 0 1 6 0v2"/>
+                            </svg>
+                          </div>
+                      }
+                    </div>
+
+                    {/* Details */}
+                    <div className="cdr__item-info">
+                      <p
+                        className="cdr__item-name"
+                        onClick={handleItemClick}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        {item.name}
+                      </p>
+                      {item.colorName && (
+                        <p className="cdr__item-variant">Colour: {item.colorName}</p>
+                      )}
+                      {item.category && (
+                        <p className="cdr__item-cat">{item.category}</p>
+                      )}
 
                     <div className="cdr__item-row">
                       {/* Qty stepper */}
@@ -194,7 +216,8 @@ export default function CartDrawer() {
                     </svg>
                   </button>
                 </li>
-              ))}
+                );
+              })}
             </ul>
           )}
         </div>

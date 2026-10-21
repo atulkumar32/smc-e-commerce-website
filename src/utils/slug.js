@@ -20,9 +20,17 @@ export function toSlug(name = '', productId = '') {
     .replace(/[^a-z0-9\s-]/g, '')   // strip special chars
     .replace(/\s+/g, '-')           // spaces → hyphens
     .replace(/-+/g, '-')            // collapse multiple hyphens
-    .replace(/^-|-$/g, '');          // trim leading/trailing hyphens
+    .replace(/^-|-$/g, '');         // trim leading/trailing hyphens
 
-  const idSlug = String(productId)
+  // Strip variant suffix like "SMC-00003__123" to get master product id
+  const rawId = String(productId || '').split('__')[0].trim();
+
+  // If rawId already starts with the name slug, return it directly
+  if (nameSlug && rawId.toLowerCase().startsWith(nameSlug)) {
+    return rawId.toLowerCase();
+  }
+
+  const idSlug = rawId
     .toLowerCase()
     .replace(/\s+/g, '-');
 
@@ -32,29 +40,40 @@ export function toSlug(name = '', productId = '') {
 /**
  * Extract the product_id from a slug.
  *
- * We embed the product ID as the LAST segment after the final double-dash
- * or recognise it by the "smc-" prefix pattern.
- * Fallback: return the whole slug (for old-style ?product_id= URLs).
- *
  * Examples:
  *   "premium-girls-school-backpack-smc-00004" → "SMC-00004"
- *   "test-ksc-smc-00003"                      → "SMC-00003"
- *   "SMC-00004"                               → "SMC-00004"   (plain id)
+ *   "test-smc-00003"                          → "SMC-00003"
+ *   "SMC-00003__variant-1"                    → "SMC-00003"
+ *   "SMC-00004"                               → "SMC-00004"
  */
 export function productIdFromSlug(slug = '') {
   if (!slug) return '';
 
+  // Clean any variant suffix like "__123"
+  const clean = String(slug).split('__')[0].trim();
+
   // Already a plain product_id (contains no lowercase letters before the dash pattern)
-  if (/^SMC-/i.test(slug)) return slug.toUpperCase();
+  if (/^SMC-/i.test(clean)) return clean.toUpperCase();
 
   // Find last occurrence of "smc-XXXXX" pattern in the slug
-  const match = slug.match(/(?:^|-)((smc|prv?d?)-[\w-]+)$/i);
+  const match = clean.match(/(?:^|-)((smc|prv?d?)-[\w-]+)$/i);
   if (match) {
     return match[1].toUpperCase();
   }
 
   // Fallback — return as-is (the API will handle it)
-  return slug;
+  return clean;
+}
+
+/**
+ * Robust helper to obtain the canonical SEO slug for any product object.
+ */
+export function getProductSlug(item) {
+  if (!item) return '';
+  if (item.slug && !item.slug.includes('__')) return item.slug;
+  const rawId = item.productId || item.product_id || item.id || '';
+  const cleanId = String(rawId).split('__')[0].trim();
+  return toSlug(item.name || '', cleanId);
 }
 
 /**

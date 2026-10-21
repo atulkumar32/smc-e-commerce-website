@@ -2,10 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ProductListSeo from '../../../components/Seo/ProductListSeo';
 import SkeletonCard from '../../../components/SkeletonCard';
+import ProductCard from '../../../components/ProductCard';
 import { useProductFilter } from '../useProductFilter';
-import { useCart } from '../../../context/CartContext';
-import { useCartDrawer } from '../../../context/CartDrawerContext';
-import { toSlug, toTitleCase } from '../../../utils/slug';
 import Breadcrumbs from '../../../components/Breadcrumbs';
 import './style.scss';
 import './vorano.scss'; // VORANO redesign overrides
@@ -23,255 +21,6 @@ function useScrollReveal(ref, deps = []) {
     });
     return undefined;
   }, deps);
-}
-
-// ── Feature tag icon helpers ──────────────────────────────────────────────────
-function CapacityIcon() {
-  return (
-    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6">
-      <rect x="2" y="4" width="16" height="12" rx="2"/>
-      <path d="M2 8h16"/>
-    </svg>
-  );
-}
-function MaterialIcon() {
-  return (
-    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6">
-      <path d="M10 2l8 4v5a8 8 0 0 1-8 7 8 8 0 0 1-8-7V6l8-4z"/>
-    </svg>
-  );
-}
-function DesignIcon() {
-  return (
-    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6">
-      <path d="M7 9l3 3 9-9"/><path d="M19 10v7a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9"/>
-    </svg>
-  );
-}
-
-// ── Product Card ──────────────────────────────────────────────────────────────
-function ProductCard({ product, index }) {
-  const navigate = useNavigate();
-  const { addItem, isInCart, toggleWishlist, isWishlisted } = useCart();
-  const { openDrawer } = useCartDrawer();
-
-  const slug        = toSlug(product.name, product.productId || product.id);
-  const imgSrc      = product.image || '';
-  const inCart      = isInCart(product.id);
-  const wished      = isWishlisted(product.id);
-  const hasDiscount = product.originalPrice && product.originalPrice > product.price;
-  const discountPct = hasDiscount ? Math.round((1 - product.price / product.originalPrice) * 100) : 0;
-
-  // ── Enriched product name: "School Bags – Polyester, Striped, 30L, Unisex"
-  const baseName = toTitleCase(product.name);
-  const nameParts = [
-    product.bagCapacity ? product.bagCapacity : null,
-    product.material    ? product.material    : null,
-    product.pattern     ? product.pattern     : null,
-    product.gender      ? product.gender      : null,
-  ].filter(Boolean);
-  const enrichedName = nameParts.length > 0
-    ? `${baseName} – ${nameParts.join(', ')}`
-    : baseName;
-  const name = enrichedName;
-
-  // Feature tags — capacity / material / style from product data
-  const featureTags = [
-    product.bagCapacity   ? { Icon: CapacityIcon, label: product.bagCapacity,     sub: 'Capacity'  } : null,
-    product.material      ? { Icon: MaterialIcon, label: product.material,        sub: 'Material'  } : null,
-    product.backpackStyle || product.gender
-      ? { Icon: DesignIcon,   label: product.backpackStyle || product.gender, sub: 'Design'    } : null,
-  ].filter(Boolean).slice(0, 3);
-
-  const handleAddToCart = (e) => {
-    e.stopPropagation();
-    if (inCart) { openDrawer(); return; }
-    addItem({ id: product.id, name: product.name, price: product.price,
-      originalPrice: product.originalPrice || null, image: product.image || '',
-      category: product.category || '', colorName: product.colorName || '',
-      brand: product.brand || '', stock: product.stock ?? 99 });
-    openDrawer();
-  };
-
-  const handleBuyNow = (e) => {
-    e.stopPropagation();
-    navigate(`/products/${slug}`);
-  };
-
-  const handleWishlist = (e) => {
-    e.stopPropagation();
-    e.preventDefault();
-    toggleWishlist({ id: product.id, name: product.name, price: product.price,
-      originalPrice: product.originalPrice || null, image: product.image || '',
-      category: product.category || '', colorName: product.colorName || '',
-      brand: product.brand || '' });
-  };
-
-  const rowDelay = (index % 6) * 85;
-
-  return (
-    <article
-      className="pcard is-visible stagger-revealed"
-      style={{
-        '--stagger-delay': `${rowDelay}ms`,
-        transitionDelay: `${rowDelay}ms`,
-      }}
-      onClick={() => navigate(`/products/${slug}`)}
-      role="button" tabIndex={0}
-      onKeyDown={(e) => e.key === 'Enter' && navigate(`/products/${slug}`)}
-    >
-      {/* ── Image ─────────────────────────────────────────────── */}
-      <div className="pcard__img-wrap">
-        {imgSrc ? (
-          <img
-            src={imgSrc}
-            alt={name}
-            className="pcard__img"
-            loading="lazy"
-            onError={(e) => {
-              e.currentTarget.style.display = 'none';
-              e.currentTarget.nextSibling.style.display = 'flex';
-            }}
-          />
-        ) : null}
-        <div
-          className="pcard__img-placeholder"
-          style={{ display: imgSrc ? 'none' : 'flex' }}
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4">
-            <path d="M6 8h12l-1 13H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>
-          </svg>
-        </div>
-
-        {/* Badge — top-left */}
-        {/* {product.badge && (
-          <span className={`pcard__badge pcard__badge--${
-            product.badge.toLowerCase().includes('best')    ? 'bestseller'  :
-            product.badge.toLowerCase().includes('new')     ? 'new'         :
-            product.badge.toLowerCase().includes('off')     ? 'sale'        :
-            product.badge.toLowerCase().includes('trend')   ? 'trending'    : 'default'
-          }`}>
-            {product.badge}
-          </span>
-        )} */}
-
-        {/* Heart — top-right */}
-        <button
-          type="button"
-          className={`pcard__heart${wished ? ' pcard__heart--on' : ''}`}
-          onClick={handleWishlist}
-          aria-label={wished ? 'Remove from wishlist' : 'Save to wishlist'}
-          aria-pressed={wished}
-        >
-          <svg viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8"
-            fill={wished ? 'currentColor' : 'none'}>
-            <path d="M12 21s-7.5-4.6-10-9.2C.4 8.4 2 4.5 6 4c2.3-.3 4.2 1 6 3 1.8-2 3.7-3.3 6-3 4 .5 5.6 4.4 4 7.8-2.5 4.6-10 9.2-10 9.2z"/>
-          </svg>
-        </button>
-      </div>
-
-      {/* ── Variant thumbnails (color squares + +N) ───────────── */}
-      {/* {product.colors?.length > 0 && (
-        <div className="pcard__variants">
-          {product.colors.slice(0, 4).map((c, i) => (
-            <span
-              key={i}
-              className={`pcard__variant${i === 0 ? ' pcard__variant--active' : ''}`}
-              style={{ background: c.hex || c }}
-              title={c.name || ''}
-            />
-          ))}
-          {product.colors.length > 4 && (
-            <span className="pcard__variant-more">+{product.colors.length - 4}</span>
-          )}
-        </div>
-      )} */}
-
-      {/* ── Body ──────────────────────────────────────────────── */}
-      <div className="pcard__body">
-
-        {/* Brand */}
-        {product.brand && (
-          <p className="pcard__brand stagger-text">{product.brand.toUpperCase()}</p>
-        )}
-
-        {/* Product name — full descriptive (3 lines max) */}
-        <h3 className="pcard__name stagger-text">{name}</h3>
-
-        {/* Rating */}
-        <div className="pcard__rating stagger-text">
-          <span className="pcard__rating-pill">
-            <svg viewBox="0 0 10 10" fill="currentColor" width="9" height="9">
-              <path d="M5 0l1.12 3.45H10L7.06 5.59l1.12 3.44L5 7 1.82 9.03 2.94 5.59.01 3.45H3.88z"/>
-            </svg>
-            {product.rating || '4.3'}
-          </span>
-          <span className="pcard__rating-count">({product.reviewCount || '128'})</span>
-        </div>
-
-        {/* Price */}
-        <div className="pcard__price-row stagger-text">
-          <span className="pcard__price">₹{(product.price || 0).toLocaleString()}</span>
-          {hasDiscount && (
-            <>
-              <span className="pcard__mrp">₹{product.originalPrice.toLocaleString()}</span>
-              <span className="pcard__off">{discountPct}% off</span>
-            </>
-          )}
-        </div>
-
-        {/* Feature tags */}
-        {featureTags.length > 0 && (
-          <div className="pcard__features">
-            {featureTags.map(({ Icon, label, sub }, i) => (
-              <span key={i} className="pcard__feature">
-                <span className="pcard__feature-ico"><Icon /></span>
-                <span className="pcard__feature-text">
-                  <strong>{label}</strong>
-                  <em>{sub}</em>
-                </span>
-              </span>
-            ))}
-          </div>
-        )}
-
-        {/* Available Colors */}
-        {product.colors?.length > 0 && (
-          <div className="pcard__avail">
-            <span className="pcard__avail-label">Available Colors</span>
-            <div className="pcard__avail-row">
-              {product.colors.slice(0, 3).map((c, i) => (
-                <span key={i} className="pcard__avail-dot"
-                  style={{ background: c.hex || c }} title={c.name || ''} />
-              ))}
-              {product.colors.length > 3 && (
-                <span className="pcard__avail-more">+{product.colors.length - 3} more</span>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* CTA row */}
-        <div className="pcard__ctas">
-          <button
-            className={`pcard__btn pcard__btn--cart${inCart ? ' is-in-cart' : ''}`}
-            onClick={handleAddToCart}
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M6 8h12l-1 13H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>
-            </svg>
-            {inCart ? 'In Cart' : 'Add to Cart'}
-          </button>
-          <button className="pcard__btn pcard__btn--buy" onClick={handleBuyNow}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-              <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
-            </svg>
-            Buy Now
-          </button>
-        </div>
-      </div>
-    </article>
-  );
 }
 
 // ── Filter constants ──────────────────────────────────────────────────────────
@@ -387,7 +136,11 @@ function FilterDrawer({ open, onClose, activeCategory, onCategory, sortBy, onSor
             {CATS.map((c) => (
               <label key={c} className="fd__check">
                 <input type="checkbox"
-                  checked={c === 'All Bags' ? (!activeCategory || activeCategory === 'all') : activeCategory === c}
+                  checked={
+                    c === 'All Bags'
+                      ? (!activeCategory || activeCategory === 'all' || activeCategory === 'All Bags')
+                      : String(activeCategory || '').toLowerCase().replace(/[\s\-_+]+/g, '') === c.toLowerCase().replace(/[\s\-_+]+/g, '')
+                  }
                   onChange={() => onCategory(c === 'All Bags' ? 'all' : c)}/>
                 <span>{c}</span>
               </label>
@@ -469,6 +222,40 @@ export default function ProductList() {
   const [filterOpen,   setFilterOpen]   = useState(false);
   const [localFilters, setLocalFilters] = useState(INIT_LOCAL);
   const gridRef = useRef(null);
+  const sidebarRef = useRef(null);
+
+  // Isolate scroll so wheeling on the filter sidebar never scrolls the right side box or page
+  useEffect(() => {
+    const el = sidebarRef.current;
+    if (!el) return;
+
+    const handleWheel = (e) => {
+      if (e.deltaY === 0) return;
+
+      const { scrollTop, scrollHeight, clientHeight } = el;
+      const maxScroll = scrollHeight - clientHeight;
+
+      if (maxScroll <= 0) {
+        e.preventDefault();
+        return;
+      }
+
+      const delta = e.deltaY;
+
+      if (delta > 0 && scrollTop + delta >= maxScroll) {
+        el.scrollTop = maxScroll;
+        e.preventDefault();
+      } else if (delta < 0 && scrollTop + delta <= 0) {
+        el.scrollTop = 0;
+        e.preventDefault();
+      }
+    };
+
+    el.addEventListener('wheel', handleWheel, { passive: false });
+    return () => {
+      el.removeEventListener('wheel', handleWheel);
+    };
+  }, []);
 
   const {
     products, totalCount, visibleCount, hasMore,
@@ -586,7 +373,7 @@ export default function ProductList() {
       <div className="pl__shop-layout">
 
         {/* ── Left sidebar (desktop) ── */}
-        <aside className="pl__sidebar">
+        <aside className="pl__sidebar" ref={sidebarRef}>
           <div className="pl__sidebar-head">
             <strong>FILTERS</strong>
             {activeFilterCount > 0 && (
@@ -600,7 +387,11 @@ export default function ProductList() {
             {['All Bags','Backpacks','Laptop Bags','School Bags','Ladies Bags','Sling Bags','Travel Bags'].map((c) => (
               <label key={c} className="pl__sidebar-check">
                 <input type="checkbox"
-                  checked={c === 'All Bags' ? (!activeCategory || activeCategory === 'all') : activeCategory === c}
+                  checked={
+                    c === 'All Bags'
+                      ? (!activeCategory || activeCategory === 'all' || activeCategory === 'All Bags')
+                      : String(activeCategory || '').toLowerCase().replace(/[\s\-_+]+/g, '') === c.toLowerCase().replace(/[\s\-_+]+/g, '')
+                  }
                   onChange={() => handleCategoryChange(c === 'All Bags' ? 'all' : c)}/>
                 <span>{c}</span>
               </label>

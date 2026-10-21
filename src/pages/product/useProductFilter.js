@@ -215,8 +215,8 @@ export function useProductFilter() {
   const queryBadge      = getQueryValue(searchParams, 'badge', '');
 
   const pathCategory   = useMemo(() => resolvePathCategory(pathname), [pathname]);
-  // activeCategory: numeric ID takes priority, then name-based, then path
-  const activeCategory = queryCategoryId || queryCategory || pathCategory;
+  // activeCategory: numeric ID takes priority, then name-based, then queryCategoryName, then path
+  const activeCategory = queryCategoryId || queryCategory || queryCategoryName || pathCategory;
 
   const [products, setProducts] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
@@ -317,9 +317,10 @@ export function useProductFilter() {
       const numericCategoryId = queryCategoryId ? Number(queryCategoryId) : null;
 
       // Build API params — use category_id when available (numeric sub-cat from header)
+      const effectiveCategory = queryCategory || queryCategoryName;
       const params = {
         ...(numericCategoryId   ? { category_id: numericCategoryId }
-            : (queryCategory && queryCategory !== 'all') ? { category: queryCategory }
+            : (effectiveCategory && effectiveCategory !== 'all') ? { category: effectiveCategory }
             : {}),
         ...(queryTerm           ? { search: queryTerm }   : {}),
         ...(querySort && querySort !== 'recommended' ? { sort: querySort } : {}),

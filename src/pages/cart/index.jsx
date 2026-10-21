@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
+import { getProductSlug } from '../../utils/slug';
 import Breadcrumbs from '../../components/Breadcrumbs';
 import './style.scss';
 
@@ -34,10 +35,14 @@ function Stepper({ value, onInc, onDec }) {
 // ── Cart item row ─────────────────────────────────────────────────────────────
 function CartItem({ item }) {
   const { removeItem, updateQuantity, moveToWishlist } = useCart();
+  const navigate = useNavigate();
+
+  const slug = getProductSlug(item);
+  const detailUrl = `/products/${slug}`;
 
   return (
     <div className="cart-item">
-      <Link to={`/products/${item.id}`} className="cart-item__img-wrap">
+      <Link to={detailUrl} className="cart-item__img-wrap">
         <img src={item.image} alt={item.name} className="cart-item__img" loading="lazy" />
       </Link>
 
@@ -45,7 +50,7 @@ function CartItem({ item }) {
         <div className="cart-item__top">
           <div>
             <h3 className="cart-item__name">
-              <Link to={`/products/${item.id}`}>{item.name}</Link>
+              <Link to={detailUrl}>{item.name}</Link>
             </h3>
             {(item.selectedColor || item.selectedSize) && (
               <p className="cart-item__meta">
@@ -68,6 +73,19 @@ function CartItem({ item }) {
 
           <div className="cart-item__btns">
             <button
+              type="button"
+              className="cart-item__buy-btn"
+              onClick={() => navigate(detailUrl)}
+              aria-label={`Buy ${item.name} now`}
+            >
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.2">
+                <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
+              </svg>
+              Buy Now
+            </button>
+
+            <button
+              type="button"
               className="cart-item__wish-btn"
               onClick={() => moveToWishlist(item)}
               aria-label="Move to wishlist"
@@ -82,6 +100,7 @@ function CartItem({ item }) {
             </button>
 
             <button
+              type="button"
               className="cart-item__remove-btn"
               onClick={() => removeItem(item.id, item.name)}
               aria-label={`Remove ${item.name} from cart`}

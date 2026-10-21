@@ -1,312 +1,344 @@
-@import '../../Styles/Mixins';
+// ============================================================
+//  UNIFIED VORANO PRODUCT CARD
+//  Shared component matching PLP design across the entire site
+// ============================================================
 
-// ── Extra-small breakpoint (≤360px — small Android phones) ───────────────────
-$bp-xxs: 360px;
-@mixin xxs { @media (max-width: #{$bp-xxs}) { @content; } }
+$v-black:     #001F3F;
+$v-white:     #ffffff;
+$v-border:    #ede8e3;
+$v-soft:      #f7f5f2;
+$v-gray:      #9ca3af;
+$v-text:      #2d3748;
+$v-gold:      #D4AF37;
+$v-green:     #2E7D4F;
+$v-red:       #e11d48;
+$v-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
 .pcard {
   position: relative;
-  background-color: #ffffff;
-  border: 1px solid rgba($color-tertiary-200, 0.4);
-  @include flex-col;
-  @include transition(box-shadow, 0.4s);
-  border-radius: 4px;
+  background: $v-white;
+  border: 1px solid $v-border;
+  border-radius: 0;
   overflow: hidden;
-  /* Card width controlled by grid variable; keep height stretch */
-  width: auto;
-  height: 100%;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
   box-sizing: border-box;
+  width: 100%;
+  font-family: $v-font-sans;
+  transition: transform 0.28s ease, box-shadow 0.28s ease;
 
   &:hover {
-    box-shadow: 0 12px 32px rgba($color-primary, 0.1);
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
   }
 
-  // entrance animation
-  &--animate {
-    opacity: 0;
-    transform: translateY(16px);
-    animation: pcardIn 0.5s ease forwards;
-  }
-
-  @keyframes pcardIn {
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  // ── Image wrap ───────────────────────────────────────────────
-  // Use `aspect-ratio` so images keep consistent proportions while
-  // the card/grid controls the width responsively.
+  // ── Image area ──────────────────────────────────────────────
   &__img-wrap {
     position: relative;
-    display: block;
-    aspect-ratio: 4 / 5;
     width: 100%;
+    height: 315px;
+    background: #f6f5f3;
     overflow: hidden;
-    background-color: $color-neutral-100;
-    text-decoration: none;
-
-    &:hover .pcard__img        { transform: scale(1.05); }
-    &:hover .pcard__quick-add  { opacity: 1; transform: translateY(0); }
-  }
-  &__img {
-    width: 100%;
-    height: 100%;
-    object-fit: fill;
-    display: block;
-    @include transition(transform, 0.7s);
-  }
-
-  // No explicit fixed heights here; aspect-ratio keeps proportions.
-
-  // ── Size badges ──────────────────────────────────────────────
-  &__sizes {
-    position: absolute;
-    top: 0.5rem;
-    left: 0.5rem;
     display: flex;
-    flex-wrap: wrap;
-    gap: 2px;
-  }
+    align-items: center;
+    justify-content: center;
 
-  &__size {
-    background-color: $color-primary;
-    color: #ffffff;
-    font-family: $font-label;
-    font-size: 9px;
-    font-weight: $fw-bold;
-    letter-spacing: $ls-wider;
-    text-transform: uppercase;
-    padding: 2px 5px;
-
-    &--oos { opacity: 0.4; }
-  }
-
-  // ── Badge ────────────────────────────────────────────────────
-  &__badge {
-    position: absolute;
-    top: 0.5rem;
-    right: 2.25rem;
-    font-family: $font-label;
-    font-size: 9px;
-    font-weight: $fw-bold;
-    letter-spacing: $ls-wider;
-    text-transform: uppercase;
-    padding: 2px 7px;
-    background-color: $color-secondary;
-    color: $color-primary;
-
-    &--sale    { background-color: $color-tertiary-500; color: #fff; }
-    &--limited { background-color: $color-primary; color: $color-secondary; }
-    &--new     { background-color: $color-secondary; color: $color-primary; }
-  }
-
-  // ── Wishlist heart ────────────────────────────────────────────
-  &__wish {
-    position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: $color-primary;
-    opacity: 0;
-    @include transition(opacity);
-    padding: 2px;
-    @include focus-ring($color-secondary);
-
-    .pcard:hover & { opacity: 1; }
-    &.is-wished    { opacity: 1; color: $color-error; }
-  }
-
-  // ── Quick add overlay ─────────────────────────────────────────
-  &__quick-add {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background-color: $color-primary;
-    color: #ffffff;
-    @include label($fs-xs, $fw-medium);
-    letter-spacing: $ls-widest;
-    text-transform: uppercase;
-    padding: 0.75rem;
-    border: none;
-    cursor: pointer;
-    opacity: 0;
-    transform: translateY(4px);
-    @include transition(opacity, 0.25s);
-    @include focus-ring($color-secondary);
-  }
-
-  // ── Card body ─────────────────────────────────────────────────
-  &__body {
-    padding: 0.875rem;
-    @include flex-col;
-    flex: 1;
-    gap: 0.4rem;
-  }
-
-  // Ensure the card fills the available vertical space of its grid cell
-  align-self: stretch;
-
-  // ── Color swatches ────────────────────────────────────────────
-  &__colors {
-    display: flex;
-    gap: 5px;
-    flex-wrap: wrap;
-  }
-
-  &__color {
-    width: 11px;
-    height: 11px;
-    border-radius: 50%;
-    border: 1px solid $color-neutral-300;
-    cursor: pointer;
-    @include transition(transform);
-
-    &:hover { transform: scale(1.25); }
-  }
-
-  // ── Name ──────────────────────────────────────────────────────
-  &__name {
-    @include label($fs-sm, $fw-semibold);
-    color: $color-primary;
-    margin: 0;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-
-    a {
-      color: inherit;
-      text-decoration: none;
-      &:hover { text-decoration: underline; }
+    @media (max-width: 900px) {
+      height: 260px;
+    }
+    @media (max-width: 600px) {
+      height: 210px;
     }
   }
 
-  // ── Pricing ───────────────────────────────────────────────────
-  &__pricing {
-    display: flex;
-    align-items: baseline;
-    gap: 0.4rem;
-    flex-wrap: wrap;
+  &__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease;
+  }
+  &:hover &__img {
+    transform: scale(1.04);
   }
 
-  &__price {
-    font-family: $font-headline;
-    font-size: $fs-lg;
-    font-weight: $fw-semibold;
-    color: $color-primary;
+  &__img-placeholder {
+    width: 48px;
+    height: 48px;
+    color: rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    svg { width: 100%; height: 100%; }
+  }
+
+  // ── Heart icon button (top-right) ───────────────────────────
+  &__heart {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: $v-white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    z-index: 3;
+    transition: transform 0.16s ease, background 0.16s ease;
+
+    svg {
+      width: 17px;
+      height: 17px;
+      color: $v-text;
+      transition: color 0.16s ease, transform 0.16s ease;
+    }
+
+    &:hover {
+      transform: scale(1.12);
+      background: $v-white;
+    }
+
+    &--on {
+      background: $v-white;
+      svg {
+        color: $v-red;
+        fill: $v-red;
+      }
+    }
+  }
+
+  // ── Card body ───────────────────────────────────────────────
+  &__body {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    flex: 1;
+    background: $v-white;
+  }
+
+  // Brand
+  &__brand {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    color: #aaa;
+    text-transform: uppercase;
+    margin: 0;
     line-height: 1;
   }
 
-  &__original {
-    font-family: $font-body;
-    font-size: $fs-xs;
-    color: $color-tertiary-400;
-    text-decoration: line-through;
+  // Product Name
+  &__name {
+    font-size: 14px;
+    font-weight: 600;
+    color: $v-black;
+    line-height: 1.35;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 38px;
   }
 
-  // ── Action buttons ────────────────────────────────────────────
-  &__actions {
-    @include flex-col;
-    gap: 0.4rem;
+  // Rating
+  &__rating {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  &__rating-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: #df9f29;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1;
+    svg {
+      flex-shrink: 0;
+    }
+  }
+
+  &__rating-count {
+    font-size: 11px;
+    color: $v-gray;
+  }
+
+  // Price row
+  &__price-row {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 2px;
+  }
+
+  &__price {
+    font-size: 20px;
+    font-weight: 700;
+    color: $v-black;
+    line-height: 1;
+  }
+
+  &__mrp {
+    font-size: 12px;
+    color: #999;
+    text-decoration: line-through;
+    font-weight: 400;
+  }
+
+  &__off {
+    font-size: 11.5px;
+    color: #d55353;
+    font-weight: 700;
+  }
+
+  // Feature tags
+  &__features {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 2px;
+  }
+
+  &__feature {
+    display: flex;
+    align-items: flex-start;
+    gap: 4px;
+    font-size: 10px;
+    color: #4b5563;
+  }
+
+  &__feature-ico {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    color: $v-gray;
+    svg { width: 100%; height: 100%; }
+  }
+
+  &__feature-text {
+    display: flex;
+    flex-direction: column;
+    strong {
+      font-size: 10px;
+      font-weight: 600;
+      color: $v-text;
+      line-height: 1.2;
+    }
+    em {
+      font-style: normal;
+      font-size: 9px;
+      color: $v-gray;
+      line-height: 1.1;
+    }
+  }
+
+  // Available Colors
+  &__avail {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 2px;
+  }
+
+  &__avail-label {
+    font-size: 10.5px;
+    font-weight: 600;
+    color: $v-gray;
+  }
+
+  &__avail-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  &__avail-dot {
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15);
+    flex-shrink: 0;
+  }
+
+  &__avail-more {
+    font-size: 10px;
+    color: $v-gray;
+    font-weight: 500;
+  }
+
+  // CTA buttons
+  &__ctas {
+    display: flex;
+    gap: 8px;
     margin-top: auto;
-    padding-top: 0.25rem;
+    padding-top: 10px;
   }
 
   &__btn {
-    width: 100%;
-    padding: 0.55rem 0.75rem;
-    @include label($fs-xs, $fw-bold);
-    letter-spacing: $ls-wider;
-    text-transform: uppercase;
-    text-align: center;
-    text-decoration: none;
-    border-radius: 2px;
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 11px 8px;
+    border-radius: 0;
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
     cursor: pointer;
-    @include transition(all);
-    @include focus-ring($color-secondary);
     white-space: nowrap;
+    text-transform: uppercase;
+    font-family: $v-font-sans;
+    transition: all 0.22s ease;
 
-    &:active { transform: scale(0.97); }
+    svg {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+    }
 
     &--cart {
-      background-color: $color-secondary;
-      color: $color-primary;
-      border: none;
-      &:hover { filter: brightness(1.1); }
+      background: $v-white;
+      border: 1.5px solid $v-black;
+      color: $v-black;
+
+      &:hover {
+        background: $v-black;
+        color: $v-white;
+      }
+
+      &.is-in-cart {
+        background: rgba(46, 125, 79, 0.08);
+        border-color: $v-green;
+        color: $v-green;
+      }
     }
 
     &--buy {
-      background-color: transparent;
-      color: $color-primary;
-      border: 1.5px solid $color-primary;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      &:hover { background-color: $color-primary; color: #ffffff; }
+      background: $v-black;
+      border: 1.5px solid $v-black;
+      color: $v-white;
+
+      &:hover {
+        background: $v-gold;
+        border-color: $v-gold;
+        color: $v-black;
+      }
     }
-  }
-
-  // ─────────────────────────────────────────────────────────────
-  //  RESPONSIVE BREAKPOINTS
-  // ─────────────────────────────────────────────────────────────
-
-  // ── Large desktop ≥1280px — default above ────────────────────
-
-  // ── Tablet landscape 1024px ───────────────────────────────────
-  @include lg {
-    &__body    { padding: 0.875rem; }
-    &__price   { font-size: $fs-base; }
-  }
-
-  // ── Tablet portrait 768px ─────────────────────────────────────
-  @include md {
-    &__body    { padding: 0.75rem; }
-    &__price   { font-size: $fs-base; }
-    &__btn     { padding: 0.5rem 0.5rem; font-size: 11px; letter-spacing: 0.04em; }
-    &__name    { font-size: $fs-xs; }
-  }
-
-  // ── Large phone 640px ─────────────────────────────────────────
-  @include sm {
-    &__body    { padding: 0.65rem; }
-    &__price   { font-size: $fs-sm; }
-    &__btn     { padding: 0.45rem 0.4rem; font-size: 10px; letter-spacing: 0.03em; }
-    &__name    { font-size: $fs-xs; }
-    &__colors  { gap: 4px; }
-    &__color   { width: 10px; height: 10px; }
-    // Always show quick-add on touch (no hover)
-    &__quick-add { opacity: 1; transform: translateY(0); font-size: 9px; padding: 0.55rem; }
-    &__wish      { opacity: 1; }
-  }
-
-  // ── Standard phone 480px ──────────────────────────────────────
-  @include xs {
-    &__body    { padding: 0.55rem; gap: 0.3rem; }
-    &__price   { font-size: $fs-sm; }
-    &__original { display: none; } // save space on tiny screens
-    &__btn     {
-      padding: 0.4rem 0.25rem;
-      font-size: 9px;
-      letter-spacing: 0.02em;
-    }
-    &__name    { font-size: 11px; }
-    &__sizes   { display: none; } // too cramped
-    &__colors  { display: none; } // too cramped
-    &__actions { gap: 0.3rem; }
-  }
-
-  // ── Small phone ≤360px ────────────────────────────────────────
-  @include xxs {
-    &__body    { padding: 0.4rem; }
-    &__price   { font-size: 12px; }
-    &__btn     {
-      padding: 0.35rem 0.2rem;
-      font-size: 8px;
-      letter-spacing: 0;
-    }
-    &__name    { font-size: 10px; }
-    // Stack buttons vertically on very small screens
-    &__actions { gap: 0.25rem; }
   }
 }

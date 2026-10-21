@@ -1,162 +1,270 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
-import { toSlug, toTitleCase } from '../../utils/slug';
+import { useCartDrawer } from '../../context/CartDrawerContext';
+import { toSlug, toTitleCase, getProductSlug } from '../../utils/slug';
 import './style.scss';
 
+// ── Feature tag icon helpers ──────────────────────────────────────────────────
+function CapacityIcon() {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6">
+      <rect x="2" y="4" width="16" height="12" rx="2"/>
+      <path d="M2 8h16"/>
+    </svg>
+  );
+}
+function MaterialIcon() {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6">
+      <path d="M10 2l8 4v5a8 8 0 0 1-8 7 8 8 0 0 1-8-7V6l8-4z"/>
+    </svg>
+  );
+}
+function DesignIcon() {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6">
+      <path d="M7 9l3 3 9-9"/><path d="M19 10v7a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9"/>
+    </svg>
+  );
+}
+
 /**
- * ProductCard
- * One card = one variant. Each card links to the product detail page
- * with the correct product_id so the detail page can load all variants.
- *
- * Props:
- *  product  – variant-card object from expandProductToVariantCards
- *  animate  – boolean, adds entrance animation class
+ * Unified ProductCard
+ * One standard card matching PLP design across the entire application:
+ * - PLP (Product List)
+ * - Wishlist Page
+ * - Home Page (Bestsellers, Featured, New Drops)
+ * - Dashboard & Recommendations
  */
-function ProductCard({ product, animate = false }) {
-  const { addItem, toggleWishlist, isWishlisted, isInCart } = useCart();
+export default function ProductCard({ product, index = 0, onRemoveWishlist }) {
   const navigate = useNavigate();
+  const { addItem, isInCart, toggleWishlist, isWishlisted } = useCart();
+  const cartDrawer = useCartDrawer ? useCartDrawer() : null;
+  const openDrawer = cartDrawer?.openDrawer || (() => {});
 
-  const productId     = product.productId || product.id;
-  const wished        = isWishlisted(product.id);
-  const alreadyInCart = isInCart(product.id) || isInCart(productId);
+  if (!product) return null;
 
-  // SEO slug: "premium-girls-backpack-smc-00004"
-  // Title-case display name: "Premium Girls Backpack"
-  const displayName = toTitleCase(product.name);
-  const slug        = toSlug(product.name, productId);
-  const detailUrl   = `/products/${slug}`;
+  const rawProductId = product.productId || product.product_id || product.id || '';
+  const cleanProductId = String(rawProductId).split('__')[0].trim();
+  const slug = getProductSlug(product);
+  const detailUrl = `/products/${slug}`;
+
+  const imgSrc = product.image || product.img || '';
+  const inCart = isInCart(product.id) || isInCart(cleanProductId);
+  const wished = isWishlisted(product.id) || isWishlisted(cleanProductId);
+
+  const price = Number(product.price ?? product.sellingPrice ?? 0);
+  const originalPrice = product.originalPrice || product.mrp || null;
+  const hasDiscount = originalPrice && Number(originalPrice) > price;
+  const discountPct = hasDiscount ? Math.round((1 - price / Number(originalPrice)) * 100) : 0;
+
+  // Title-cased base name
+  const baseName = toTitleCase(product.name || 'School Bag');
+  const nameParts = [
+    product.bagCapacity ? product.bagCapacity : null,
+    product.material    ? product.material    : null,
+    product.pattern     ? product.pattern     : null,
+    product.gender      ? product.gender      : null,
+  ].filter(Boolean);
+  const enrichedName = nameParts.length > 0 ? `${baseName} – ${nameParts.join(', ')}` : baseName;
+  const name = enrichedName;
+
+  // Feature tags — capacity / material / style from product data
+  const featureTags = [
+    product.bagCapacity   ? { Icon: CapacityIcon, label: product.bagCapacity,     sub: 'Capacity'  } : null,
+    product.material      ? { Icon: MaterialIcon, label: product.material,        sub: 'Material'  } : null,
+    product.backpackStyle || product.gender
+      ? { Icon: DesignIcon,   label: product.backpackStyle || product.gender, sub: 'Design'    } : null,
+  ].filter(Boolean).slice(0, 3);
 
   const handleAddToCart = (e) => {
-    e.preventDefault();
+    e.stopPropagation();
+    if (inCart) { openDrawer(); return; }
     addItem({
       ...product,
-      id:            productId,                        // master product id
-      price:         product.price,
-      image:         product.image,                    // fully-resolved variant image URL
-      selectedColor: product.colorHex  || '',
-      selectedSize:  product.size      || '',
-      variantId:     product.variantId || null,
-      stock:         product.stock     ?? 999,         // variant stock; fallback if undefined
-      quantity:      1,
+      id: product.id,
+      productId: cleanProductId,
+      slug,
+      name: product.name,
+      price,
+      originalPrice,
+      image: imgSrc,
+      category: product.category || '',
+      colorName: product.colorName || '',
+      brand: product.brand || '',
+      stock: product.stock ?? 99,
     });
+    openDrawer();
   };
 
   const handleBuyNow = (e) => {
-    e.preventDefault();
+    e.stopPropagation();
     navigate(detailUrl);
   };
 
   const handleWishlist = (e) => {
-    e.preventDefault();
     e.stopPropagation();
-    toggleWishlist(product);
+    e.preventDefault();
+    if (onRemoveWishlist) {
+      onRemoveWishlist(product);
+      return;
+    }
+    toggleWishlist({
+      ...product,
+      id: product.id,
+      productId: cleanProductId,
+      slug,
+      name: product.name,
+      price,
+      originalPrice,
+      image: imgSrc,
+      category: product.category || '',
+      colorName: product.colorName || '',
+      brand: product.brand || '',
+    });
   };
 
-  const formatPrice = (n) =>
-    new Intl.NumberFormat('en-IN', {
-      style: 'currency', currency: 'INR', maximumFractionDigits: 0,
-    }).format(n);
-
-  // Color swatches — all sibling variants for this product
-  const swatches = Array.isArray(product.colors) ? product.colors : [];
+  const rowDelay = (index % 6) * 85;
 
   return (
-    <article className={`pcard${animate ? ' pcard--animate' : ''}`}>
-      <Link to={detailUrl} className="pcard__img-wrap">
-        <img
-          src={product.image}
-          alt={product.colorName ? `${displayName} – ${product.colorName}` : displayName}
-          className="pcard__img"
-          loading="lazy"
-          onError={(e) => {
-            console.warn(`%c[ProductCard] ❌ img failed`, 'color:red', product.image);
-            e.currentTarget.src = '';
-            e.currentTarget.style.background = '#f3f4f6';
-          }}
-        />
+    <article
+      className="pcard is-visible stagger-revealed"
+      style={{
+        '--stagger-delay': `${rowDelay}ms`,
+        transitionDelay: `${rowDelay}ms`,
+      }}
+      onClick={() => navigate(detailUrl)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => e.key === 'Enter' && navigate(detailUrl)}
+    >
+      {/* ── Image ─────────────────────────────────────────────── */}
+      <div className="pcard__img-wrap">
+        {imgSrc ? (
+          <img
+            src={imgSrc}
+            alt={name}
+            className="pcard__img"
+            loading="lazy"
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+              if (e.currentTarget.nextSibling) {
+                e.currentTarget.nextSibling.style.display = 'flex';
+              }
+            }}
+          />
+        ) : null}
+        <div
+          className="pcard__img-placeholder"
+          style={{ display: imgSrc ? 'none' : 'flex' }}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4">
+            <path d="M6 8h12l-1 13H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>
+          </svg>
+        </div>
 
-        {/* Badge */}
-        {/* {product.badge && (
-          <span className={`pcard__badge pcard__badge--${product.badge.toLowerCase()}`}>
-            {product.badge}
-          </span>
-        )} */}
-
-        {/* Out of stock overlay */}
-        {product.stock === 0 && product.stock !== undefined && (
-          <span style={{
-            position: 'absolute', inset: 0,
-            background: 'rgba(0,0,0,0.35)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: '#fff', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.05em',
-          }}>
-            OUT OF STOCK
-          </span>
-        )}
-
-        {/* Wishlist heart */}
+        {/* Wishlist Heart — top-right */}
         <button
           type="button"
-          className={`pcard__wish${wished ? ' is-wished' : ''}`}
+          className={`pcard__heart${wished ? ' pcard__heart--on' : ''}`}
           onClick={handleWishlist}
-          aria-label={wished ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
+          aria-label={wished ? 'Remove from wishlist' : 'Save to wishlist'}
           aria-pressed={wished}
         >
-          <svg width="18" height="18" viewBox="0 0 24 24"
-            fill={wished ? 'currentColor' : 'none'}
-            stroke="currentColor" strokeWidth="1.8"
-            strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
+          <svg viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8"
+            fill={wished ? 'currentColor' : 'none'}>
+            <path d="M12 21s-7.5-4.6-10-9.2C.4 8.4 2 4.5 6 4c2.3-.3 4.2 1 6 3 1.8-2 3.7-3.3 6-3 4 .5 5.6 4.4 4 7.8-2.5 4.6-10 9.2-10 9.2z"/>
           </svg>
         </button>
-      </Link>
+      </div>
 
-      {/* Card body */}
+      {/* ── Body ──────────────────────────────────────────────── */}
       <div className="pcard__body">
-        {/* Color swatches — highlight the active variant's swatch */}
-        {swatches.length > 0 && (
-          <div className="pcard__colors" aria-label="Available colours">
-            {swatches.map((c) => (
-              <span
-                key={c.hex}
-                className={`pcard__color${c.hex === product.colorHex ? ' pcard__color--active' : ''}`}
-                style={{ backgroundColor: c.hex }}
-                title={c.name}
-                aria-label={c.name}
-              />
+        {/* Brand */}
+        {(product.brand || product.brandName) && (
+          <p className="pcard__brand stagger-text">
+            {(product.brand || product.brandName).toUpperCase()}
+          </p>
+        )}
+
+        {/* Product name */}
+        <h3 className="pcard__name stagger-text">{name}</h3>
+
+        {/* Rating */}
+        <div className="pcard__rating stagger-text">
+          <span className="pcard__rating-pill">
+            <svg viewBox="0 0 10 10" fill="currentColor" width="9" height="9">
+              <path d="M5 0l1.12 3.45H10L7.06 5.59l1.12 3.44L5 7 1.82 9.03 2.94 5.59.01 3.45H3.88z"/>
+            </svg>
+            {product.rating || '4.3'}
+          </span>
+          <span className="pcard__rating-count">
+            ({product.reviewCount || product.reviews || '128'})
+          </span>
+        </div>
+
+        {/* Price row */}
+        <div className="pcard__price-row stagger-text">
+          <span className="pcard__price">₹{price.toLocaleString('en-IN')}</span>
+          {hasDiscount && (
+            <>
+              <span className="pcard__mrp">₹{Number(originalPrice).toLocaleString('en-IN')}</span>
+              <span className="pcard__off">{discountPct}% off</span>
+            </>
+          )}
+        </div>
+
+        {/* Feature tags */}
+        {featureTags.length > 0 && (
+          <div className="pcard__features">
+            {featureTags.map(({ Icon, label, sub }, i) => (
+              <span key={i} className="pcard__feature">
+                <span className="pcard__feature-ico"><Icon /></span>
+                <span className="pcard__feature-text">
+                  <strong>{label}</strong>
+                  <em>{sub}</em>
+                </span>
+              </span>
             ))}
           </div>
         )}
 
-        {/* Show active color name if available */}
-        {product.colorName && (
-          <div className="pcard__color-name"
-            style={{ fontSize: '0.72rem', color: '#6b7280', marginBottom: 2 }}>
-            {product.colorName}
+        {/* Available Colors */}
+        {product.colors?.length > 0 && (
+          <div className="pcard__avail">
+            <span className="pcard__avail-label">Available Colors</span>
+            <div className="pcard__avail-row">
+              {product.colors.slice(0, 3).map((c, i) => (
+                <span key={i} className="pcard__avail-dot"
+                  style={{ background: c.hex || c }} title={c.name || ''} />
+              ))}
+              {product.colors.length > 3 && (
+                <span className="pcard__avail-more">+{product.colors.length - 3} more</span>
+              )}
+            </div>
           </div>
         )}
 
-        <h3 className="pcard__name">
-          <Link to={detailUrl}>{displayName}</Link>
-        </h3>
-
-        {product.brand && <div className="pcard__brand">{product.brand}</div>}
-
-        <div className="pcard__pricing">
-          <span className="pcard__price">{formatPrice(product.price)}</span>
-          {product.originalPrice && product.originalPrice > product.price && (
-            <span className="pcard__original">{formatPrice(product.originalPrice)}</span>
-          )}
-        </div>
-
-        <div className="pcard__actions">
-          <button className="pcard__btn pcard__btn--cart"
+        {/* CTA row */}
+        <div className="pcard__ctas">
+          <button
+            className={`pcard__btn pcard__btn--cart${inCart ? ' is-in-cart' : ''}`}
             onClick={handleAddToCart}
-            disabled={(product.stock === 0 && product.stock !== undefined) || alreadyInCart}
-            style={{ opacity: alreadyInCart ? 0.75 : 1 }}>
-            {alreadyInCart ? '✓ In Cart' : 'Add to Cart'}
+            type="button"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M6 8h12l-1 13H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>
+            </svg>
+            {inCart ? 'In Cart' : 'Add to Cart'}
           </button>
-          <button className="pcard__btn pcard__btn--buy" onClick={handleBuyNow}>
+          <button
+            className="pcard__btn pcard__btn--buy"
+            onClick={handleBuyNow}
+            type="button"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+              <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
+            </svg>
             Buy Now
           </button>
         </div>
@@ -164,5 +272,3 @@ function ProductCard({ product, animate = false }) {
     </article>
   );
 }
-
-export default ProductCard;

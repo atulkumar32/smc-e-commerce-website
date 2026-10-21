@@ -424,14 +424,54 @@ body { background: $v-white; font-family: $v-font-sans; }
 
 // ── Left sidebar ──────────────────────────────────────────────
 .pl__sidebar {
+  position: sticky;
+  top: 92px;
+  max-height: calc(100vh - 110px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
   border: 1px solid $v-border;
   background: $v-white;
   font-family: $v-font-sans;
+
+  // Y-axis scroller only — hidden by default, visible only when cursor hovers on the filter box
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 4px;
+    transition: background 0.2s ease;
+  }
+
+  &:hover {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.22) transparent;
+
+    &::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.22);
+
+      &:hover {
+        background: rgba(0, 0, 0, 0.42);
+      }
+    }
+  }
 
   @media (max-width: 750px) { display: none; }
 }
 
 .pl__sidebar-head {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: $v-white;
   padding: 16px 18px;
   border-bottom: 1px solid $v-border;
   display: flex;

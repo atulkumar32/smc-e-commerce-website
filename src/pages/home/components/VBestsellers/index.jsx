@@ -1,55 +1,150 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useCart } from '../../../../context/CartContext';
+import ProductCard from '../../../../components/ProductCard';
 import SkeletonCard from '../../../../components/SkeletonCard';
-import { useStaggerReveal } from '../../../../components/StaggerReveal';
+import { fetchWebProductList } from '../../../../Actions/Web/GetProductListAction';
+import { MEDIA_BASE } from '../../../../Config/UrlsConfig';
 
-// ── Heart icon ────────────────────────────────────────────────
-const HeartIcon = ({ filled }) => (
-  <svg viewBox="0 0 24 24" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1.8">
-    <path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.6l-1-1a5.5 5.5 0 10-7.8 7.8L12 22l8.8-9.6a5.5 5.5 0 000-7.8z"/>
-  </svg>
-);
-const CheckCircle = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
-  </svg>
-);
+function resolveImg(path) {
+  if (!path) return '';
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+  const clean = path.replace(/^\/+/, '');
+  const segments = clean.split('/');
+  const filename = segments[segments.length - 1];
+  const dir = segments.slice(0, -1).join('/');
+  const encoded = dir ? `${dir}/${encodeURIComponent(filename)}` : encodeURIComponent(filename);
+  return `${MEDIA_BASE}${encoded}`;
+}
 
-const PRODUCTS = [
-  { id: 'bs1', name: 'Classic 30L Backpack for Boys & Girls',          brand: 'SMC', badge: 'Best Seller', price: 999,  mrp: 1999, rating: 4.7, reviews: '1,248', img: 'https://images.unsplash.com/photo-1622560480654-d96214fdc887?auto=format&fit=crop&w=700&q=80' },
-  { id: 'bs2', name: 'Korean Style School Backpack for Girls',         brand: 'SMC', badge: 'New Arrival', price: 799,  mrp: 1499, rating: 4.6, reviews: '856',   img: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=700&q=80' },
-  { id: 'bs3', name: 'Premium Laptop Backpack up to 15.6 Inch',        brand: 'SMC', badge: 'Trending',    price: 1299, mrp: 2499, rating: 4.8, reviews: '642',   img: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=700&q=80' },
-  { id: 'bs4', name: 'Elegant Tote Bag for Office & Daily Use',        brand: 'SMC', badge: 'Best Seller', price: 899,  mrp: 1799, rating: 4.6, reviews: '421',   img: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=700&q=80' },
+const FALLBACK_PRODUCTS = [
+  {
+    id: 'SMC-00001',
+    productId: 'SMC-00001',
+    name: 'Classic 30L Backpack for Boys & Girls',
+    brand: 'SMC',
+    badge: 'Best Seller',
+    price: 999,
+    mrp: 1999,
+    originalPrice: 1999,
+    rating: 4.7,
+    reviews: '1,248',
+    image: 'https://images.unsplash.com/photo-1622560480654-d96214fdc887?auto=format&fit=crop&w=700&q=80',
+    bagCapacity: '30L',
+    material: 'Polyester',
+    gender: 'Unisex',
+    colors: [{ hex: '#1B2B4B', name: 'Navy' }, { hex: '#111111', name: 'Black' }],
+  },
+  {
+    id: 'SMC-00002',
+    productId: 'SMC-00002',
+    name: 'Korean Style School Backpack for Girls',
+    brand: 'SMC',
+    badge: 'New Arrival',
+    price: 799,
+    mrp: 1499,
+    originalPrice: 1499,
+    rating: 4.6,
+    reviews: '856',
+    image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=700&q=80',
+    bagCapacity: '25L',
+    material: 'Nylon',
+    gender: 'Girls',
+    colors: [{ hex: '#E91E8C', name: 'Pink' }, { hex: '#7C3AED', name: 'Purple' }],
+  },
+  {
+    id: 'SMC-00003',
+    productId: 'SMC-00003',
+    name: 'Premium Laptop Backpack up to 15.6 Inch',
+    brand: 'SMC',
+    badge: 'Trending',
+    price: 1299,
+    mrp: 2499,
+    originalPrice: 2499,
+    rating: 4.8,
+    reviews: '642',
+    image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=700&q=80',
+    bagCapacity: '35L',
+    material: 'Leatherette',
+    gender: 'Unisex',
+    colors: [{ hex: '#222222', name: 'Obsidian' }, { hex: '#8A8F98', name: 'Grey' }],
+  },
+  {
+    id: 'SMC-00004',
+    productId: 'SMC-00004',
+    name: 'Elegant Tote Bag for Office & Daily Use',
+    brand: 'SMC',
+    badge: 'Best Seller',
+    price: 899,
+    mrp: 1799,
+    originalPrice: 1799,
+    rating: 4.6,
+    reviews: '421',
+    image: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=700&q=80',
+    bagCapacity: '20L',
+    material: 'Canvas',
+    gender: 'Women',
+    colors: [{ hex: '#C4841F', name: 'Tan' }, { hex: '#1B1B1B', name: 'Black' }],
+  },
 ];
 
-const fmt = (v) => `₹${Number(v).toLocaleString('en-IN')}`;
-const disc = (p, m) => Math.round((1 - p / m) * 100);
-
 export default function VBestsellers() {
-  const { addItem, toggleWishlist, isWishlisted } = useCart();
-  const [added, setAdded] = useState({});
+  const [products, setProducts] = useState(FALLBACK_PRODUCTS);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Initial loading state with smooth transition
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 400);
-    return () => clearTimeout(timer);
+    let active = true;
+    async function loadProducts() {
+      try {
+        const res = await fetchWebProductList({ limit: 8 });
+        const list = res?.data?.products || res?.products || res?.data || [];
+        if (Array.isArray(list) && list.length > 0 && active) {
+          const mapped = list.slice(0, 4).map((p) => {
+            let img = '';
+            if (Array.isArray(p.variants) && p.variants.length > 0) {
+              for (const v of p.variants) {
+                const imgs = Array.isArray(v.images) ? v.images : [];
+                if (imgs.length) {
+                  const main = imgs.find((i) => i.is_main) || imgs[0];
+                  if (main?.image_url) { img = resolveImg(main.image_url); break; }
+                }
+              }
+            }
+            if (!img && p.primary_image) img = resolveImg(p.primary_image);
+
+            const firstVar = Array.isArray(p.variants) && p.variants[0];
+            const price = Number(p.selling_price ?? p.price ?? firstVar?.selling_price ?? 999);
+            const mrp = Number(p.mrp ?? firstVar?.mrp ?? p.originalPrice ?? price);
+
+            return {
+              id: p.product_id || p.id,
+              productId: p.product_id || p.id,
+              name: p.product_name || p.name || 'School Bag',
+              brand: p.brand || 'SMC',
+              price,
+              originalPrice: mrp > price ? mrp : null,
+              image: img || FALLBACK_PRODUCTS[0].image,
+              rating: p.rating || 4.7,
+              reviewCount: p.review_count || p.reviews_count || '128',
+              bagCapacity: p.capacity || p.bag_capacity || null,
+              material: p.material || null,
+              gender: p.gender || null,
+              colors: Array.isArray(p.variants)
+                ? p.variants.map((v) => ({ hex: v.color_hex || '#333', name: v.color_name || '' }))
+                : [],
+            };
+          });
+          setProducts(mapped);
+        }
+      } catch {
+        // Fallback to FALLBACK_PRODUCTS
+      } finally {
+        if (active) setLoading(false);
+      }
+    }
+
+    loadProducts();
+    return () => { active = false; };
   }, []);
-
-  const gridRef = useStaggerReveal({
-    selector: '.v-card',
-    staggerDelay: 85,
-    deps: [loading],
-  });
-
-  const handleAdd = (p) => {
-    addItem({ ...p, id: p.id, price: p.price, image: p.img, quantity: 1 });
-    setAdded(prev => ({ ...prev, [p.id]: true }));
-    setTimeout(() => setAdded(prev => ({ ...prev, [p.id]: false })), 1800);
-  };
 
   return (
     <section className="v-section" style={{ paddingTop: 20 }}>
@@ -64,50 +159,10 @@ export default function VBestsellers() {
             <SkeletonCard count={4} />
           </div>
         ) : (
-          <div className="v-products__grid" ref={gridRef}>
-            {PRODUCTS.map((p) => {
-              const wished = isWishlisted(p.id);
-              const justAdded = added[p.id];
-              return (
-                <article key={p.id} className="v-card">
-                  <div className="v-card__img-wrap">
-                    {p.badge && <span className="v-card__badge">{p.badge}</span>}
-                    <button
-                      className={`v-card__wish${wished ? ' v-card__wish--on' : ''}`}
-                      onClick={() => toggleWishlist({ id: p.id, name: p.name, price: p.price, image: p.img })}
-                      aria-label={wished ? 'Remove from wishlist' : 'Add to wishlist'}
-                    >
-                      <HeartIcon filled={wished} />
-                    </button>
-                    <img src={p.img} alt={p.name} className="v-card__img" loading="lazy" />
-                    <Link to="/products" className="v-card__quick">QUICK VIEW</Link>
-                  </div>
-
-                  <div className="v-card__body">
-                    <p className="v-card__brand stagger-text">{p.brand}</p>
-                    <p className="v-card__name stagger-text">{p.name}</p>
-                    <div className="v-card__rating stagger-text">
-                      {'★'.repeat(Math.floor(p.rating))}
-                      <span>{p.rating} ({p.reviews})</span>
-                    </div>
-                    <div className="v-card__price stagger-text">
-                      <strong className="v-card__current">{fmt(p.price)}</strong>
-                      <span className="v-card__mrp">{fmt(p.mrp)}</span>
-                      <span className="v-card__off">{disc(p.price, p.mrp)}% OFF</span>
-                    </div>
-                    <p className="v-card__delivery stagger-text">
-                      <CheckCircle /> Free Delivery
-                    </p>
-                    <button
-                      className="v-card__add"
-                      onClick={() => handleAdd(p)}
-                    >
-                      {justAdded ? '✓ ADDED' : 'ADD TO CART'}
-                    </button>
-                  </div>
-                </article>
-              );
-            })}
+          <div className="v-products__grid">
+            {products.map((p, i) => (
+              <ProductCard key={p.id} product={p} index={i} />
+            ))}
           </div>
         )}
       </div>

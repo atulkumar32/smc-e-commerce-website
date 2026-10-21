@@ -1,64 +1,11 @@
 import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import Breadcrumbs from '../../components/Breadcrumbs';
+import ProductCard from '../../components/ProductCard';
 import './style.scss';
 
-const fmt = (n) =>
-  new Intl.NumberFormat('en-IN', {
-    style: 'currency', currency: 'INR', maximumFractionDigits: 0,
-  }).format(n);
-
-function WishlistItem({ item }) {
-  const { removeFromWishlist, moveToCart } = useCart();
-
-  return (
-    <div className="wl-item">
-      <Link to={`/products/${item.id}`} className="wl-item__img-wrap">
-        <img src={item.image} alt={item.name} className="wl-item__img" loading="lazy" />
-      </Link>
-
-      <div className="wl-item__body">
-        <div className="wl-item__top">
-          <div>
-            <h3 className="wl-item__name">
-              <Link to={`/products/${item.id}`}>{item.name}</Link>
-            </h3>
-            <p className="wl-item__price">{fmt(item.price)}</p>
-          </div>
-          <button
-            className="wl-item__remove"
-            onClick={() => removeFromWishlist(item.id, item.name)}
-            aria-label={`Remove ${item.name} from wishlist`}
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" strokeWidth="2"
-              strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-          </button>
-        </div>
-
-        <div className="wl-item__actions">
-          <button
-            className="wl-item__cart-btn"
-            onClick={() => moveToCart(item)}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" strokeWidth="1.8"
-              strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" />
-              <path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.61L23 6H6" />
-            </svg>
-            Move to Cart
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function WishlistPage() {
-  const { wishlistItems } = useCart();
+  const { wishlistItems, removeFromWishlist } = useCart();
 
   return (
     <div className="wl-page">
@@ -97,8 +44,13 @@ function WishlistPage() {
           </div>
         ) : (
           <div className="wl-page__grid">
-            {wishlistItems.map((item) => (
-              <WishlistItem key={item.id} item={item} />
+            {wishlistItems.map((item, index) => (
+              <ProductCard
+                key={item.id || index}
+                product={item}
+                index={index}
+                onRemoveWishlist={() => removeFromWishlist(item.id, item.name)}
+              />
             ))}
           </div>
         )}
