@@ -60,8 +60,8 @@ function SingleColorRow({ colorItem, onUpdate, onRemove }) {
   return (
     <Box sx={{ border: '1px solid #e0e0e0', borderRadius: 2, p: 3, mb: 3, bgcolor: '#fff' }}>
       {/* Row header */}
-      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
-        <Stack direction="row" alignItems="center" spacing={1.5}>
+      <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
           <Box sx={{
             width: 24, height: 24, borderRadius: '50%',
             background: colorItem.hex, border: '1px solid rgba(0,0,0,0.15)',
@@ -181,7 +181,7 @@ export default function ColorsImagesSection({ selectedColors, onColorsChange }) 
       )}
 
       {/* Searchable dropdown + Add button */}
-      <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 4 }}>
+      <Stack direction="row" spacing={2} sx={{ alignItems: 'center', mb: 4 }}>
         <Autocomplete
           size="small"
           sx={{ minWidth: 260 }}
@@ -201,7 +201,7 @@ export default function ColorsImagesSection({ selectedColors, onColorsChange }) 
             const { key, ...restProps } = props;
             return (
               <Box component="li" key={key} {...restProps}>
-                <Stack direction="row" alignItems="center" spacing={1.5}>
+                <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
                   <Box sx={{
                     width: 18, height: 18, borderRadius: '50%',
                     background: option.hex,

@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import BottomNav from '../components/BottomNav';
 import RevealOnScroll from '../components/RevealOnScroll';
 
 function StoreLayout() {
@@ -12,6 +13,7 @@ function StoreLayout() {
         <Outlet />
       </main>
       <Footer />
+      <BottomNav />
     </>
   );
 }

@@ -73,7 +73,7 @@ function AddNewProduct({ editingProduct = null, onSuccess, onCancel }) {
 
       <Grid container spacing={2.5}>
         {/* ── LEFT — form fields ── */}
-        <Grid item xs={12} lg={8}>
+        <Grid xs={12} lg={8}>
 
           {/* Basic Information */}
           <SectionCard title="Basic Information">
@@ -130,6 +130,7 @@ function AddNewProduct({ editingProduct = null, onSuccess, onCancel }) {
 
           {/* Product Attributes */}
           <SectionCard title="Product Attributes">
+          
             <Row>
               <F><Autocomplete freeSolo options={MATERIAL_OPTIONS}
                 value={form.material || ''}
@@ -238,7 +239,7 @@ function AddNewProduct({ editingProduct = null, onSuccess, onCancel }) {
       <Divider sx={{ my: 2 }} />
 
       {/* Action buttons */}
-      <Stack direction="row" spacing={2} justifyContent="flex-end">
+      <Stack direction="row" spacing={2} sx={{ justifyContent: 'flex-end' }}>
         <Button onClick={onCancel} disabled={loading}>Cancel</Button>
         <Button variant="outlined" disabled={loading}
           onClick={() => submitProduct('draft')}>

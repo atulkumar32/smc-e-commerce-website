@@ -19,16 +19,37 @@ import {
 
 // ── Response handler ──────────────────────────────────────────────────────────
 async function handleResponse(res) {
-  let data = {};
+  let text = '';
   try {
-    const text = await res.text();
+    text = await res.text();
     console.log('[Variants] Raw response:', text.slice(0, 500));
-    data = text ? JSON.parse(text) : {};
-  } catch (e) {
-    console.warn('[Variants] Failed to parse JSON:', e.message);
+  } catch (err) {
+    throw new Error(`Failed to read response: ${err.message}`);
   }
+
+  const cleanText = text ? text.trim() : '';
+
+  if (cleanText.includes('SQLSTATE') || cleanText.startsWith('Error:')) {
+    console.error('[Variants API Error]', cleanText);
+    throw new Error('Database server connection error. Please try again.');
+  }
+
+  if (cleanText.startsWith('<') && (cleanText.includes('This Page Does Not Exist') || cleanText.includes('404') || cleanText.includes('Fatal error'))) {
+    throw new Error(`Variant API service endpoint is not available (${res.status}).`);
+  }
+
+  let data = {};
+  if (cleanText) {
+    try {
+      data = JSON.parse(cleanText);
+    } catch (e) {
+      console.warn('[Variants] Failed to parse JSON:', e.message);
+      throw new Error('Invalid response received from server.');
+    }
+  }
+
   if (!res.ok) throw new Error(data.message || `HTTP ${res.status} ${res.statusText}`);
-  if (data.status === false) throw new Error(data.message || 'Server returned status: false');
+  if (data.status === false || data.success === false) throw new Error(data.message || 'Server returned status: false');
   return data;
 }
 

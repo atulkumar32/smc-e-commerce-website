@@ -1,8 +1,5 @@
-import { useState, useRef, useEffect } from 'react';
-import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
-import { useCart } from '../../context/CartContext';
-import { useCartDrawer } from '../../context/CartDrawerContext';
-import { isUserAuthenticated } from '../../services/apiClients';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { BRAND_SOCIAL_LINKS, BRAND_CONTACT } from '../../Config/brandConfig';
 import './style.scss';
 
@@ -16,49 +13,6 @@ const PhoneIcon = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColo
 const MailIcon  = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>;
 const LocIcon   = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>;
 const ArrowIcon = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>;
-
-// ── Mobile Bottom Nav Stroke Icons (Matching User Reference Image) ──
-const HomeIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/>
-    <path d="M9 21V12h6v9"/>
-  </svg>
-);
-
-const ShopIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <circle cx="12" cy="12" r="10"/>
-    <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" fill="currentColor" fillOpacity="0.16"/>
-  </svg>
-);
-
-const SearchIcon = ({ size = 20 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <circle cx="11" cy="11" r="7"/>
-    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-  </svg>
-);
-
-const WishlistIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
-  </svg>
-);
-
-const BagIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
-    <line x1="3" y1="6" x2="21" y2="6"/>
-    <path d="M16 10a4 4 0 01-8 0"/>
-  </svg>
-);
-
-const AccountIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
-    <circle cx="12" cy="7" r="4"/>
-  </svg>
-);
 
 const SHOP_LINKS = [
   { label: 'School Bags',  to: '/products?category_name=School+Bags' },
@@ -87,41 +41,11 @@ const ABOUT_LINKS = [
 ];
 
 function Footer() {
-  const navigate  = useNavigate();
-  const location  = useLocation();
-  const { totalItems, wishlistCount } = useCart();
-  const { openDrawer } = useCartDrawer();
-  const isAuthenticated = isUserAuthenticated();
-
   const [email, setEmail] = useState('');
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const searchInputRef = useRef(null);
-
-  // Close search drawer on route changes
-  useEffect(() => {
-    setSearchOpen(false);
-  }, [location.pathname]);
-
-  // Autofocus input when search drawer is opened
-  useEffect(() => {
-    if (searchOpen && searchInputRef.current) {
-      searchInputRef.current.focus();
-    }
-  }, [searchOpen]);
 
   const handleNewsletter = (e) => {
     e.preventDefault();
     if (email.trim()) setEmail('');
-  };
-
-  const handleMobileSearch = (e) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/products?q=${encodeURIComponent(searchQuery.trim())}`);
-      setSearchQuery('');
-      setSearchOpen(false);
-    }
   };
 
   return (
@@ -216,128 +140,6 @@ function Footer() {
           <span>Made with ❤️ in India</span>
         </div>
       </div>
-
-      {/* ═══ MOBILE / TABLET FIXED BOTTOM NAVIGATION BAR ══════════════ */}
-      {/* Visible ONLY on tablet & mobile devices (≤900px), matching reference design */}
-      <nav className="v-mobile-nav" aria-label="Mobile bottom navigation">
-        {/* Quick Search Slide-Up Popover */}
-        {searchOpen && (
-          <div className="v-mobile-nav__search-popover">
-            <form onSubmit={handleMobileSearch} className="v-mobile-nav__search-form" role="search">
-              <span className="v-mobile-nav__search-icon" aria-hidden="true">
-                <SearchIcon size={16} />
-              </span>
-              <input
-                ref={searchInputRef}
-                type="text"
-                placeholder="Search bags, backpacks, laptop gear…"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                aria-label="Mobile search"
-              />
-              {searchQuery.trim() && (
-                <button
-                  type="button"
-                  className="v-mobile-nav__search-clear"
-                  onClick={() => setSearchQuery('')}
-                  aria-label="Clear search"
-                >
-                  ✕
-                </button>
-              )}
-              <button type="submit" className="v-mobile-nav__search-submit" aria-label="Submit search">
-                <ArrowIcon />
-              </button>
-              <button
-                type="button"
-                className="v-mobile-nav__search-close"
-                onClick={() => setSearchOpen(false)}
-                aria-label="Close search popover"
-              >
-                Cancel
-              </button>
-            </form>
-          </div>
-        )}
-
-        <div className="v-mobile-nav__bar">
-          {/* 1. HOME */}
-          <NavLink
-            to="/home"
-            className={({ isActive }) => `v-mobile-nav__item${isActive ? ' is-active' : ''}`}
-            aria-label="Home"
-          >
-            <HomeIcon />
-            <span className="lbl">HOME</span>
-          </NavLink>
-
-          {/* 2. SHOP */}
-          <NavLink
-            to="/products"
-            className={({ isActive }) => `v-mobile-nav__item${isActive ? ' is-active' : ''}`}
-            aria-label="Shop products"
-          >
-            <ShopIcon />
-            <span className="lbl">SHOP</span>
-          </NavLink>
-
-          {/* 3. SEARCH */}
-          <button
-            type="button"
-            className={`v-mobile-nav__item${searchOpen ? ' is-active' : ''}`}
-            onClick={() => setSearchOpen((prev) => !prev)}
-            aria-label={searchOpen ? 'Close search' : 'Open search'}
-          >
-            <SearchIcon />
-            <span className="lbl">SEARCH</span>
-          </button>
-
-          {/* 4. WISHLIST */}
-          <NavLink
-            to="/wishlist"
-            className={({ isActive }) => `v-mobile-nav__item${isActive ? ' is-active' : ''}`}
-            aria-label="Wishlist"
-          >
-            <div className="v-mobile-nav__icon-wrap">
-              <WishlistIcon />
-              {wishlistCount > 0 && (
-                <span className="v-mobile-nav__badge">
-                  {wishlistCount > 99 ? '99+' : wishlistCount}
-                </span>
-              )}
-            </div>
-            <span className="lbl">WISHLIST</span>
-          </NavLink>
-
-          {/* 5. BAG */}
-          <button
-            type="button"
-            className="v-mobile-nav__item"
-            onClick={openDrawer}
-            aria-label="Shopping Cart Bag"
-          >
-            <div className="v-mobile-nav__icon-wrap">
-              <BagIcon />
-              {totalItems > 0 && (
-                <span className="v-mobile-nav__badge">
-                  {totalItems > 99 ? '99+' : totalItems}
-                </span>
-              )}
-            </div>
-            <span className="lbl">BAG</span>
-          </button>
-
-          {/* 6. ACCOUNT */}
-          <NavLink
-            to={isAuthenticated ? '/user/dashboard' : '/login'}
-            className={({ isActive }) => `v-mobile-nav__item${isActive ? ' is-active' : ''}`}
-            aria-label={isAuthenticated ? 'User Account' : 'Login'}
-          >
-            <AccountIcon />
-            <span className="lbl">ACCOUNT</span>
-          </NavLink>
-        </div>
-      </nav>
     </footer>
   );
 }

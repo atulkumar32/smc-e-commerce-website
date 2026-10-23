@@ -19,19 +19,41 @@ import {
 
 // ── Shared response handler ────────────────────────────────────────────────────
 async function handleResponse(response) {
-  let data = {};
+  let text = '';
   try {
-    const text = await response.text();
-    data = text ? JSON.parse(text) : {};
-  } catch {
-    // non-JSON body — treat as empty
+    text = await response.text();
+  } catch (err) {
+    throw new Error(`Failed to read server response: ${err.message}`);
+  }
+
+  const cleanText = text ? text.trim() : '';
+
+  // Guard against server database errors or PHP exceptions (even if returned with HTTP 200)
+  if (cleanText.includes('SQLSTATE') || cleanText.startsWith('Error:')) {
+    console.error('[API Error]', cleanText);
+    throw new Error('Database server connection error. Please refresh or try again in a moment.');
+  }
+
+  if (cleanText.startsWith('<') && (cleanText.includes('Fatal error') || cleanText.includes('This Page Does Not Exist') || cleanText.includes('404'))) {
+    console.error('[API HTML Error]', cleanText.slice(0, 300));
+    throw new Error('API server returned an invalid response. Please contact support.');
+  }
+
+  let data = {};
+  if (cleanText) {
+    try {
+      data = JSON.parse(cleanText);
+    } catch {
+      console.warn('[API] Non-JSON payload received:', cleanText.slice(0, 200));
+      throw new Error('Invalid response received from server.');
+    }
   }
 
   if (!response.ok) {
     throw new Error(data.message || `Request failed (${response.status})`);
   }
 
-  if (data.status === false) {
+  if (data.status === false || data.success === false) {
     throw new Error(data.message || 'Request failed');
   }
 

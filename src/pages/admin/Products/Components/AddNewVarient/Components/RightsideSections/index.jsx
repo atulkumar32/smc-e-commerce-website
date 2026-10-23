@@ -99,7 +99,7 @@ export default function RightsideSections({ form, onImageChange }) {
   };
 
   return (
-    <Grid item xs={12} md={5}>
+    <Grid xs={12} md={5}>
       <Typography className="apv__head" sx={{ mb: 2 }}>
         Color Images Upload
       </Typography>

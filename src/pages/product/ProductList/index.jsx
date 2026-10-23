@@ -332,8 +332,8 @@ export default function ProductList() {
 
         <div className="pl__head-row">
           <div>
-            <h1 className="pl__title">{pageTitle}</h1>
-            <p className="pl__subtitle">Stylish, Durable &amp; Comfortable Bags for Every School Day</p>
+            {/* <h1 className="pl__title">{pageTitle}</h1> */}
+            {/* <p className="pl__subtitle">Stylish, Durable &amp; Comfortable Bags for Every School Day</p> */}
           </div>
           {/* Old toolbar commented out — toolbar now lives inside pl__shop-layout */}
           {/*

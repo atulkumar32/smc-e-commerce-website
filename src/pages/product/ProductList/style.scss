@@ -542,6 +542,11 @@
     display: flex;
     gap: 8px;
     margin-top: 2px;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      gap: 6px;
+    }
   }
 
   &__btn {
@@ -558,6 +563,13 @@
     cursor: pointer;
     white-space: nowrap;
     transition: filter 0.13s, transform 0.11s;
+
+    @media (max-width: 768px) {
+      width: 100%;
+      flex: none;
+      padding: 9px 8px;
+      font-size: 11px;
+    }
 
     svg { width: 14px; height: 14px; flex-shrink: 0; }
     &:active { transform: scale(0.97); }

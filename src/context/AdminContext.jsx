@@ -9,19 +9,29 @@ export function AdminProvider({ children }) {
   const [productsLoading, setProductsLoading] = useState(false);
   const [orders] = useState(initialOrders);
 
-  const loadProducts = async () => {
+  const loadProducts = async (retryCount = 1) => {
     setProductsLoading(true);
     try {
       const data = await fetchProductsAction();
       const list = Array.isArray(data)
         ? data
-        : Array.isArray(data.products)
+        : Array.isArray(data?.products)
         ? data.products
+        : Array.isArray(data?.data)
+        ? data.data
         : [];
       setProducts(list);
+      return list;
     } catch (err) {
+      if (retryCount > 0) {
+        console.warn('[AdminContext] Products fetch error, retrying in 1s...', err.message);
+        await new Promise((r) => setTimeout(r, 1000));
+        return loadProducts(retryCount - 1);
+      }
       console.error('[AdminContext] Failed to load products:', err.message);
-      setProducts([]);
+      // Preserve previous products if available; do not blank out valid state
+      setProducts((prev) => (prev && prev.length > 0 ? prev : []));
+      throw err;
     } finally {
       setProductsLoading(false);
     }

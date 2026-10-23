@@ -1,11 +1,38 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Box, Button, IconButton, Chip, Stack, Paper, Typography,
-  Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions,
-  Snackbar, Alert, Collapse, Table, TableHead, TableRow,
-  TableCell, TableBody, Tooltip, Grid,
+  Box,
+  Button,
+  IconButton,
+  Chip,
+  Stack,
+  Paper,
+  Typography,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Snackbar,
+  Alert,
+  Collapse,
+  Table,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  Tooltip,
+  Grid,
+  InputBase,
+  MenuItem,
+  Select,
+  FormControl,
+  CircularProgress,
+  Divider,
 } from '@mui/material';
+
+// ── Icons ─────────────────────────────────────────────────────────────────────
 import AddIcon from '@mui/icons-material/Add';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
@@ -13,90 +40,761 @@ import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import AddCircleOutlinedIcon from '@mui/icons-material/AddCircleOutlined';
+import SearchIcon from '@mui/icons-material/Search';
+import ClearIcon from '@mui/icons-material/Clear';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import CheckIcon from '@mui/icons-material/Check';
+import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
+import CloseIcon from '@mui/icons-material/Close';
+
+// ── Local Components & Helpers ────────────────────────────────────────────────
 import ModalComponent from '../../../components/ModalComponent';
 import AdminPagination from '../../../components/Paginations';
-import AdminFilters from '../../../components/AdminFilters';
 import AddNewProduct from './Components/AddNewProduct';
 import AddNewVariant from './Components/AddNewVarient/index.jsx';
+import ProductsPageSkeleton, { ProductTableSkeleton } from './ProductsSkeleton';
+import {
+  resolveImg,
+  getDisplayId,
+  getDisplayName,
+  getCategoryName,
+  getBestPrice,
+  getBestPriceNumber,
+  getMRP,
+  getMRPNumber,
+  getTotalStock,
+  getStockStatus,
+  parseJson,
+  flag,
+  getProductThumb,
+  STATUS_TABS,
+  SORT_OPTIONS,
+} from './ProductData';
+
+// ── Context & Actions ─────────────────────────────────────────────────────────
 import { useAdmin } from '../../../context/AdminContext';
 import { deleteProductAction } from '../../../Actions/ProductUploadAction';
 import { deleteVariantAction, fetchVariantsAction } from '../../../Actions/ProductVariantAction';
 import { resolveProductId } from './AllProductuploadFields';
-import { MEDIA_BASE } from '../../../Config/UrlsConfig';
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-const resolveImg = (path) => {
-  if (!path) return '';
-  if (path.startsWith('http://') || path.startsWith('https://')) return path;
-  // API returns e.g. "uploads/products/WhatsApp Image 2026-05-23 at 3.04.16 PM.jpeg"
-  // Encode only the filename (last segment) — spaces/parens must be percent-encoded.
-  // Target: https://shreemahaveercollections.com/apis/v1/uploads/products/WhatsApp%20Image...jpeg
-  const segments = path.split('/');
-  const filename  = segments[segments.length - 1];
-  const dirPart   = segments.slice(0, -1).join('/');
-  const encoded   = dirPart ? `${dirPart}/${encodeURIComponent(filename)}` : encodeURIComponent(filename);
-  return `${MEDIA_BASE}${encoded}`;
-};
-const getDisplayId   = (r) => r?.product_id || '—';
-const getDisplayName = (r) => r?.product_name || r?.productName || r?.name || '—';
-const getCategoryName = (r) => r?.category_name || r?.category || '—';
+import './style.scss';
 
-// Price: prefer first variant's selling_price if product-level is null
-const getBestPrice = (r) => {
-  const productPrice = Number(r?.selling_price) || Number(r?.price) || Number(r?.mrp) || 0;
-  if (productPrice > 0) return `₹${productPrice.toLocaleString('en-IN')}`;
-  const firstVariant = Array.isArray(r?.variants) && r.variants[0];
-  const vPrice = firstVariant ? Number(firstVariant.selling_price) || Number(firstVariant.mrp) || 0 : 0;
-  return vPrice > 0 ? `₹${vPrice.toLocaleString('en-IN')}` : '—';
-};
-const getMRP = (r) => {
-  const v = Number(r?.mrp) || 0;
-  return v > 0 ? `₹${v.toLocaleString('en-IN')}` : null;
-};
-const getTotalStock = (r) => {
-  if (Array.isArray(r?.variants) && r.variants.length)
-    return r.variants.reduce((s, v) => s + Number(v.stock || 0), 0);
-  return Number(r?.stock ?? 0);
-};
-const parseJson = (val) => {
-  if (!val) return null;
-  if (Array.isArray(val)) return val;
-  try { return JSON.parse(val); } catch { return null; }
-};
+// ── Click-to-copy Product ID Pill ─────────────────────────────────────────────
+function CopyIdPill({ id }) {
+  const [copied, setCopied] = useState(false);
 
-// API returns integer 1/0 OR string "1"/"0" — normalise to boolean
-const flag = (v) => v === 1 || v === '1' || v === true;
+  const handleCopy = (e) => {
+    e.stopPropagation();
+    if (!id || id === '—') return;
+    navigator.clipboard.writeText(String(id));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1800);
+  };
 
-// Get the best display image for a product (from variants or product-level)
-const getProductThumb = (r) => {
-  if (Array.isArray(r?.variants)) {
-    for (const v of r.variants) {
-      if (Array.isArray(v.images) && v.images.length) {
-        const main = v.images.find((i) => i.is_main) || v.images[0];
-        if (main?.image_url) return resolveImg(main.image_url);
+  return (
+    <Tooltip title={copied ? 'Copied to clipboard!' : 'Click to copy ID'} arrow placement="top">
+      <span className="ap-page__id-pill" onClick={handleCopy} role="button" tabIndex={0}>
+        {id}
+        {copied ? (
+          <CheckIcon sx={{ fontSize: 13, color: '#059669' }} />
+        ) : (
+          <ContentCopyIcon sx={{ fontSize: 12 }} />
+        )}
+      </span>
+    </Tooltip>
+  );
+}
+
+// ── Visual Stock Badge ────────────────────────────────────────────────────────
+function StockBadge({ count }) {
+  const status = getStockStatus(count);
+  const pillClass =
+    count <= 0
+      ? 'ap-page__stock-pill ap-page__stock-pill--out'
+      : count <= 10
+      ? 'ap-page__stock-pill ap-page__stock-pill--low'
+      : 'ap-page__stock-pill ap-page__stock-pill--in';
+
+  return (
+    <span className={pillClass}>
+      <span className="dot" />
+      {count} {status.label}
+    </span>
+  );
+}
+
+// ── Search & Filter Controls Bar ──────────────────────────────────────────────
+function ProductFiltersBar({
+  search,
+  onSearchChange,
+  activeStatus,
+  onStatusChange,
+  selectedCategory,
+  onCategoryChange,
+  categories,
+  sortBy,
+  onSortChange,
+  statusCounts,
+  onReset,
+}) {
+  const hasActiveFilters = search || activeStatus !== 'all' || selectedCategory !== 'all' || sortBy !== 'newest';
+
+  return (
+    <Paper
+      elevation={0}
+      sx={{
+        p: 2,
+        mb: 2.5,
+        borderRadius: '14px',
+        border: '1px solid #e2e8f0',
+        bgcolor: '#ffffff',
+        boxShadow: '0 1px 3px rgba(15, 23, 42, 0.03)',
+      }}
+    >
+      {/* Top Controls Row */}
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: { xs: 'column', md: 'row' },
+          gap: 1.5,
+          alignItems: { xs: 'stretch', md: 'center' },
+          justifyContent: 'space-between',
+          mb: 1.75,
+        }}
+      >
+        {/* Search Input */}
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            bgcolor: '#f8fafc',
+            border: '1px solid #cbd5e1',
+            borderRadius: '9px',
+            px: 1.5,
+            py: 0.6,
+            flex: { xs: 1, md: '0 1 380px' },
+            transition: 'all 0.15s ease',
+            '&:focus-within': { borderColor: '#2563eb', bgcolor: '#ffffff', boxShadow: '0 0 0 3px rgba(37, 99, 235, 0.1)' },
+          }}
+        >
+          <SearchIcon sx={{ color: '#94a3b8', fontSize: 19, mr: 1 }} />
+          <InputBase
+            placeholder="Search by product name, ID, brand, category…"
+            value={search}
+            onChange={(e) => onSearchChange(e.target.value)}
+            sx={{ fontSize: '0.84rem', width: '100%', color: '#0f172a' }}
+          />
+          {search && (
+            <IconButton size="small" onClick={() => onSearchChange('')} sx={{ p: 0.25 }}>
+              <ClearIcon sx={{ fontSize: 15 }} />
+            </IconButton>
+          )}
+        </Box>
+
+        {/* Dropdowns Row */}
+        <Stack direction="row" spacing={1.25} sx={{ flexWrap: 'wrap', alignItems: 'center' }}>
+          <FormControl size="small" sx={{ minWidth: 160 }}>
+            <Select
+              value={selectedCategory}
+              onChange={(e) => onCategoryChange(e.target.value)}
+              displayEmpty
+              sx={{ fontSize: '0.82rem', borderRadius: '8px', bgcolor: '#f8fafc', height: 38 }}
+            >
+              <MenuItem value="all">All Categories</MenuItem>
+              {categories.map((c) => (
+                <MenuItem key={c} value={c}>
+                  {c}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <FormControl size="small" sx={{ minWidth: 170 }}>
+            <Select
+              value={sortBy}
+              onChange={(e) => onSortChange(e.target.value)}
+              sx={{ fontSize: '0.82rem', borderRadius: '8px', bgcolor: '#f8fafc', height: 38 }}
+            >
+              {SORT_OPTIONS.map((o) => (
+                <MenuItem key={o.value} value={o.value}>
+                  {o.label}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          {hasActiveFilters && (
+            <Button
+              size="small"
+              variant="text"
+              color="inherit"
+              onClick={onReset}
+              startIcon={<CloseIcon sx={{ fontSize: 15 }} />}
+              sx={{ fontSize: '0.78rem', color: '#64748b', textTransform: 'none', height: 36, px: 1 }}
+            >
+              Reset Filters
+            </Button>
+          )}
+        </Stack>
+      </Box>
+
+      {/* Segmented Status Tabs */}
+      <Divider sx={{ my: 1.5, borderColor: '#f1f5f9' }} />
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, overflowX: 'auto', pb: 0.25 }}>
+        {STATUS_TABS.map((tab) => {
+          const isSelected = activeStatus === tab.value;
+          const count = statusCounts?.[tab.value] ?? 0;
+          return (
+            <Box
+              key={tab.value}
+              onClick={() => onStatusChange(tab.value)}
+              className={`ap-page__segmented-tab ${isSelected ? 'ap-page__segmented-tab--active' : ''}`}
+            >
+              <span>{tab.label}</span>
+              <Chip
+                label={count}
+                size="small"
+                sx={{
+                  height: 18,
+                  fontSize: '0.68rem',
+                  fontWeight: 700,
+                  bgcolor: isSelected ? '#2563eb' : '#f1f5f9',
+                  color: isSelected ? '#ffffff' : '#64748b',
+                  cursor: 'pointer',
+                }}
+              />
+            </Box>
+          );
+        })}
+      </Box>
+    </Paper>
+  );
+}
+
+// ── Variant sub-table (inline, with cached API support) ───────────────────────
+function VariantTable({ productId, variants, loading, onEdit, onDelete }) {
+  if (loading) {
+    return (
+      <Box sx={{ p: 3, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1.5 }}>
+        <CircularProgress size={20} />
+        <Typography variant="body2" color="text.secondary">
+          Fetching product variants…
+        </Typography>
+      </Box>
+    );
+  }
+
+  return (
+    <Box className="ap-page__variant-drawer">
+      <Stack direction="row" spacing={1} sx={{ alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
+        <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+          <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#1e293b', fontSize: '0.84rem' }}>
+            Product Variants ({variants.length})
+          </Typography>
+          <Chip label={productId} size="small" sx={{ fontFamily: 'monospace', fontSize: '0.72rem', height: 20 }} />
+        </Stack>
+      </Stack>
+
+      {variants.length === 0 ? (
+        <Paper
+          elevation={0}
+          sx={{
+            p: 3,
+            textAlign: 'center',
+            bgcolor: '#ffffff',
+            borderRadius: '10px',
+            border: '1px dashed #cbd5e1',
+          }}
+        >
+          <Typography variant="body2" color="text.secondary">
+            No variants listed for this product.
+          </Typography>
+        </Paper>
+      ) : (
+        <Paper elevation={0} sx={{ border: '1px solid #e2e8f0', borderRadius: '10px', overflow: 'hidden' }}>
+          <TableContainer className="ap-page__table-scroll-container">
+            <Table size="small" sx={{ bgcolor: '#ffffff', minWidth: 800 }}>
+              <TableHead>
+                <TableRow sx={{ bgcolor: '#f8fafc' }}>
+                  {['Preview', 'Variant ID', 'Color', 'Size', 'MRP', 'Selling Price', 'Stock', 'SKU', 'Status', 'Actions'].map((h) => (
+                    <TableCell key={h} sx={{ fontWeight: 700, fontSize: '0.72rem', color: '#475569', py: 1.25 }}>
+                      {h}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {variants.map((v) => {
+                  const imgs = Array.isArray(v.images) ? v.images : [];
+                  const mainImg = imgs.find((i) => i.is_main) || imgs[0];
+                  const rawPath = mainImg?.image_url || '';
+                  const thumb = resolveImg(rawPath);
+                  const isActive = v.status === '1' || v.status === 1 || v.status === 'active';
+
+                  return (
+                    <TableRow key={v.variant_id || v.id} hover sx={{ '&:last-child td': { border: 0 } }}>
+                      {/* Thumbnail */}
+                      <TableCell sx={{ width: 44, px: 1 }}>
+                        {thumb ? (
+                          <Box
+                            component="img"
+                            src={thumb}
+                            alt={v.color_name || 'Variant'}
+                            sx={{
+                              width: 36,
+                              height: 36,
+                              borderRadius: '6px',
+                              objectFit: 'cover',
+                              border: '1px solid #e2e8f0',
+                              display: 'block',
+                            }}
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                              if (e.currentTarget.nextSibling) {
+                                e.currentTarget.nextSibling.style.display = 'flex';
+                              }
+                            }}
+                          />
+                        ) : null}
+                        <Box
+                          sx={{
+                            width: 36,
+                            height: 36,
+                            borderRadius: '6px',
+                            bgcolor: v.color_hex || '#f1f5f9',
+                            border: '1px solid #e2e8f0',
+                            display: thumb ? 'none' : 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '0.62rem',
+                            color: '#64748b',
+                          }}
+                        >
+                          {v.color_hex ? '' : 'No img'}
+                        </Box>
+                      </TableCell>
+
+                      {/* ID */}
+                      <TableCell sx={{ fontSize: '0.75rem', fontFamily: 'monospace', fontWeight: 600 }}>
+                        {v.variant_id || v.id || '—'}
+                      </TableCell>
+
+                      {/* Color Swatch & Name */}
+                      <TableCell>
+                        <Stack direction="row" spacing={0.75} sx={{ alignItems: 'center' }}>
+                          {v.color_hex && (
+                            <Box
+                              sx={{
+                                width: 14,
+                                height: 14,
+                                borderRadius: '50%',
+                                bgcolor: v.color_hex,
+                                border: '1px solid #cbd5e1',
+                                flexShrink: 0,
+                              }}
+                            />
+                          )}
+                          <Typography sx={{ fontSize: '0.75rem', fontWeight: 500 }}>
+                            {v.color_name || '—'}
+                          </Typography>
+                        </Stack>
+                      </TableCell>
+
+                      {/* Size */}
+                      <TableCell sx={{ fontSize: '0.75rem' }}>{v.size || '—'}</TableCell>
+
+                      {/* MRP */}
+                      <TableCell sx={{ fontSize: '0.75rem', color: '#64748b' }}>
+                        {Number(v.mrp) > 0 ? `₹${Number(v.mrp).toLocaleString('en-IN')}` : '—'}
+                      </TableCell>
+
+                      {/* Selling Price */}
+                      <TableCell sx={{ fontSize: '0.75rem', fontWeight: 700, color: '#0f172a' }}>
+                        ₹{Number(v.selling_price || 0).toLocaleString('en-IN')}
+                      </TableCell>
+
+                      {/* Stock */}
+                      <TableCell>
+                        <StockBadge count={Number(v.stock ?? 0)} />
+                      </TableCell>
+
+                      {/* SKU */}
+                      <TableCell sx={{ fontSize: '0.72rem', fontFamily: 'monospace', color: '#475569' }}>
+                        {v.sku || '—'}
+                      </TableCell>
+
+                      {/* Status */}
+                      <TableCell>
+                        <span className={`ap-page__status-badge ap-page__status-badge--${isActive ? 'published' : 'draft'}`}>
+                          <span className="status-dot" />
+                          {isActive ? 'Active' : 'Inactive'}
+                        </span>
+                      </TableCell>
+
+                      {/* Actions */}
+                      <TableCell>
+                        <Stack direction="row" spacing={0.5}>
+                          <Tooltip title="Edit variant">
+                            <IconButton
+                              size="small"
+                              onClick={() => onEdit(v)}
+                              className="ap-page__action-btn ap-page__action-btn--edit"
+                            >
+                              <EditOutlinedIcon sx={{ fontSize: 16 }} />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title="Delete variant">
+                            <IconButton
+                              size="small"
+                              onClick={() => onDelete(v)}
+                              className="ap-page__action-btn ap-page__action-btn--delete"
+                            >
+                              <DeleteOutlinedIcon sx={{ fontSize: 16 }} />
+                            </IconButton>
+                          </Tooltip>
+                        </Stack>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Paper>
+      )}
+    </Box>
+  );
+}
+
+// ── Product Row ───────────────────────────────────────────────────────────────
+function ProductRow({
+  row,
+  index,
+  expanded,
+  onExpand,
+  onView,
+  onEdit,
+  onDelete,
+  variants,
+  variantsLoading,
+  onEditVariant,
+  onDeleteVariant,
+}) {
+  const variantCount = Array.isArray(row.variants) ? row.variants.length : 0;
+  const thumb = getProductThumb(row);
+  const totalStock = getTotalStock(row);
+  const isPublished = row.status === 'published';
+  const mrp = getMRP(row);
+  const bestPrice = getBestPrice(row);
+  const mrpNumber = getMRPNumber(row);
+  const bestPriceNumber = getBestPriceNumber(row);
+  const displayId = getDisplayId(row);
+  const displayName = getDisplayName(row);
+
+  // Calculate discount percentage
+  const discountPct =
+    mrpNumber > bestPriceNumber && mrpNumber > 0
+      ? Math.round(((mrpNumber - bestPriceNumber) / mrpNumber) * 100)
+      : 0;
+
+  // Extract unique color swatches from variants
+  const colors = useMemo(() => {
+    if (!Array.isArray(row.variants)) return [];
+    const map = new Map();
+    for (const v of row.variants) {
+      const hex = v.color_hex?.trim();
+      const name = v.color_name?.trim();
+      const key = hex || name;
+      if (key && !map.has(key)) {
+        map.set(key, { hex, name });
       }
     }
-  }
-  if (r?.image_url)  return resolveImg(r.image_url);
-  if (r?.imageUrl)   return resolveImg(r.imageUrl);
-  return '';
-};
+    return Array.from(map.values());
+  }, [row.variants]);
 
-// ── Single detail row ─────────────────────────────────────────────────────────
+  return (
+    <React.Fragment>
+      <TableRow
+        hover
+        className={`ap-page__table-row ${expanded ? 'ap-page__table-row--expanded' : ''}`}
+        sx={{ borderBottom: expanded ? 'none' : '1px solid #f1f5f9' }}
+      >
+        {/* 1. Expand toggle */}
+        <TableCell sx={{ width: 44, px: 1, py: 1.5 }}>
+          <Tooltip title={expanded ? 'Collapse variants' : `View ${variantCount} variant(s)`}>
+            <IconButton
+              size="small"
+              onClick={() => onExpand(row)}
+              sx={{
+                color: expanded ? '#2563eb' : '#64748b',
+                bgcolor: expanded ? '#eff6ff' : 'transparent',
+                borderRadius: '6px',
+                p: 0.5,
+                transition: 'all 0.15s ease',
+                '&:hover': { bgcolor: '#f1f5f9', color: '#0f172a' },
+              }}
+            >
+              {expanded ? (
+                <KeyboardArrowUpIcon fontSize="small" />
+              ) : (
+                <KeyboardArrowDownIcon fontSize="small" />
+              )}
+            </IconButton>
+          </Tooltip>
+        </TableCell>
+
+        {/* 2. Index # */}
+        <TableCell sx={{ fontWeight: 600, color: '#94a3b8', width: 40, fontSize: '0.78rem' }}>
+          {index + 1}
+        </TableCell>
+
+        {/* 3. Product Details (Hero column: Image + Title + ID + Category + Brand + Swatches) */}
+        <TableCell sx={{ minWidth: 320 }}>
+          <Stack direction="row" spacing={1.75} sx={{ alignItems: 'center' }}>
+            <Box className="ap-page__product-thumb">
+              {thumb ? (
+                <Box
+                  component="img"
+                  src={thumb}
+                  alt={displayName}
+                  loading="lazy"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    if (e.currentTarget.nextSibling) {
+                      e.currentTarget.nextSibling.style.display = 'flex';
+                    }
+                  }}
+                />
+              ) : null}
+              <Box
+                sx={{
+                  width: '100%',
+                  height: '100%',
+                  bgcolor: '#f1f5f9',
+                  display: thumb ? 'none' : 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '1.4rem',
+                }}
+              >
+                🎒
+              </Box>
+            </Box>
+
+            <Box sx={{ minWidth: 0, flex: 1 }}>
+              <Typography
+                variant="body1"
+                sx={{
+                  fontWeight: 700,
+                  color: '#0f172a',
+                  lineHeight: 1.35,
+                  fontSize: '0.86rem',
+                  mb: 0.4,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  maxWidth: 240,
+                  cursor: 'pointer',
+                  transition: 'color 0.15s ease',
+                  '&:hover': { color: '#2563eb' },
+                }}
+                onClick={() => onView(row)}
+              >
+                {displayName}
+              </Typography>
+
+              <Stack direction="row" spacing={0.75} sx={{ alignItems: 'center', flexWrap: 'wrap', gap: 0.5 }}>
+                <CopyIdPill id={displayId} />
+
+                <Chip
+                  label={getCategoryName(row)}
+                  size="small"
+                  sx={{
+                    fontSize: '0.7rem',
+                    height: 20,
+                    fontWeight: 600,
+                    bgcolor: '#f1f5f9',
+                    color: '#475569',
+                    borderRadius: '5px',
+                  }}
+                />
+
+                {row.brand && (
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color: '#64748b',
+                      fontWeight: 600,
+                      fontSize: '0.7rem',
+                      bgcolor: '#f8fafc',
+                      border: '1px solid #e2e8f0',
+                      px: 0.75,
+                      py: 0.1,
+                      borderRadius: '4px',
+                    }}
+                  >
+                    {row.brand}
+                  </Typography>
+                )}
+              </Stack>
+
+              {/* Color swatches preview */}
+              {colors.length > 0 && (
+                <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center', mt: 0.6 }}>
+                  {colors.slice(0, 5).map((c, i) => (
+                    <Tooltip key={i} title={c.name || c.hex} arrow placement="top">
+                      <span
+                        className="ap-page__swatch-dot"
+                        style={{ backgroundColor: c.hex || '#cbd5e1' }}
+                      />
+                    </Tooltip>
+                  ))}
+                  {colors.length > 5 && (
+                    <Typography
+                      variant="caption"
+                      sx={{ fontSize: '0.66rem', color: '#64748b', fontWeight: 700 }}
+                    >
+                      +{colors.length - 5}
+                    </Typography>
+                  )}
+                </Stack>
+              )}
+            </Box>
+          </Stack>
+        </TableCell>
+
+        {/* 4. Price & MRP with Discount badge */}
+        <TableCell sx={{ minWidth: 130 }}>
+          <Box>
+            <Typography variant="body1" sx={{ fontWeight: 800, color: '#0f172a', fontSize: '0.9rem', lineHeight: 1.2 }}>
+              {bestPrice}
+            </Typography>
+            {mrp && mrp !== bestPrice && (
+              <Stack direction="row" spacing={0.75} sx={{ alignItems: 'center', mt: 0.35 }}>
+                <Typography
+                  variant="caption"
+                  sx={{ textDecoration: 'line-through', color: '#94a3b8', fontSize: '0.72rem' }}
+                >
+                  {mrp}
+                </Typography>
+                {discountPct > 0 && (
+                  <span className="ap-page__discount-badge">
+                    {discountPct}% OFF
+                  </span>
+                )}
+              </Stack>
+            )}
+          </Box>
+        </TableCell>
+
+        {/* 5. Inventory / Total Stock */}
+        <TableCell sx={{ minWidth: 140 }}>
+          <StockBadge count={totalStock} />
+        </TableCell>
+
+        {/* 6. Status */}
+        <TableCell sx={{ minWidth: 110 }}>
+          <span className={`ap-page__status-badge ap-page__status-badge--${isPublished ? 'published' : 'draft'}`}>
+            <span className="status-dot" />
+            {isPublished ? 'Published' : 'Draft'}
+          </span>
+        </TableCell>
+
+        {/* 7. Variants count interactive pill */}
+        <TableCell sx={{ minWidth: 120 }}>
+          <Tooltip title={variantCount > 0 ? (expanded ? 'Click to collapse variants' : 'Click to view variants') : 'No variants created'}>
+            <Box
+              onClick={() => variantCount > 0 && onExpand(row)}
+              className={`ap-page__variant-pill ${variantCount > 0 ? 'ap-page__variant-pill--has-variants' : ''}`}
+              sx={{ cursor: variantCount > 0 ? 'pointer' : 'default' }}
+            >
+              <span>{variantCount} {variantCount === 1 ? 'Var' : 'Vars'}</span>
+              {variantCount > 0 && (
+                expanded ? <KeyboardArrowUpIcon sx={{ fontSize: 15 }} /> : <KeyboardArrowDownIcon sx={{ fontSize: 15 }} />
+              )}
+            </Box>
+          </Tooltip>
+        </TableCell>
+
+        {/* 8. Date Added */}
+        <TableCell sx={{ fontSize: '0.78rem', color: '#64748b', whiteSpace: 'nowrap', minWidth: 110 }}>
+          {row.created_at
+            ? new Date(row.created_at).toLocaleDateString('en-IN', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric',
+              })
+            : '—'}
+        </TableCell>
+
+        {/* 9. Actions (View, Edit, Delete only) */}
+        <TableCell align="right" sx={{ minWidth: 110 }}>
+          <Stack direction="row" spacing={0.5} sx={{ justifyContent: 'flex-end', alignItems: 'center' }}>
+            <Tooltip title="View full details">
+              <IconButton
+                size="small"
+                onClick={() => onView(row)}
+                className="ap-page__action-btn ap-page__action-btn--view"
+              >
+                <VisibilityOutlinedIcon sx={{ fontSize: 17 }} />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Edit product">
+              <IconButton
+                size="small"
+                onClick={() => onEdit(row)}
+                className="ap-page__action-btn ap-page__action-btn--edit"
+              >
+                <EditOutlinedIcon sx={{ fontSize: 17 }} />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Delete product">
+              <IconButton
+                size="small"
+                onClick={() => onDelete(row)}
+                className="ap-page__action-btn ap-page__action-btn--delete"
+              >
+                <DeleteOutlinedIcon sx={{ fontSize: 17 }} />
+              </IconButton>
+            </Tooltip>
+          </Stack>
+        </TableCell>
+      </TableRow>
+
+      {/* Expanded Variant Sub-Table */}
+      <TableRow>
+        <TableCell colSpan={9} sx={{ p: 0, border: 0 }}>
+          <Collapse in={expanded} unmountOnExit timeout="auto">
+            <VariantTable
+              productId={displayId}
+              variants={variants}
+              loading={variantsLoading}
+              onEdit={onEditVariant}
+              onDelete={onDeleteVariant}
+            />
+          </Collapse>
+        </TableCell>
+      </TableRow>
+    </React.Fragment>
+  );
+}
+
+// ── Detail helper row in ProductViewModal ─────────────────────────────────────
 function DR({ label, value, xs = 6 }) {
   if (value == null || value === '' || value === '0' || value === 0) return null;
   return (
-    <Grid item xs={xs}>
-      <Typography variant="caption" color="text.secondary" display="block" sx={{ lineHeight: 1.2, mb: 0.25 }}>
+    <Grid xs={12} sm={xs}>
+      <Typography variant="caption" sx={{ color: '#64748b', display: 'block', mb: 0.25, fontWeight: 500 }}>
         {label}
       </Typography>
-      <Typography variant="body2" fontWeight={500}>{String(value)}</Typography>
+      <Typography variant="body2" sx={{ fontWeight: 600, color: '#0f172a' }}>
+        {String(value)}
+      </Typography>
     </Grid>
   );
 }
 
-// ── Full view modal ───────────────────────────────────────────────────────────
+// ── Full Product View Modal ───────────────────────────────────────────────────
 function ProductViewModal({ product: p, open, onClose }) {
   if (!p) return null;
 
@@ -106,70 +804,128 @@ function ProductViewModal({ product: p, open, onClose }) {
   const mrp = getMRP(p);
   const selling = getBestPrice(p);
   const hasMrp = mrp && mrp !== selling;
+  const isPublished = p.status === 'published';
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth scroll="paper"
-      PaperProps={{ sx: { borderRadius: '12px', maxHeight: '92vh' } }}>
-      <DialogTitle sx={{
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        borderBottom: '1px solid #e8eaed', bgcolor: '#fafafa', px: 3, py: 1.75,
-      }}>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="md"
+      fullWidth
+      scroll="paper"
+      PaperProps={{ sx: { borderRadius: '16px', maxHeight: '90vh' } }}
+    >
+      <DialogTitle
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          borderBottom: '1px solid #e2e8f0',
+          bgcolor: '#f8fafc',
+          px: 3,
+          py: 2,
+        }}
+      >
         <Box>
-          <Typography variant="h6" fontWeight={700} fontSize="1rem">{getDisplayName(p)}</Typography>
-          <Typography variant="caption" color="text.secondary" sx={{ fontFamily: 'monospace' }}>
+          <Typography variant="h6" sx={{ fontWeight: 800, fontSize: '1.05rem', color: '#0f172a' }}>
+            {getDisplayName(p)}
+          </Typography>
+          <Typography variant="caption" sx={{ color: '#64748b', fontFamily: 'monospace' }}>
             {getDisplayId(p)} · {getCategoryName(p)}
           </Typography>
         </Box>
-        <Stack direction="row" alignItems="center" spacing={1}>
-          <Chip label={p.status === 'published' ? 'Published' : (p.status || 'Draft')}
-            size="small" color={p.status === 'published' ? 'success' : 'default'} />
-          <IconButton size="small" onClick={onClose}>✕</IconButton>
+        <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+          <Chip
+            label={isPublished ? 'Published' : 'Draft'}
+            size="small"
+            color={isPublished ? 'success' : 'default'}
+            sx={{ fontWeight: 600 }}
+          />
+          <IconButton size="small" onClick={onClose}>
+            <CloseIcon sx={{ fontSize: 18 }} />
+          </IconButton>
         </Stack>
       </DialogTitle>
 
       <Box sx={{ overflowY: 'auto', px: 3, py: 2.5 }}>
-        {/* Pricing strip */}
-        <Paper elevation={0} sx={{
-          bgcolor: '#f0f7ff', border: '1px solid #e3f2fd',
-          borderRadius: '8px', px: 2.5, py: 1.5, mb: 2.5, display: 'flex',
-          flexWrap: 'wrap', gap: 3, alignItems: 'center'
-        }}>
+        {/* KPI Strip */}
+        <Paper
+          elevation={0}
+          sx={{
+            bgcolor: '#f0f7ff',
+            border: '1px solid #dbeafe',
+            borderRadius: '10px',
+            p: 2,
+            mb: 3,
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: 3,
+            alignItems: 'center',
+          }}
+        >
           <Box>
-            <Typography variant="caption" color="text.secondary">Selling Price</Typography>
-            <Typography variant="h6" fontWeight={700} color="primary">{selling}</Typography>
+            <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 600 }}>
+              Selling Price
+            </Typography>
+            <Typography variant="h6" sx={{ fontWeight: 800, color: '#1d4ed8' }}>
+              {selling}
+            </Typography>
           </Box>
           {hasMrp && (
             <Box>
-              <Typography variant="caption" color="text.secondary">MRP</Typography>
-              <Typography variant="body2" sx={{ textDecoration: 'line-through', color: 'text.secondary' }}>{mrp}</Typography>
+              <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 600 }}>
+                MRP
+              </Typography>
+              <Typography variant="body2" sx={{ textDecoration: 'line-through', color: '#94a3b8' }}>
+                {mrp}
+              </Typography>
             </Box>
           )}
           <Box>
-            <Typography variant="caption" color="text.secondary">Stock</Typography>
-            <Typography variant="body2" fontWeight={600}>{getTotalStock(p)} units</Typography>
+            <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 600 }}>
+              Total Stock
+            </Typography>
+            <Typography variant="body2" sx={{ fontWeight: 700, color: '#0f172a' }}>
+              {getTotalStock(p)} units
+            </Typography>
           </Box>
           <Box>
-            <Typography variant="caption" color="text.secondary">Variants</Typography>
-            <Typography variant="body2" fontWeight={600}>{variants.length}</Typography>
+            <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 600 }}>
+              Variants Count
+            </Typography>
+            <Typography variant="body2" sx={{ fontWeight: 700, color: '#0f172a' }}>
+              {variants.length}
+            </Typography>
           </Box>
           {p.brand && (
-            <Chip label={p.brand} size="small" variant="outlined" sx={{ fontWeight: 600 }} />
+            <Chip
+              label={p.brand}
+              size="small"
+              variant="outlined"
+              sx={{ fontWeight: 600, bgcolor: '#ffffff' }}
+            />
           )}
-          {selColors?.map((c) => (
-            <Tooltip key={c.label} title={c.label}>
-              <Box sx={{
-                width: 20, height: 20, borderRadius: '50%',
-                bgcolor: c.hex, border: '2px solid #fff', boxShadow: '0 0 0 1px #ddd'
-              }} />
+          {selColors?.map((c, i) => (
+            <Tooltip key={i} title={c.label || ''}>
+              <Box
+                sx={{
+                  width: 22,
+                  height: 22,
+                  borderRadius: '50%',
+                  bgcolor: c.hex,
+                  border: '2px solid #fff',
+                  boxShadow: '0 0 0 1px #cbd5e1',
+                }}
+              />
             </Tooltip>
           ))}
         </Paper>
 
-        {/* Product attributes */}
-        <Typography variant="subtitle2" fontWeight={700} color="primary" mb={1}>
-          Product Details
+        {/* Specifications */}
+        <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#1e293b', mb: 1.5 }}>
+          Specifications & Details
         </Typography>
-        <Grid container spacing={1.5} mb={2.5}>
+        <Grid container spacing={2} sx={{ mb: 3 }}>
           <DR label="Product ID" value={p.product_id} />
           <DR label="Generic Name" value={p.generic_name} />
           <DR label="Brand" value={p.brand} />
@@ -185,70 +941,102 @@ function ProductViewModal({ product: p, open, onClose }) {
           <DR label="Size" value={p.size} />
           <DR label="Net Weight" value={p.net_weight} />
           <DR label="Country of Origin" value={p.country_of_origin} />
-          <DR label="Actual Cost Price" value={p.actual_cost_price ? `₹${Number(p.actual_cost_price).toLocaleString('en-IN')}` : null} />
+          <DR
+            label="Actual Cost Price"
+            value={p.actual_cost_price ? `₹${Number(p.actual_cost_price).toLocaleString('en-IN')}` : null}
+          />
           <DR label="GST" value={p.gst ? `${p.gst}%` : null} />
           <DR label="Created At" value={p.created_at} />
         </Grid>
 
-        {/* Visibility flags */}
-        <Box mb={2.5}>
-          <Typography variant="subtitle2" fontWeight={700} color="primary" mb={1}>Visibility</Typography>
-          <Stack direction="row" flexWrap="wrap" gap={0.75}>
+        {/* Visibility Flags */}
+        <Box sx={{ mb: 3 }}>
+          <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#1e293b', mb: 1 }}>
+            Web Visibility
+          </Typography>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
             {[
-              ['Live',            flag(p.is_live)],
-              ['New Arrival',     flag(p.is_new_arrival)],
-              ['Card Slider',     flag(p.show_in_card_slider)],
-              ['Published',       flag(p.is_published)],
-              ['Visible on Web',  flag(p.is_visible_on_website)],
+              ['Live', flag(p.is_live)],
+              ['New Arrival', flag(p.is_new_arrival)],
+              ['Card Slider', flag(p.show_in_card_slider)],
+              ['Published', flag(p.is_published)],
+              ['Visible on Website', flag(p.is_visible_on_website)],
               ['Homepage Banner', flag(p.homepage_banner_enabled)],
-            ].map(([label, active]) => (
-              <Chip key={label} label={label} size="small"
-                color={active ? 'success' : 'default'} variant={active ? 'filled' : 'outlined'}
-                sx={{ fontSize: '0.7rem' }} />
+            ].map(([lbl, active]) => (
+              <Chip
+                key={lbl}
+                label={lbl}
+                size="small"
+                color={active ? 'success' : 'default'}
+                variant={active ? 'filled' : 'outlined'}
+                sx={{ fontSize: '0.72rem', fontWeight: 600 }}
+              />
             ))}
-          </Stack>
+          </Box>
         </Box>
 
         {/* Descriptions */}
         {(p.short_description || p.full_description) && (
-          <Box mb={2.5}>
-            <Typography variant="subtitle2" fontWeight={700} color="primary" mb={1}>Description</Typography>
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#1e293b', mb: 1 }}>
+              Description
+            </Typography>
             {p.short_description && (
-              <Typography variant="body2" color="text.secondary" mb={0.75}>{p.short_description}</Typography>
+              <Typography variant="body2" sx={{ color: '#475569', mb: 1, fontWeight: 500 }}>
+                {p.short_description}
+              </Typography>
             )}
             {p.full_description && p.full_description !== p.short_description && (
-              <Typography variant="body2">{p.full_description}</Typography>
+              <Typography variant="body2" sx={{ color: '#1e293b', whiteSpace: 'pre-line' }}>
+                {p.full_description}
+              </Typography>
             )}
           </Box>
         )}
 
         {/* Features */}
         {features?.length > 0 && (
-          <Box mb={2.5}>
-            <Typography variant="subtitle2" fontWeight={700} color="primary" mb={1}>Features</Typography>
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#1e293b', mb: 1 }}>
+              Features & Highlights
+            </Typography>
             {features.map((f, i) => (
-              <Box key={i} sx={{ mb: 0.5 }}>
-                {f.title && <Typography variant="body2" fontWeight={600}>{f.title}</Typography>}
-                {f.description && <Typography variant="caption" color="text.secondary">{f.description}</Typography>}
-                {typeof f === 'string' && <Typography variant="body2">• {f}</Typography>}
+              <Box key={i} sx={{ mb: 0.75 }}>
+                {f.title && (
+                  <Typography variant="body2" sx={{ fontWeight: 700, color: '#0f172a' }}>
+                    {f.title}
+                  </Typography>
+                )}
+                {f.description && (
+                  <Typography variant="caption" sx={{ color: '#64748b' }}>
+                    {f.description}
+                  </Typography>
+                )}
+                {typeof f === 'string' && (
+                  <Typography variant="body2" sx={{ color: '#334155' }}>
+                    • {f}
+                  </Typography>
+                )}
               </Box>
             ))}
           </Box>
         )}
 
-        {/* Variants */}
-        <Typography variant="subtitle2" fontWeight={700} color="primary" mb={1}>
-          Variants ({variants.length})
+        {/* Variants List */}
+        <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#1e293b', mb: 1 }}>
+          Associated Variants ({variants.length})
         </Typography>
         {variants.length === 0 ? (
-          <Typography variant="body2" color="text.secondary">No variants for this product.</Typography>
+          <Typography variant="body2" color="text.secondary">
+            No variants configured for this product.
+          </Typography>
         ) : (
-          <Box sx={{ border: '1px solid #e3f2fd', borderRadius: '8px', overflow: 'hidden' }}>
+          <Paper elevation={0} sx={{ border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden' }}>
             <Table size="small">
               <TableHead>
-                <TableRow sx={{ bgcolor: '#e3f2fd' }}>
-                  {['Variant ID', 'Color', 'Size', 'MRP', 'Selling', 'Discount', 'Stock', 'SKU', 'Status'].map((h) => (
-                    <TableCell key={h} sx={{ fontWeight: 700, fontSize: '0.72rem', color: 'primary.dark', py: 1 }}>
+                <TableRow sx={{ bgcolor: '#f8fafc' }}>
+                  {['Variant ID', 'Color', 'Size', 'MRP', 'Selling', 'Stock', 'SKU', 'Status'].map((h) => (
+                    <TableCell key={h} sx={{ fontWeight: 700, fontSize: '0.72rem', color: '#475569', py: 1 }}>
                       {h}
                     </TableCell>
                   ))}
@@ -261,601 +1049,738 @@ function ProductViewModal({ product: p, open, onClose }) {
                       {v.variant_id || v.id}
                     </TableCell>
                     <TableCell>
-                      <Stack direction="row" alignItems="center" gap={0.75}>
+                      <Stack direction="row" spacing={0.75} sx={{ alignItems: 'center' }}>
                         {v.color_hex && (
-                          <Box sx={{
-                            width: 12, height: 12, borderRadius: '50%',
-                            bgcolor: v.color_hex, border: '1px solid #ddd', flexShrink: 0
-                          }} />
+                          <Box
+                            sx={{
+                              width: 12,
+                              height: 12,
+                              borderRadius: '50%',
+                              bgcolor: v.color_hex,
+                              border: '1px solid #cbd5e1',
+                            }}
+                          />
                         )}
                         <Typography sx={{ fontSize: '0.72rem' }}>{v.color_name || '—'}</Typography>
                       </Stack>
                     </TableCell>
                     <TableCell sx={{ fontSize: '0.72rem' }}>{v.size || '—'}</TableCell>
-                    <TableCell sx={{ fontSize: '0.72rem', color: 'text.secondary' }}>
+                    <TableCell sx={{ fontSize: '0.72rem', color: '#64748b' }}>
                       {Number(v.mrp) > 0 ? `₹${Number(v.mrp).toLocaleString('en-IN')}` : '—'}
                     </TableCell>
-                    <TableCell sx={{ fontSize: '0.72rem', fontWeight: 700, color: 'primary.main' }}>
+                    <TableCell sx={{ fontSize: '0.72rem', fontWeight: 700, color: '#2563eb' }}>
                       ₹{Number(v.selling_price || 0).toLocaleString('en-IN')}
                     </TableCell>
-                    <TableCell sx={{ fontSize: '0.72rem', color: 'success.dark' }}>
-                      {Number(v.discount_price) > 0 ? `₹${Number(v.discount_price).toLocaleString('en-IN')}` : '—'}
-                    </TableCell>
-                    <TableCell sx={{ fontSize: '0.72rem', fontWeight: 600 }}>{v.stock}</TableCell>
+                    <TableCell sx={{ fontSize: '0.72rem', fontWeight: 600 }}>{v.stock ?? 0}</TableCell>
                     <TableCell sx={{ fontSize: '0.71rem', fontFamily: 'monospace' }}>{v.sku || '—'}</TableCell>
                     <TableCell>
-                      <Chip label={flag(v.status) || v.status === 'active' ? 'Active' : v.status || '—'}
-                        size="small" color={flag(v.status) || v.status === 'active' ? 'success' : 'default'}
-                        sx={{ fontSize: '0.62rem' }} />
+                      <Chip
+                        label={flag(v.status) || v.status === 'active' ? 'Active' : 'Inactive'}
+                        size="small"
+                        color={flag(v.status) || v.status === 'active' ? 'success' : 'default'}
+                        sx={{ fontSize: '0.62rem', height: 18 }}
+                      />
                     </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
-          </Box>
+          </Paper>
         )}
       </Box>
 
-      <Box sx={{ px: 3, py: 1.75, borderTop: '1px solid #e8eaed', display: 'flex', justifyContent: 'flex-end' }}>
-        <Button onClick={onClose} variant="outlined">Close</Button>
+      <Box
+        sx={{
+          px: 3,
+          py: 1.75,
+          borderTop: '1px solid #e2e8f0',
+          display: 'flex',
+          justifyContent: 'flex-end',
+          bgcolor: '#f8fafc',
+        }}
+      >
+        <Button onClick={onClose} variant="outlined" sx={{ borderRadius: '8px' }}>
+          Close
+        </Button>
       </Box>
     </Dialog>
   );
 }
 
-// ── Variant sub-table (inline, from API data) ─────────────────────────────────
-function VariantTable({ productId, variants, loading, onAdd, onEdit, onDelete }) {
-  if (loading) return (
-    <Box sx={{ p: 2, color: 'text.secondary', fontSize: '0.8rem' }}>Loading variants…</Box>
-  );
-  return (
-    <Box sx={{ px: 3, py: 2, bgcolor: '#f0f7ff', borderTop: '1px solid #e3f2fd' }}>
-      <Stack direction="row" alignItems="center" justifyContent="space-between" mb={1.5}
-      sx={{
-        display:'flex',
-        justifyContent:'space-between'
-      }}
-      >
-        <Typography variant="body2" fontWeight={700} color="primary">
-          Variants ({variants.length}) — {productId}
-        </Typography>
-        <Button size="small" startIcon={<AddCircleOutlinedIcon />} variant="outlined" onClick={onAdd}>
-          Add / Manage Variants
-        </Button>
-      </Stack>
-
-      {variants.length === 0 ? (
-        <Typography variant="body2" color="text.secondary" sx={{ py: 1,
-          textAlign:'center'
-         }}>
-          No variants yet. Click "Add Variant" to create one.
-        </Typography>
-      ) : (
-        <Box sx={{ border: '1px solid #e3f2fd', borderRadius: '8px', overflow: 'hidden' }}>
-          <Table size="small" sx={{ bgcolor: 'background.paper' }}>
-            <TableHead>
-              <TableRow sx={{ bgcolor: '#e3f2fd' }}>
-                {['', 'Variant ID', 'Color', 'Size', 'MRP', 'Selling Price', 'Stock', 'SKU', 'Status', 'Actions'].map((h) => (
-                  <TableCell key={h} sx={{ fontWeight: 700, fontSize: '0.72rem', color: 'primary.dark', py: 1 }}>
-                    {h}
-                  </TableCell>
-                ))}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {variants.map((v) => {
-                const imgs    = Array.isArray(v.images) ? v.images : [];
-                const mainImg = imgs.find((i) => i.is_main) || imgs[0];
-                const rawPath = mainImg?.image_url || '';
-                const thumb   = resolveImg(rawPath);
-
-                // ── Console: image path verification ─────────────────────────
-                console.log(
-                  `%c[IMG] ${v.variant_id} · ${v.color_name}`,
-                  'color:#1565c0;font-weight:bold',
-                  '\n  raw  :', rawPath   || '(none)',
-                  '\n  url  :', thumb     || '(empty)',
-                  '\n  show :', !!thumb,
-                );
-                return (
-                  <TableRow key={v.variant_id || v.id} hover>
-                    <TableCell sx={{ width: 46, px: 1 }}>
-                      {thumb ? (
-                        <Box component="img" src={thumb} alt={v.color_name}
-                          sx={{ width: 36, height: 36, borderRadius: '6px', objectFit: 'cover',
-                            border: '1px solid #e0e0e0', display: 'block' }}
-                          onError={(e) => {
-                            console.warn(`%c[Variant IMG] ❌ 404/failed: ${thumb}`, 'color:red');
-                            e.currentTarget.style.display = 'none';
-                            e.currentTarget.parentElement.innerHTML =
-                              `<div style="width:36px;height:36px;border-radius:6px;background:#fee2e2;border:1px solid #fca5a5;display:flex;align-items:center;justify-content:center;font-size:9px;color:#dc2626;text-align:center;padding:2px">404</div>`;
-                          }}
-                        />
-                      ) : (
-                        <Box sx={{ width: 36, height: 36, borderRadius: '6px',
-                          bgcolor: v.color_hex || '#f0f0f0', border: '1px solid #e0e0e0',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          fontSize: '0.6rem', color: '#888' }}>
-                          {imgs.length === 0 ? 'No img' : ''}
-                        </Box>
-                      )}
-                    </TableCell>
-                    <TableCell sx={{ fontSize: '0.75rem', fontFamily: 'monospace', fontWeight: 600 }}>
-                      {v.variant_id || v.id || '—'}
-                    </TableCell>
-                    <TableCell>
-                      <Stack direction="row" alignItems="center" gap={0.75}>
-                        {v.color_hex && (
-                          <Box sx={{ width: 13, height: 13, borderRadius: '50%',
-                            bgcolor: v.color_hex, border: '1px solid #ddd', flexShrink: 0 }} />
-                        )}
-                        <Typography sx={{ fontSize: '0.75rem' }}>{v.color_name || '—'}</Typography>
-                      </Stack>
-                    </TableCell>
-                    <TableCell sx={{ fontSize: '0.75rem' }}>{v.size || '—'}</TableCell>
-                    <TableCell sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
-                      {Number(v.mrp) > 0 ? `₹${Number(v.mrp).toLocaleString('en-IN')}` : '—'}
-                    </TableCell>
-                    <TableCell sx={{ fontSize: '0.75rem', fontWeight: 700, color: 'primary.main' }}>
-                      ₹{Number(v.selling_price || 0).toLocaleString('en-IN')}
-                    </TableCell>
-                    <TableCell sx={{ fontSize: '0.75rem', fontWeight: 600 }}>{v.stock ?? '—'}</TableCell>
-                    <TableCell sx={{ fontSize: '0.72rem', fontFamily: 'monospace' }}>{v.sku || '—'}</TableCell>
-                    <TableCell>
-                      <Chip label={v.status === '1' || v.status === 1 || v.status === 'active' ? 'Active' : (v.status || '—')}
-                        size="small" color={v.status === '1' || v.status === 1 || v.status === 'active' ? 'success' : 'default'}
-                        sx={{ fontSize: '0.63rem' }} />
-                    </TableCell>
-                    <TableCell>
-                      <Stack direction="row" spacing={0.25}>
-                        <Tooltip title="Edit variant">
-                          <IconButton size="small" color="primary" onClick={() => onEdit(v)}>
-                            <EditOutlinedIcon sx={{ fontSize: 14 }} />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Delete variant">
-                          <IconButton size="small" color="error" onClick={() => onDelete(v)}>
-                            <DeleteOutlinedIcon sx={{ fontSize: 14 }} />
-                          </IconButton>
-                        </Tooltip>
-                      </Stack>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </Box>
-      )}
-    </Box>
-  );
-}
-
-// ── Expandable product row ────────────────────────────────────────────────────
-function ProductRow({ row, index, expanded, onExpand, onView, onEdit, onDelete,
-  variants, variantsLoading, onAddVariant, onEditVariant, onDeleteVariant }) {
-  const variantCount = Array.isArray(row.variants) ? row.variants.length : 0;
-
-  return (
-    <>
-      <TableRow hover sx={{ bgcolor: expanded ? '#f8f9ff' : undefined }}>
-        <TableCell sx={{ width: 36, px: 1 }}>
-          <Tooltip title={expanded ? 'Collapse variants' : `Show variants (${variantCount})`}>
-            <IconButton size="small" onClick={() => onExpand(row)}>
-              {expanded
-                ? <KeyboardArrowUpIcon fontSize="small" sx={{ color: '#ed6c02' }} />
-                : <KeyboardArrowDownIcon fontSize="small" />}
-            </IconButton>
-          </Tooltip>
-        </TableCell>
-        <TableCell sx={{ fontWeight: 500, color: 'text.secondary', width: 36, fontSize: '0.8rem' }}>
-          {index + 1}
-        </TableCell>
-        <TableCell sx={{ fontFamily: 'monospace', fontSize: '0.78rem', fontWeight: 600 }}>
-          {getDisplayId(row)}
-        </TableCell>
-        <TableCell>
-          <Stack direction="row" alignItems="center" spacing={1.5}>
-            {/* Thumbnail from first variant image */}
-            {(() => {
-              const thumb = getProductThumb(row);
-              console.log(
-                `%c[Product THUMB] ${getDisplayId(row)}`,
-                'color:#059669;font-weight:bold',
-                '→', thumb || '(no image)'
-              );
-              return thumb ? (
-                <Box component="img" src={thumb} alt={getDisplayName(row)}
-                  sx={{ width: 40, height: 40, borderRadius: '8px', objectFit: 'cover',
-                    border: '1px solid #e8eaed', flexShrink: 0 }}
-                  onError={(e) => {
-                    console.warn(`[Product THUMB] ❌ Failed to load: ${thumb}`);
-                    e.currentTarget.style.display = 'none';
-                  }}
-                />
-              ) : (
-                <Box sx={{ width: 40, height: 40, borderRadius: '8px',
-                  bgcolor: '#f0f4f8', border: '1px solid #e8eaed', flexShrink: 0,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '1rem' }}>
-                  🎒
-                </Box>
-              );
-            })()}
-            <Box>
-              <Typography variant="body2" fontWeight={500}>{getDisplayName(row)}</Typography>
-              {row.brand && (
-                <Typography variant="caption" color="text.secondary">{row.brand}</Typography>
-              )}
-            </Box>
-          </Stack>
-        </TableCell>
-        <TableCell sx={{ fontSize: '0.8rem' }}>{getCategoryName(row)}</TableCell>
-        <TableCell>
-          <Box>
-            <Typography variant="body2" fontWeight={700} color="primary">
-              {getBestPrice(row)}
-            </Typography>
-            {getMRP(row) && getMRP(row) !== getBestPrice(row) && (
-              <Typography variant="caption" sx={{ textDecoration: 'line-through', color: 'text.disabled' }}>
-                {getMRP(row)}
-              </Typography>
-            )}
-          </Box>
-        </TableCell>
-        <TableCell sx={{ fontSize: '0.8rem' }}>{getTotalStock(row)}</TableCell>
-        <TableCell>
-          <Chip
-            label={row.status === 'published' ? 'Active' : (row.status || 'Draft')}
-            size="small"
-            color={row.status === 'published' ? 'success' : 'default'}
-            sx={{ fontSize: '0.68rem' }}
-          />
-        </TableCell>
-        <TableCell sx={{ fontSize: '0.72rem', color: 'text.secondary', whiteSpace: 'nowrap' }}>
-          {row.created_at
-            ? new Date(row.created_at).toLocaleDateString('en-IN',
-              { day: '2-digit', month: 'short', year: 'numeric' })
-            : '—'}
-        </TableCell>
-        <TableCell align="right">
-          <Stack direction="row" spacing={0.25} justifyContent="flex-end">
-            <Tooltip title="View details">
-              <IconButton size="small" color="info" onClick={() => onView(row)}>
-                <VisibilityOutlinedIcon sx={{ fontSize: 16 }} />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Edit product">
-              <IconButton size="small" color="primary" onClick={() => onEdit(row)}>
-                <EditOutlinedIcon sx={{ fontSize: 16 }} />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Delete product">
-              <IconButton size="small" color="error" onClick={() => onDelete(row)}>
-                <DeleteOutlinedIcon sx={{ fontSize: 16 }} />
-              </IconButton>
-            </Tooltip>
-          </Stack>
-        </TableCell>
-      </TableRow>
-
-      {/* Variant sub-table */}
-      <TableRow>
-        <TableCell colSpan={10} sx={{ p: 0, border: 0 }}>
-          <Collapse in={expanded} unmountOnExit>
-            <VariantTable
-              productId={getDisplayId(row)}
-              variants={variants}
-              loading={variantsLoading}
-              onAdd={() => onAddVariant(row)}
-              onEdit={onEditVariant}
-              onDelete={onDeleteVariant}
-            />
-          </Collapse>
-        </TableCell>
-      </TableRow>
-    </>
-  );
-}
-
-// ── Main Products Page ─────────────────────────────────────────────────────────
+// ── Main Products Page Component ──────────────────────────────────────────────
 function ProductsPage() {
   const navigate = useNavigate();
   const { products, productsLoading, upsertProduct, deleteProduct, refreshProducts } = useAdmin();
 
-  // Load products specifically on mount of ProductsPage
-  useEffect(() => {
-    refreshProducts();
-  }, [refreshProducts]);
-
+  // ── Local State ─────────────────────────────────────────────────────────────
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [sortBy, setSortBy] = useState('newest');
   const [refreshing, setRefreshing] = useState(false);
+  const [apiError, setApiError] = useState(null);
 
-  // Expanded row — use inline variants from API, fallback to fetch
+  // ── Variant Caching State per Product ID ─────────────────────────────────────
+  // Shape: { [productId]: { data: Array, loading: Boolean, error: String|null } }
+  const [variantsCache, setVariantsCache] = useState({});
   const [expandedId, setExpandedId] = useState(null);
-  const [variants, setVariants] = useState([]);
-  const [variantsLoading, setVariantsLoading] = useState(false);
 
-  // Modals
+  // ── Modals & Action States ──────────────────────────────────────────────────
   const [editModal, setEditModal] = useState({ open: false, product: null });
   const [viewModal, setViewModal] = useState({ open: false, product: null });
-  const [deleteDialog, setDeleteDialog] = useState({ open: false, product: null });
-  const [variantModal, setVariantModal] = useState({ open: false, product: null, variant: null });  // kept for edit-variant only
-  const [deleteVariantDialog, setDeleteVariantDialog] = useState({ open: false, variant: null });
+  const [deleteDialog, setDeleteDialog] = useState({ open: false, product: null, isDeleting: false });
+  const [variantModal, setVariantModal] = useState({ open: false, variant: null });
+  const [deleteVariantDialog, setDeleteVariantDialog] = useState({ open: false, variant: null, isDeleting: false });
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
-  const showSnack = (msg, sev = 'success') => setSnackbar({ open: true, message: msg, severity: sev });
+  const showSnack = useCallback((msg, sev = 'success') => {
+    setSnackbar({ open: true, message: msg, severity: sev });
+  }, []);
 
-  // Filter
-  const filteredProducts = useMemo(() => {
-    if (!search.trim()) return products;
-    const q = search.trim().toLowerCase();
-    return products.filter((p) =>
-      getDisplayName(p).toLowerCase().includes(q) ||
-      getDisplayId(p).toLowerCase().includes(q) ||
-      getCategoryName(p).toLowerCase().includes(q) ||
-      (p.brand || '').toLowerCase().includes(q)
-    );
-  }, [products, search]);
-
-  const pagedProducts = useMemo(
-    () => filteredProducts.slice(page * rowsPerPage, (page + 1) * rowsPerPage),
-    [filteredProducts, page, rowsPerPage],
-  );
-
-  // Expand — use inline variants from product data; only call API if inline is empty
-  const handleExpand = useCallback(async (row) => {
-    const id = getDisplayId(row);
-    if (expandedId === id) { setExpandedId(null); setVariants([]); return; }
-    setExpandedId(id);
-
-    // Products API already embeds variants[] — use them immediately
-    const inline = Array.isArray(row.variants) ? row.variants : [];
-    setVariants(inline);
-    console.log(`[Products] Expanded ${id} — ${inline.length} inline variant(s)`);
-
-    // Only call GetProductVariants if inline is empty (and handle gracefully)
-    if (inline.length === 0) {
-      setVariantsLoading(true);
-      try {
-        const fresh = await fetchVariantsAction(id);
-        if (Array.isArray(fresh) && fresh.length > 0) {
-          setVariants(fresh);
-        }
-      } catch { /* keep empty — broken backend endpoint */ }
-      finally { setVariantsLoading(false); }
+  // ── Initial Mount Effect: Safe load without re-render loop ──────────────────
+  const hasMounted = useRef(false);
+  useEffect(() => {
+    if (!hasMounted.current) {
+      hasMounted.current = true;
+      refreshProducts().catch((err) => {
+        setApiError(err?.message || 'Failed to fetch products');
+      });
     }
-  }, [expandedId]);
+  }, [refreshProducts]);
 
-  // Handlers
-  const handleProductSuccess = async (saved, status) => {
-    console.group(`✅ [Product] ${status === 'draft' ? 'DRAFT saved' : 'PUBLISHED'}`);
-    console.log('product_id :', saved?.product_id || saved?.data?.product_id);
-    console.log('name       :', saved?.product_name || saved?.data?.product_name);
-    console.log('status     :', status);
-    console.log('response   :', saved);
-    console.groupEnd();
-    upsertProduct(saved);
-    setEditModal({ open: false, product: null });
-    showSnack(status === 'draft' ? 'Saved as draft' : 'Product saved');
-    try { await refreshProducts(); } catch { /* silent */ }
+  // ── Compute Unique Categories for Dropdown ───────────────────────────────────
+  const categoriesList = useMemo(() => {
+    const set = new Set();
+    products.forEach((p) => {
+      const cat = getCategoryName(p);
+      if (cat && cat !== '—') set.add(cat);
+    });
+    return Array.from(set).sort();
+  }, [products]);
+
+  // ── Compute KPI Stats & Counts ──────────────────────────────────────────────
+  const stats = useMemo(() => {
+    let published = 0;
+    let draft = 0;
+    let lowOrOutStock = 0;
+    let outOfStock = 0;
+    let lowStock = 0;
+
+    products.forEach((p) => {
+      if (p.status === 'published') published++;
+      else draft++;
+
+      const stock = getTotalStock(p);
+      if (stock <= 0) {
+        outOfStock++;
+        lowOrOutStock++;
+      } else if (stock <= 10) {
+        lowStock++;
+        lowOrOutStock++;
+      }
+    });
+
+    return {
+      total: products.length,
+      published,
+      draft,
+      lowOrOutStock,
+      counts: {
+        all: products.length,
+        published,
+        draft,
+        low_stock: lowStock,
+        out_of_stock: outOfStock,
+      },
+    };
+  }, [products]);
+
+  // ── Filter & Sort Products ──────────────────────────────────────────────────
+  const filteredProducts = useMemo(() => {
+    let list = [...products];
+
+    // Status filter
+    if (statusFilter !== 'all') {
+      if (statusFilter === 'published') {
+        list = list.filter((p) => p.status === 'published');
+      } else if (statusFilter === 'draft') {
+        list = list.filter((p) => p.status !== 'published');
+      } else if (statusFilter === 'low_stock') {
+        list = list.filter((p) => {
+          const s = getTotalStock(p);
+          return s > 0 && s <= 10;
+        });
+      } else if (statusFilter === 'out_of_stock') {
+        list = list.filter((p) => getTotalStock(p) <= 0);
+      }
+    }
+
+    // Category filter
+    if (categoryFilter !== 'all') {
+      list = list.filter((p) => getCategoryName(p) === categoryFilter);
+    }
+
+    // Search query
+    if (search.trim()) {
+      const q = search.trim().toLowerCase();
+      list = list.filter(
+        (p) =>
+          getDisplayName(p).toLowerCase().includes(q) ||
+          getDisplayId(p).toLowerCase().includes(q) ||
+          getCategoryName(p).toLowerCase().includes(q) ||
+          (p.brand || '').toLowerCase().includes(q)
+      );
+    }
+
+    // Sorting
+    list.sort((a, b) => {
+      if (sortBy === 'newest') {
+        return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+      }
+      if (sortBy === 'oldest') {
+        return new Date(a.created_at || 0) - new Date(b.created_at || 0);
+      }
+      if (sortBy === 'price_asc') {
+        return getBestPriceNumber(a) - getBestPriceNumber(b);
+      }
+      if (sortBy === 'price_desc') {
+        return getBestPriceNumber(b) - getBestPriceNumber(a);
+      }
+      if (sortBy === 'stock_asc') {
+        return getTotalStock(a) - getTotalStock(b);
+      }
+      if (sortBy === 'stock_desc') {
+        return getTotalStock(b) - getTotalStock(a);
+      }
+      if (sortBy === 'name_asc') {
+        return getDisplayName(a).localeCompare(getDisplayName(b));
+      }
+      if (sortBy === 'name_desc') {
+        return getDisplayName(b).localeCompare(getDisplayName(a));
+      }
+      return 0;
+    });
+
+    return list;
+  }, [products, statusFilter, categoryFilter, search, sortBy]);
+
+  // Pagination slice
+  const pagedProducts = useMemo(() => {
+    return filteredProducts.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
+  }, [filteredProducts, page, rowsPerPage]);
+
+  // Reset all filters
+  const handleResetFilters = () => {
+    setSearch('');
+    setStatusFilter('all');
+    setCategoryFilter('all');
+    setSortBy('newest');
+    setPage(0);
   };
 
+  // ── Expand row with isolated Variant Caching ─────────────────────────────────
+  const handleExpand = useCallback(
+    async (row) => {
+      const id = getDisplayId(row);
+      if (expandedId === id) {
+        setExpandedId(null);
+        return;
+      }
+      setExpandedId(id);
+
+      // 1. If already cached, don't re-fetch
+      if (variantsCache[id]?.data) {
+        return;
+      }
+
+      // 2. If row already has embedded variants from API, cache them immediately
+      const inlineVariants = Array.isArray(row.variants) ? row.variants : [];
+      if (inlineVariants.length > 0) {
+        setVariantsCache((prev) => ({
+          ...prev,
+          [id]: { data: inlineVariants, loading: false, error: null },
+        }));
+        return;
+      }
+
+      // 3. Otherwise fetch from API
+      setVariantsCache((prev) => ({
+        ...prev,
+        [id]: { data: [], loading: true, error: null },
+      }));
+
+      try {
+        const fresh = await fetchVariantsAction(id);
+        const list = Array.isArray(fresh) ? fresh : [];
+        setVariantsCache((prev) => ({
+          ...prev,
+          [id]: { data: list, loading: false, error: null },
+        }));
+      } catch (err) {
+        setVariantsCache((prev) => ({
+          ...prev,
+          [id]: { data: [], loading: false, error: err?.message || 'Failed to load variants' },
+        }));
+      }
+    },
+    [expandedId, variantsCache]
+  );
+
+  // ── API Actions & Handlers ──────────────────────────────────────────────────
   const handleRefresh = async () => {
     setRefreshing(true);
-    try { await refreshProducts(); showSnack('Products refreshed'); }
-    catch { showSnack('Refresh failed', 'error'); }
-    finally { setRefreshing(false); }
+    setApiError(null);
+    try {
+      await refreshProducts();
+      setVariantsCache({});
+      showSnack('Product catalog refreshed successfully');
+    } catch (err) {
+      setApiError(err?.message || 'Failed to refresh product catalog');
+      showSnack('Refresh failed. Please check network connection.', 'error');
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  const handleProductSuccess = async (saved, status) => {
+    upsertProduct(saved);
+    setEditModal({ open: false, product: null });
+    showSnack(status === 'draft' ? 'Product saved as draft' : 'Product published successfully');
+    try {
+      await refreshProducts();
+    } catch {
+      // silent
+    }
   };
 
   const handleConfirmDelete = async () => {
     if (!deleteDialog.product) return;
     const pid = deleteDialog.product.id ?? resolveProductId(deleteDialog.product);
-    console.group('🗑️ [Product] DELETE');
-    console.log('id         :', pid);
-    console.log('product_id :', deleteDialog.product.product_id);
-    console.log('name       :', getDisplayName(deleteDialog.product));
-    console.groupEnd();
+    setDeleteDialog((prev) => ({ ...prev, isDeleting: true }));
+
     try {
       await deleteProductAction(pid);
       deleteProduct(pid);
-      console.log('✅ [Product] Deleted:', pid);
-      showSnack('Product deleted');
+      showSnack('Product deleted successfully');
+      setDeleteDialog({ open: false, product: null, isDeleting: false });
     } catch (err) {
-      console.error('❌ [Product] Delete failed:', err.message);
-      showSnack(err.message || 'Delete failed', 'error');
+      showSnack(err.message || 'Failed to delete product', 'error');
+      setDeleteDialog((prev) => ({ ...prev, isDeleting: false }));
     }
-    setDeleteDialog({ open: false, product: null });
   };
 
   const handleVariantSuccess = async (result) => {
     const apiOk = result?.success !== false;
-    console.log('✅ [Variant] Saved — refreshing product list');
     showSnack(
-      result?.message || (apiOk ? 'Variant saved successfully' : 'Variant saved (API unavailable)'),
+      result?.message || (apiOk ? 'Variant saved successfully' : 'Variant saved'),
       apiOk ? 'success' : 'warning'
     );
+    setVariantModal({ open: false, variant: null });
 
-    setVariantModal((prev) => ({ ...prev, variant: null }));
+    // Invalidate variant cache for the active product
+    if (expandedId) {
+      try {
+        const fresh = await fetchVariantsAction(expandedId);
+        setVariantsCache((prev) => ({
+          ...prev,
+          [expandedId]: { data: Array.isArray(fresh) ? fresh : [], loading: false, error: null },
+        }));
+      } catch {
+        // silent
+      }
+    }
 
-    // Refresh products — variants are embedded in the product list response
     try {
       await refreshProducts();
-      // After refresh, update expanded row's variants from the fresh product data
-      // Products/index will re-render with updated row.variants automatically
-    } catch { /* silent */ }
+    } catch {
+      // silent
+    }
   };
 
   const handleConfirmDeleteVariant = async () => {
     if (!deleteVariantDialog.variant) return;
     const vid = deleteVariantDialog.variant.variant_id || deleteVariantDialog.variant.id;
-    console.group('🗑️ [Variant] DELETE from product row');
-    console.log('variant_id :', vid);
-    console.log('sku        :', deleteVariantDialog.variant.sku);
-    console.log('product_id :', expandedId);
-    console.groupEnd();
+    setDeleteVariantDialog((prev) => ({ ...prev, isDeleting: true }));
+
     try {
       await deleteVariantAction(vid, expandedId);
-      setVariants((v) => v.filter((x) => (x.variant_id || x.id) !== vid));
-      console.log('✅ [Variant] Deleted from row:', vid);
-      showSnack('Variant deleted');
+
+      // Optimistically update variantsCache
+      if (expandedId) {
+        setVariantsCache((prev) => {
+          const current = prev[expandedId]?.data || [];
+          return {
+            ...prev,
+            [expandedId]: {
+              ...prev[expandedId],
+              data: current.filter((x) => (x.variant_id || x.id) !== vid),
+            },
+          };
+        });
+      }
+
+      showSnack('Variant deleted successfully');
+      setDeleteVariantDialog({ open: false, variant: null, isDeleting: false });
     } catch (err) {
-      console.error('❌ [Variant] Delete from row failed:', err.message);
-      showSnack(err.message || 'Delete failed', 'error');
+      showSnack(err.message || 'Failed to delete variant', 'error');
+      setDeleteVariantDialog((prev) => ({ ...prev, isDeleting: false }));
     }
-    setDeleteVariantDialog({ open: false, variant: null });
   };
 
+  // ── Render ──────────────────────────────────────────────────────────────────
+  const isInitialLoading = productsLoading && products.length === 0;
+
   return (
-    <Box>
-      {/* Header */}
-      <Box sx={{
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        mb: 3, flexWrap: 'wrap', gap: 2
-      }}>
+    <Box className="ap-page" sx={{ pb: 6 }}>
+      {/* ── Page Header ────────────────────────────────────────────────────── */}
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          mb: 3,
+          flexWrap: 'wrap',
+          gap: 2,
+        }}
+      >
         <Box>
-          <Typography variant="h5" fontWeight={700}>Products</Typography>
-          <Typography variant="body2" color="text.secondary">
-            {productsLoading ? 'Loading…' : `${filteredProducts.length} of ${products.length} products`}
+          <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
+            <Typography variant="h5" sx={{ fontWeight: 800, color: '#0f172a', letterSpacing: '-0.02em' }}>
+              Products
+            </Typography>
+            <Chip
+              label={`${products.length} items`}
+              size="small"
+              sx={{ fontWeight: 700, bgcolor: '#eff6ff', color: '#2563eb', height: 24, fontSize: '0.74rem', border: '1px solid #bfdbfe' }}
+            />
+          </Stack>
+          <Typography variant="body2" sx={{ color: '#64748b', mt: 0.5 }}>
+            {productsLoading
+              ? 'Loading catalog data…'
+              : `Showing ${filteredProducts.length} of ${products.length} total products`}
           </Typography>
         </Box>
-        <Stack direction="row" spacing={1}>
-          <Tooltip title="Refresh">
-            <IconButton size="small" onClick={handleRefresh} disabled={refreshing || productsLoading}>
-              <RefreshIcon fontSize="small" sx={{
-                animation: refreshing ? 'spin 1s linear infinite' : 'none',
-                '@keyframes spin': { '0%': { transform: 'rotate(0deg)' }, '100%': { transform: 'rotate(360deg)' } },
-              }} />
-            </IconButton>
+
+        <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
+          <Tooltip title="Refresh Catalog">
+            <span>
+              <IconButton
+                size="medium"
+                onClick={handleRefresh}
+                disabled={refreshing || productsLoading}
+                sx={{
+                  border: '1px solid #cbd5e1',
+                  borderRadius: '8px',
+                  bgcolor: '#ffffff',
+                }}
+              >
+                <RefreshIcon
+                  fontSize="small"
+                  className={refreshing ? 'spin-icon' : ''}
+                  sx={{ color: '#475569' }}
+                />
+              </IconButton>
+            </span>
           </Tooltip>
-          <Button variant="contained" startIcon={<AddIcon />}
-            onClick={() => setEditModal({ open: true, product: null })}>
+
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<AddIcon />}
+            onClick={() => setEditModal({ open: true, product: null })}
+            className="ap-page__add-btn"
+          >
             Add New Product
           </Button>
         </Stack>
       </Box>
 
-      {/* Filters */}
-      <AdminFilters onSearch={(s) => { setSearch(s); setPage(0); }}
-        searchPlaceholder="Search by name, ID, category, brand…" showDateFilter={false} />
+      {/* ── API Error Notice with Retry ─────────────────────────────────────── */}
+      {apiError && (
+        <Alert
+          severity="error"
+          sx={{ mb: 3, borderRadius: '10px' }}
+          action={
+            <Button color="inherit" size="small" onClick={handleRefresh}>
+              Retry
+            </Button>
+          }
+          onClose={() => setApiError(null)}
+        >
+          {apiError}
+        </Alert>
+      )}
 
-      {/* Table */}
-      <Paper elevation={0} sx={{
-        border: '1px solid', borderColor: 'divider',
-        borderRadius: '8px', overflow: 'hidden'
-      }}>
-        <Table>
-          <TableHead>
-            <TableRow sx={{ bgcolor: 'grey.50' }}>
-              <TableCell sx={{ width: 44, p: 1 }} />
-              <TableCell sx={{ fontWeight: 700, width: 36 }}>#</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Product ID</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Product Name</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Category</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Price</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Stock</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Status</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Created At</TableCell>
-              <TableCell sx={{ fontWeight: 700 }} align="right">Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {pagedProducts.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={10} align="center" sx={{ py: 6, color: 'text.secondary' }}>
-                  {productsLoading ? 'Loading products…'
-                    : search ? `No products match "${search}"`
-                      : 'No products yet. Click Add New Product to get started.'}
-                </TableCell>
-              </TableRow>
-            ) : (
-              pagedProducts.map((row, i) => (
-                <ProductRow key={row.product_id || row.id}
-                  row={row} index={page * rowsPerPage + i}
-                  expanded={expandedId === getDisplayId(row)}
-                  onExpand={handleExpand}
-                  onView={(r) => setViewModal({ open: true, product: r })}
-                  onEdit={(r) => setEditModal({ open: true, product: r })}
-                  onDelete={(r) => setDeleteDialog({ open: true, product: r })}
-                  variants={expandedId === getDisplayId(row) ? variants : (row.variants || [])}
-                  variantsLoading={expandedId === getDisplayId(row) && variantsLoading}
-                  onAddVariant={(r) => navigate(`/admin/add-variant?product_id=${encodeURIComponent(getDisplayId(r))}`)}
-                  onEditVariant={(v) => setVariantModal({ open: true, product: null, variant: v })}
-                  onDeleteVariant={(v) => setDeleteVariantDialog({ open: true, variant: v })}
-                />
-              ))
-            )}
-          </TableBody>
-        </Table>
-        <AdminPagination page={page} totalRecords={filteredProducts.length} rowsPerPage={rowsPerPage}
-          onPageChange={setPage} onRowsPerPageChange={(n) => { setRowsPerPage(n); setPage(0); }} />
-      </Paper>
+      {/* ── Skeleton / Main Content ────────────────────────────────────────── */}
+      {isInitialLoading ? (
+        <ProductsPageSkeleton rowCount={rowsPerPage} />
+      ) : (
+        <React.Fragment>
+          {/* Search, Status Tabs & Filters */}
+          <ProductFiltersBar
+            search={search}
+            onSearchChange={(v) => {
+              setSearch(v);
+              setPage(0);
+            }}
+            activeStatus={statusFilter}
+            onStatusChange={(st) => {
+              setStatusFilter(st);
+              setPage(0);
+            }}
+            selectedCategory={categoryFilter}
+            onCategoryChange={(c) => {
+              setCategoryFilter(c);
+              setPage(0);
+            }}
+            categories={categoriesList}
+            sortBy={sortBy}
+            onSortChange={(s) => {
+              setSortBy(s);
+              setPage(0);
+            }}
+            statusCounts={stats.counts}
+            onReset={handleResetFilters}
+          />
 
-      {/* Add/Edit Product */}
-      <ModalComponent open={editModal.open} onClose={() => setEditModal({ open: false, product: null })}
-        title={editModal.product ? 'Edit Product' : 'Add New Product'} maxWidth="lg">
+          {/* Table Container with Horizontal X-Axis Scroller */}
+          <Paper
+            elevation={0}
+            className="ap-page__table-card"
+          >
+            <TableContainer className="ap-page__table-scroll-container">
+              <Table size="medium" sx={{ minWidth: 1120 }}>
+                <TableHead>
+                  <TableRow>
+                    <TableCell className="ap-page__table-head-cell" sx={{ width: 44, py: 1.5 }} />
+                    <TableCell className="ap-page__table-head-cell" sx={{ width: 40 }}>#</TableCell>
+                    <TableCell className="ap-page__table-head-cell" sx={{ minWidth: 320 }}>
+                      Product Details
+                    </TableCell>
+                    <TableCell className="ap-page__table-head-cell" sx={{ minWidth: 130 }}>
+                      Price
+                    </TableCell>
+                    <TableCell className="ap-page__table-head-cell" sx={{ minWidth: 140 }}>
+                      Inventory
+                    </TableCell>
+                    <TableCell className="ap-page__table-head-cell" sx={{ minWidth: 110 }}>
+                      Status
+                    </TableCell>
+                    <TableCell className="ap-page__table-head-cell" sx={{ minWidth: 120 }}>
+                      Variants
+                    </TableCell>
+                    <TableCell className="ap-page__table-head-cell" sx={{ minWidth: 110 }}>
+                      Date Added
+                    </TableCell>
+                    <TableCell className="ap-page__table-head-cell" sx={{ minWidth: 110 }} align="right">
+                      Actions
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+
+                <TableBody>
+                  {pagedProducts.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={9} align="center" sx={{ py: 8 }}>
+                        <Box sx={{ maxWidth: 360, mx: 'auto', textAlign: 'center' }}>
+                          <Typography sx={{ fontSize: '2.5rem', mb: 1 }}>🔍</Typography>
+                          <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#1e293b' }}>
+                            No products found
+                          </Typography>
+                          <Typography variant="body2" sx={{ color: '#64748b', mb: 2 }}>
+                            {search || statusFilter !== 'all' || categoryFilter !== 'all'
+                              ? 'No products match the selected search criteria or filters.'
+                              : 'No products added yet. Click Add New Product to get started.'}
+                          </Typography>
+                          {search || statusFilter !== 'all' || categoryFilter !== 'all' ? (
+                            <Button size="small" variant="outlined" onClick={handleResetFilters}>
+                              Clear All Filters
+                            </Button>
+                          ) : (
+                            <Button
+                              size="small"
+                              variant="contained"
+                              startIcon={<AddIcon />}
+                              onClick={() => setEditModal({ open: true, product: null })}
+                            >
+                              Add New Product
+                            </Button>
+                          )}
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    pagedProducts.map((row, i) => {
+                      const rowId = getDisplayId(row);
+                      const isExpanded = expandedId === rowId;
+                      const cachedVar = variantsCache[rowId];
+                      const rowVariants = cachedVar?.data ?? row.variants ?? [];
+                      const rowVarLoading = Boolean(cachedVar?.loading);
+
+                      return (
+                        <ProductRow
+                          key={row.product_id || row.id || i}
+                          row={row}
+                          index={page * rowsPerPage + i}
+                          expanded={isExpanded}
+                          onExpand={handleExpand}
+                          onView={(r) => setViewModal({ open: true, product: r })}
+                          onEdit={(r) => setEditModal({ open: true, product: r })}
+                          onDelete={(r) => setDeleteDialog({ open: true, product: r, isDeleting: false })}
+                          variants={rowVariants}
+                          variantsLoading={rowVarLoading}
+                          onEditVariant={(v) => setVariantModal({ open: true, variant: v })}
+                          onDeleteVariant={(v) =>
+                            setDeleteVariantDialog({ open: true, variant: v, isDeleting: false })
+                          }
+                        />
+                      );
+                    })
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+
+            {/* Pagination */}
+            <AdminPagination
+              page={page}
+              totalRecords={filteredProducts.length}
+              rowsPerPage={rowsPerPage}
+              onPageChange={setPage}
+              onRowsPerPageChange={(n) => {
+                setRowsPerPage(n);
+                setPage(0);
+              }}
+            />
+          </Paper>
+        </React.Fragment>
+      )}
+
+      {/* ── Modal: Add / Edit Product ───────────────────────────────────────── */}
+      <ModalComponent
+        open={editModal.open}
+        onClose={() => setEditModal({ open: false, product: null })}
+        title={editModal.product ? 'Edit Product' : 'Add New Product'}
+        maxWidth="lg"
+      >
         {editModal.open && (
-          <AddNewProduct editingProduct={editModal.product} onSuccess={handleProductSuccess}
-            onCancel={() => setEditModal({ open: false, product: null })} />
+          <AddNewProduct
+            editingProduct={editModal.product}
+            onSuccess={handleProductSuccess}
+            onCancel={() => setEditModal({ open: false, product: null })}
+          />
         )}
       </ModalComponent>
 
-      {/* View Product — full detail with variants */}
+      {/* ── Modal: Full Product View ────────────────────────────────────────── */}
       <ProductViewModal
         product={viewModal.product}
         open={viewModal.open}
         onClose={() => setViewModal({ open: false, product: null })}
       />
 
-      {/* Edit Variant (edit existing only — adding goes to /admin/add-variant) */}
-      {variantModal.variant && (
-        <ModalComponent open={Boolean(variantModal.variant)}
-          onClose={() => setVariantModal({ open: false, product: null, variant: null })}
-          title="Edit Product Variant" maxWidth="lg">
+      {/* ── Modal: Edit Variant ─────────────────────────────────────────────── */}
+      {variantModal.open && variantModal.variant && (
+        <ModalComponent
+          open={variantModal.open}
+          onClose={() => setVariantModal({ open: false, variant: null })}
+          title="Edit Product Variant"
+          maxWidth="lg"
+        >
           <AddNewVariant
             productId={expandedId}
             editingVariant={variantModal.variant}
             onSuccess={handleVariantSuccess}
-            onCancel={() => setVariantModal({ open: false, product: null, variant: null })} />
+            onCancel={() => setVariantModal({ open: false, variant: null })}
+          />
         </ModalComponent>
       )}
 
-      {/* Delete Product */}
-      <Dialog open={deleteDialog.open} onClose={() => setDeleteDialog({ open: false, product: null })}>
-        <DialogTitle>Delete Product</DialogTitle>
+      {/* ── Dialog: Delete Product Confirmation ─────────────────────────────── */}
+      <Dialog
+        open={deleteDialog.open}
+        onClose={() => !deleteDialog.isDeleting && setDeleteDialog({ open: false, product: null, isDeleting: false })}
+        PaperProps={{ sx: { borderRadius: '14px', p: 1 } }}
+      >
+        <DialogTitle sx={{ fontWeight: 700, color: '#0f172a' }}>Delete Product</DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            Delete &quot;{getDisplayName(deleteDialog.product || {})}&quot;? This cannot be undone.
+          <DialogContentText sx={{ color: '#475569' }}>
+            Are you sure you want to delete &quot;{getDisplayName(deleteDialog.product || {})}&quot;?
+            This will permanently remove the product and its variants. This action cannot be undone.
           </DialogContentText>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDeleteDialog({ open: false, product: null })}>Cancel</Button>
-          <Button variant="contained" color="error" onClick={handleConfirmDelete}>Delete</Button>
+        <DialogActions sx={{ pb: 1.5, px: 2.5 }}>
+          <Button
+            onClick={() => setDeleteDialog({ open: false, product: null, isDeleting: false })}
+            disabled={deleteDialog.isDeleting}
+            sx={{ borderRadius: '6px' }}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={handleConfirmDelete}
+            disabled={deleteDialog.isDeleting}
+            startIcon={deleteDialog.isDeleting ? <CircularProgress size={16} color="inherit" /> : null}
+            sx={{ borderRadius: '6px', fontWeight: 600 }}
+          >
+            {deleteDialog.isDeleting ? 'Deleting…' : 'Delete Product'}
+          </Button>
         </DialogActions>
       </Dialog>
 
-      {/* Delete Variant */}
-      <Dialog open={deleteVariantDialog.open}
-        onClose={() => setDeleteVariantDialog({ open: false, variant: null })}>
-        <DialogTitle>Delete Variant</DialogTitle>
+      {/* ── Dialog: Delete Variant Confirmation ─────────────────────────────── */}
+      <Dialog
+        open={deleteVariantDialog.open}
+        onClose={() =>
+          !deleteVariantDialog.isDeleting &&
+          setDeleteVariantDialog({ open: false, variant: null, isDeleting: false })
+        }
+        PaperProps={{ sx: { borderRadius: '14px', p: 1 } }}
+      >
+        <DialogTitle sx={{ fontWeight: 700, color: '#0f172a' }}>Delete Variant</DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            Delete variant &quot;{deleteVariantDialog.variant?.variant_id || ''}&quot;? This cannot be undone.
+          <DialogContentText sx={{ color: '#475569' }}>
+            Delete variant &quot;{deleteVariantDialog.variant?.variant_id || deleteVariantDialog.variant?.id || ''}&quot;?
+            This cannot be undone.
           </DialogContentText>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDeleteVariantDialog({ open: false, variant: null })}>Cancel</Button>
-          <Button variant="contained" color="error" onClick={handleConfirmDeleteVariant}>Delete</Button>
+        <DialogActions sx={{ pb: 1.5, px: 2.5 }}>
+          <Button
+            onClick={() => setDeleteVariantDialog({ open: false, variant: null, isDeleting: false })}
+            disabled={deleteVariantDialog.isDeleting}
+            sx={{ borderRadius: '6px' }}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={handleConfirmDeleteVariant}
+            disabled={deleteVariantDialog.isDeleting}
+            startIcon={deleteVariantDialog.isDeleting ? <CircularProgress size={16} color="inherit" /> : null}
+            sx={{ borderRadius: '6px', fontWeight: 600 }}
+          >
+            {deleteVariantDialog.isDeleting ? 'Deleting…' : 'Delete Variant'}
+          </Button>
         </DialogActions>
       </Dialog>
 
-      {/* Snackbar */}
-      <Snackbar open={snackbar.open} autoHideDuration={4000}
+      {/* ── Feedback Snackbar ───────────────────────────────────────────────── */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
         onClose={() => setSnackbar((s) => ({ ...s, open: false }))}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
-        <Alert severity={snackbar.severity} onClose={() => setSnackbar((s) => ({ ...s, open: false }))}>
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert
+          severity={snackbar.severity}
+          onClose={() => setSnackbar((s) => ({ ...s, open: false }))}
+          sx={{ borderRadius: '10px', boxShadow: '0 4px 16px rgba(15, 23, 42, 0.12)' }}
+        >
           {snackbar.message}
         </Alert>
       </Snackbar>

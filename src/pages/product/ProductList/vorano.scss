@@ -127,6 +127,9 @@ body { background: $v-white; font-family: $v-font-sans; }
 //  PRODUCT CARD — VORANO style
 // ─────────────────────────────────────────────────────────────
 .pcard {
+  height: 520px !important;
+  display: flex !important;
+  flex-direction: column !important;
   border: 1px solid $v-border !important;
   border-radius: 0 !important;
   background: $v-white !important;
@@ -134,6 +137,15 @@ body { background: $v-white; font-family: $v-font-sans; }
   visibility: visible !important;
   transform: translateY(0) scale(1) !important;
   transition: transform 0.28s ease, box-shadow 0.28s ease !important;
+  box-sizing: border-box !important;
+
+  @media (max-width: 900px) {
+    height: 500px !important;
+  }
+
+  @media (max-width: 600px) {
+    height: 485px !important;
+  }
 
   .stagger-text {
     opacity: 1 !important;
@@ -147,10 +159,18 @@ body { background: $v-white; font-family: $v-font-sans; }
 
   // Image area
   &__img-wrap {
-    height: 315px !important;
+    height: 250px !important;
     aspect-ratio: unset !important;
     border-radius: 0 !important;
     background: #f6f5f3 !important;
+    flex-shrink: 0 !important;
+
+    @media (max-width: 900px) {
+      height: 225px !important;
+    }
+    @media (max-width: 600px) {
+      height: 190px !important;
+    }
   }
 
   &__img { transition: transform 0.4s ease !important; }
@@ -185,7 +205,19 @@ body { background: $v-white; font-family: $v-font-sans; }
   }
 
   // Body
-  &__body { padding: 15px !important; gap: 6px !important; }
+  &__body {
+    padding: 14px 15px !important;
+    gap: 6px !important;
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+
+    @media (max-width: 600px) {
+      padding: 10px 10px 12px !important;
+      gap: 4px !important;
+    }
+  }
 
   &__brand {
     font-family: $v-font-sans !important;
@@ -193,24 +225,53 @@ body { background: $v-white; font-family: $v-font-sans; }
     letter-spacing: 1.2px !important;
     color: #aaa !important;
     text-transform: uppercase !important;
+    height: 14px !important;
+    line-height: 14px !important;
+    margin: 0 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    display: block !important;
   }
 
   &__name {
     font-family: $v-font-sans !important;
-    font-size: 14px !important;
+    font-size: 13.5px !important;
     font-weight: 600 !important;
     color: $v-black !important;
-    line-height: 1.35 !important;
+    line-height: 18px !important;
+    height: 36px !important;
+    margin: 0 !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+
+    @media (max-width: 600px) {
+      font-size: 12px !important;
+      line-height: 17px !important;
+      height: 34px !important;
+    }
   }
 
   // Rating — VORANO shows gold stars
+  &__rating {
+    height: 18px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    margin: 0 !important;
+  }
+
   &__rating-pill {
     background: none !important;
     color: #df9f29 !important;
     padding: 0 !important;
-    font-size: 13px !important;
-    font-weight: 400 !important;
+    font-size: 12.5px !important;
+    font-weight: 600 !important;
     border-radius: 0 !important;
+    line-height: 1 !important;
   }
 
   &__rating-count {
@@ -219,16 +280,27 @@ body { background: $v-white; font-family: $v-font-sans; }
   }
 
   // Price
+  &__price-row {
+    height: 24px !important;
+    display: flex !important;
+    align-items: baseline !important;
+    gap: 6px !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+  }
+
   &__price {
     font-family: $v-font-sans !important;
-    font-size: 20px !important;
+    font-size: 19px !important;
     font-weight: 700 !important;
     color: $v-black !important;
+    line-height: 1 !important;
   }
 
   &__mrp {
     font-size: 12px !important;
     color: #999 !important;
+    text-decoration: line-through !important;
   }
 
   &__off {
@@ -237,15 +309,72 @@ body { background: $v-white; font-family: $v-font-sans; }
     font-weight: 700 !important;
   }
 
+  // Feature tags
+  &__features {
+    height: 42px !important;
+    display: flex !important;
+    gap: 6px !important;
+    flex-wrap: wrap !important;
+    align-items: flex-start !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+
+    @media (max-width: 600px) {
+      height: 38px !important;
+      gap: 4px !important;
+    }
+  }
+
+  &__feature {
+    display: flex !important;
+    align-items: flex-start !important;
+    gap: 3px !important;
+    font-size: 9.5px !important;
+    color: #4b5563 !important;
+    line-height: 1.1 !important;
+  }
+
+  // Available Colors
+  &__avail {
+    height: 20px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    margin: 0 !important;
+  }
+
   // CTA buttons
+  &__ctas {
+    margin-top: auto !important;
+    display: flex !important;
+    gap: 8px !important;
+    padding-top: 6px !important;
+
+    @media (max-width: 768px) {
+      flex-direction: column !important;
+      gap: 5px !important;
+      padding-top: 4px !important;
+    }
+  }
+
   &__btn {
     border-radius: 0 !important;
     font-family: $v-font-sans !important;
     font-size: 11.5px !important;
     font-weight: 700 !important;
     letter-spacing: 0.4px !important;
-    padding: 12px 8px !important;
+    padding: 10px 8px !important;
     transition: background 0.25s !important;
+    height: 38px !important;
+
+    @media (max-width: 768px) {
+      width: 100% !important;
+      flex: none !important;
+      padding: 7px 6px !important;
+      font-size: 10.5px !important;
+      letter-spacing: 0.3px !important;
+      height: 33px !important;
+    }
 
     &--cart {
       background: $v-white !important;

@@ -69,13 +69,23 @@ export default function ProductCard({ product, index = 0, onRemoveWishlist }) {
   const enrichedName = nameParts.length > 0 ? `${baseName} – ${nameParts.join(', ')}` : baseName;
   const name = enrichedName;
 
-  // Feature tags — capacity / material / style from product data
+  // Feature tags — capacity / material / style from product data with standardized slots
+  const cap = product.bagCapacity || product.capacity || product.volume || '18L';
+  const mat = product.material || product.fabric || 'Polyester';
+  const des = product.backpackStyle || product.usage || product.gender || 'Unisex';
+
   const featureTags = [
-    product.bagCapacity   ? { Icon: CapacityIcon, label: product.bagCapacity,     sub: 'Capacity'  } : null,
-    product.material      ? { Icon: MaterialIcon, label: product.material,        sub: 'Material'  } : null,
-    product.backpackStyle || product.gender
-      ? { Icon: DesignIcon,   label: product.backpackStyle || product.gender, sub: 'Design'    } : null,
-  ].filter(Boolean).slice(0, 3);
+    { Icon: CapacityIcon, label: cap, sub: 'Capacity' },
+    { Icon: MaterialIcon, label: mat, sub: 'Material' },
+    { Icon: DesignIcon,   label: des, sub: 'Usage' },
+  ];
+
+  // Available colors with fallback to default swatches
+  const colorList = (product.colors && product.colors.length > 0)
+    ? product.colors
+    : (product.color || product.colorHex)
+      ? [{ hex: product.colorHex || product.color, name: product.colorName || 'Default' }]
+      : [{ hex: '#132A4C', name: 'Navy' }, { hex: '#1B1B1B', name: 'Black' }];
 
   const handleAddToCart = (e) => {
     e.stopPropagation();
@@ -181,11 +191,9 @@ export default function ProductCard({ product, index = 0, onRemoveWishlist }) {
       {/* ── Body ──────────────────────────────────────────────── */}
       <div className="pcard__body">
         {/* Brand */}
-        {(product.brand || product.brandName) && (
-          <p className="pcard__brand stagger-text">
-            {(product.brand || product.brandName).toUpperCase()}
-          </p>
-        )}
+        <p className="pcard__brand stagger-text">
+          {(product.brand || product.brandName || product.category || 'VORANO').toUpperCase()}
+        </p>
 
         {/* Product name */}
         <h3 className="pcard__name stagger-text">{name}</h3>
@@ -206,44 +214,46 @@ export default function ProductCard({ product, index = 0, onRemoveWishlist }) {
         {/* Price row */}
         <div className="pcard__price-row stagger-text">
           <span className="pcard__price">₹{price.toLocaleString('en-IN')}</span>
-          {hasDiscount && (
+          {hasDiscount ? (
             <>
               <span className="pcard__mrp">₹{Number(originalPrice).toLocaleString('en-IN')}</span>
               <span className="pcard__off">{discountPct}% off</span>
             </>
+          ) : (
+            <span className="pcard__mrp" style={{ visibility: 'hidden' }}>₹{price.toLocaleString('en-IN')}</span>
           )}
         </div>
 
-        {/* Feature tags */}
-        {featureTags.length > 0 && (
-          <div className="pcard__features">
-            {featureTags.map(({ Icon, label, sub }, i) => (
-              <span key={i} className="pcard__feature">
-                <span className="pcard__feature-ico"><Icon /></span>
-                <span className="pcard__feature-text">
-                  <strong>{label}</strong>
-                  <em>{sub}</em>
-                </span>
+        {/* Feature tags (Consistent 3-Slot Grid) */}
+        <div className="pcard__features">
+          {featureTags.map(({ Icon, label, sub }, i) => (
+            <span key={i} className="pcard__feature">
+              <span className="pcard__feature-ico"><Icon /></span>
+              <span className="pcard__feature-text">
+                <strong>{label}</strong>
+                <em>{sub}</em>
               </span>
-            ))}
-          </div>
-        )}
+            </span>
+          ))}
+        </div>
 
-        {/* Available Colors */}
-        {product.colors?.length > 0 && (
-          <div className="pcard__avail">
-            <span className="pcard__avail-label">Available Colors</span>
-            <div className="pcard__avail-row">
-              {product.colors.slice(0, 3).map((c, i) => (
-                <span key={i} className="pcard__avail-dot"
-                  style={{ background: c.hex || c }} title={c.name || ''} />
-              ))}
-              {product.colors.length > 3 && (
-                <span className="pcard__avail-more">+{product.colors.length - 3} more</span>
-              )}
-            </div>
+        {/* Available Colors (Consistent Slot) */}
+        <div className="pcard__avail">
+          <span className="pcard__avail-label">Available Colors</span>
+          <div className="pcard__avail-row">
+            {colorList.slice(0, 3).map((c, i) => (
+              <span
+                key={i}
+                className="pcard__avail-dot"
+                style={{ background: c.hex || c }}
+                title={c.name || ''}
+              />
+            ))}
+            {colorList.length > 3 && (
+              <span className="pcard__avail-more">+{colorList.length - 3} more</span>
+            )}
           </div>
-        )}
+        </div>
 
         {/* CTA row */}
         <div className="pcard__ctas">

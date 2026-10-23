@@ -33,8 +33,19 @@ async function fetchAllProducts() {
   while (true) {
     const res  = await fetch(`${URL_PRODUCTS_FETCH}?page=${page}&per_page=50`, { method: 'GET' });
     const text = await res.text();
+    const cleanText = text ? text.trim() : '';
+
+    if (cleanText.includes('SQLSTATE') || cleanText.startsWith('Error:')) {
+      throw new Error('Database connection temporarily unavailable. Please retry.');
+    }
+
     let data   = {};
-    try { data = text ? JSON.parse(text) : {}; } catch { /* ignore */ }
+    try {
+      data = cleanText ? JSON.parse(cleanText) : {};
+    } catch {
+      throw new Error('Invalid response received from products catalog.');
+    }
+
     if (!res.ok) throw new Error(data.message || `HTTP ${res.status}`);
 
     // API shape: { status:true, products:[...], totalPages, page }
@@ -64,17 +75,20 @@ export function useAllVariants() {
       const prods = await fetchAllProducts();
       setProducts(prods);
 
-      // Flatten all variants, enriching each with product name
+      // Flatten all variants, enriching each with product name and product id
       const flat = [];
       prods.forEach((p) => {
         if (!Array.isArray(p.variants)) return;
+        const pId = p.product_id || p.id || '';
+        const pName = p.product_name || p.name || '';
         p.variants.forEach((v) => {
           // Resolve main image
           const imgs    = Array.isArray(v.images) ? v.images : [];
           const mainImg = imgs.find((i) => i.is_main) || imgs[0];
           flat.push({
             ...v,
-            _product_name: p.product_name || p.name || '',
+            product_id:    v.product_id || pId,
+            _product_name: pName,
             _thumb:        resolveImg(mainImg?.image_url || ''),
           });
         });
