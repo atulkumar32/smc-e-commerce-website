@@ -8,6 +8,7 @@ import CartDrawer from './components/CartDrawer';
 import ScrollToTop from './components/ScrollToTop';
 import BackToTop from './components/BackToTop';
 import ScrollProgress from './components/ScrollProgress';
+import { NetworkStatusBar, PWAInstallPrompt, IOSInstallGuide, PWAUpdateToast } from './pwa';
 import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
@@ -19,6 +20,10 @@ function App() {
             <ScrollToTop />
             <ScrollProgress />
             <BackToTop />
+            <NetworkStatusBar />
+            <PWAInstallPrompt />
+            <IOSInstallGuide />
+            <PWAUpdateToast />
             <AppRoutes />
             <CartDrawer />
             <ToastContainer

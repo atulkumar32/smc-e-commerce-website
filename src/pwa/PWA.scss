@@ -1,0 +1,664 @@
+:root {
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+// =============================================================================
+// AURELIA ATELIER — ADVANCED PWA LUXURY INTERFACE STYLES
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+// 1. UNIFIED RESPONSIVE PWA INSTALL WIDGET (MOBILE VIEW + DESKTOP VIEW)
+// -----------------------------------------------------------------------------
+.pwa-install-widget,
+.pwa-install-container {
+  position: fixed;
+  z-index: 9999;
+  // Mobile-first default (< 768px): Sits 8px above the 56px bottom nav bar, in the bottom-right corner!
+  bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+  right: 12px;
+  max-width: calc(100vw - 24px);
+  width: 380px;
+  animation: slideUpFade 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+
+  // Desktop view (≥ 768px): Floating luxury card in the bottom-right corner
+  @media (min-width: 768px) {
+    bottom: 24px;
+    right: 24px;
+    max-width: 400px;
+    width: 390px;
+  }
+
+  // Very narrow mobile screens (<= 360px)
+  @media (max-width: 360px) {
+    left: 8px;
+    right: 8px;
+    width: auto;
+    max-width: calc(100vw - 16px);
+  }
+
+  // ── Floating Minimized Pill ──────────────────────────────────
+  .pwa-floating-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(18, 19, 22, 0.96);
+    border: 1px solid rgba(212, 175, 55, 0.45);
+    border-radius: 999px;
+    padding: 5px 8px 5px 12px;
+    box-shadow: 
+      0 12px 28px rgba(0, 0, 0, 0.6),
+      0 0 16px rgba(212, 175, 55, 0.15);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    float: right;
+
+    &:hover, &:active {
+      transform: translateY(-2px);
+      border-color: rgba(212, 175, 55, 0.8);
+      box-shadow: 
+        0 14px 32px rgba(0, 0, 0, 0.7),
+        0 0 20px rgba(212, 175, 55, 0.25);
+    }
+
+    .pill-lead {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+
+      .pill-star {
+        color: #d4af37;
+        font-size: 0.95rem;
+      }
+
+      .pill-title {
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: #ffffff;
+        letter-spacing: 0.02em;
+        white-space: nowrap;
+      }
+    }
+
+    .pill-btn-install {
+      background: linear-gradient(135deg, #f5e1a4 0%, #d4af37 50%, #aa7c11 100%);
+      color: #121316;
+      border: none;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: transform 0.18s ease;
+
+      &:hover, &:active {
+        transform: scale(1.05);
+      }
+    }
+
+    .pill-btn-close {
+      background: rgba(255, 255, 255, 0.08);
+      border: none;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #9ca3af;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &:hover, &:active {
+        background: rgba(255, 255, 255, 0.2);
+        color: #ffffff;
+      }
+    }
+  }
+
+  // ── Expanded Luxury Install Card ─────────────────────────────
+  .pwa-install-card {
+    background: rgba(18, 19, 22, 0.96);
+    border: 1px solid rgba(212, 175, 55, 0.35);
+    border-radius: 16px;
+    padding: 14px 16px 12px;
+    box-shadow: 
+      0 20px 44px -10px rgba(0, 0, 0, 0.7),
+      0 0 24px rgba(212, 175, 55, 0.12);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2.5px;
+      background: linear-gradient(90deg, #f5e1a4 0%, #d4af37 50%, #aa7c11 100%);
+    }
+
+    // Top Header Row
+    .card-top-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+
+      .app-icon-preview {
+        width: 44px;
+        height: 44px;
+        border-radius: 11px;
+        background: #17181c;
+        border: 1px solid rgba(212, 175, 55, 0.45);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+
+        img {
+          width: 32px;
+          height: 32px;
+          object-fit: contain;
+        }
+
+        .fallback-star {
+          color: #d4af37;
+          font-size: 20px;
+        }
+      }
+
+      .app-info {
+        flex: 1;
+        min-width: 0;
+
+        .app-eyebrow {
+          font-size: 0.64rem;
+          letter-spacing: 0.22em;
+          color: #d4af37;
+          text-transform: uppercase;
+          font-weight: 700;
+          display: block;
+          line-height: 1.2;
+        }
+
+        .app-title {
+          font-family: var(--font-display);
+          font-size: 0.98rem;
+          color: #ffffff;
+          font-weight: 600;
+          letter-spacing: 0.02em;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          margin-top: 1px;
+        }
+
+        .app-desc {
+          font-size: 0.73rem;
+          color: #9ca3af;
+          line-height: 1.35;
+          margin-top: 2px;
+        }
+      }
+
+      .btn-close-prompt {
+        background: rgba(255, 255, 255, 0.08);
+        border: none;
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #9ca3af;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        flex-shrink: 0;
+
+        &:hover, &:active {
+          background: rgba(255, 255, 255, 0.2);
+          color: #ffffff;
+        }
+      }
+    }
+
+    // Perks Badges Strip
+    .card-perks {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+
+      .perk-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 6px;
+        padding: 3px 7px;
+        font-size: 0.65rem;
+        color: #d1d5db;
+        font-weight: 500;
+
+        .perk-icon {
+          color: #d4af37;
+        }
+      }
+    }
+
+    // Browser Address Bar Notice
+    .card-browser-guide {
+      background: rgba(212, 175, 55, 0.12);
+      border: 1px solid rgba(212, 175, 55, 0.38);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 0.74rem;
+      color: #fef08a;
+      line-height: 1.35;
+
+      strong {
+        color: #ffffff;
+        text-decoration: underline;
+      }
+    }
+
+    // Action Buttons Row
+    .card-actions-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      .btn-install-cta {
+        flex: 1;
+        background: linear-gradient(135deg, #f5e1a4 0%, #d4af37 50%, #aa7c11 100%);
+        color: #121316;
+        border: none;
+        padding: 9px 14px;
+        border-radius: 9px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+        transition: all 0.2s ease;
+
+        &:hover, &:active {
+          opacity: 0.95;
+          transform: translateY(-1px);
+        }
+      }
+
+      .btn-later {
+        background: transparent;
+        color: #9ca3af;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        padding: 9px 12px;
+        border-radius: 9px;
+        font-size: 0.76rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &:hover, &:active {
+          color: #ffffff;
+          border-color: rgba(255, 255, 255, 0.3);
+        }
+      }
+    }
+
+    // 10-Second Countdown Info & Progress Track
+    .card-timer-row {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-top: 1px;
+
+      .timer-text {
+        font-size: 0.65rem;
+        color: #6b7280;
+        font-weight: 500;
+        letter-spacing: 0.02em;
+      }
+    }
+
+    .card-progress-track {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+
+      .card-progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #f5e1a4 0%, #d4af37 50%, #aa7c11 100%);
+        box-shadow: 0 0 6px rgba(212, 175, 55, 0.6);
+        transition: width 1s linear;
+      }
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// 2. NETWORK STATUS BAR (ONLINE / OFFLINE REAL-TIME TOAST)
+// -----------------------------------------------------------------------------
+.pwa-network-bar {
+  position: fixed;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100000;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 18px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(12px);
+  animation: slideDownFade 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+
+  &.offline {
+    background: rgba(18, 19, 22, 0.94);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.35);
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #f59e0b;
+      animation: pulseBlink 1.4s infinite;
+    }
+  }
+
+  &.online {
+    background: rgba(18, 19, 22, 0.94);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.35);
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// 3. SERVICE WORKER UPDATE NOTIFICATION
+// -----------------------------------------------------------------------------
+.pwa-update-bar {
+  position: fixed;
+  bottom: 84px;
+  left: 20px;
+  z-index: 9999;
+  background: rgba(18, 19, 22, 0.96);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  border-radius: 14px;
+  padding: 12px 18px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  animation: slideUpFade 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+
+  @media (min-width: 768px) {
+    bottom: 28px;
+    left: 28px;
+  }
+
+  .update-text {
+    font-size: 0.82rem;
+    color: #ffffff;
+    font-weight: 500;
+
+    strong {
+      color: #d4af37;
+    }
+  }
+
+  .btn-reload-update {
+    background: #d4af37;
+    color: #121316;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 7px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+
+    &:hover {
+      opacity: 0.9;
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// 4. IOS ADD TO HOME SCREEN MODAL GUIDE
+// -----------------------------------------------------------------------------
+.ios-guide-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: fadeIn 0.25s ease;
+
+  @media (min-width: 640px) {
+    align-items: center;
+    padding: 20px;
+  }
+
+  .ios-guide-sheet {
+    width: 100%;
+    max-width: 480px;
+    background: #121316;
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    border-radius: 24px 24px 0 0;
+    padding: 28px 24px 34px;
+    color: #ffffff;
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5);
+    animation: slideUpSheet 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+
+    @media (min-width: 640px) {
+      border-radius: 24px;
+    }
+
+    .sheet-handle {
+      width: 42px;
+      height: 4px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.2);
+      margin: 0 auto 20px;
+
+      @media (min-width: 640px) {
+        display: none;
+      }
+    }
+
+    .guide-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 22px;
+
+      .brand-badge {
+        font-size: 0.72rem;
+        letter-spacing: 0.25em;
+        color: #d4af37;
+        text-transform: uppercase;
+        font-weight: 600;
+        display: block;
+        margin-bottom: 4px;
+      }
+
+      h3 {
+        font-family: var(--font-display);
+        font-size: 1.35rem;
+        color: #ffffff;
+        font-weight: 600;
+      }
+
+      .btn-close-sheet {
+        background: rgba(255, 255, 255, 0.08);
+        border: none;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #9ca3af;
+        cursor: pointer;
+
+        &:hover {
+          color: #ffffff;
+        }
+      }
+    }
+
+    .guide-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 26px;
+
+      .step-row {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        background: rgba(255, 255, 255, 0.04);
+        padding: 12px 16px;
+        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+
+        .step-num {
+          width: 28px;
+          height: 28px;
+          border-radius: 50%;
+          background: rgba(212, 175, 55, 0.15);
+          color: #d4af37;
+          font-size: 0.8rem;
+          font-weight: 700;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+
+        .step-content {
+          font-size: 0.88rem;
+          color: #d1d5db;
+          line-height: 1.4;
+
+          strong {
+            color: #ffffff;
+          }
+
+          .inline-icon {
+            display: inline-flex;
+            vertical-align: middle;
+            margin: 0 3px;
+            color: #3b82f6;
+          }
+        }
+      }
+    }
+
+    .btn-done-guide {
+      width: 100%;
+      background: linear-gradient(135deg, #f5e1a4 0%, #d4af37 50%, #aa7c11 100%);
+      color: #121316;
+      border: none;
+      padding: 13px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// KEYFRAMES
+// -----------------------------------------------------------------------------
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDownFade {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -18px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@keyframes slideUpSheet {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUpMobileSheet {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes pulseBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}

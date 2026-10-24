@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SHREE MAHAVEER COLLECTIONS — Offline Mode</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta name="theme-color" content="#121316" />
+  <style>
+    :root {
+      --primary: #121316;
+      --gold: #d4af37;
+      --gold-light: #f5e1a4;
+      --surface: #1a1c22;
+      --text: #f9fafb;
+      --text-muted: #9ca3af;
+      --border: rgba(212, 175, 55, 0.25);
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background-color: var(--primary);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+      position: relative;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 30%, rgba(212, 175, 55, 0.08) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .card {
+      position: relative;
+      z-index: 2;
+      max-width: 480px;
+      width: 100%;
+      background: rgba(26, 28, 34, 0.9);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 44px 32px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 30px rgba(212, 175, 55, 0.05);
+      backdrop-filter: blur(12px);
+    }
+    .icon-badge {
+      width: 72px;
+      height: 72px;
+      margin: 0 auto 24px;
+      border-radius: 50%;
+      background: rgba(212, 175, 55, 0.12);
+      border: 1px solid rgba(212, 175, 55, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gold);
+      font-size: 32px;
+      animation: pulse 2.5s infinite ease-in-out;
+    }
+    .brand-eyebrow {
+      font-size: 0.72rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+    h1 {
+      font-size: 1.6rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      margin-bottom: 12px;
+      color: #ffffff;
+      line-height: 1.3;
+    }
+    p {
+      color: var(--text-muted);
+      font-size: 0.92rem;
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 24px;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      text-decoration: none;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #f5e1a4 0%, #d4af37 50%, #aa7c11 100%);
+      color: #121316;
+      border: none;
+    }
+    .btn-primary:hover {
+      opacity: 0.92;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(212, 175, 55, 0.3);
+    }
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.75rem;
+      color: #f59e0b;
+      background: rgba(245, 158, 11, 0.1);
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(245, 158, 11, 0.2);
+    }
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #f59e0b;
+      animation: blink 1.5s infinite;
+    }
+    .security-note {
+      margin-top: 24px;
+      font-size: 0.72rem;
+      color: rgba(255, 255, 255, 0.4);
+      line-height: 1.45;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.06); opacity: 0.85; }
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon-badge">✦</div>
+    <div class="brand-eyebrow">SHREE MAHAVEER COLLECTIONS</div>
+    <h1>Browsing Offline</h1>
+    <p>
+      Your internet connection is currently unavailable. You can continue reviewing cached collections and your saved items.
+    </p>
+
+    <div class="actions">
+      <button onclick="checkConnection()" class="btn btn-primary" id="retry-btn">
+        <span>Check Connection</span>
+      </button>
+      <a href="/" class="btn btn-secondary">
+        Return to Home
+      </a>
+      <a href="/cart" class="btn btn-secondary">
+        View Shopping Bag
+      </a>
+    </div>
+
+    <div class="status-pill" id="status-pill">
+      <span class="dot"></span>
+      <span id="status-text">Network Disconnected</span>
+    </div>
+
+    <div class="security-note">
+      Security Notice: Encrypted payments and order submissions strictly require an active network connection.
+    </div>
+  </div>
+
+  <script>
+    function checkConnection() {
+      const btn = document.getElementById('retry-btn');
+      btn.innerText = 'Testing link...';
+      if (navigator.onLine) {
+        window.location.reload();
+      } else {
+        fetch('/', { method: 'HEAD', cache: 'no-store' })
+          .then(() => {
+            window.location.reload();
+          })
+          .catch(() => {
+            btn.innerText = 'Still Offline — Tap to Retry';
+            setTimeout(() => {
+              btn.innerText = 'Check Connection';
+            }, 2500);
+          });
+      }
+    }
+
+    // Auto reconnect listener
+    window.addEventListener('online', function() {
+      const statusPill = document.getElementById('status-pill');
+      const statusText = document.getElementById('status-text');
+      statusText.innerText = 'Connection restored — Reconnecting...';
+      statusPill.style.color = '#10b981';
+      statusPill.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+      setTimeout(function() {
+        window.location.reload();
+      }, 900);
+    });
+  </script>
+</body>
+</html>

@@ -4,6 +4,7 @@ import { useCart } from '../../context/CartContext';
 import { useCartDrawer } from '../../context/CartDrawerContext';
 import { isUserAuthenticated, getUserProfile } from '../../services/apiClients';
 import { BRAND_SOCIAL_LINKS } from '../../Config/brandConfig';
+import { usePWA } from '../../pwa';
 import './style.scss';
 
 // ── Static nav links ──────────────────────────────────────────
@@ -37,6 +38,14 @@ const CartIcon = () => (
     <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
     <line x1="3" y1="6" x2="21" y2="6"/>
     <path d="M16 10a4 4 0 01-8 0"/>
+  </svg>
+);
+
+const HeaderDownloadIcon = () => (
+  <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+    <polyline points="7 10 12 15 17 10" />
+    <line x1="12" y1="15" x2="12" y2="3" />
   </svg>
 );
 
@@ -88,6 +97,7 @@ export default function Header() {
   const location  = useLocation();
   const { totalItems, wishlistCount } = useCart();
   const { openDrawer } = useCartDrawer();
+  const { isInstallable, isInstalled, promptInstall } = usePWA();
 
   const [query,          setQuery]          = useState('');
   const [mobileOpen,     setMobileOpen]     = useState(false);
@@ -302,6 +312,21 @@ export default function Header() {
               <span className="lbl">{isAuthenticated ? userDisplayName : 'Login'}</span>
             </NavLink>
 
+            {isInstallable && !isInstalled && (
+              <button
+                type="button"
+                className="v-hdr-act v-hdr-act--install"
+                onClick={promptInstall}
+                aria-label="Install Shree Mahaveer App"
+                title="Install Shree Mahaveer App"
+              >
+                <div className="v-hdr-act__icon-wrap">
+                  <HeaderDownloadIcon />
+                </div>
+                <span className="lbl">Install</span>
+              </button>
+            )}
+
             <NavLink to="/wishlist" className="v-hdr-act" aria-label="Wishlist">
               <div className="v-hdr-act__icon-wrap">
                 <HeartIcon />
@@ -460,6 +485,20 @@ export default function Header() {
           <CartIcon />
           <span>Cart {totalItems > 0 ? `(${totalItems})` : ''}</span>
         </NavLink>
+        {isInstallable && !isInstalled && (
+          <button
+            type="button"
+            className="v-drawer__link"
+            style={{ width: '100%', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer', color: '#d4af37', fontWeight: 600 }}
+            onClick={() => {
+              setMobileOpen(false);
+              promptInstall();
+            }}
+          >
+            <HeaderDownloadIcon />
+            <span>Install SMC App</span>
+          </button>
+        )}
       </nav>
     </>
   );

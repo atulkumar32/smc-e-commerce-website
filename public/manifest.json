@@ -1,0 +1,102 @@
+{
+  "name": "Shree Mahaveer Collections — Luxury Handcrafted Bags",
+  "short_name": "SMC Collections",
+  "description": "Bags for a Brighter Tomorrow - Premium handcrafted luxury bags, school backpacks, executive travel gear, and accessories.",
+  "start_url": "/",
+  "id": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": [
+    "window-controls-overlay",
+    "standalone",
+    "minimal-ui"
+  ],
+  "orientation": "portrait-primary",
+  "background_color": "#121316",
+  "theme_color": "#121316",
+  "lang": "en",
+  "categories": [
+    "shopping",
+    "lifestyle",
+    "education"
+  ],
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "/pwa-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/maskable-icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/desktop-1280x800.jpg",
+      "sizes": "1280x800",
+      "type": "image/jpeg",
+      "form_factor": "wide",
+      "label": "Shree Mahaveer Collections — Luxury Desktop Experience"
+    },
+    {
+      "src": "/screenshots/mobile-750x1334.jpg",
+      "sizes": "750x1334",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "Shree Mahaveer Collections — Mobile Experience"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "New Arrivals",
+      "short_name": "New Arrivals",
+      "description": "Explore latest luxury bags and school collections",
+      "url": "/products/new-arrivals",
+      "icons": [{ "src": "/pwa-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "School Bags",
+      "short_name": "School Bags",
+      "description": "Ergonomic & durable school backpacks",
+      "url": "/products?category_name=School+Bags",
+      "icons": [{ "src": "/pwa-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Executive Backpacks",
+      "short_name": "Backpacks",
+      "description": "Premium laptop & travel gear",
+      "url": "/products?category_name=Backpacks",
+      "icons": [{ "src": "/pwa-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Shopping Bag",
+      "short_name": "Cart",
+      "description": "View items in your bag",
+      "url": "/cart",
+      "icons": [{ "src": "/pwa-192x192.png", "sizes": "192x192" }]
+    }
+  ]
+}
